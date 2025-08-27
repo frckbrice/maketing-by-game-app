@@ -39,7 +39,13 @@
     "english": "English",
     "french": "French",
     "rendering": "Rendering",
-    "welcome": "Welcome"
+    "welcome": "Welcome",
+    "games": "Games",
+    "howItWorks": "How It Works",
+    "winners": "Winners",
+    "appName": "BlackFriday",
+    "switchToLightTheme": "Switch to light theme",
+    "switchToDarkTheme": "Switch to dark theme"
   },
   "navigation": {
     "home": "Home",
@@ -95,55 +101,88 @@
   },
   "home": {
     "hero": {
-      "title": "WIN BIG WITH",
-      "titleHighlight": "LOTTERY",
-      "subtitle": "Join millions of players worldwide in the most exciting lottery experience",
-      "subtitleHighlight": "Your dreams are just one ticket away!",
-      "cta": "Play Now",
-      "secondaryCta": "Learn More",
-      "trust": {
-        "secure": "100% Secure",
-        "licensed": "Fully Licensed",
-        "instant": "Instant Results"
+      "title": "Win Your Dream Products",
+      "subtitle": "Join thousands of winners who have transformed their lives with life-changing jackpots",
+      "cta": "Start Playing Now",
+      "stats": {
+        "players": "Active Players",
+        "winners": "Total Winners",
+        "prizes": "Prizes Won",
+        "winRate": "Win Rate",
+        "productsWon": "Products Won",
+        "prizeValue": "Prize Value",
+        "deliveryRate": "Delivery Rate"
       }
-    },
-    "stats": {
-      "activeGames": "Active Games",
-      "participants": "Participants",
-      "uptime": "Uptime"
     },
     "howItWorks": {
       "title": "How It Works",
-      "subtitle": "Simple steps to start winning big prizes",
-      "step1": {
-        "title": "Choose Your Game",
-        "description": "Select from our wide variety of lottery games with different prize pools and odds"
+      "subtitle": "Follow these simple steps to start your journey towards winning life-changing prizes",
+      "description": {
+        "dark": "Experience the thrill of winning with our simple 4-step process designed for maximum excitement and rewards.",
+        "light": "Follow these simple steps to start your journey towards winning life-changing prizes with our secure lottery platform."
       },
-      "step2": {
-        "title": "Buy Your Ticket",
-        "description": "Purchase tickets securely with multiple payment options and instant confirmation"
+      "steps": {
+        "step1": {
+          "title": "Choose Products",
+          "description": "Browse our amazing collection of tech, fashion, sneakers, and home appliances from top brands"
+        },
+        "step2": {
+          "title": "Play to Win",
+          "description": "Enter contests for your favorite products - iPhone 15 Pro Max, Nike Air Jordan, MacBook Pro and more"
+        },
+        "step3": {
+          "title": "Await Results",
+          "description": "Watch live drawings and see if you win your dream products from our premium catalog"
+        },
+        "step4": {
+          "title": "Get Delivered",
+          "description": "Winners receive authentic products delivered straight to their door - no cash substitutes"
+        }
       },
-      "step3": {
-        "title": "Wait for Results",
-        "description": "Watch live draws and get notified instantly when results are announced"
-      },
-      "step4": {
-        "title": "Claim Your Prize",
-        "description": "Collect your winnings quickly and securely through our verified payment system"
+      "products": {
+        "title": "Win Your Dream Products",
+        "subtitle": "Choose from our incredible product catalog featuring the latest tech, premium fashion, and top home appliances.",
+        "cta": "Enter Contest",
+        "bottomCta": "Ready to change your life? Join thousands of winners today!",
+        "startPlaying": "Start Playing All Games"
       }
     },
     "winners": {
       "title": "Recent Winners",
-      "subtitle": "See who's been lucky lately and get inspired to join the winning streak"
-    },
-    "cta": {
-      "title": "Ready to Win?",
-      "subtitle": "Join thousands of players who have already won life-changing prizes",
-      "button": "Start Playing Today"
+      "subtitle": "Celebrate with our latest jackpot winners from around the world who have changed their lives forever",
+      "jackpotTitle": "JACKPOT WINNERS",
+      "latestWinners": "Latest Winners",
+      "description": "Join our community of winners who have received incredible products from top brands like Apple, Nike, Samsung, and more.",
+      "viewAllWinners": "View All Winners",
+      "verifiedWinner": "VERIFIED WINNER",
+      "wonIn": "Won in"
     },
     "footer": {
-      "copyright": "All rights reserved.",
-      "rights": "Privacy Policy | Terms of Service"
+      "description": "Transform your dreams into reality with our innovative lottery platform. Join thousands of winners who have changed their lives forever.",
+      "quickLinks": "Quick Links",
+      "support": "Support",
+      "legal": "Legal",
+      "social": "Follow Us",
+      "newsletter": "Stay Updated",
+      "newsletterPlaceholder": "Enter your email",
+      "newsletterButton": "Subscribe",
+      "copyright": "© 2025 LotteryApp. All rights reserved.",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "contactUs": "Contact Us",
+      "helpCenter": "Help Center"
+    },
+    "cta": {
+      "badge": "JOIN THE WINNERS",
+      "title": "Ready to Win Your Dream Products?",
+      "subtitle": "Join thousands of winners who have received incredible products from Apple, Nike, Samsung, and top fashion brands. Your dream tech, fashion, or home appliance could be next!",
+      "primaryButton": "Browse Products & Enter",
+      "secondaryButton": "View Winners Gallery",
+      "trust": {
+        "productsWon": "25,000+ Products Won",
+        "prizeValue": "$10M+ Prize Value Delivered",
+        "authenticProducts": "100% Authentic Products"
+      }
     }
   },
   "dashboard": {

@@ -39,7 +39,13 @@
     "english": "Anglais",
     "french": "Français",
     "rendering": "Rendu",
-    "welcome": "Bienvenue"
+    "welcome": "Bienvenue",
+    "games": "Jeux",
+    "howItWorks": "Comment ça marche",
+    "winners": "Gagnants",
+    "appName": "BlackFriday",
+    "switchToLightTheme": "Passer au thème clair",
+    "switchToDarkTheme": "Passer au thème sombre"
   },
   "navigation": {
     "home": "Accueil",
@@ -202,55 +208,88 @@
   },
   "home": {
     "hero": {
-      "title": "GAGNEZ GROS AVEC",
-      "titleHighlight": "LOTERIE",
-      "subtitle": "Rejoignez des millions de joueurs dans le monde pour l'expérience de loterie la plus passionnante",
-      "subtitleHighlight": "Vos rêves ne sont qu'à un billet de distance !",
-      "cta": "Jouer Maintenant",
-      "secondaryCta": "En Savoir Plus",
-      "trust": {
-        "secure": "100% Sécurisé",
-        "licensed": "Entièrement Autorisé",
-        "instant": "Résultats Instantanés"
+      "title": "Gagnez Vos Produits de Rêve",
+      "subtitle": "Rejoignez des milliers de gagnants qui ont transformé leur vie avec des jackpots qui changent la vie",
+      "cta": "Commencer à Jouer",
+      "stats": {
+        "players": "Joueurs Actifs",
+        "winners": "Total des Gagnants",
+        "prizes": "Prix Gagnés",
+        "winRate": "Taux de Gain",
+        "productsWon": "Produits Gagnés",
+        "prizeValue": "Valeur des Prix",
+        "deliveryRate": "Taux de Livraison"
       }
-    },
-    "stats": {
-      "activeGames": "Jeux Actifs",
-      "participants": "Participants",
-      "uptime": "Disponibilité"
     },
     "howItWorks": {
       "title": "Comment Ça Marche",
-      "subtitle": "Étapes simples pour commencer à gagner de gros prix",
-      "step1": {
-        "title": "Choisissez Votre Jeu",
-        "description": "Sélectionnez parmi notre large variété de jeux de loterie avec différents pools de prix et probabilités"
+      "subtitle": "Suivez ces étapes simples pour commencer votre voyage vers des prix qui changent la vie",
+      "description": {
+        "dark": "Vivez le frisson de la victoire avec notre processus en 4 étapes conçu pour un maximum d'excitation et de récompenses.",
+        "light": "Suivez ces étapes simples pour commencer votre voyage vers des prix qui changent la vie avec notre plateforme de loterie sécurisée."
       },
-      "step2": {
-        "title": "Achetez Votre Billet",
-        "description": "Achetez des billets en toute sécurité avec plusieurs options de paiement et confirmation instantanée"
+      "steps": {
+        "step1": {
+          "title": "Choisir des Produits",
+          "description": "Parcourez notre incroyable collection de tech, mode, baskets et appareils ménagers de marques de premier plan"
+        },
+        "step2": {
+          "title": "Jouer pour Gagner",
+          "description": "Participez à des concours pour vos produits préférés - iPhone 15 Pro Max, Nike Air Jordan, MacBook Pro et plus encore"
+        },
+        "step3": {
+          "title": "Attendre les Résultats",
+          "description": "Regardez les tirages en direct et voyez si vous gagnez vos produits de rêve de notre catalogue premium"
+        },
+        "step4": {
+          "title": "Recevoir la Livraison",
+          "description": "Les gagnants reçoivent des produits authentiques livrés directement à leur porte - pas de substituts en espèces"
+        }
       },
-      "step3": {
-        "title": "Attendez les Résultats",
-        "description": "Regardez les tirages en direct et soyez notifié instantanément quand les résultats sont annoncés"
-      },
-      "step4": {
-        "title": "Réclamez Votre Prix",
-        "description": "Collectez vos gains rapidement et en toute sécurité via notre système de paiement vérifié"
+      "products": {
+        "title": "Gagnez Vos Produits de Rêve",
+        "subtitle": "Choisissez parmi notre incroyable catalogue de produits avec les dernières technologies, la mode premium et les meilleurs appareils ménagers.",
+        "cta": "Participer au Concours",
+        "bottomCta": "Prêt à changer votre vie ? Rejoignez des milliers de gagnants aujourd'hui !",
+        "startPlaying": "Commencer à Jouer à Tous les Jeux"
       }
     },
     "winners": {
       "title": "Gagnants Récents",
-      "subtitle": "Voyez qui a eu de la chance récemment et inspirez-vous pour rejoindre la série gagnante"
-    },
-    "cta": {
-      "title": "Prêt à Gagner ?",
-      "subtitle": "Rejoignez des milliers de joueurs qui ont déjà gagné des prix qui changent la vie",
-      "button": "Commencez à Jouer Aujourd'hui"
+      "subtitle": "Célébrez avec nos derniers gagnants de jackpot du monde entier qui ont changé leur vie pour toujours",
+      "jackpotTitle": "GAGNANTS DU JACKPOT",
+      "latestWinners": "Derniers Gagnants",
+      "description": "Rejoignez notre communauté de gagnants qui ont reçu des produits incroyables de marques de premier plan comme Apple, Nike, Samsung et plus encore.",
+      "viewAllWinners": "Voir Tous les Gagnants",
+      "verifiedWinner": "GAGNANT VÉRIFIÉ",
+      "wonIn": "Gagné en"
     },
     "footer": {
-      "copyright": "Tous droits réservés.",
-      "rights": "Politique de Confidentialité | Conditions de Service"
+      "description": "Transformez vos rêves en réalité avec notre plateforme de loterie innovante. Rejoignez des milliers de gagnants qui ont changé leur vie pour toujours.",
+      "quickLinks": "Liens Rapides",
+      "support": "Support",
+      "legal": "Mentions Légales",
+      "social": "Suivez-nous",
+      "newsletter": "Restez Informé",
+      "newsletterPlaceholder": "Entrez votre email",
+      "newsletterButton": "S'abonner",
+      "copyright": "© 2025 LotteryApp. Tous droits réservés.",
+      "privacyPolicy": "Politique de Confidentialité",
+      "termsOfService": "Conditions d'Utilisation",
+      "contactUs": "Contactez-nous",
+      "helpCenter": "Centre d'Aide"
+    },
+    "cta": {
+      "badge": "REJOIGNEZ LES GAGNANTS",
+      "title": "Prêt à Gagner Vos Produits de Rêve ?",
+      "subtitle": "Rejoignez des milliers de gagnants qui ont reçu des produits incroyables d'Apple, Nike, Samsung et des meilleures marques de mode. Votre tech, mode ou appareil ménager de rêve pourrait être le prochain !",
+      "primaryButton": "Parcourir les Produits et Participer",
+      "secondaryButton": "Voir la Galerie des Gagnants",
+      "trust": {
+        "productsWon": "25,000+ Produits Gagnés",
+        "prizeValue": "10M$+ de Valeur de Prix Livrée",
+        "authenticProducts": "100% Produits Authentiques"
+      }
     }
   }
 }

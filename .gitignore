@@ -39,3 +39,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 performance.ts
+
+docs/PLANS/package-manager-cleanup.md

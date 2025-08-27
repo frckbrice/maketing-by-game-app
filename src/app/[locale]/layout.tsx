@@ -37,6 +37,7 @@ export default async function RootLayout({
   const { locale } = await params;
 
   if (!locales.includes(locale as Locale)) {
+    console.log('Locale not found', locale);
     notFound();
   }
 

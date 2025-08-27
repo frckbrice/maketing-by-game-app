@@ -155,16 +155,15 @@ const withPWA = require("@ducanh2912/next-pwa").default({
 // const withNextIntl = require('next-intl/plugin')('./i18n.ts');
 
 const nextConfig = {
+    // Enable standalone output for Docker deployment
+    output: 'standalone',
+    
+    // Enable experimental features
     experimental: {
-        optimizePackageImports: ["lucide-react", "@firebase/app", "@firebase/auth"],
-        // Performance optimizations
         optimizeCss: true,
-        // appDir: true
+        optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
     },
-    // Explicitly disable pages directory since we're using app router
-    pageExtensions: ['tsx', 'jsx', 'ts', 'js'],
-    // Disable file-system based routing for pages
-    useFileSystemPublicRoutes: false,
+
 
     // i18n: {
     //     locales: ['en', 'fr'],
@@ -173,17 +172,7 @@ const nextConfig = {
     // },
     // trailingSlash: true,
     images: {
-        domains: ['localhost'],
-        formats: ["image/webp", "image/avif"],
-        deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-        imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-        minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
-        dangerouslyAllowSVG: true,
-        contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-        // Enhanced image optimization
-        unoptimized: false,
-        loader: "default",
-        path: "/_next/image",
+        unoptimized: true,
     },
     // Enhanced compression and performance
     compress: true,
@@ -306,7 +295,7 @@ const nextConfig = {
                             "script-src 'self' 'unsafe-eval' 'unsafe-inline' https:",
                             "style-src 'self' 'unsafe-inline' https:",
                             "font-src 'self' https: data:",
-                            "img-src 'self' data: https: blob:",
+                            "img-src 'self' data: https: blob: 'unsafe-inline'",
                             "connect-src 'self' https: wss:",
                             "frame-src 'self' https:",
                             "object-src 'none'",

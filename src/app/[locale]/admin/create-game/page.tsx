@@ -2,7 +2,11 @@
 
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { firestoreService, productService, realtimeService } from '@/lib/firebase/services';
+import {
+  firestoreService,
+  productService,
+  realtimeService,
+} from '@/lib/firebase/services';
 import type { GameCategory } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -96,7 +100,9 @@ export default function CreateGamePage() {
     setSubmitting(true);
     try {
       // Create game in Firestore
-      const selectedCategory = categories.find(cat => cat.id === data.categoryId);
+      const selectedCategory = categories.find(
+        cat => cat.id === data.categoryId
+      );
       const gameData = {
         ...data,
         createdBy: user.id,
@@ -104,8 +110,12 @@ export default function CreateGamePage() {
         isPromoted: false,
         viewCount: 0,
         status: 'DRAFT' as const,
-        startDate: data.startDate ? new Date(data.startDate).getTime() : Date.now(),
-        endDate: data.endDate ? new Date(data.endDate).getTime() : Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days from now
+        startDate: data.startDate
+          ? new Date(data.startDate).getTime()
+          : Date.now(),
+        endDate: data.endDate
+          ? new Date(data.endDate).getTime()
+          : Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days from now
         participants: 0,
         tickets: [],
         type: 'daily' as const,
@@ -113,7 +123,9 @@ export default function CreateGamePage() {
         isActive: false,
         rules: [],
         images: [],
-        drawDate: data.endDate ? new Date(data.endDate).getTime() : Date.now() + (7 * 24 * 60 * 60 * 1000),
+        drawDate: data.endDate
+          ? new Date(data.endDate).getTime()
+          : Date.now() + 7 * 24 * 60 * 60 * 1000,
         totalPrizePool: 0,
         prizes: [],
         category: selectedCategory || {

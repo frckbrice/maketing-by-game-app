@@ -1,0 +1,47 @@
+{
+  "name": "Lottery Marketing App",
+  "short_name": "Lottery App",
+  "description": "Real-time marketing lottery platform for businesses",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#FF5722",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["business", "entertainment", "finance"],
+  "icons": [
+    {
+      "src": "/icons/lottery_logo.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "View Games",
+      "short_name": "Games",
+      "description": "Browse available lottery games",
+      "url": "/games",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Access your personal dashboard",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}

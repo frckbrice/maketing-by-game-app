@@ -56,7 +56,7 @@ export function LocaleSwitcher() {
     <div className='relative' ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className='flex items-center space-x-2 px-3 py-2 text-sm font-medium text-white hover:text-[#FF5722] transition-colors rounded-lg hover:bg-white/10'
+        className='flex items-center space-x-2 px-3 py-2 text-sm font-medium text-white hover:text-orange-300 transition-colors rounded-lg hover:bg-black/20 backdrop-blur-sm'
         aria-label='Switch language'
       >
         <Globe className='w-4 h-4' />
@@ -72,7 +72,7 @@ export function LocaleSwitcher() {
       </button>
 
       {isOpen && (
-        <div className='absolute right-0 mt-2 w-48 bg-white dark:bg-[#1a1a1a] rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50'>
+        <div className='absolute right-0 mt-2 w-48 bg-white/90 dark:bg-black/90 backdrop-blur-md rounded-lg shadow-lg border border-gray-200/50 dark:border-gray-700/50 z-50'>
           <div className='py-1'>
             {locales.map(locale => {
               const isActive = locale === currentLocale;
@@ -85,8 +85,8 @@ export function LocaleSwitcher() {
                   href={getLocalePath(locale)}
                   className={`flex items-center space-x-3 px-4 py-3 text-sm transition-colors ${
                     isActive
-                      ? 'bg-[#FF5722] text-white'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      ? 'bg-orange-500 text-white'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-gray-800/80'
                   }`}
                   onClick={() => setIsOpen(false)}
                 >
@@ -152,7 +152,7 @@ export function LocaleSwitcherCompact() {
     <div className='relative' ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className='flex items-center space-x-1 px-2 py-1 text-sm text-white hover:text-[#FF5722] transition-colors rounded'
+        className='flex items-center space-x-1 px-2 py-1 text-sm text-white hover:text-orange-300 transition-colors rounded hover:bg-black/20 backdrop-blur-sm'
         aria-label='Switch language'
       >
         <Globe className='w-4 h-4' />
@@ -165,7 +165,7 @@ export function LocaleSwitcherCompact() {
       </button>
 
       {isOpen && (
-        <div className='absolute right-0 mt-1 w-32 bg-white dark:bg-[#1a1a1a] rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50'>
+        <div className='absolute right-0 mt-1 w-32 bg-white/90 dark:bg-black/90 backdrop-blur-md rounded-lg shadow-lg border border-gray-200/50 dark:border-gray-700/50 z-50'>
           <div className='py-1'>
             {locales.map(locale => {
               const isActive = locale === currentLocale;
@@ -178,8 +178,8 @@ export function LocaleSwitcherCompact() {
                   href={getLocalePath(locale)}
                   className={`flex items-center space-x-2 px-3 py-2 text-sm transition-colors ${
                     isActive
-                      ? 'bg-[#FF5722] text-white'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      ? 'bg-orange-500 text-white'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-gray-800/80'
                   }`}
                   onClick={() => setIsOpen(false)}
                 >

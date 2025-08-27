@@ -1,10 +1,14 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-echo "🔍 Running pre-commit checks..."
+echo " Running pre-commit checks..."
 
 # Run lint-staged
-echo "📝 Running lint-staged..."
+echo " Running lint-staged..."
 yarn lint-staged || exit 1
 
-echo "✅ Pre-commit checks passed!"
+# Run prettier
+echo " Running prettier..."
+yarn format || exit 1
+
+echo " Pre-commit checks passed!"
