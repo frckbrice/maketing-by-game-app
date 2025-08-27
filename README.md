@@ -1,36 +1,36 @@
-# 🎯 Lottery Marketing Application
+#  Lottery Marketing Application
 
 A modern, **mobile-first PWA** for marketing lotteries that allows businesses to promote their products through interactive games with live participant counters and integrated advertising systems.
 
 ## ✨ Features
 
-### 🎮 Core Functionality
+###  Core Functionality
 
 - **Real-time Lottery Games**: Create and manage marketing lotteries with live participant counters
 - **Interactive Participation**: Users can join games with secure payment processing
 - **Automatic Drawing System**: Fair and transparent winner selection when quotas are reached
 - **Business Promotion**: Companies can showcase products and boost visibility
 
-### 🚀 Real-time Technology
+###  Real-time Technology
 
 - **Firebase Realtime Database**: Live participant counters and game status updates
 - **Firestore**: Complex data management for users, games, products, and payments
 - **Real-time Notifications**: Instant updates for game progress and results
 
-### 💳 Payment Integration
+###  Payment Integration
 
 - **Stripe**: Credit card processing for international users
 - **Mobile Money**: Orange Money and MTN Mobile Money for African markets
 - **Secure Transactions**: End-to-end encrypted payment processing
 
-### 📱 Modern Interface
+###  Modern Interface
 
 - **Mobile-First Design**: Optimized for mobile devices with responsive layouts
 - **PWA Capabilities**: Installable app with offline functionality
 - **Real-time Counters**: Live participant numbers visible during games
 - **Beautiful UI**: Modern lottery theme with dark backgrounds and orange accents
 
-## 🏗️ Architecture
+##  Architecture
 
 ### Technology Stack
 
@@ -62,7 +62,7 @@ Realtime Database:
     └── lastUpdate (timestamp)
 ```
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -157,7 +157,7 @@ yarn dev
 
 Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-## 📱 Mobile-First Design
+##  Mobile-First Design
 
 ### Design Philosophy
 
@@ -180,7 +180,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 - **Tablet**: 768px - 1024px
 - **Desktop**: > 1024px
 
-## 🎨 PWA Features
+##  PWA Features
 
 ### App Installation
 
@@ -203,7 +203,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 - **Code Splitting**: Automatic bundle optimization
 - **Caching Strategy**: Intelligent resource caching
 
-## 📱 Usage
+##  Usage
 
 ### For Users
 
@@ -221,7 +221,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 4. **Boost Visibility**: Use advertising features to promote games
 5. **Manage Results**: Handle drawing and winner notifications
 
-## 🔧 Development
+##  Development
 
 ### Project Structure
 
@@ -286,7 +286,7 @@ await realtimeService.updateGameCounter(gameId, {
 });
 ```
 
-## 🚀 Deployment
+##  Deployment
 
 ### Vercel Deployment
 
@@ -305,7 +305,7 @@ await realtimeService.updateGameCounter(gameId, {
 
 Ensure all Firebase configuration variables are set in your production environment.
 
-## 🔒 Security Features
+##  Security Features
 
 - **Authentication**: Firebase Auth with email/password
 - **Authorization**: Role-based access control (USER, ADMIN, ENTERPRISE)
@@ -313,7 +313,7 @@ Ensure all Firebase configuration variables are set in your production environme
 - **Payment Security**: PCI-compliant payment processing
 - **Rate Limiting**: API rate limiting to prevent abuse
 
-## 📊 Performance
+##  Performance
 
 - **Real-time Updates**: < 100ms response time for live counters
 - **Optimized Queries**: Efficient Firestore queries with proper indexing
@@ -321,53 +321,36 @@ Ensure all Firebase configuration variables are set in your production environme
 - **PWA Features**: Service workers for offline capabilities
 - **Mobile Optimization**: Touch-friendly, responsive design
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-- **Documentation**: Check the `/docs` folder for detailed guides
-- **Issues**: Report bugs via GitHub Issues
-- **Discussions**: Join community discussions on GitHub
-
-## 🎯 Roadmap
+##  Roadmap
 
 ### Phase 1 (Current)
 
-- ✅ Basic authentication system
-- ✅ Real-time game counters
-- ✅ Game creation and management
-- ✅ User participation system
-- ✅ Mobile-first responsive design
-- ✅ PWA implementation
+-  Basic authentication system
+-  Real-time game counters
+-  Game creation and management
+-  User participation system
+-  Mobile-first responsive design
+-  PWA implementation
 
 ### Phase 2 (Next)
 
-- 🔄 Payment integration (Stripe + Mobile Money)
-- 🔄 Automatic drawing system
-- 🔄 Winner notifications
-- 🔄 Business profiles
-- 🔄 Push notifications
+-  Payment integration (Stripe + Mobile Money)
+-  Automatic drawing system
+-  Winner notifications
+-  Business profiles
+-  Push notifications
 
 ### Phase 3 (Future)
 
-- 📋 Advanced analytics dashboard
-- 📋 Advertising system
-- 📋 Mobile app (React Native)
-- 📋 Multi-language support
-- 📋 Advanced PWA features
+-  Advanced analytics dashboard
+-  Advertising system
+-  Mobile app (React Native)
+-  Multi-language support
+-  Advanced PWA features
 
 ---
 
-**Built with ❤️ for modern marketing and engagement**
+**Built with ❤️ by Avom Brice **
+**Check my portfolio at https://maebrieporfolio.vercel.app**
 
 _Mobile-first, PWA-ready, and fully responsive_
