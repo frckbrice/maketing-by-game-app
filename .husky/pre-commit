@@ -9,6 +9,6 @@ yarn lint-staged || exit 1
 
 # Run prettier
 echo " Running prettier..."
-yarn prettier --check || exit 1
+yarn format || exit 1
 
 echo " Pre-commit checks passed!"

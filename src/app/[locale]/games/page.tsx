@@ -4,13 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { firestoreService } from '@/lib/firebase/services';
 import type { GameCategory, LotteryGame } from '@/types';
-import {
-  ArrowRight,
-  Gamepad2,
-  Menu,
-  Search,
-  X
-} from 'lucide-react';
+import { ArrowRight, Gamepad2, Menu, Search, X } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -152,7 +146,9 @@ export default function GamesPage() {
               {user ? (
                 <>
                   <Link href='/dashboard'>
-                    <Button variant='outline'>{t('navigation.dashboard')}</Button>
+                    <Button variant='outline'>
+                      {t('navigation.dashboard')}
+                    </Button>
                   </Link>
                   <Link href='/profile'>
                     <Button variant='outline'>{t('navigation.profile')}</Button>
@@ -171,9 +167,7 @@ export default function GamesPage() {
             </div>
           </div>
 
-          <p className='text-[#FF9800] text-lg mt-4'>
-            {t('games.subtitle')}
-          </p>
+          <p className='text-[#FF9800] text-lg mt-4'>{t('games.subtitle')}</p>
         </div>
       </header>
 
@@ -188,7 +182,7 @@ export default function GamesPage() {
                 type='text'
                 placeholder={t('games.search')}
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
                 className='w-full pl-10 pr-4 py-3 bg-[#0f0f0f] border border-[#FF5722]/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-transparent'
               />
             </div>
@@ -197,11 +191,11 @@ export default function GamesPage() {
             <div className='lg:w-64'>
               <select
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={e => setSelectedCategory(e.target.value)}
                 className='w-full px-4 py-3 bg-[#0f0f0f] border border-[#FF5722]/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-transparent'
               >
                 <option value='all'>{t('games.allCategories')}</option>
-                {categories.map((category) => (
+                {categories.map(category => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
@@ -218,13 +212,11 @@ export default function GamesPage() {
             <h3 className='text-lg font-medium text-gray-400 mb-2'>
               {t('games.noGames')}
             </h3>
-            <p className='text-gray-500'>
-              {t('games.noGamesDescription')}
-            </p>
+            <p className='text-gray-500'>{t('games.noGamesDescription')}</p>
           </div>
         ) : (
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {filteredGames.map((game) => (
+            {filteredGames.map(game => (
               <GameCard key={game.id} game={game} />
             ))}
           </div>
@@ -249,9 +241,7 @@ function GameCard({ game }: { game: LotteryGame }) {
       {/* Game Info */}
       <div className='p-6'>
         <h3 className='text-xl font-bold text-white mb-2'>{game.title}</h3>
-        <p className='text-gray-400 mb-4 line-clamp-2'>
-          {game.description}
-        </p>
+        <p className='text-gray-400 mb-4 line-clamp-2'>{game.description}</p>
 
         {/* Game Stats */}
         <div className='space-y-3 mb-6'>

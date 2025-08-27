@@ -71,7 +71,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ) => {
     // TODO: Re-enable Firebase services
     try {
-      await authService.register(email, password, firstName, lastName, role, language, currency);
+      await authService.register(
+        email,
+        password,
+        firstName,
+        lastName,
+        role,
+        language,
+        currency
+      );
     } catch (error) {
       console.error('Registration error:', error);
       throw error;

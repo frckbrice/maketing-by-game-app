@@ -9,7 +9,7 @@ import {
   Settings,
   Ticket,
   User,
-  Users
+  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -84,7 +84,9 @@ export default function DashboardPage() {
                 <div>
                   <div className='text-sm text-gray-400'>
                     {t('common.welcome')},{' '}
-                    <span className='font-semibold text-white'>{user.firstName} {user.lastName}</span>
+                    <span className='font-semibold text-white'>
+                      {user.firstName} {user.lastName}
+                    </span>
                   </div>
                   <div className='text-xs text-gray-500'>{user.email}</div>
                 </div>
@@ -132,7 +134,9 @@ export default function DashboardPage() {
               <div className='flex items-center space-x-3'>
                 <div className='text-sm text-gray-300'>
                   {t('common.welcome')},{' '}
-                  <span className='font-semibold text-white'>{user.firstName} {user.lastName}</span>
+                  <span className='font-semibold text-white'>
+                    {user.firstName} {user.lastName}
+                  </span>
                 </div>
                 <Button variant='outline' size='sm' onClick={handleLogout}>
                   <LogOut className='w-4 h-4 mr-2' />
@@ -148,11 +152,12 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div className='bg-gradient-to-r from-[#FF5722]/20 to-[#FF9800]/20 rounded-2xl text-white p-6 lg:p-8 mb-8 border border-[#FF5722]/30'>
           <h1 className='text-2xl lg:text-3xl font-bold mb-2'>
-            {t('dashboard.welcome', { name: `${user.firstName} ${user.lastName}` })} 🎉
+            {t('dashboard.welcome', {
+              name: `${user.firstName} ${user.lastName}`,
+            })}{' '}
+            🎉
           </h1>
-          <p className='text-[#FF9800] text-lg'>
-            {t('dashboard.subtitle')}
-          </p>
+          <p className='text-[#FF9800] text-lg'>{t('dashboard.subtitle')}</p>
         </div>
 
         {/* Quick Stats */}
@@ -216,7 +221,9 @@ export default function DashboardPage() {
                 {t('dashboard.createGameDescription')}
               </p>
               <Link href='/admin/create-game'>
-                <Button className='w-full'>{t('dashboard.createNewGame')}</Button>
+                <Button className='w-full'>
+                  {t('dashboard.createNewGame')}
+                </Button>
               </Link>
             </div>
           )}
