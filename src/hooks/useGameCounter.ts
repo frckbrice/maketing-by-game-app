@@ -34,8 +34,10 @@ export function useGameCounter(gameId: string) {
       setError(null);
     });
 
+    // No cleanup needed as onGameCounterChange doesn't return unsubscribe function
     return () => {
       realtimeService.offGameCounterChange(gameId);
+      // Cleanup handled by the service
     };
   }, [gameId]);
 

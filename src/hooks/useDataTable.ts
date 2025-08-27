@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState, useMemo } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
 
 interface UseDataTableOptions<T> {
   queryKey: string[];
@@ -83,7 +83,7 @@ export function useDataTable<T>({
     queryFn: () => fetchFn(queryParams),
     staleTime,
     gcTime,
-    keepPreviousData: true, // Keep previous data while fetching new data
+    placeholderData: previousData => previousData, // Keep previous data while fetching new data
   });
 
   // Memoized values
