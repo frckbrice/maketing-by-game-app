@@ -1,0 +1,186 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success!",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "view": "View",
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "phone": "Phone",
+    "description": "Description",
+    "price": "Price",
+    "status": "Status",
+    "date": "Date",
+    "time": "Time",
+    "actions": "Actions",
+    "locale": "Locale",
+    "currentLanguage": "Current Language",
+    "english": "English",
+    "french": "French",
+    "rendering": "Rendering",
+    "welcome": "Welcome"
+  },
+  "navigation": {
+    "home": "Home",
+    "games": "Games",
+    "dashboard": "Dashboard",
+    "admin": "Admin",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your lottery account",
+      "email": "Email Address",
+      "password": "Password",
+      "submit": "Sign In",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "backToHome": "Back to Home"
+    },
+    "register": {
+      "title": "Join the Lottery",
+      "subtitle": "Create your account and start winning",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "role": "Account Type",
+      "roleUser": "User",
+      "roleVendor": "Vendor",
+      "roleDescription": "Choose your account type. Users can participate in games, Vendors can create and manage games.",
+      "terms": "I agree to the ",
+      "termsLink": "Terms and Conditions",
+      "and": " and ",
+      "privacyLink": "Privacy Policy",
+      "submit": "Create Account",
+      "alreadyHaveAccount": "Already have an account? ",
+      "signInHere": "Sign in here",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in here",
+      "backToHome": "Back to Home"
+    }
+  },
+  "LocaleSwitcher": {
+    "switchLanguage": "Switch Language",
+    "english": "English",
+    "french": "French"
+  },
+  "LocaleLayout": {
+    "title": "Lottery App"
+  },
+  "home": {
+    "hero": {
+      "title": "WIN BIG WITH",
+      "titleHighlight": "LOTTERY",
+      "subtitle": "Join millions of players worldwide in the most exciting lottery experience",
+      "subtitleHighlight": "Your dreams are just one ticket away!",
+      "cta": "Play Now",
+      "secondaryCta": "Learn More",
+      "trust": {
+        "secure": "100% Secure",
+        "licensed": "Fully Licensed",
+        "instant": "Instant Results"
+      }
+    },
+    "stats": {
+      "activeGames": "Active Games",
+      "participants": "Participants",
+      "uptime": "Uptime"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Simple steps to start winning big prizes",
+      "step1": {
+        "title": "Choose Your Game",
+        "description": "Select from our wide variety of lottery games with different prize pools and odds"
+      },
+      "step2": {
+        "title": "Buy Your Ticket",
+        "description": "Purchase tickets securely with multiple payment options and instant confirmation"
+      },
+      "step3": {
+        "title": "Wait for Results",
+        "description": "Watch live draws and get notified instantly when results are announced"
+      },
+      "step4": {
+        "title": "Claim Your Prize",
+        "description": "Collect your winnings quickly and securely through our verified payment system"
+      }
+    },
+    "winners": {
+      "title": "Recent Winners",
+      "subtitle": "See who's been lucky lately and get inspired to join the winning streak"
+    },
+    "cta": {
+      "title": "Ready to Win?",
+      "subtitle": "Join thousands of players who have already won life-changing prizes",
+      "button": "Start Playing Today"
+    },
+    "footer": {
+      "copyright": "All rights reserved.",
+      "rights": "Privacy Policy | Terms of Service"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {name}! 👋",
+    "subtitle": "Manage your lottery games, track participants, and grow your business.",
+    "activeGames": "Active Games",
+    "totalParticipants": "Total Participants",
+    "yourTickets": "Your Tickets",
+    "createGame": "Create Game",
+    "createGameDescription": "Launch a new marketing lottery to promote your products and engage customers.",
+    "createNewGame": "Create New Game",
+    "viewGames": "View Games",
+    "viewGamesDescription": "Browse all available lottery games and participate in exciting promotions.",
+    "browseGames": "Browse Games",
+    "myTickets": "My Tickets",
+    "myTicketsDescription": "View all your lottery tickets and track your participation history.",
+    "viewTickets": "View Tickets"
+  },
+  "games": {
+    "title": "Available Games",
+    "subtitle": "Discover exciting marketing lotteries and win amazing prizes. Join games with real-time participant tracking!",
+    "search": "Search games...",
+    "allCategories": "All Categories",
+    "noGames": "No games found",
+    "noGamesDescription": "Try adjusting your search or filters, or check back later for new lottery games!",
+    "joinGame": "Join Game",
+    "viewDetails": "View Details",
+    "ticketPrice": "Ticket Price",
+    "participants": "Participants",
+    "maxParticipants": "Max Participants",
+    "endDate": "End Date",
+    "progress": "Progress",
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "drawing": "Drawing",
+      "closed": "Closed"
+    }
+  }
+}

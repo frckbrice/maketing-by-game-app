@@ -1,0 +1,256 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "success": "Succès !",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "close": "Fermer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "view": "Voir",
+    "home": "Accueil",
+    "dashboard": "Tableau de bord",
+    "settings": "Paramètres",
+    "profile": "Profil",
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "email": "Email",
+    "password": "Mot de passe",
+    "name": "Nom",
+    "phone": "Téléphone",
+    "description": "Description",
+    "price": "Prix",
+    "status": "Statut",
+    "date": "Date",
+    "time": "Heure",
+    "actions": "Actions",
+    "locale": "Langue",
+    "currentLanguage": "Langue actuelle",
+    "english": "Anglais",
+    "french": "Français",
+    "rendering": "Rendu",
+    "welcome": "Bienvenue"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "games": "Jeux",
+    "dashboard": "Tableau de bord",
+    "admin": "Administration",
+    "profile": "Profil",
+    "settings": "Paramètres"
+  },
+  "auth": {
+    "login": {
+      "title": "Bon Retour",
+      "subtitle": "Connectez-vous à votre compte de loterie",
+      "email": "Adresse email",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "signUp": "S'inscrire",
+      "backToHome": "Retour à l'accueil"
+    },
+    "register": {
+      "title": "Rejoignez la Loterie",
+      "subtitle": "Créez votre compte et commencez à gagner",
+      "firstName": "Prénom",
+      "lastName": "Nom de famille",
+      "email": "Adresse email",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "role": "Type de Compte",
+      "roleUser": "Utilisateur",
+      "roleVendor": "Vendeur",
+      "roleDescription": "Choisissez votre type de compte. Les utilisateurs peuvent participer aux jeux, les vendeurs peuvent créer et gérer des jeux.",
+      "terms": "J'accepte les ",
+      "termsLink": "Conditions générales",
+      "and": " et la ",
+      "privacyLink": "Politique de confidentialité",
+      "submit": "Créer un compte",
+      "alreadyHaveAccount": "Vous avez déjà un compte ? ",
+      "signInHere": "Connectez-vous ici",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "signIn": "Connectez-vous ici",
+      "backToHome": "Retour à l'accueil"
+    }
+  },
+  "dashboard": {
+    "welcome": "Bon retour, {name} ! 👋",
+    "subtitle": "Gérez vos jeux de loterie, suivez les participants et développez votre entreprise.",
+    "activeGames": "Jeux Actifs",
+    "totalParticipants": "Total des Participants",
+    "yourTickets": "Vos Billets",
+    "createGame": "Créer un Jeu",
+    "createGameDescription": "Lancez une nouvelle loterie marketing pour promouvoir vos produits et engager les clients.",
+    "createNewGame": "Créer un Nouveau Jeu",
+    "viewGames": "Voir les Jeux",
+    "viewGamesDescription": "Parcourez tous les jeux de loterie disponibles et participez à des promotions passionnantes.",
+    "browseGames": "Parcourir les Jeux",
+    "myTickets": "Mes Billets",
+    "myTicketsDescription": "Consultez tous vos billets de loterie et suivez votre historique de participation.",
+    "viewTickets": "Voir les Billets"
+  },
+  "games": {
+    "title": "Jeux Disponibles",
+    "subtitle": "Découvrez des loteries marketing passionnantes et gagnez des prix incroyables. Rejoignez des jeux avec un suivi des participants en temps réel !",
+    "search": "Rechercher des jeux...",
+    "allCategories": "Toutes les Catégories",
+    "noGames": "Aucun jeu trouvé",
+    "noGamesDescription": "Essayez d'ajuster votre recherche ou vos filtres, ou revenez plus tard pour de nouveaux jeux de loterie !",
+    "joinGame": "Rejoindre le Jeu",
+    "viewDetails": "Voir les Détails",
+    "ticketPrice": "Prix du Billet",
+    "participants": "Participants",
+    "maxParticipants": "Participants Maximum",
+    "endDate": "Date de Fin",
+    "progress": "Progression",
+    "status": {
+      "draft": "Brouillon",
+      "active": "Actif",
+      "drawing": "Tirage",
+      "closed": "Fermé"
+    }
+  },
+  "LocaleSwitcher": {
+    "switchLanguage": "Changer de langue",
+    "english": "Anglais",
+    "french": "Français"
+  },
+  "LocaleLayout": {
+    "title": "Application de Loterie"
+  },
+  "NotFound": {
+    "title": "Page non trouvée",
+    "description": "Nous n'avons pas pu trouver la page que vous recherchez.",
+    "backToHome": "Retour à l'accueil"
+  },
+  "admin": {
+    "title": "Tableau de bord Admin",
+    "subtitle": "Gérez votre plateforme de loterie",
+    "stats": {
+      "totalUsers": "Nombre total d'utilisateurs",
+      "activeGames": "Jeux actifs",
+      "revenue": "Revenus",
+      "winners": "Gagnants"
+    },
+    "quickActions": {
+      "createGame": "Créer un jeu",
+      "manageProducts": "Gérer les produits",
+      "userManagement": "Gestion des utilisateurs",
+      "analytics": "Analytique",
+      "settings": "Paramètres"
+    },
+    "recentActivity": "Activité récente"
+  },
+  "createGame": {
+    "title": "Créer un nouveau jeu",
+    "subtitle": "Lancez une nouvelle loterie marketing",
+    "basicInfo": "Informations de base",
+    "gameTitle": "Titre du jeu",
+    "category": "Catégorie",
+    "description": "Description",
+    "productSelection": "Sélection de produit",
+    "selectProduct": "Sélectionner un produit",
+    "gameConfiguration": "Configuration du jeu",
+    "ticketPrice": "Prix du billet",
+    "maxParticipants": "Participants maximum",
+    "totalPrizePool": "Cagnotte totale",
+    "schedule": "Programme",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "submit": "Créer le jeu"
+  },
+  "errors": {
+    "required": "Ce champ est obligatoire",
+    "invalidEmail": "Veuillez entrer une adresse email valide",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères",
+    "passwordsDontMatch": "Les mots de passe ne correspondent pas",
+    "invalidDate": "Veuillez sélectionner une date valide",
+    "invalidPrice": "Veuillez entrer un prix valide",
+    "invalidParticipants": "Doit avoir au moins 1 participant"
+  },
+  "NotFoundPage": {
+    "description": "Veuillez vérifier l'adresse dans la barre de navigation ou utilisez la navigation pour accéder à une page connue.",
+    "title": "Page non trouvée"
+  },
+  "PageLayout": {
+    "links": {
+      "docs": {
+        "title": "Documentation",
+        "href": "https://next-intl-docs.vercel.app/"
+      },
+      "source": {
+        "title": "Code source",
+        "href": "https://github.com/amannn/next-intl"
+      }
+    }
+  },
+  "PathnamesPage": {
+    "description": "<p>Les chemins sont également internationalisés.</p><p>Si vous utilisez la langue par défaut (anglais), vous verrez <code>/en/pathnames</code> dans la barre d'adresse du navigateur sur cette page.</p><p>Si vous changez la langue en français, l'URL est adaptée en conséquence (<code>/fr/noms-de-chemins</code>).</p>",
+    "title": "Noms de chemins"
+  },
+  "home": {
+    "hero": {
+      "title": "GAGNEZ GROS AVEC",
+      "titleHighlight": "LOTERIE",
+      "subtitle": "Rejoignez des millions de joueurs dans le monde pour l'expérience de loterie la plus passionnante",
+      "subtitleHighlight": "Vos rêves ne sont qu'à un billet de distance !",
+      "cta": "Jouer Maintenant",
+      "secondaryCta": "En Savoir Plus",
+      "trust": {
+        "secure": "100% Sécurisé",
+        "licensed": "Entièrement Autorisé",
+        "instant": "Résultats Instantanés"
+      }
+    },
+    "stats": {
+      "activeGames": "Jeux Actifs",
+      "participants": "Participants",
+      "uptime": "Disponibilité"
+    },
+    "howItWorks": {
+      "title": "Comment Ça Marche",
+      "subtitle": "Étapes simples pour commencer à gagner de gros prix",
+      "step1": {
+        "title": "Choisissez Votre Jeu",
+        "description": "Sélectionnez parmi notre large variété de jeux de loterie avec différents pools de prix et probabilités"
+      },
+      "step2": {
+        "title": "Achetez Votre Billet",
+        "description": "Achetez des billets en toute sécurité avec plusieurs options de paiement et confirmation instantanée"
+      },
+      "step3": {
+        "title": "Attendez les Résultats",
+        "description": "Regardez les tirages en direct et soyez notifié instantanément quand les résultats sont annoncés"
+      },
+      "step4": {
+        "title": "Réclamez Votre Prix",
+        "description": "Collectez vos gains rapidement et en toute sécurité via notre système de paiement vérifié"
+      }
+    },
+    "winners": {
+      "title": "Gagnants Récents",
+      "subtitle": "Voyez qui a eu de la chance récemment et inspirez-vous pour rejoindre la série gagnante"
+    },
+    "cta": {
+      "title": "Prêt à Gagner ?",
+      "subtitle": "Rejoignez des milliers de joueurs qui ont déjà gagné des prix qui changent la vie",
+      "button": "Commencez à Jouer Aujourd'hui"
+    },
+    "footer": {
+      "copyright": "Tous droits réservés.",
+      "rights": "Politique de Confidentialité | Conditions de Service"
+    }
+  }
+}

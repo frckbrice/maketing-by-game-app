@@ -1,0 +1,53 @@
+{
+  "css.format.enable": false,
+  "css.validate": true,
+  "files.associations": {
+    "src/app/globals.css": "css"
+  },
+  "emmet.includeLanguages": {
+    "css": "css"
+  },
+  "[css]": {
+    "editor.formatOnSave": false,
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.git": true,
+    "**/.DS_Store": true
+  },
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "prettier.requireConfig": true,
+  "eslint.workingDirectories": ["."],
+  "eslint.run": "onSave"
+}

@@ -1,0 +1,218 @@
+# CodeRabbit Configuration
+# This file configures automated AI code reviews
+
+# Repository settings
+repository:
+  # Enable CodeRabbit for this repository
+  enabled: true
+
+  # Specify the main branch
+  main_branch: main
+
+  # Enable for all branches
+  branches:
+    - main
+    - develop
+    - feature/*
+    - hotfix/*
+    - fix/*
+    - chore/*
+    - refactor/*
+    - test/*
+    - docs/*
+    - style/*
+    - perf/*
+    - build/*
+    - ci/*
+
+# Review settings
+review:
+  # Enable automatic reviews on pull requests
+  auto_review: true
+
+  # Review all files in the PR
+  review_all_files: true
+
+  # Include generated files in review (set to false for PWA files)
+  include_generated: false
+
+  # Exclude specific file patterns
+  exclude_patterns:
+    - 'public/sw.js'
+    - 'public/workbox-*.js'
+    - 'public/sw.js.map'
+    - 'public/workbox-*.js.map'
+    - '*.min.js'
+    - '*.min.css'
+    - 'coverage/**'
+    - '.next/**'
+    - 'node_modules/**'
+    - 'yarn.lock'
+    - 'package-lock.json'
+
+# AI model settings
+ai:
+  # Use the latest AI model
+  model: 'gpt-4'
+
+  # Enable code suggestions
+  suggestions: true
+
+  # Enable security analysis
+  security_analysis: true
+
+  # Enable performance suggestions
+  performance_analysis: true
+
+  # Enable best practices suggestions
+  best_practices: true
+
+# Comment settings
+comments:
+  # Enable inline comments
+  inline: true
+
+  # Enable summary comments
+  summary: true
+
+  # Enable actionable suggestions
+  actionable: true
+
+  # Comment style (friendly, professional, concise)
+  style: 'friendly'
+
+# Language-specific settings
+languages:
+  typescript:
+    # Enable TypeScript-specific analysis
+    enabled: true
+    # Include type checking suggestions
+    type_checking: true
+    # Include import/export analysis
+    import_analysis: true
+
+  javascript:
+    enabled: true
+    # Include ES6+ suggestions
+    modern_js: true
+
+  react:
+    enabled: true
+    # Include React best practices
+    best_practices: true
+    # Include hooks analysis
+    hooks_analysis: true
+
+  css:
+    enabled: true
+    # Include accessibility suggestions
+    accessibility: true
+
+# Security settings
+security:
+  # Enable security vulnerability scanning
+  enabled: true
+  # Include dependency analysis
+  dependencies: true
+  # Include code injection detection
+  injection_detection: true
+
+# Performance settings
+performance:
+  # Enable performance analysis
+  enabled: true
+  # Include bundle size analysis
+  bundle_size: true
+  # Include rendering performance
+  rendering: true
+
+# Accessibility settings
+accessibility:
+  # Enable accessibility analysis
+  enabled: true
+  # Include ARIA suggestions
+  aria: true
+  # Include color contrast analysis
+  color_contrast: true
+
+# Testing settings
+testing:
+  # Enable test coverage analysis
+  enabled: true
+  # Suggest test improvements
+  suggestions: true
+  # Include edge case suggestions
+  edge_cases: true
+
+# Documentation settings
+documentation:
+  # Enable documentation suggestions
+  enabled: true
+  # Include JSDoc suggestions
+  jsdoc: true
+  # Include README updates
+  readme: true
+
+# Custom rules
+custom_rules:
+  # Enforce project-specific conventions
+  - name: 'lottery-app-conventions'
+    description: 'Enforce lottery app specific conventions'
+    patterns:
+      - 'Use CUID instead of UUID for IDs'
+      - 'Follow mobile-first responsive design'
+      - 'Use French/English internationalization'
+      - 'Follow PWA best practices'
+      - 'Use Firebase services consistently'
+      - 'Follow component naming conventions'
+      - 'Use TypeScript strict mode'
+      - 'Follow accessibility guidelines'
+
+# Notification settings
+notifications:
+  # Notify on review completion
+  review_complete: true
+  # Notify on security issues
+  security_issues: true
+  # Notify on performance issues
+  performance_issues: true
+
+# Integration settings
+integrations:
+  # GitHub integration
+  github:
+    enabled: true
+    # Enable status checks
+    status_checks: true
+    # Enable required reviews
+    required_reviews: true
+
+  # Slack integration (if configured)
+  slack:
+    enabled: false
+    channel: '#code-reviews'
+
+  # Discord integration (if configured)
+  discord:
+    enabled: false
+    webhook_url: ''
+
+# Review thresholds
+thresholds:
+  # Minimum review score to pass
+  min_score: 7.0
+  # Maximum number of critical issues
+  max_critical_issues: 0
+  # Maximum number of major issues
+  max_major_issues: 5
+  # Maximum number of minor issues
+  max_minor_issues: 20
+
+# Auto-fix settings
+auto_fix:
+  # Enable automatic fixes for minor issues
+  enabled: true
+  # Only fix formatting issues
+  formatting_only: true
+  # Create separate PR for fixes
+  separate_pr: false

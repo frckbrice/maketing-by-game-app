@@ -1,0 +1,40 @@
+{
+  "extends": [
+    "next/core-web-vitals",
+    "@typescript-eslint/recommended",
+    "prettier"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "prettier"],
+  "rules": {
+    "prettier/prettier": "error",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-non-null-assertion": "warn",
+    "@typescript-eslint/no-require-imports": "off",
+    "prefer-const": "error",
+    "no-var": "error",
+    "no-console": "warn",
+    "no-debugger": "error",
+    "react/no-unescaped-entities": "warn"
+  },
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}
