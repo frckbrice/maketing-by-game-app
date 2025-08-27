@@ -161,10 +161,7 @@ const nextConfig = {
         optimizeCss: true,
         // appDir: true
     },
-    // Explicitly disable pages directory since we're using app router
-    pageExtensions: ['tsx', 'jsx', 'ts', 'js'],
-    // Disable file-system based routing for pages
-    useFileSystemPublicRoutes: false,
+
 
     // i18n: {
     //     locales: ['en', 'fr'],

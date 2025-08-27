@@ -15,9 +15,7 @@ export function middleware(request: NextRequest) {
 
   // Redirect to default locale if no locale is present
   if (pathname === '/') {
-    return NextResponse.redirect(
-      new URL(`/${defaultLocale}`, request.url)
-    );
+    return NextResponse.redirect(new URL(`/${defaultLocale}`, request.url));
   }
 
   // Redirect to default locale for other paths
@@ -29,6 +27,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Skip all internal paths (_next)
-    '/((?!_next|api|favicon.ico).*)',
+    '/((?!_next|api|favicon.ico|.well-known).*)',
   ],
 };

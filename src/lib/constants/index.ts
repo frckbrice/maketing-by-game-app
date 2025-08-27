@@ -9,7 +9,10 @@ import {
   Gamepad2,
   Plus,
   Settings,
+  Target,
+  Trophy,
   Users,
+  Zap,
 } from 'lucide-react';
 
 export const APP_CONFIG = {
@@ -541,4 +544,87 @@ export const QUICK_ACTIONS = [
     href: '/admin/settings',
     color: 'from-lottery-900 to-lottery-950',
   },
+];
+
+// Mock data
+export const MOCK_STATS = [
+  { number: '50K+', label: 'Active Players' },
+  { number: '$2B+', label: 'Total Prizes' },
+  { number: '99.9%', label: 'Uptime' },
+];
+
+export const MOCK_WINNERS = [
+  {
+    name: 'Alex Anderson',
+    country: 'INDONESIA',
+    prize: 'POWERBALL',
+    amount: '$50M',
+    date: '2024',
+    image: '👨‍💼',
+  },
+  {
+    name: 'Taylor Madison',
+    country: 'AUSTRALIA',
+    prize: 'MEGA MILLIONS',
+    amount: '$25M',
+    date: '2024',
+    image: '👩‍💼',
+  },
+  {
+    name: 'Cinderella Joe',
+    country: 'INDONESIA',
+    prize: 'EUROJACKPOT',
+    amount: '$15M',
+    date: '2024',
+    image: '👩‍🦰',
+  },
+  {
+    name: 'James Peter',
+    country: 'AUSTRALIA',
+    prize: 'LOTTO MAX',
+    amount: '$30M',
+    date: '2024',
+    image: '👨‍🚀',
+  },
+];
+
+export const STEPS = (isDark: boolean) => [
+  {
+    icon: Target,
+    title: isDark ? 'Pick & Play' : 'Choose Numbers',
+    description: isDark
+      ? 'Choose your favorite lottery game and select your lucky numbers'
+      : 'Select your lucky numbers from our lottery games',
+    color: 'from-red-500 to-orange-500',
+  },
+  {
+    icon: Zap,
+    title: isDark ? 'Spin to Win' : 'Buy Tickets',
+    description: isDark
+      ? 'Watch the draw live and see if fortune favors you today'
+      : 'Purchase your lottery tickets securely online',
+    color: 'from-orange-500 to-yellow-500',
+  },
+  {
+    icon: DollarSign,
+    title: isDark ? 'Enter, Wait, Win' : 'Wait for Results',
+    description: isDark
+      ? 'Enter the draw and wait for the results with anticipation'
+      : 'Wait for the official draw results',
+    color: 'from-green-500 to-blue-500',
+  },
+  {
+    icon: Trophy,
+    title: isDark ? 'Bills Delivered' : 'Claim Prizes',
+    description: isDark
+      ? 'Instant payouts directly to your account when you win'
+      : 'Claim your winnings instantly and securely',
+    color: 'from-purple-500 to-pink-500',
+  },
+];
+
+export const PRIZES = [
+  { name: 'Mega Jackpot', amount: '$50,000,000', emoji: '💎' },
+  { name: 'Daily Bonus', amount: '$100,000', emoji: '💰' },
+  { name: 'Weekly Prize', amount: '$1,000,000', emoji: '🏆' },
 ];

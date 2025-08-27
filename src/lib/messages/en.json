@@ -39,7 +39,13 @@
     "english": "English",
     "french": "French",
     "rendering": "Rendering",
-    "welcome": "Welcome"
+    "welcome": "Welcome",
+    "games": "Games",
+    "howItWorks": "How It Works",
+    "winners": "Winners",
+    "appName": "BlackFriday Casino",
+    "switchToLightTheme": "Switch to light theme",
+    "switchToDarkTheme": "Switch to dark theme"
   },
   "navigation": {
     "home": "Home",
@@ -105,6 +111,37 @@
         "secure": "100% Secure",
         "licensed": "Fully Licensed",
         "instant": "Instant Results"
+      },
+      "badge": {
+        "dark": "LOTTERY OF THE YEAR 2024 IN CAMEROON",
+        "light": "TRUSTED PLATFORM"
+      },
+      "heading": {
+        "dark": {
+          "line1": "WE PROVIDE",
+          "line2": "BLACK FRIDAY",
+          "line3": "PLACE TO GET",
+          "line4": "POWERS OF",
+          "line5": "ACE WINNERS!"
+        },
+        "light": {
+          "line1": "WIN BIG WITH",
+          "line2": "BLACK FRIDAY CASINO"
+        }
+      },
+      "description": {
+        "dark": "BlackFriday offers many of the most popular lottery games you will find in some of the most famous locations around the world. Enjoy the safe and secure...",
+        "light": "Experience the thrill of winning with our trusted BlackFriday lottery platform. Join thousands of winners who have changed their lives with us."
+      },
+      "buttons": {
+        "primary": {
+          "dark": "Over 60 Games",
+          "light": "Start Playing"
+        },
+        "secondary": {
+          "dark": "New To Casino?",
+          "light": "Learn More"
+        }
       }
     },
     "stats": {
@@ -115,21 +152,64 @@
     "howItWorks": {
       "title": "How It Works",
       "subtitle": "Simple steps to start winning big prizes",
-      "step1": {
-        "title": "Choose Your Game",
-        "description": "Select from our wide variety of lottery games with different prize pools and odds"
+      "badge": {
+        "dark": "WINNING PROCESS",
+        "light": "HOW IT WORKS"
       },
-      "step2": {
-        "title": "Buy Your Ticket",
-        "description": "Purchase tickets securely with multiple payment options and instant confirmation"
+      "heading": {
+        "dark": "How BlackFriday Casino Works",
+        "light": "How It Works"
       },
-      "step3": {
-        "title": "Wait for Results",
-        "description": "Watch live draws and get notified instantly when results are announced"
+      "description": {
+        "dark": "Experience the thrill of winning with our simple 4-step process designed for maximum excitement and rewards.",
+        "light": "Follow these simple steps to start your journey towards winning life-changing prizes with our secure lottery platform."
       },
-      "step4": {
-        "title": "Claim Your Prize",
-        "description": "Collect your winnings quickly and securely through our verified payment system"
+      "steps": {
+        "step1": {
+          "title": {
+            "dark": "Pick & Play",
+            "light": "Choose Numbers"
+          },
+          "description": {
+            "dark": "Choose your favorite lottery game and select your lucky numbers",
+            "light": "Select your lucky numbers from our lottery games"
+          }
+        },
+        "step2": {
+          "title": {
+            "dark": "Spin to Win",
+            "light": "Buy Tickets"
+          },
+          "description": {
+            "dark": "Watch the draw live and see if fortune favors you today",
+            "light": "Purchase your lottery tickets securely online"
+          }
+        },
+        "step3": {
+          "title": {
+            "dark": "Enter, Wait, Win",
+            "light": "Wait for Results"
+          },
+          "description": {
+            "dark": "Enter the draw and wait for the results with anticipation",
+            "light": "Wait for the official draw results"
+          }
+        },
+        "step4": {
+          "title": {
+            "dark": "Bills Delivered",
+            "light": "Claim Prizes"
+          },
+          "description": {
+            "dark": "Instant payouts directly to your account when you win",
+            "light": "Claim your winnings instantly and securely"
+          }
+        }
+      },
+      "prizes": {
+        "megaJackpot": "Mega Jackpot",
+        "dailyBonus": "Daily Bonus",
+        "weeklyPrize": "Weekly Prize"
       }
     },
     "winners": {
@@ -143,7 +223,65 @@
     },
     "footer": {
       "copyright": "All rights reserved.",
-      "rights": "Privacy Policy | Terms of Service"
+      "rights": "Privacy Policy | Terms of Service",
+      "appName": "LotteryApp",
+      "description": "Your trusted platform for international lottery games. Experience the thrill of winning life-changing jackpots with complete security and transparency.",
+      "contact": {
+        "phone": "+1 (555) 123-LOTTO",
+        "email": "support@lotteryapp.com",
+        "address": "123 Lottery Street, Gaming City, GC 12345"
+      },
+      "sections": {
+        "popularGames": "Popular Games",
+        "support": "Support",
+        "company": "Company",
+        "legal": "Legal"
+      },
+      "links": {
+        "powerball": "Powerball",
+        "megaMillions": "Mega Millions",
+        "euroJackpot": "EuroJackpot",
+        "lottoMax": "Lotto Max",
+        "superEnalotto": "SuperEnalotto",
+        "helpCenter": "Help Center",
+        "howToPlay": "How to Play",
+        "contactUs": "Contact Us",
+        "faq": "FAQ",
+        "liveChat": "Live Chat",
+        "aboutUs": "About Us",
+        "responsibleGaming": "Responsible Gaming",
+        "careers": "Careers",
+        "press": "Press",
+        "partnerships": "Partnerships",
+        "termsOfService": "Terms of Service",
+        "privacyPolicy": "Privacy Policy",
+        "cookiePolicy": "Cookie Policy",
+        "security": "Security",
+        "licenses": "Licenses"
+      },
+      "trustBadges": {
+        "sslSecured": "SSL Secured",
+        "sslDescription": "Bank-level encryption",
+        "licensed": "Licensed",
+        "licensedDescription": "Fully regulated platform",
+        "support24_7": "24/7 Support",
+        "supportDescription": "Round-the-clock assistance",
+        "securePayments": "Secure Payments",
+        "paymentsDescription": "Multiple payment options"
+      },
+      "newsletter": {
+        "title": "Stay Updated",
+        "description": "Get the latest jackpot updates and exclusive offers",
+        "placeholder": "Enter your email",
+        "subscribe": "Subscribe"
+      },
+      "bottomBar": {
+        "copyright": "All rights reserved. | Licensed and regulated platform.",
+        "ageRestriction": "18+ Only. Play Responsibly.",
+        "responsibleGaming": "Get help if needed",
+        "gamcare": "GamCare.org.uk",
+        "gamblersAnonymous": "Gamblers Anonymous"
+      }
     }
   },
   "dashboard": {

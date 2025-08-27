@@ -2,7 +2,7 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getDatabase } from 'firebase/database';
-import { getAnalytics, isSupported } from 'firebase/analytics';
+// import { getAnalytics, isSupported } from 'firebase/analytics';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -29,8 +29,9 @@ export const db = getFirestore(app);
 export const database = getDatabase(app);
 export const storage = getStorage(app);
 
-// Initialize Analytics conditionally
-export const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
+// Temporarily disable Analytics to prevent API key errors
+// export const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
+export const analytics = null;
 
 // Validate configuration
 if (firebaseConfig.apiKey !== 'demo-api-key' && typeof window !== 'undefined') {

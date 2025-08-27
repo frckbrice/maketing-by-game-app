@@ -39,7 +39,13 @@
     "english": "Anglais",
     "french": "Français",
     "rendering": "Rendu",
-    "welcome": "Bienvenue"
+    "welcome": "Bienvenue",
+    "games": "Jeux",
+    "howItWorks": "Comment ça marche",
+    "winners": "Gagnants",
+    "appName": "BlackFriday Casino",
+    "switchToLightTheme": "Passer au thème clair",
+    "switchToDarkTheme": "Passer au thème sombre"
   },
   "navigation": {
     "home": "Accueil",
@@ -204,14 +210,45 @@
     "hero": {
       "title": "GAGNEZ GROS AVEC",
       "titleHighlight": "LOTERIE",
-      "subtitle": "Rejoignez des millions de joueurs dans le monde pour l'expérience de loterie la plus passionnante",
+      "subtitle": "Rejoignez des millions de joueurs dans le monde dans l'expérience de loterie la plus passionnante",
       "subtitleHighlight": "Vos rêves ne sont qu'à un billet de distance !",
       "cta": "Jouer Maintenant",
       "secondaryCta": "En Savoir Plus",
       "trust": {
         "secure": "100% Sécurisé",
-        "licensed": "Entièrement Autorisé",
+        "licensed": "Entièrement Licencié",
         "instant": "Résultats Instantanés"
+      },
+      "badge": {
+        "dark": "MEILLEUR JEUX DE 2024 AU CAMEROUN",
+        "light": "PLATEFORME DE CONFIANCE"
+      },
+      "heading": {
+        "dark": {
+          "line1": "NOUS FOURNISSONS",
+          "line2": "BLACK FRIDAY",
+          "line3": "ENDROIT POUR OBTENIR",
+          "line4": "POUVOIRS DES",
+          "line5": "GAGNANTS ACE !"
+        },
+        "light": {
+          "line1": "GAGNEZ GROS AVEC",
+          "line2": "CASINO BLACK FRIDAY"
+        }
+      },
+      "description": {
+        "dark": "BlackFriday propose de nombreux jeux de loterie populaires que vous trouverez dans certains des endroits les plus célèbres du monde. Profitez de la sécurité...",
+        "light": "Vivez le frisson de la victoire avec notre plateforme de loterie BlackFriday de confiance. Rejoignez des milliers de gagnants qui ont changé leur vie avec nous."
+      },
+      "buttons": {
+        "primary": {
+          "dark": "Plus de 60 Jeux",
+          "light": "Commencer à Jouer"
+        },
+        "secondary": {
+          "dark": "Nouveau au Casino ?",
+          "light": "En Savoir Plus"
+        }
       }
     },
     "stats": {
@@ -220,23 +257,66 @@
       "uptime": "Disponibilité"
     },
     "howItWorks": {
-      "title": "Comment Ça Marche",
+      "title": "Comment ça marche",
       "subtitle": "Étapes simples pour commencer à gagner de gros prix",
-      "step1": {
-        "title": "Choisissez Votre Jeu",
-        "description": "Sélectionnez parmi notre large variété de jeux de loterie avec différents pools de prix et probabilités"
+      "badge": {
+        "dark": "PROCESSUS DE GAGNANT",
+        "light": "COMMENT ÇA MARCHE"
       },
-      "step2": {
-        "title": "Achetez Votre Billet",
-        "description": "Achetez des billets en toute sécurité avec plusieurs options de paiement et confirmation instantanée"
+      "heading": {
+        "dark": "Comment fonctionne BlackFriday Casino",
+        "light": "Comment ça marche"
       },
-      "step3": {
-        "title": "Attendez les Résultats",
-        "description": "Regardez les tirages en direct et soyez notifié instantanément quand les résultats sont annoncés"
+      "description": {
+        "dark": "Vivez le frisson de la victoire avec notre processus en 4 étapes conçu pour un maximum d'excitation et de récompenses.",
+        "light": "Suivez ces étapes simples pour commencer votre voyage vers des prix qui changent la vie avec notre plateforme de loterie sécurisée."
       },
-      "step4": {
-        "title": "Réclamez Votre Prix",
-        "description": "Collectez vos gains rapidement et en toute sécurité via notre système de paiement vérifié"
+      "steps": {
+        "step1": {
+          "title": {
+            "dark": "Choisir & Jouer",
+            "light": "Choisir les Numéros"
+          },
+          "description": {
+            "dark": "Choisissez votre jeu de loterie préféré et sélectionnez vos numéros chanceux",
+            "light": "Sélectionnez vos numéros chanceux parmi nos jeux de loterie"
+          }
+        },
+        "step2": {
+          "title": {
+            "dark": "Tourner pour Gagner",
+            "light": "Acheter des Billets"
+          },
+          "description": {
+            "dark": "Regardez le tirage en direct et voyez si la fortune vous sourit aujourd'hui",
+            "light": "Achetez vos billets de loterie en ligne de manière sécurisée"
+          }
+        },
+        "step3": {
+          "title": {
+            "dark": "Entrer, Attendre, Gagner",
+            "light": "Attendre les Résultats"
+          },
+          "description": {
+            "dark": "Entrez dans le tirage et attendez les résultats avec anticipation",
+            "light": "Attendez les résultats officiels du tirage"
+          }
+        },
+        "step4": {
+          "title": {
+            "dark": "Billets Livrés",
+            "light": "Réclamer les Prix"
+          },
+          "description": {
+            "dark": "Paiements instantanés directement sur votre compte quand vous gagnez",
+            "light": "Réclamez vos gains instantanément et de manière sécurisée"
+          }
+        }
+      },
+      "prizes": {
+        "megaJackpot": "Méga Jackpot",
+        "dailyBonus": "Bonus Quotidien",
+        "weeklyPrize": "Prix Hebdomadaire"
       }
     },
     "winners": {
@@ -250,7 +330,65 @@
     },
     "footer": {
       "copyright": "Tous droits réservés.",
-      "rights": "Politique de Confidentialité | Conditions de Service"
+      "rights": "Politique de confidentialité | Conditions de service",
+      "appName": "LotteryApp",
+      "description": "Votre plateforme de confiance pour les jeux de loterie internationaux. Vivez le frisson de gagner des jackpots qui changent la vie avec une sécurité et une transparence complètes.",
+      "contact": {
+        "phone": "+1 (555) 123-LOTTO",
+        "email": "support@lotteryapp.com",
+        "address": "123 Rue de la Loterie, Ville de Jeu, GC 12345"
+      },
+      "sections": {
+        "popularGames": "Jeux Populaires",
+        "support": "Support",
+        "company": "Entreprise",
+        "legal": "Légal"
+      },
+      "links": {
+        "powerball": "Powerball",
+        "megaMillions": "Mega Millions",
+        "euroJackpot": "EuroJackpot",
+        "lottoMax": "Lotto Max",
+        "superEnalotto": "SuperEnalotto",
+        "helpCenter": "Centre d'Aide",
+        "howToPlay": "Comment Jouer",
+        "contactUs": "Contactez-nous",
+        "faq": "FAQ",
+        "liveChat": "Chat en Direct",
+        "aboutUs": "À Propos",
+        "responsibleGaming": "Jeu Responsable",
+        "careers": "Carrières",
+        "press": "Presse",
+        "partnerships": "Partenariats",
+        "termsOfService": "Conditions de Service",
+        "privacyPolicy": "Politique de Confidentialité",
+        "cookiePolicy": "Politique des Cookies",
+        "security": "Sécurité",
+        "licenses": "Licences"
+      },
+      "trustBadges": {
+        "sslSecured": "SSL Sécurisé",
+        "sslDescription": "Chiffrement de niveau bancaire",
+        "licensed": "Licencié",
+        "licensedDescription": "Plateforme entièrement réglementée",
+        "support24_7": "Support 24/7",
+        "supportDescription": "Assistance 24h/24 et 7j/7",
+        "securePayments": "Paiements Sécurisés",
+        "paymentsDescription": "Options de paiement multiples"
+      },
+      "newsletter": {
+        "title": "Restez Informé",
+        "description": "Recevez les dernières mises à jour des jackpots et des offres exclusives",
+        "placeholder": "Entrez votre email",
+        "subscribe": "S'abonner"
+      },
+      "bottomBar": {
+        "copyright": "Tous droits réservés. | Plateforme licenciée et réglementée.",
+        "ageRestriction": "18+ uniquement. Jouez de manière responsable.",
+        "responsibleGaming": "Obtenir de l'aide si nécessaire",
+        "gamcare": "GamCare.org.uk",
+        "gamblersAnonymous": "Joueurs Anonymes"
+      }
     }
   }
 }
