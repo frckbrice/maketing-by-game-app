@@ -1,0 +1,35 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'ADMIN'",
+        ".write": "$uid === auth.uid",
+        ".validate": "newData.hasChildren(['email', 'firstName', 'lastName', 'role'])"
+      }
+    },
+    "gameCounters": {
+      "$gameId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() in ['ADMIN', 'VENDOR'] || root.child('games').child($gameId).child('createdBy').val() === auth.uid)"
+      }
+    },
+    "presence": {
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'ADMIN'",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "gameStats": {
+      "$gameId": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() in ['ADMIN', 'VENDOR']"
+      }
+    },
+    "liveDrawings": {
+      "$gameId": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'ADMIN'"
+      }
+    }
+  }
+}

@@ -1,12 +1,12 @@
 # Lottery Images Setup Guide
 
-## 🖼️ **Required Images**
+## **Required Images**
 
 To complete the lottery app design, you need to add the following images to the `public/images/` folder:
 
 ### **1. Hero Section Image (lottery_1)**
 
-- **File**: `public/images/lottery_1.jpg`
+- **File**: `public/images/lottery_1.jpeg`
 - **Purpose**: Background image for the hero section
 - **Size**: High resolution (1920x1080 or larger)
 - **Content**: Lottery-themed hero image (similar to Zaiotto app)
@@ -14,15 +14,15 @@ To complete the lottery app design, you need to add the following images to the 
 ### **2. Winner Profile Images (Optional)**
 
 - **Files**:
-  - `public/images/winner1.jpg`
-  - `public/images/winner2.jpg`
-  - `public/images/winner3.jpg`
-  - `public/images/winner4.jpg`
+  - `public/images/winner_1.jpg`
+  - `public/images/winner_2.jpg`
+  - `public/images/winner_3.jpg`
+  - `public/images/winner_4.jpg`
 - **Purpose**: Profile pictures for winners section
 - **Size**: Square format (200x200 or larger)
 - **Content**: Winner profile photos
 
-## 🚀 **How to Add Images**
+## **How to Add Images**
 
 1. **Create the images folder** (if it doesn't exist):
 
@@ -45,16 +45,16 @@ To complete the lottery app design, you need to add the following images to the 
    <div className='absolute inset-0 bg-black/60'></div>
    ```
 
-## 🎨 **Current Design Features**
+## **Current Design Features**
 
-- ✅ **Mobile-first responsive design**
-- ✅ **Internationalization (English/French)**
-- ✅ **PWA optimizations**
-- ✅ **Hero section with gradient fallback**
-- ✅ **How It Works section (4 steps)**
-- ✅ **Winners showcase section**
-- ✅ **Mobile navigation**
-- ✅ **Touch-friendly buttons and interactions**
+- **Mobile-first responsive design**
+- **Internationalization (English/French)**
+- **PWA optimizations**
+- **Hero section with gradient fallback**
+- **How It Works section (4 steps)**
+- **Winners showcase section**
+- **Mobile navigation**
+- **Touch-friendly buttons and interactions**
 
 ## 📱 **Mobile-First Features**
 

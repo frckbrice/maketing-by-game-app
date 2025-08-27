@@ -1,0 +1,66 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection
+    match /users/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || resource.data.role == 'ADMIN');
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false; // Users cannot be deleted, only deactivated
+    }
+    
+    // Categories collection
+    match /categories/{categoryId} {
+      allow read: if true; // Public read access
+      allow write: if request.auth != null && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['ADMIN', 'VENDOR']);
+    }
+    
+    // Games collection
+    match /games/{gameId} {
+      allow read: if true; // Public read access
+      allow create: if request.auth != null && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['ADMIN', 'VENDOR']);
+      allow update: if request.auth != null && 
+        (resource.data.createdBy == request.auth.uid || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN');
+      allow delete: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN';
+    }
+    
+    // Tickets collection
+    match /tickets/{ticketId} {
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN');
+      allow create: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow update: if false; // Tickets cannot be modified after creation
+      allow delete: if false; // Tickets cannot be deleted
+    }
+    
+    // Payments collection
+    match /payments/{paymentId} {
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN');
+      allow create: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow update: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN';
+      allow delete: if false; // Payments cannot be deleted
+    }
+    
+    // Winners collection
+    match /winners/{winnerId} {
+      allow read: if true; // Public read access for transparency
+      allow write: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN';
+    }
+    
+    // Products collection (for vendors)
+    match /products/{productId} {
+      allow read: if true; // Public read access
+      allow write: if request.auth != null && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['ADMIN', 'VENDOR']);
+    }
+  }
+}

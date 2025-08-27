@@ -112,44 +112,82 @@ The app is already configured with PWA support using `@ducanh2912/next-pwa`. The
 
 ### 4. Database Rules Setup
 
-#### Firestore Rules
+#### Firestore Rules (`firestore.rules`)
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Users collection
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && (request.auth.uid == userId || resource.data.role == 'ADMIN');
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false; // Users cannot be deleted, only deactivated
     }
+
+    // Games collection
     match /games/{gameId} {
-      allow read: if true;
-      allow write: if request.auth != null &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['ADMIN', 'ENTERPRISE'];
+      allow read: if true; // Public read access
+      allow create: if request.auth != null &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['ADMIN', 'VENDOR']);
+      allow update: if request.auth != null &&
+        (resource.data.createdBy == request.auth.uid ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN');
+      allow delete: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN';
     }
+
+    // Tickets collection
     match /tickets/{ticketId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+      allow read: if request.auth != null &&
+        (resource.data.userId == request.auth.uid ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN');
+      allow create: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow update: if false; // Tickets cannot be modified after creation
+      allow delete: if false; // Tickets cannot be deleted
     }
   }
 }
 ```
 
-#### Realtime Database Rules
+#### Realtime Database Rules (`database.rules.json`)
 
 ```json
 {
   "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'ADMIN'",
+        ".write": "$uid === auth.uid",
+        ".validate": "newData.hasChildren(['email', 'firstName', 'lastName', 'role'])"
+      }
+    },
     "gameCounters": {
       "$gameId": {
-        ".read": true,
-        ".write": "auth != null"
+        ".read": "auth != null",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() in ['ADMIN', 'VENDOR'] || root.child('games').child($gameId).child('createdBy').val() === auth.uid)"
       }
     }
   }
 }
 ```
 
-### 5. Run Development Server
+### 5. Deploy Database Rules
+
+**Firestore Rules:**
+
+```bash
+firebase deploy --only firestore:rules
+```
+
+**Realtime Database Rules:**
+
+```bash
+firebase deploy --only database
+```
+
+### 6. Run Development Server
 
 ```bash
 yarn dev
@@ -228,20 +266,49 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 ```
 src/
 ├── app/                    # Next.js app router pages
-│   ├── api/               # API routes
-│   ├── auth/              # Authentication pages
-│   ├── dashboard/         # User dashboard
-│   ├── games/             # Game management
-│   └── admin/             # Admin interface
+│   ├── [locale]/          # Internationalized routes
+│   │   ├── en/            # English locale pages
+│   │   ├── fr/            # French locale pages
+│   │   ├── admin/         # Admin panel pages
+│   │   ├── auth/          # Authentication pages
+│   │   ├── dashboard/     # User dashboard
+│   │   ├── games/         # Games listing
+│   │   ├── layout.tsx     # Locale-specific layout
+│   │   └── page.tsx       # Home page with locale
+│   ├── globals.css        # Global styles
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Root redirect
 ├── components/             # Reusable components
-│   ├── ui/                # Base UI components
-│   ├── game/              # Game-specific components
-│   └── auth/              # Authentication components
+│   ├── ui/                # shadcn/ui components
+│   ├── providers/         # Context providers
+│   └── home/              # Home page components
 ├── lib/                    # Utility libraries
 │   ├── firebase/          # Firebase configuration and services
+│   ├── i18n/              # Internationalization
+│   ├── themes/            # Theme management
+│   ├── constants/         # Project constants
 │   └── utils/             # Helper functions
 ├── types/                  # TypeScript type definitions
-└── contexts/               # React contexts
+└── hooks/                 # Custom React hooks
+```
+
+### Root Level Files
+
+```
+lottery-app/
+├── firestore.rules         # Firestore security rules
+├── database.rules.json     # Realtime Database rules
+├── next.config.js          # Next.js configuration
+├── tailwind.config.ts      # Tailwind CSS configuration
+├── package.json            # Dependencies and scripts
+├── .github/                # GitHub Actions workflows
+├── .husky/                 # Git hooks configuration
+├── .eslintrc.json          # ESLint configuration
+├── .prettierrc             # Prettier configuration
+└── public/                 # Static assets
+    ├── icons/              # PWA icons
+    ├── images/             # App images
+    └── manifest.json       # PWA manifest
 ```
 
 ### Key Components
@@ -321,7 +388,36 @@ Ensure all Firebase configuration variables are set in your production environme
 - **PWA Features**: Service workers for offline capabilities
 - **Mobile Optimization**: Touch-friendly, responsive design
 
-##  Roadmap
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📚 Documentation
+
+For comprehensive documentation, troubleshooting guides, and setup instructions, see the [docs/](docs/) folder.
+
+### 📖 Quick Links
+
+- [📚 Documentation Index](docs/README.md) - Complete documentation overview
+- [🌍 i18n Setup Guide](docs/setup/i18n-setup-guide.md) - Internationalization setup
+- [🔧 Troubleshooting Guide](docs/troubleshooting/general-troubleshooting.md) - Common issues and solutions
+- [🚨 i18n Troubleshooting](docs/internationalization/i18n-troubleshooting-guide.md) - Internationalization issues
+
+## 🆘 Support
+
+- **Documentation**: Check the [docs/](docs/) folder for detailed guides
+- **Issues**: Report bugs via GitHub Issues
+- **Discussions**: Join community discussions on GitHub
+
+## 🎯 Roadmap
 
 ### Phase 1 (Current)
 
