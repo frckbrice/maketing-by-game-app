@@ -1,3 +1,4 @@
+import { LocaleSwitcherCompact } from '@/components/ui/LocaleSwitcher';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { Gift, Menu, X } from 'lucide-react';
 import Link from 'next/link';
@@ -60,6 +61,9 @@ export function MobileNavigation({
         </div>
 
         <div className='flex items-center space-x-2'>
+          {/* Language Switcher */}
+          <LocaleSwitcherCompact />
+
           {/* Theme Toggle Button */}
           <button
             onClick={onThemeToggle}

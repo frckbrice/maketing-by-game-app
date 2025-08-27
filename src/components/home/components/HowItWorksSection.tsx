@@ -1,46 +1,58 @@
+// HowItWorksSection.jsx
 import { Button } from '@/components/globals/Button';
 import { DollarSign, Target, Trophy, Zap } from 'lucide-react';
+import Image from 'next/image';
+import { useTranslation } from 'react-i18next';
 
 export const HowItWorksSection = ({ isDark }: { isDark: boolean }) => {
+  const { t } = useTranslation();
+
   const steps = [
     {
       icon: Target,
-      title: isDark ? 'Pick & Play' : 'Choose Numbers',
-      description: isDark
-        ? 'Choose your favorite lottery game and select your lucky numbers'
-        : 'Select your lucky numbers from our lottery games',
+      title: t('home.howItWorks.steps.step1.title'),
+      description: t('home.howItWorks.steps.step1.description'),
       color: 'from-red-500 to-orange-500',
     },
     {
       icon: Zap,
-      title: isDark ? 'Spin to Win' : 'Buy Tickets',
-      description: isDark
-        ? 'Watch the draw live and see if fortune favors you today'
-        : 'Purchase your lottery tickets securely online',
+      title: t('home.howItWorks.steps.step2.title'),
+      description: t('home.howItWorks.steps.step2.description'),
       color: 'from-orange-500 to-yellow-500',
     },
     {
       icon: DollarSign,
-      title: isDark ? 'Enter, Wait, Win' : 'Wait for Results',
-      description: isDark
-        ? 'Enter the draw and wait for the results with anticipation'
-        : 'Wait for the official draw results',
+      title: t('home.howItWorks.steps.step3.title'),
+      description: t('home.howItWorks.steps.step3.description'),
       color: 'from-green-500 to-blue-500',
     },
     {
       icon: Trophy,
-      title: isDark ? 'Bills Delivered' : 'Claim Prizes',
-      description: isDark
-        ? 'Instant payouts directly to your account when you win'
-        : 'Claim your winnings instantly and securely',
+      title: t('home.howItWorks.steps.step4.title'),
+      description: t('home.howItWorks.steps.step4.description'),
       color: 'from-purple-500 to-pink-500',
     },
   ];
 
   const prizes = [
-    { name: 'Mega Jackpot', amount: '$50,000,000', emoji: '💎' },
-    { name: 'Daily Bonus', amount: '$100,000', emoji: '💰' },
-    { name: 'Weekly Prize', amount: '$1,000,000', emoji: '🏆' },
+    {
+      name: 'Tech Bundle',
+      amount: 'iPhone 15 Pro Max + MacBook Pro',
+      image: 'iphone15promax.webp',
+      products: ['iPhone 15 Pro Max', 'MacBook Pro 16"', 'Apple Watch'],
+    },
+    {
+      name: 'Fashion Pack',
+      amount: 'Nike Air Jordan + Designer Clothes',
+      image: 'nikeAirMax.webp',
+      products: ['Nike Air Jordan', 'Designer Jeans', 'Luxury Hoodie'],
+    },
+    {
+      name: 'Home Setup',
+      amount: 'Smart Appliances Bundle',
+      image: 'refrigerator.jpeg',
+      products: ['Smart Refrigerator', 'Robot Vacuum', 'Air Fryer'],
+    },
   ];
 
   return (
@@ -69,23 +81,12 @@ export const HowItWorksSection = ({ isDark }: { isDark: boolean }) => {
               isDark ? 'text-white' : 'text-gray-900'
             }`}
           >
-            {isDark ? (
-              <>
-                How <span className='text-orange-500'>BlackFriday Casino</span>{' '}
-                Works
-              </>
-            ) : (
-              'How It Works'
-            )}
+            {t('home.howItWorks.title')}
           </h2>
           <p
-            className={`text-lg max-w-3xl mx-auto ${
-              isDark ? 'text-gray-400' : 'text-gray-600'
-            }`}
+            className={`text-lg max-w-3xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-700'} leading-relaxed`}
           >
-            {isDark
-              ? 'Experience the thrill of winning with our simple 4-step process designed for maximum excitement and rewards.'
-              : 'Follow these simple steps to start your journey towards winning life-changing prizes with our secure lottery platform.'}
+            {t('home.howItWorks.description.light')}
           </p>
         </div>
 
@@ -120,7 +121,7 @@ export const HowItWorksSection = ({ isDark }: { isDark: boolean }) => {
                   {step.title}
                 </h3>
                 <p
-                  className={`text-sm leading-relaxed px-2 ${isDark ? 'text-gray-400 group-hover:text-gray-300' : 'text-slate-300 group-hover:text-slate-200'} transition-colors duration-300`}
+                  className={`text-sm leading-relaxed px-2 ${isDark ? 'text-gray-400 group-hover:text-gray-300' : 'text-gray-700 group-hover:text-gray-800'} transition-colors duration-300`}
                 >
                   {step.description}
                 </p>
@@ -134,81 +135,113 @@ export const HowItWorksSection = ({ isDark }: { isDark: boolean }) => {
           ))}
         </div>
 
-        {/* Prize Showcase - Only for dark theme */}
-        {isDark && (
-          <>
-            <div className='text-center mb-12'>
-              <div className='inline-block px-4 py-2 rounded-full border border-orange-500/30 text-orange-400 text-sm font-semibold mb-4 bg-orange-500/5'>
-                [ WIN MEGA BONUSES! ]
-              </div>
-              <h3 className='text-3xl lg:text-4xl font-bold text-white mb-4'>
-                Win Your Dream <span className='text-orange-500'>Prizes</span>
-              </h3>
-              <p className='text-gray-400 text-lg max-w-2xl mx-auto'>
-                Choose from our incredible prize pool and start your journey to
-                financial freedom today.
-              </p>
-            </div>
+        {/* Prize Showcase - For both themes */}
+        <div className='text-center mb-12'>
+          <div
+            className={`inline-block px-4 py-2 rounded-full border text-sm font-semibold mb-4 ${
+              isDark
+                ? 'border-orange-500/30 text-orange-400 bg-orange-500/5'
+                : 'border-orange-300/50 text-orange-600 bg-orange-100/30'
+            }`}
+          >
+            {isDark ? '[ WIN AMAZING PRODUCTS! ]' : '🏆 WIN AMAZING PRODUCTS!'}
+          </div>
+          <h3
+            className={`text-3xl lg:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}
+          >
+            {t('home.howItWorks.products.title')}
+          </h3>
+          <p
+            className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-700'}`}
+          >
+            {t('home.howItWorks.products.subtitle')}
+          </p>
+        </div>
 
-            <div className='grid md:grid-cols-3 gap-8'>
-              {prizes.map((prize, index) => (
-                <div
-                  key={index}
-                  className='bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 border border-gray-700 hover:border-orange-500/50 transition-all duration-300 group hover:shadow-2xl hover:shadow-orange-500/10 relative overflow-hidden'
-                >
-                  {/* Background Pattern */}
-                  <div className='absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
+        <div className='grid md:grid-cols-3 gap-8'>
+          {prizes.map((prize, index) => (
+            <div
+              key={index}
+              className={`rounded-2xl p-8 border transition-all duration-300 group hover:shadow-2xl hover:shadow-orange-500/10 relative overflow-hidden ${
+                isDark
+                  ? 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 hover:border-orange-500/50'
+                  : 'bg-white border-gray-200 hover:border-orange-300/50'
+              }`}
+            >
+              {/* Background Pattern */}
+              <div
+                className={`absolute inset-0 transition-opacity duration-300 ${
+                  isDark
+                    ? 'bg-gradient-to-br from-orange-500/5 to-red-500/5 opacity-0 group-hover:opacity-100'
+                    : 'bg-gradient-to-br from-orange-50 to-red-50 opacity-0 group-hover:opacity-100'
+                }`}
+              ></div>
 
-                  <div className='text-center relative z-10'>
-                    {/* Prize Icon */}
-                    <div className='text-6xl mb-6 group-hover:scale-110 transition-transform duration-300'>
-                      {prize.emoji}
-                    </div>
-
-                    {/* Prize Details */}
-                    <h4 className='text-xl font-bold text-white mb-3 group-hover:text-orange-300 transition-colors duration-300'>
-                      {prize.name}
-                    </h4>
-                    <div className='text-4xl font-black text-orange-500 mb-6 group-hover:text-orange-400 transition-colors duration-300'>
-                      {prize.amount}
-                    </div>
-
-                    {/* Features */}
-                    <div className='space-y-2 mb-6 text-sm text-gray-400'>
-                      <div className='flex items-center justify-center gap-1'>
-                        <span className='w-1 h-1 bg-green-400 rounded-full'></span>
-                        <span>Instant Payout</span>
-                      </div>
-                      <div className='flex items-center justify-center gap-1'>
-                        <span className='w-1 h-1 bg-blue-400 rounded-full'></span>
-                        <span>Tax Handled</span>
-                      </div>
-                      <div className='flex items-center justify-center gap-1'>
-                        <span className='w-1 h-1 bg-purple-400 rounded-full'></span>
-                        <span>Secure Transfer</span>
-                      </div>
-                    </div>
-
-                    {/* CTA Button */}
-                    <Button className='w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300'>
-                      Play Now
-                    </Button>
-                  </div>
+              <div className='text-center relative z-10'>
+                {/* Prize Icon */}
+                <div className='text-6xl mb-6 group-hover:scale-110 transition-transform duration-300'>
+                  <Image
+                    src={`/en/images/${prize.image}`}
+                    alt={prize.name}
+                    width={100}
+                    height={100}
+                    className='rounded-2xl w-full h-full object-cover'
+                  />
                 </div>
-              ))}
-            </div>
 
-            {/* Bottom CTA */}
-            <div className='text-center mt-12'>
-              <p className='text-gray-400 mb-6 text-lg'>
-                Ready to change your life? Join thousands of winners today!
-              </p>
-              <Button className='bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-12 py-4 text-lg font-bold rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300'>
-                Start Playing All Games
-              </Button>
+                {/* Prize Details */}
+                <h4
+                  className={`text-xl font-bold mb-3 transition-colors duration-300 ${
+                    isDark
+                      ? 'text-white group-hover:text-orange-300'
+                      : 'text-gray-900 group-hover:text-orange-600'
+                  }`}
+                >
+                  {prize.name}
+                </h4>
+                <div className='text-lg font-bold text-orange-500 mb-4 group-hover:text-orange-400 transition-colors duration-300'>
+                  {prize.amount}
+                </div>
+
+                {/* Product List */}
+                <div
+                  className={`space-y-1 mb-6 text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
+                >
+                  {prize.products.map((product, idx) => (
+                    <div
+                      key={idx}
+                      className='flex items-center justify-center gap-1'
+                    >
+                      <span className='w-1 h-1 bg-green-400 rounded-full'></span>
+                      <span
+                        className={isDark ? 'text-gray-400' : 'text-gray-600'}
+                      >
+                        {product}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTA Button */}
+                <Button className='w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300'>
+                  {t('home.howItWorks.products.cta')}
+                </Button>
+              </div>
             </div>
-          </>
-        )}
+          ))}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className='text-center mt-12'>
+          <p
+            className={`mb-6 text-lg ${isDark ? 'text-gray-400' : 'text-gray-700'}`}
+          >
+            {t('home.howItWorks.products.bottomCta')}
+          </p>
+          <Button className='bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-12 py-4 text-lg font-bold rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300'>
+            {t('home.howItWorks.products.startPlaying')}
+          </Button>
+        </div>
       </div>
     </section>
   );

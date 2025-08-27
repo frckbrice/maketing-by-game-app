@@ -1,5 +1,6 @@
+import { LocaleSwitcher } from '@/components/ui/LocaleSwitcher';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { Gift } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -36,8 +37,15 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
         <div className='flex items-center justify-between h-16'>
           {/* Logo */}
           <div className='flex items-center space-x-2'>
-            <div className='w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center'>
-              <Gift className='w-5 h-5 text-white' />
+            <div className='w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center'>
+              {/* <Gift className='w-5 h-5 text-white' /> */}
+              <Image
+                src='/en/icons/lottery_logo.jpeg'
+                alt='logo'
+                width={100}
+                height={100}
+                className='rounded-lg w-full h-full object-contain'
+              />
             </div>
             <span
               className={`font-bold text-xl transition-colors duration-300 ${
@@ -102,6 +110,9 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
 
           {/* Right side - Theme toggle and auth */}
           <div className='flex items-center space-x-4'>
+            {/* Language Switcher */}
+            <LocaleSwitcher />
+
             {/* Theme Toggle Button */}
             <button
               onClick={onThemeToggle}

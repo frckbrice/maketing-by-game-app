@@ -1,10 +1,16 @@
+// StatsSection.jsx
+import { useTranslation } from 'react-i18next';
+
+// Mock data with product-focused stats
 const mockStats = [
-  { number: '50K+', label: 'Active Players' },
-  { number: '$2B+', label: 'Total Prizes' },
-  { number: '99.9%', label: 'Uptime' },
+  { number: '25K+', labelKey: 'home.stats.productsWon' },
+  { number: '$10M+', labelKey: 'home.stats.prizeValue' },
+  { number: '99.8%', labelKey: 'home.stats.deliveryRate' },
 ];
 
 export const StatsSection = ({ isDark }: { isDark: boolean }) => {
+  const { t } = useTranslation();
+
   return (
     <section
       className={`py-16 ${
@@ -31,7 +37,7 @@ export const StatsSection = ({ isDark }: { isDark: boolean }) => {
                   isDark ? 'text-gray-400' : 'text-gray-600'
                 }`}
               >
-                {stat.label}
+                {t(stat.labelKey)}
               </div>
             </div>
           ))}

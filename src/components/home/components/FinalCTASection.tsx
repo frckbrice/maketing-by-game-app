@@ -1,8 +1,11 @@
-import { ArrowRight, Shield, TrendingUp, Users } from 'lucide-react';
-
+// FinalCTASection.jsx
 import { Button } from '@/components/globals/Button';
+import { ArrowRight, Shield, TrendingUp, Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export const FinalCTASection = ({ isDark }: { isDark: boolean }) => {
+  const { t } = useTranslation();
+
   return (
     <section
       className={`py-20 ${
@@ -19,7 +22,7 @@ export const FinalCTASection = ({ isDark }: { isDark: boolean }) => {
               : 'border-orange-300/50 text-orange-600 bg-orange-100/30'
           }`}
         >
-          JOIN THE WINNERS
+          {t('home.cta.badge')}
         </div>
 
         <h2
@@ -27,7 +30,7 @@ export const FinalCTASection = ({ isDark }: { isDark: boolean }) => {
             isDark ? 'text-white' : 'text-gray-900'
           }`}
         >
-          Ready to Win Your <span className='text-orange-500'>Fortune?</span>
+          {t('home.cta.title')}
         </h2>
 
         <p
@@ -35,8 +38,7 @@ export const FinalCTASection = ({ isDark }: { isDark: boolean }) => {
             isDark ? 'text-gray-300' : 'text-gray-600'
           }`}
         >
-          Join thousands of winners who have changed their lives with our
-          trusted lottery platform. Your next big win is just one click away!
+          {t('home.cta.subtitle')}
         </p>
 
         <div className='flex flex-col sm:flex-row gap-4 justify-center items-center mb-12'>
@@ -48,7 +50,7 @@ export const FinalCTASection = ({ isDark }: { isDark: boolean }) => {
             } text-white`}
           >
             <span className='flex items-center gap-2'>
-              Start Playing Now
+              {t('home.cta.primaryButton')}
               <ArrowRight className='w-6 h-6' />
             </span>
           </Button>
@@ -61,7 +63,7 @@ export const FinalCTASection = ({ isDark }: { isDark: boolean }) => {
                 : 'border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white'
             }`}
           >
-            Learn More
+            {t('home.cta.secondaryButton')}
           </Button>
         </div>
 
@@ -73,7 +75,7 @@ export const FinalCTASection = ({ isDark }: { isDark: boolean }) => {
             }`}
           >
             <Users className='w-5 h-5' />
-            <span className='text-sm'>50,000+ Active Players</span>
+            <span className='text-sm'>{t('home.cta.trust.productsWon')}</span>
           </div>
           <div
             className={`flex items-center gap-2 transition-colors duration-300 hover:text-orange-400 ${
@@ -81,7 +83,7 @@ export const FinalCTASection = ({ isDark }: { isDark: boolean }) => {
             }`}
           >
             <TrendingUp className='w-5 h-5' />
-            <span className='text-sm'>$2B+ in Prizes Won</span>
+            <span className='text-sm'>{t('home.cta.trust.prizeValue')}</span>
           </div>
           <div
             className={`flex items-center gap-2 transition-colors duration-300 hover:text-orange-400 ${
@@ -89,7 +91,9 @@ export const FinalCTASection = ({ isDark }: { isDark: boolean }) => {
             }`}
           >
             <Shield className='w-5 h-5' />
-            <span className='text-sm'>100% Secure & Licensed</span>
+            <span className='text-sm'>
+              {t('home.cta.trust.authenticProducts')}
+            </span>
           </div>
         </div>
       </div>

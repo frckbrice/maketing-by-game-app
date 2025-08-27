@@ -43,7 +43,7 @@
     "games": "Games",
     "howItWorks": "How It Works",
     "winners": "Winners",
-    "appName": "BlackFriday Casino",
+    "appName": "BlackFriday",
     "switchToLightTheme": "Switch to light theme",
     "switchToDarkTheme": "Switch to dark theme"
   },
@@ -101,186 +101,87 @@
   },
   "home": {
     "hero": {
-      "title": "WIN BIG WITH",
-      "titleHighlight": "LOTTERY",
-      "subtitle": "Join millions of players worldwide in the most exciting lottery experience",
-      "subtitleHighlight": "Your dreams are just one ticket away!",
-      "cta": "Play Now",
-      "secondaryCta": "Learn More",
-      "trust": {
-        "secure": "100% Secure",
-        "licensed": "Fully Licensed",
-        "instant": "Instant Results"
-      },
-      "badge": {
-        "dark": "LOTTERY OF THE YEAR 2024 IN CAMEROON",
-        "light": "TRUSTED PLATFORM"
-      },
-      "heading": {
-        "dark": {
-          "line1": "WE PROVIDE",
-          "line2": "BLACK FRIDAY",
-          "line3": "PLACE TO GET",
-          "line4": "POWERS OF",
-          "line5": "ACE WINNERS!"
-        },
-        "light": {
-          "line1": "WIN BIG WITH",
-          "line2": "BLACK FRIDAY CASINO"
-        }
-      },
-      "description": {
-        "dark": "BlackFriday offers many of the most popular lottery games you will find in some of the most famous locations around the world. Enjoy the safe and secure...",
-        "light": "Experience the thrill of winning with our trusted BlackFriday lottery platform. Join thousands of winners who have changed their lives with us."
-      },
-      "buttons": {
-        "primary": {
-          "dark": "Over 60 Games",
-          "light": "Start Playing"
-        },
-        "secondary": {
-          "dark": "New To Casino?",
-          "light": "Learn More"
-        }
+      "title": "Win Your Dream Products",
+      "subtitle": "Join thousands of winners who have transformed their lives with life-changing jackpots",
+      "cta": "Start Playing Now",
+      "stats": {
+        "players": "Active Players",
+        "winners": "Total Winners",
+        "prizes": "Prizes Won",
+        "winRate": "Win Rate",
+        "productsWon": "Products Won",
+        "prizeValue": "Prize Value",
+        "deliveryRate": "Delivery Rate"
       }
-    },
-    "stats": {
-      "activeGames": "Active Games",
-      "participants": "Participants",
-      "uptime": "Uptime"
     },
     "howItWorks": {
       "title": "How It Works",
-      "subtitle": "Simple steps to start winning big prizes",
-      "badge": {
-        "dark": "WINNING PROCESS",
-        "light": "HOW IT WORKS"
-      },
-      "heading": {
-        "dark": "How BlackFriday Casino Works",
-        "light": "How It Works"
-      },
+      "subtitle": "Follow these simple steps to start your journey towards winning life-changing prizes",
       "description": {
         "dark": "Experience the thrill of winning with our simple 4-step process designed for maximum excitement and rewards.",
         "light": "Follow these simple steps to start your journey towards winning life-changing prizes with our secure lottery platform."
       },
       "steps": {
         "step1": {
-          "title": {
-            "dark": "Pick & Play",
-            "light": "Choose Numbers"
-          },
-          "description": {
-            "dark": "Choose your favorite lottery game and select your lucky numbers",
-            "light": "Select your lucky numbers from our lottery games"
-          }
+          "title": "Choose Products",
+          "description": "Browse our amazing collection of tech, fashion, sneakers, and home appliances from top brands"
         },
         "step2": {
-          "title": {
-            "dark": "Spin to Win",
-            "light": "Buy Tickets"
-          },
-          "description": {
-            "dark": "Watch the draw live and see if fortune favors you today",
-            "light": "Purchase your lottery tickets securely online"
-          }
+          "title": "Play to Win",
+          "description": "Enter contests for your favorite products - iPhone 15 Pro Max, Nike Air Jordan, MacBook Pro and more"
         },
         "step3": {
-          "title": {
-            "dark": "Enter, Wait, Win",
-            "light": "Wait for Results"
-          },
-          "description": {
-            "dark": "Enter the draw and wait for the results with anticipation",
-            "light": "Wait for the official draw results"
-          }
+          "title": "Await Results",
+          "description": "Watch live drawings and see if you win your dream products from our premium catalog"
         },
         "step4": {
-          "title": {
-            "dark": "Bills Delivered",
-            "light": "Claim Prizes"
-          },
-          "description": {
-            "dark": "Instant payouts directly to your account when you win",
-            "light": "Claim your winnings instantly and securely"
-          }
+          "title": "Get Delivered",
+          "description": "Winners receive authentic products delivered straight to their door - no cash substitutes"
         }
       },
-      "prizes": {
-        "megaJackpot": "Mega Jackpot",
-        "dailyBonus": "Daily Bonus",
-        "weeklyPrize": "Weekly Prize"
+      "products": {
+        "title": "Win Your Dream Products",
+        "subtitle": "Choose from our incredible product catalog featuring the latest tech, premium fashion, and top home appliances.",
+        "cta": "Enter Contest",
+        "bottomCta": "Ready to change your life? Join thousands of winners today!",
+        "startPlaying": "Start Playing All Games"
       }
     },
     "winners": {
       "title": "Recent Winners",
-      "subtitle": "See who's been lucky lately and get inspired to join the winning streak"
-    },
-    "cta": {
-      "title": "Ready to Win?",
-      "subtitle": "Join thousands of players who have already won life-changing prizes",
-      "button": "Start Playing Today"
+      "subtitle": "Celebrate with our latest jackpot winners from around the world who have changed their lives forever",
+      "jackpotTitle": "JACKPOT WINNERS",
+      "latestWinners": "Latest Winners",
+      "description": "Join our community of winners who have received incredible products from top brands like Apple, Nike, Samsung, and more.",
+      "viewAllWinners": "View All Winners",
+      "verifiedWinner": "VERIFIED WINNER",
+      "wonIn": "Won in"
     },
     "footer": {
-      "copyright": "All rights reserved.",
-      "rights": "Privacy Policy | Terms of Service",
-      "appName": "LotteryApp",
-      "description": "Your trusted platform for international lottery games. Experience the thrill of winning life-changing jackpots with complete security and transparency.",
-      "contact": {
-        "phone": "+1 (555) 123-LOTTO",
-        "email": "support@lotteryapp.com",
-        "address": "123 Lottery Street, Gaming City, GC 12345"
-      },
-      "sections": {
-        "popularGames": "Popular Games",
-        "support": "Support",
-        "company": "Company",
-        "legal": "Legal"
-      },
-      "links": {
-        "powerball": "Powerball",
-        "megaMillions": "Mega Millions",
-        "euroJackpot": "EuroJackpot",
-        "lottoMax": "Lotto Max",
-        "superEnalotto": "SuperEnalotto",
-        "helpCenter": "Help Center",
-        "howToPlay": "How to Play",
-        "contactUs": "Contact Us",
-        "faq": "FAQ",
-        "liveChat": "Live Chat",
-        "aboutUs": "About Us",
-        "responsibleGaming": "Responsible Gaming",
-        "careers": "Careers",
-        "press": "Press",
-        "partnerships": "Partnerships",
-        "termsOfService": "Terms of Service",
-        "privacyPolicy": "Privacy Policy",
-        "cookiePolicy": "Cookie Policy",
-        "security": "Security",
-        "licenses": "Licenses"
-      },
-      "trustBadges": {
-        "sslSecured": "SSL Secured",
-        "sslDescription": "Bank-level encryption",
-        "licensed": "Licensed",
-        "licensedDescription": "Fully regulated platform",
-        "support24_7": "24/7 Support",
-        "supportDescription": "Round-the-clock assistance",
-        "securePayments": "Secure Payments",
-        "paymentsDescription": "Multiple payment options"
-      },
-      "newsletter": {
-        "title": "Stay Updated",
-        "description": "Get the latest jackpot updates and exclusive offers",
-        "placeholder": "Enter your email",
-        "subscribe": "Subscribe"
-      },
-      "bottomBar": {
-        "copyright": "All rights reserved. | Licensed and regulated platform.",
-        "ageRestriction": "18+ Only. Play Responsibly.",
-        "responsibleGaming": "Get help if needed",
-        "gamcare": "GamCare.org.uk",
-        "gamblersAnonymous": "Gamblers Anonymous"
+      "description": "Transform your dreams into reality with our innovative lottery platform. Join thousands of winners who have changed their lives forever.",
+      "quickLinks": "Quick Links",
+      "support": "Support",
+      "legal": "Legal",
+      "social": "Follow Us",
+      "newsletter": "Stay Updated",
+      "newsletterPlaceholder": "Enter your email",
+      "newsletterButton": "Subscribe",
+      "copyright": "© 2025 LotteryApp. All rights reserved.",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "contactUs": "Contact Us",
+      "helpCenter": "Help Center"
+    },
+    "cta": {
+      "badge": "JOIN THE WINNERS",
+      "title": "Ready to Win Your Dream Products?",
+      "subtitle": "Join thousands of winners who have received incredible products from Apple, Nike, Samsung, and top fashion brands. Your dream tech, fashion, or home appliance could be next!",
+      "primaryButton": "Browse Products & Enter",
+      "secondaryButton": "View Winners Gallery",
+      "trust": {
+        "productsWon": "25,000+ Products Won",
+        "prizeValue": "$10M+ Prize Value Delivered",
+        "authenticProducts": "100% Authentic Products"
       }
     }
   },

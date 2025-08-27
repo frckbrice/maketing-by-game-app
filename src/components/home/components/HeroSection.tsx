@@ -10,11 +10,8 @@ import {
   Trophy,
   Users,
 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 
 export const HeroSection = ({ isDark }: { isDark: boolean }) => {
-  const { t } = useTranslation();
-
   return (
     <section className='relative min-h-screen flex items-center overflow-hidden'>
       {/* Background Elements */}
@@ -67,9 +64,7 @@ export const HeroSection = ({ isDark }: { isDark: boolean }) => {
                 <span
                   className={`text-sm font-medium ${isDark ? 'text-orange-200' : 'text-slate-700'}`}
                 >
-                  {isDark
-                    ? t('home.hero.badge.dark')
-                    : t('home.hero.badge.light')}
+                  {isDark ? 'LOTTERY OF 2024' : 'TRUSTED PLATFORM'}
                 </span>
               </div>
             </div>
@@ -80,29 +75,23 @@ export const HeroSection = ({ isDark }: { isDark: boolean }) => {
                 <span
                   className={`block mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}
                 >
-                  {isDark
-                    ? t('home.hero.heading.dark.line1')
-                    : t('home.hero.heading.light.line1')}
+                  {isDark ? 'WE PROVIDE' : 'WIN BIG WITH'}
                 </span>
                 {isDark && (
-                  <span className='block text-white mb-2 italic'>
-                    {t('home.hero.heading.dark.line2')}
-                  </span>
+                  <span className='block text-white mb-2 italic'>LOTTERY</span>
                 )}
                 <span
                   className={`block animate-pulse ${isDark ? 'bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent' : 'bg-gradient-to-r from-orange-500 via-orange-600 to-orange-500 bg-clip-text text-transparent'}`}
                 >
-                  {isDark
-                    ? t('home.hero.heading.dark.line3')
-                    : t('home.hero.heading.light.line2')}
+                  {isDark ? 'PLACE TO GET' : 'LOTTERY GAMES'}
                 </span>
                 {isDark && (
                   <>
                     <span className='block bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent'>
-                      {t('home.hero.heading.dark.line4')}
+                      POWERS OF
                     </span>
                     <span className='block text-white font-black'>
-                      {t('home.hero.heading.dark.line5')}
+                      ACE WINNERS!
                     </span>
                   </>
                 )}
@@ -112,11 +101,11 @@ export const HeroSection = ({ isDark }: { isDark: boolean }) => {
             {/* Description */}
             <div className='max-w-lg mx-auto lg:mx-0'>
               <p
-                className={`text-lg leading-relaxed ${isDark ? 'text-gray-300' : 'text-slate-600'}`}
+                className={`text-lg leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
               >
                 {isDark
-                  ? t('home.hero.description.dark')
-                  : t('home.hero.description.light')}
+                  ? 'Win incredible prizes including the latest tech, trendy fashion, premium sneakers, and home appliances. Your dream products are waiting!'
+                  : 'Experience the thrill of winning amazing products from top brands. From iPhone 15 Pro Max to Nike Air Jordan, MacBook Pro to designer fashion - play to win your favorites!'}
               </p>
             </div>
 
@@ -126,9 +115,7 @@ export const HeroSection = ({ isDark }: { isDark: boolean }) => {
                 className={`px-8 py-4 text-lg font-bold rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300 ${isDark ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600' : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700'} text-white`}
               >
                 <span className='flex items-center gap-2'>
-                  {isDark
-                    ? t('home.hero.buttons.primary.dark')
-                    : t('home.hero.buttons.primary.light')}
+                  {isDark ? 'Over 60 Games' : 'Start Playing'}
                   <ArrowRight className='w-5 h-5' />
                 </span>
               </Button>
@@ -136,14 +123,12 @@ export const HeroSection = ({ isDark }: { isDark: boolean }) => {
                 variant='outline'
                 className={`px-8 py-4 text-lg font-semibold rounded-xl border-2 transition-all duration-300 ${isDark ? 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white' : 'border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-orange-500'}`}
               >
-                {isDark
-                  ? t('home.hero.buttons.secondary.dark')
-                  : t('home.hero.buttons.secondary.light')}
+                {isDark ? 'New To Casino?' : 'Learn More'}
               </Button>
             </div>
 
             {/* Trust indicators */}
-            <div className='flex flex-wrap justify-center lg:justify-start gap-6 pt-20'>
+            <div className='flex flex-wrap justify-center lg:justify-start gap-6 pt-6'>
               <div
                 className={`flex items-center gap-2 ${isDark ? 'text-green-400' : 'text-green-600'}`}
               >
@@ -352,3 +337,5 @@ export const HeroSection = ({ isDark }: { isDark: boolean }) => {
     </section>
   );
 };
+
+export default HeroSection;

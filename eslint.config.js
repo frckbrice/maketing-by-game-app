@@ -94,6 +94,8 @@ export default [
       'node_modules/**',
       'public/sw.js',
       'public/workbox-*.js',
+      'public/*/sw.js',
+      'public/*/workbox-*.js',
       'dist/**',
       'build/**',
       'coverage/**',

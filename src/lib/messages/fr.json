@@ -43,7 +43,7 @@
     "games": "Jeux",
     "howItWorks": "Comment ça marche",
     "winners": "Gagnants",
-    "appName": "BlackFriday Casino",
+    "appName": "BlackFriday",
     "switchToLightTheme": "Passer au thème clair",
     "switchToDarkTheme": "Passer au thème sombre"
   },
@@ -208,186 +208,87 @@
   },
   "home": {
     "hero": {
-      "title": "GAGNEZ GROS AVEC",
-      "titleHighlight": "LOTERIE",
-      "subtitle": "Rejoignez des millions de joueurs dans le monde dans l'expérience de loterie la plus passionnante",
-      "subtitleHighlight": "Vos rêves ne sont qu'à un billet de distance !",
-      "cta": "Jouer Maintenant",
-      "secondaryCta": "En Savoir Plus",
-      "trust": {
-        "secure": "100% Sécurisé",
-        "licensed": "Entièrement Licencié",
-        "instant": "Résultats Instantanés"
-      },
-      "badge": {
-        "dark": "MEILLEUR JEUX DE 2024 AU CAMEROUN",
-        "light": "PLATEFORME DE CONFIANCE"
-      },
-      "heading": {
-        "dark": {
-          "line1": "NOUS FOURNISSONS",
-          "line2": "BLACK FRIDAY",
-          "line3": "ENDROIT POUR OBTENIR",
-          "line4": "POUVOIRS DES",
-          "line5": "GAGNANTS ACE !"
-        },
-        "light": {
-          "line1": "GAGNEZ GROS AVEC",
-          "line2": "CASINO BLACK FRIDAY"
-        }
-      },
-      "description": {
-        "dark": "BlackFriday propose de nombreux jeux de loterie populaires que vous trouverez dans certains des endroits les plus célèbres du monde. Profitez de la sécurité...",
-        "light": "Vivez le frisson de la victoire avec notre plateforme de loterie BlackFriday de confiance. Rejoignez des milliers de gagnants qui ont changé leur vie avec nous."
-      },
-      "buttons": {
-        "primary": {
-          "dark": "Plus de 60 Jeux",
-          "light": "Commencer à Jouer"
-        },
-        "secondary": {
-          "dark": "Nouveau au Casino ?",
-          "light": "En Savoir Plus"
-        }
+      "title": "Gagnez Vos Produits de Rêve",
+      "subtitle": "Rejoignez des milliers de gagnants qui ont transformé leur vie avec des jackpots qui changent la vie",
+      "cta": "Commencer à Jouer",
+      "stats": {
+        "players": "Joueurs Actifs",
+        "winners": "Total des Gagnants",
+        "prizes": "Prix Gagnés",
+        "winRate": "Taux de Gain",
+        "productsWon": "Produits Gagnés",
+        "prizeValue": "Valeur des Prix",
+        "deliveryRate": "Taux de Livraison"
       }
     },
-    "stats": {
-      "activeGames": "Jeux Actifs",
-      "participants": "Participants",
-      "uptime": "Disponibilité"
-    },
     "howItWorks": {
-      "title": "Comment ça marche",
-      "subtitle": "Étapes simples pour commencer à gagner de gros prix",
-      "badge": {
-        "dark": "PROCESSUS DE GAGNANT",
-        "light": "COMMENT ÇA MARCHE"
-      },
-      "heading": {
-        "dark": "Comment fonctionne BlackFriday Casino",
-        "light": "Comment ça marche"
-      },
+      "title": "Comment Ça Marche",
+      "subtitle": "Suivez ces étapes simples pour commencer votre voyage vers des prix qui changent la vie",
       "description": {
         "dark": "Vivez le frisson de la victoire avec notre processus en 4 étapes conçu pour un maximum d'excitation et de récompenses.",
         "light": "Suivez ces étapes simples pour commencer votre voyage vers des prix qui changent la vie avec notre plateforme de loterie sécurisée."
       },
       "steps": {
         "step1": {
-          "title": {
-            "dark": "Choisir & Jouer",
-            "light": "Choisir les Numéros"
-          },
-          "description": {
-            "dark": "Choisissez votre jeu de loterie préféré et sélectionnez vos numéros chanceux",
-            "light": "Sélectionnez vos numéros chanceux parmi nos jeux de loterie"
-          }
+          "title": "Choisir des Produits",
+          "description": "Parcourez notre incroyable collection de tech, mode, baskets et appareils ménagers de marques de premier plan"
         },
         "step2": {
-          "title": {
-            "dark": "Tourner pour Gagner",
-            "light": "Acheter des Billets"
-          },
-          "description": {
-            "dark": "Regardez le tirage en direct et voyez si la fortune vous sourit aujourd'hui",
-            "light": "Achetez vos billets de loterie en ligne de manière sécurisée"
-          }
+          "title": "Jouer pour Gagner",
+          "description": "Participez à des concours pour vos produits préférés - iPhone 15 Pro Max, Nike Air Jordan, MacBook Pro et plus encore"
         },
         "step3": {
-          "title": {
-            "dark": "Entrer, Attendre, Gagner",
-            "light": "Attendre les Résultats"
-          },
-          "description": {
-            "dark": "Entrez dans le tirage et attendez les résultats avec anticipation",
-            "light": "Attendez les résultats officiels du tirage"
-          }
+          "title": "Attendre les Résultats",
+          "description": "Regardez les tirages en direct et voyez si vous gagnez vos produits de rêve de notre catalogue premium"
         },
         "step4": {
-          "title": {
-            "dark": "Billets Livrés",
-            "light": "Réclamer les Prix"
-          },
-          "description": {
-            "dark": "Paiements instantanés directement sur votre compte quand vous gagnez",
-            "light": "Réclamez vos gains instantanément et de manière sécurisée"
-          }
+          "title": "Recevoir la Livraison",
+          "description": "Les gagnants reçoivent des produits authentiques livrés directement à leur porte - pas de substituts en espèces"
         }
       },
-      "prizes": {
-        "megaJackpot": "Méga Jackpot",
-        "dailyBonus": "Bonus Quotidien",
-        "weeklyPrize": "Prix Hebdomadaire"
+      "products": {
+        "title": "Gagnez Vos Produits de Rêve",
+        "subtitle": "Choisissez parmi notre incroyable catalogue de produits avec les dernières technologies, la mode premium et les meilleurs appareils ménagers.",
+        "cta": "Participer au Concours",
+        "bottomCta": "Prêt à changer votre vie ? Rejoignez des milliers de gagnants aujourd'hui !",
+        "startPlaying": "Commencer à Jouer à Tous les Jeux"
       }
     },
     "winners": {
       "title": "Gagnants Récents",
-      "subtitle": "Voyez qui a eu de la chance récemment et inspirez-vous pour rejoindre la série gagnante"
-    },
-    "cta": {
-      "title": "Prêt à Gagner ?",
-      "subtitle": "Rejoignez des milliers de joueurs qui ont déjà gagné des prix qui changent la vie",
-      "button": "Commencez à Jouer Aujourd'hui"
+      "subtitle": "Célébrez avec nos derniers gagnants de jackpot du monde entier qui ont changé leur vie pour toujours",
+      "jackpotTitle": "GAGNANTS DU JACKPOT",
+      "latestWinners": "Derniers Gagnants",
+      "description": "Rejoignez notre communauté de gagnants qui ont reçu des produits incroyables de marques de premier plan comme Apple, Nike, Samsung et plus encore.",
+      "viewAllWinners": "Voir Tous les Gagnants",
+      "verifiedWinner": "GAGNANT VÉRIFIÉ",
+      "wonIn": "Gagné en"
     },
     "footer": {
-      "copyright": "Tous droits réservés.",
-      "rights": "Politique de confidentialité | Conditions de service",
-      "appName": "LotteryApp",
-      "description": "Votre plateforme de confiance pour les jeux de loterie internationaux. Vivez le frisson de gagner des jackpots qui changent la vie avec une sécurité et une transparence complètes.",
-      "contact": {
-        "phone": "+1 (555) 123-LOTTO",
-        "email": "support@lotteryapp.com",
-        "address": "123 Rue de la Loterie, Ville de Jeu, GC 12345"
-      },
-      "sections": {
-        "popularGames": "Jeux Populaires",
-        "support": "Support",
-        "company": "Entreprise",
-        "legal": "Légal"
-      },
-      "links": {
-        "powerball": "Powerball",
-        "megaMillions": "Mega Millions",
-        "euroJackpot": "EuroJackpot",
-        "lottoMax": "Lotto Max",
-        "superEnalotto": "SuperEnalotto",
-        "helpCenter": "Centre d'Aide",
-        "howToPlay": "Comment Jouer",
-        "contactUs": "Contactez-nous",
-        "faq": "FAQ",
-        "liveChat": "Chat en Direct",
-        "aboutUs": "À Propos",
-        "responsibleGaming": "Jeu Responsable",
-        "careers": "Carrières",
-        "press": "Presse",
-        "partnerships": "Partenariats",
-        "termsOfService": "Conditions de Service",
-        "privacyPolicy": "Politique de Confidentialité",
-        "cookiePolicy": "Politique des Cookies",
-        "security": "Sécurité",
-        "licenses": "Licences"
-      },
-      "trustBadges": {
-        "sslSecured": "SSL Sécurisé",
-        "sslDescription": "Chiffrement de niveau bancaire",
-        "licensed": "Licencié",
-        "licensedDescription": "Plateforme entièrement réglementée",
-        "support24_7": "Support 24/7",
-        "supportDescription": "Assistance 24h/24 et 7j/7",
-        "securePayments": "Paiements Sécurisés",
-        "paymentsDescription": "Options de paiement multiples"
-      },
-      "newsletter": {
-        "title": "Restez Informé",
-        "description": "Recevez les dernières mises à jour des jackpots et des offres exclusives",
-        "placeholder": "Entrez votre email",
-        "subscribe": "S'abonner"
-      },
-      "bottomBar": {
-        "copyright": "Tous droits réservés. | Plateforme licenciée et réglementée.",
-        "ageRestriction": "18+ uniquement. Jouez de manière responsable.",
-        "responsibleGaming": "Obtenir de l'aide si nécessaire",
-        "gamcare": "GamCare.org.uk",
-        "gamblersAnonymous": "Joueurs Anonymes"
+      "description": "Transformez vos rêves en réalité avec notre plateforme de loterie innovante. Rejoignez des milliers de gagnants qui ont changé leur vie pour toujours.",
+      "quickLinks": "Liens Rapides",
+      "support": "Support",
+      "legal": "Mentions Légales",
+      "social": "Suivez-nous",
+      "newsletter": "Restez Informé",
+      "newsletterPlaceholder": "Entrez votre email",
+      "newsletterButton": "S'abonner",
+      "copyright": "© 2025 LotteryApp. Tous droits réservés.",
+      "privacyPolicy": "Politique de Confidentialité",
+      "termsOfService": "Conditions d'Utilisation",
+      "contactUs": "Contactez-nous",
+      "helpCenter": "Centre d'Aide"
+    },
+    "cta": {
+      "badge": "REJOIGNEZ LES GAGNANTS",
+      "title": "Prêt à Gagner Vos Produits de Rêve ?",
+      "subtitle": "Rejoignez des milliers de gagnants qui ont reçu des produits incroyables d'Apple, Nike, Samsung et des meilleures marques de mode. Votre tech, mode ou appareil ménager de rêve pourrait être le prochain !",
+      "primaryButton": "Parcourir les Produits et Participer",
+      "secondaryButton": "Voir la Galerie des Gagnants",
+      "trust": {
+        "productsWon": "25,000+ Produits Gagnés",
+        "prizeValue": "10M$+ de Valeur de Prix Livrée",
+        "authenticProducts": "100% Produits Authentiques"
       }
     }
   }
