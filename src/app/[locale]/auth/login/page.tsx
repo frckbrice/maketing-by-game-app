@@ -137,7 +137,7 @@ export default function LoginPage() {
               href='/auth/register'
               className='block text-lottery-400 hover:text-lottery-300 transition-colors text-sm'
             >
-              Don't have an account? Sign up
+              Don&apos;t have an account? Sign up
             </Link>
             <Link
               href='/auth/forgot-password'

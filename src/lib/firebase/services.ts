@@ -34,9 +34,9 @@ import { auth, database, db } from './config';
 // Authentication services
 export const authService = {
   async register(
-    email: string, 
-    password: string, 
-    firstName: string, 
+    email: string,
+    password: string,
+    firstName: string,
     lastName: string,
     role: 'USER' | 'VENDOR' | 'ADMIN' = 'USER',
     language?: string,
@@ -52,8 +52,6 @@ export const authService = {
     // Default values based on role
     const defaultLanguage = language || 'en';
     const defaultCurrency = currency || 'USD';
-    
-   
 
     const userData: Omit<User, 'id'> = {
       email,
@@ -63,7 +61,7 @@ export const authService = {
       status: 'PENDING_VERIFICATION' as UserStatus,
       emailVerified: false,
       phoneVerified: false,
-      twoFactorEnabled: false,  
+      twoFactorEnabled: false,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       preferences: {
@@ -92,31 +90,38 @@ export const authService = {
         dataSharing: true,
       },
       // Role-specific business settings
-      businessProfile: role === 'VENDOR' || role === 'ADMIN' ? {
-        companyName: '',
-        businessType: 'individual',
-        taxId: '',
-        address: {
-          street: '',
-          city: '',
-          state: '',
-          country: '',
-          postalCode: '',
-        },
-        contactPerson: {
-          name: `${firstName} ${lastName}`,
-          email,
-          phone: '',
-        },
-        paymentMethods: [],
-        subscriptionStatus: 'active',
-        subscriptionPlan: ROLE_CONFIG[role].subscriptionTier,
-        maxGames: ROLE_CONFIG[role].maxGames,
-        canCreateGames: ROLE_CONFIG[role].canCreateGames,
-        canManageUsers: ROLE_CONFIG[role].canManageUsers,
-        verificationStatus: 'pending',
-        documents: [],
-      } : undefined,
+      businessProfile:
+        role === 'VENDOR' || role === 'ADMIN'
+          ? {
+              companyName: '',
+              businessType: 'individual',
+              taxId: '',
+              address: {
+                street: '',
+                city: '',
+                state: '',
+                country: '',
+                postalCode: '',
+              },
+              contactPerson: {
+                name: `${firstName} ${lastName}`,
+                email,
+                phone: '',
+              },
+              paymentMethods: [],
+              subscriptionStatus: 'active',
+              subscriptionPlan: ROLE_CONFIG[role].subscriptionTier as
+                | 'free'
+                | 'basic'
+                | 'enterprise'
+                | 'premium',
+              maxGames: ROLE_CONFIG[role].maxGames,
+              canCreateGames: ROLE_CONFIG[role].canCreateGames,
+              canManageUsers: ROLE_CONFIG[role].canManageUsers,
+              verificationStatus: 'pending',
+              documents: [],
+            }
+          : undefined,
     };
 
     await addDoc(collection(db, 'users'), {

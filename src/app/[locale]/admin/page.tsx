@@ -1,22 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/lib/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
-import {
-  Users,
-  Gamepad2,
-  BarChart3,
-  Settings,
-  Plus,
-  TrendingUp,
-  DollarSign,
-  Award,
-  Menu,
-  X,
-} from 'lucide-react';
+import { useAuth } from '@/lib/contexts/AuthContext';
+import { Award, Gamepad2, Menu, TrendingUp, Users, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { QUICK_ACTIONS, STATS } from '../../../lib/constants';
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth();
@@ -40,75 +30,6 @@ export default function AdminDashboard() {
   if (!user || user.role !== 'ADMIN') {
     return null;
   }
-
-  const stats = [
-    {
-      title: 'Total Users',
-      value: '2,847',
-      change: '+12%',
-      icon: Users,
-      color: 'from-lottery-500 to-lottery-600',
-    },
-    {
-      title: 'Active Games',
-      value: '24',
-      change: '+5%',
-      icon: Gamepad2,
-      color: 'from-lottery-600 to-lottery-700',
-    },
-    {
-      title: 'Revenue',
-      value: '$45,230',
-      change: '+18%',
-      icon: DollarSign,
-      color: 'from-lottery-700 to-lottery-800',
-    },
-    {
-      title: 'Winners',
-      value: '156',
-      change: '+8%',
-      icon: Award,
-      color: 'from-lottery-800 to-lottery-900',
-    },
-  ];
-
-  const quickActions = [
-    {
-      title: 'Create Game',
-      description: 'Start a new lottery game',
-      icon: Plus,
-      href: '/admin/create-game',
-      color: 'from-lottery-500 to-lottery-600',
-    },
-    {
-      title: 'Manage Products',
-      description: 'Add or edit lottery products',
-      icon: Gamepad2,
-      href: '/admin/products',
-      color: 'from-lottery-600 to-lottery-700',
-    },
-    {
-      title: 'User Management',
-      description: 'View and manage users',
-      icon: Users,
-      href: '/admin/users',
-      color: 'from-lottery-700 to-lottery-800',
-    },
-    {
-      title: 'Analytics',
-      description: 'View detailed statistics',
-      icon: BarChart3,
-      href: '/admin/analytics',
-      color: 'from-lottery-800 to-lottery-900',
-    },
-    {
-      title: 'Settings',
-      description: 'Configure system settings',
-      icon: Settings,
-      href: '/admin/settings',
-      color: 'from-lottery-900 to-lottery-950',
-    },
-  ];
 
   return (
     <div className='min-h-screen bg-lottery-900'>
@@ -191,14 +112,15 @@ export default function AdminDashboard() {
               Welcome back, {user.firstName} {user.lastName}! 👋
             </h2>
             <p className='text-lottery-300'>
-              Here's what's happening with your lottery platform today.
+              Here&apos;s what&apos;s happening with your lottery platform
+              today.
             </p>
           </div>
         </div>
 
         {/* Stats Grid */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
-          {stats.map((stat, index) => (
+          {STATS.map((stat, index) => (
             <div
               key={index}
               className='bg-lottery-800/50 backdrop-blur-sm rounded-2xl p-6 border border-lottery-700/30 hover:border-lottery-600/50 transition-all duration-200'
@@ -235,7 +157,7 @@ export default function AdminDashboard() {
         <div className='mb-8'>
           <h3 className='text-xl font-bold text-white mb-6'>Quick Actions</h3>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {quickActions.map((action, index) => (
+            {QUICK_ACTIONS.map((action, index) => (
               <Link key={index} href={action.href}>
                 <div className='bg-lottery-800/50 backdrop-blur-sm rounded-2xl p-6 border border-lottery-700/30 hover:border-lottery-600/50 hover:transform hover:scale-105 transition-all duration-200 cursor-pointer group'>
                   <div

@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
 import { realtimeService } from '@/lib/firebase/services';
-import type { GameCounter } from '@/types';
+import { useEffect, useState } from 'react';
 
 export function useGameCounter(gameId: string) {
-  const [counter, setCounter] = useState<GameCounter | null>(null);
+  const [counter, setCounter] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,20 +28,24 @@ export function useGameCounter(gameId: string) {
     fetchInitialCounter();
 
     // Set up real-time listener
-    const unsubscribe = realtimeService.onGameCounterChange(gameId, data => {
+    realtimeService.onGameCounterChange(gameId, data => {
       setCounter(data);
       setLoading(false);
       setError(null);
     });
 
     return () => {
-      unsubscribe();
+      realtimeService.offGameCounterChange(gameId);
     };
   }, [gameId]);
 
   const incrementParticipants = async () => {
     try {
-      await realtimeService.incrementParticipants(gameId);
+      const currentCounter = await realtimeService.getGameCounter(gameId);
+      const newParticipants = (currentCounter?.participants || 0) + 1;
+      await realtimeService.updateGameCounter(gameId, {
+        participants: newParticipants,
+      });
     } catch (err) {
       setError('Failed to increment participants');
       console.error('Error incrementing participants:', err);

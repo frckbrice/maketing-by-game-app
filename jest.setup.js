@@ -1,3 +1,5 @@
+/* eslint-env jest */
+
 import '@testing-library/jest-dom';
 
 // Mock Next.js router
@@ -50,14 +52,45 @@ jest.mock('@/lib/firebase/config', () => ({
   analytics: null,
 }));
 
-// Mock environment variables
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+};
+
+// Mock PerformanceObserver
+global.PerformanceObserver = class PerformanceObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+};
+
+// Mock URLSearchParams
+global.URLSearchParams = class URLSearchParams {
+  constructor() {}
+  append() {}
+  delete() {}
+  get() {}
+  getAll() {}
+  has() {}
+  set() {}
+  toString() {}
+};
+
+// Mock process.env
+process.env.NODE_ENV = 'test';
 process.env.NEXT_PUBLIC_FIREBASE_API_KEY = 'test-api-key';
 process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN = 'test.firebaseapp.com';
 process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = 'test-project';
 process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET = 'test.appspot.com';
 process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID = '123456789';
 process.env.NEXT_PUBLIC_FIREBASE_APP_ID = 'test-app-id';
-process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID = 'test-measurement-id';
+
+// Mock global
+global.global = global;
 
 // Global test utilities
 global.ResizeObserver = jest.fn().mockImplementation(() => ({

@@ -2,6 +2,15 @@
 // APP CONSTANTS
 // =============================================================================
 
+import {
+  Award,
+  BarChart3,
+  DollarSign,
+  Gamepad2,
+  Plus,
+  Settings,
+  Users,
+} from 'lucide-react';
 
 export const APP_CONFIG = {
   name: 'Lottery App',
@@ -412,7 +421,7 @@ export const CURRENCY_CONFIG = {
 
 export type SupportedCurrency = (typeof CURRENCY_CONFIG.supported)[number];
 
-  // Role-specific configurations
+// Role-specific configurations
 export const ROLE_CONFIG = {
   USER: {
     maxGames: 0,
@@ -434,34 +443,102 @@ export const ROLE_CONFIG = {
   },
 };
 
+export const WINNERS = [
+  {
+    name: 'Alex Anderson',
+    date: '24/12/2024',
+    contest: '1043',
+    numbers: '20, 21',
+    image: '/images/winner_1.jpg', // Placeholder
+  },
+  {
+    name: 'Taylor Madinsen',
+    date: '24/12/2024',
+    contest: '1043',
+    numbers: '20, 21',
+    image: '/images/winner_2.jpg', // Placeholder
+  },
+  {
+    name: 'Cinderella Joe',
+    date: '24/12/2024',
+    contest: '1043',
+    numbers: '20, 21',
+    image: '/images/winner_3.jpg', // Placeholder
+  },
+  {
+    name: 'James Peter',
+    date: '24/12/2024',
+    contest: '1043',
+    numbers: '20, 21',
+    image: '/images/winner_4.jpg', // Placeholder
+  },
+];
 
-export  const WINNERS = [
-    {
-      name: 'Alex Anderson',
-      date: '24/12/2024',
-      contest: '1043',
-      numbers: '20, 21',
-      image: '/images/winner_1.jpg', // Placeholder
-    },
-    {
-      name: 'Taylor Madinsen',
-      date: '24/12/2024',
-      contest: '1043',
-      numbers: '20, 21',
-      image: '/images/winner_2.jpg', // Placeholder
-    },
-    {
-      name: 'Cinderella Joe',
-      date: '24/12/2024',
-      contest: '1043',
-      numbers: '20, 21',
-      image: '/images/winner_3.jpg', // Placeholder
-    },
-    {
-      name: 'James Peter',
-      date: '24/12/2024',
-      contest: '1043',
-      numbers: '20, 21',
-      image: '/images/winner_4.jpg', // Placeholder
-    },
-  ];
+export const STATS = [
+  {
+    title: 'Total Users',
+    value: '2,847',
+    change: '+12%',
+    icon: Users,
+    color: 'from-lottery-500 to-lottery-600',
+  },
+  {
+    title: 'Active Games',
+    value: '24',
+    change: '+5%',
+    icon: Gamepad2,
+    color: 'from-lottery-600 to-lottery-700',
+  },
+  {
+    title: 'Revenue',
+    value: '$45,230',
+    change: '+18%',
+    icon: DollarSign,
+    color: 'from-lottery-700 to-lottery-800',
+  },
+  {
+    title: 'Winners',
+    value: '156',
+    change: '+8%',
+    icon: Award,
+    color: 'from-lottery-800 to-lottery-900',
+  },
+];
+
+export const QUICK_ACTIONS = [
+  {
+    title: 'Create Game',
+    description: 'Start a new lottery game',
+    icon: Plus,
+    href: '/admin/create-game',
+    color: 'from-lottery-500 to-lottery-600',
+  },
+  {
+    title: 'Manage Products',
+    description: 'Add or edit lottery products',
+    icon: Gamepad2,
+    href: '/admin/products',
+    color: 'from-lottery-600 to-lottery-700',
+  },
+  {
+    title: 'User Management',
+    description: 'View and manage users',
+    icon: Users,
+    href: '/admin/users',
+    color: 'from-lottery-700 to-lottery-800',
+  },
+  {
+    title: 'Analytics',
+    description: 'View detailed statistics',
+    icon: BarChart3,
+    href: '/admin/analytics',
+    color: 'from-lottery-800 to-lottery-900',
+  },
+  {
+    title: 'Settings',
+    description: 'Configure system settings',
+    icon: Settings,
+    href: '/admin/settings',
+    color: 'from-lottery-900 to-lottery-950',
+  },
+];

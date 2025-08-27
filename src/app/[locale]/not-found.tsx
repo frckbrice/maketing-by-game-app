@@ -10,7 +10,7 @@ export default function NotFound() {
           </span>
         </h1>
         <p className='text-xl text-gray-300 mb-8'>
-          The page you're looking for doesn't exist
+          The page you&apos;re looking for doesn&apos;t exist
         </p>
         <Link href='/'>
           <button className='bg-[#FF5722] hover:bg-[#FF9800] text-white font-bold py-3 px-6 rounded-lg transition-colors'>
