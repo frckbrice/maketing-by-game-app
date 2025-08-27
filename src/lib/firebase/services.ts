@@ -9,10 +9,17 @@ import type {
 } from '@/types';
 import {
   createUserWithEmailAndPassword,
+  deleteUser,
   User as FirebaseUser,
+  getRedirectResult,
+  GoogleAuthProvider,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
+  signInWithPopup,
+  signInWithRedirect,
   signOut,
+  updatePassword,
 } from 'firebase/auth';
 import { get, off, onValue, ref, set } from 'firebase/database';
 import {
@@ -25,6 +32,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
   updateDoc,
   where,
 } from 'firebase/firestore';
@@ -40,7 +48,8 @@ export const authService = {
     lastName: string,
     role: 'USER' | 'VENDOR' | 'ADMIN' = 'USER',
     language?: string,
-    currency?: string
+    currency?: string,
+    phoneNumber?: string
   ): Promise<any> {
     const userCredential = await createUserWithEmailAndPassword(
       auth,
@@ -57,6 +66,7 @@ export const authService = {
       email,
       firstName,
       lastName,
+      ...(phoneNumber && { phoneNumber }),
       role,
       status: 'PENDING_VERIFICATION' as UserStatus,
       emailVerified: false,
@@ -89,10 +99,10 @@ export const authService = {
         allowContact: true,
         dataSharing: true,
       },
-      // Role-specific business settings
-      businessProfile:
-        role === 'VENDOR' || role === 'ADMIN'
-          ? {
+      // Role-specific business settings - only include if role is VENDOR or ADMIN
+      ...(role === 'VENDOR' || role === 'ADMIN'
+        ? {
+            businessProfile: {
               companyName: '',
               businessType: 'individual',
               taxId: '',
@@ -120,14 +130,13 @@ export const authService = {
               canManageUsers: ROLE_CONFIG[role].canManageUsers,
               verificationStatus: 'pending',
               documents: [],
-            }
-          : undefined,
+            },
+          }
+        : {}),
     };
 
-    await addDoc(collection(db, 'users'), {
-      ...userData,
-      id: user.uid,
-    });
+    // Create the user document with the UID as the document ID
+    await setDoc(doc(db, 'users', user.uid), userData);
 
     return { ...userData, id: user.uid };
   },
@@ -148,6 +157,183 @@ export const authService = {
   onAuthStateChange(callback: (user: FirebaseUser | null) => void) {
     return onAuthStateChanged(auth, callback);
   },
+
+  async signInWithGoogle(): Promise<FirebaseUser> {
+    const provider = new GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
+
+    try {
+      // Try popup first
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Check if user document exists in Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+
+      if (!userDoc.exists()) {
+        // Create new user document for first-time Google sign-in
+        const userData: Omit<User, 'id'> = {
+          email: user.email || '',
+          firstName: user.displayName?.split(' ')[0] || 'User',
+          lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+          role: 'USER',
+          status: 'ACTIVE' as UserStatus,
+          emailVerified: user.emailVerified,
+          phoneVerified: false,
+          twoFactorEnabled: false,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          preferences: {
+            language: 'en',
+            theme: 'system',
+            notifications: true,
+            emailUpdates: true,
+            smsUpdates: false,
+            timezone: 'UTC',
+            currency: 'USD',
+          },
+          notificationSettings: {
+            email: true,
+            sms: false,
+            push: true,
+            inApp: true,
+            marketing: false,
+            gameUpdates: true,
+            winnerAnnouncements: true,
+          },
+          privacySettings: {
+            profileVisibility: 'public',
+            showEmail: false,
+            showPhone: false,
+            allowContact: true,
+            dataSharing: true,
+          },
+        };
+
+        // Create the user document
+        await setDoc(doc(db, 'users', user.uid), userData);
+      }
+
+      return user;
+    } catch (error: any) {
+      // If popup is blocked, fall back to redirect
+      if (
+        error.code === 'auth/popup-blocked' ||
+        error.code === 'auth/popup-closed-by-user'
+      ) {
+        console.log('Popup blocked, falling back to redirect method');
+        await signInWithRedirect(auth, provider);
+        // Note: User will be redirected away from the page
+        // The result will be handled when they return
+        throw new Error('Redirecting to Google sign-in...');
+      }
+      throw error;
+    }
+  },
+
+  async getRedirectResult(): Promise<FirebaseUser | null> {
+    try {
+      const result = await getRedirectResult(auth);
+      if (result) {
+        const user = result.user;
+
+        // Check if user document exists in Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+
+        if (!userDoc.exists()) {
+          // Create new user document for first-time Google sign-in
+          const userData: Omit<User, 'id'> = {
+            email: user.email || '',
+            firstName: user.displayName?.split(' ')[0] || 'User',
+            lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+            role: 'USER',
+            status: 'ACTIVE' as UserStatus,
+            emailVerified: user.emailVerified,
+            phoneVerified: false,
+            twoFactorEnabled: false,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            preferences: {
+              language: 'en',
+              theme: 'system',
+              notifications: true,
+              emailUpdates: true,
+              smsUpdates: false,
+              timezone: 'UTC',
+              currency: 'USD',
+            },
+            notificationSettings: {
+              email: true,
+              sms: false,
+              push: true,
+              inApp: true,
+              marketing: false,
+              gameUpdates: true,
+              winnerAnnouncements: true,
+            },
+            privacySettings: {
+              profileVisibility: 'public',
+              showEmail: false,
+              showPhone: false,
+              allowContact: true,
+              dataSharing: true,
+            },
+          };
+
+          // Create the user document
+          await setDoc(doc(db, 'users', user.uid), userData);
+        }
+
+        return user;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting redirect result:', error);
+      return null;
+    }
+  },
+
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    return sendPasswordResetEmail(auth, email);
+  },
+
+  async updatePassword(newPassword: string): Promise<void> {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('No user is currently signed in');
+    }
+    return updatePassword(user, newPassword);
+  },
+
+  async deleteAccount(): Promise<void> {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('No user is currently signed in');
+    }
+    return deleteUser(user);
+  },
+
+  async sendPhoneVerificationCode(phoneNumber: string): Promise<void> {
+    // For now, we'll simulate phone verification
+    // In production, you'd integrate with a service like Twilio or Firebase Phone Auth
+    console.log(`Sending verification code to ${phoneNumber}`);
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  },
+
+  async verifyPhoneCode(phoneNumber: string, code: string): Promise<void> {
+    // For now, we'll simulate phone verification
+    // In production, you'd verify the code with your phone service
+    console.log(`Verifying code ${code} for ${phoneNumber}`);
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // For demo purposes, accept any 6-digit code
+    if (code.length !== 6 || !/^\d{6}$/.test(code)) {
+      throw new Error('Invalid verification code');
+    }
+  },
 };
 
 // Firestore services
@@ -166,6 +352,10 @@ export const firestoreService = {
       ...data,
       updatedAt: serverTimestamp(),
     });
+  },
+
+  async deleteUser(userId: string): Promise<void> {
+    await deleteDoc(doc(db, 'users', userId));
   },
 
   // Category operations

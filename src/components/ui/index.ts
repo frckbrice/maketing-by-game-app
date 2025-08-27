@@ -82,4 +82,5 @@ export { DataTable } from './data-table';
 export { Skeleton } from './skeleton';
 export { TableSkeleton } from './table-skeleton';
 export { ThemeToggle } from './ThemeToggle';
+export { UserProfileDropdown } from './UserProfileDropdown';
 // export { LanguageSwitcher } from './LanguageSwitcher';

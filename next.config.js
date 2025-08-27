@@ -292,10 +292,10 @@ const nextConfig = {
                         key: "Content-Security-Policy",
                         value: [
                             "default-src 'self'",
-                            "script-src 'self' 'unsafe-eval' 'unsafe-inline' https:",
+                            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
                             "style-src 'self' 'unsafe-inline' https:",
                             "font-src 'self' https: data:",
-                            "img-src 'self' data: https: blob: 'unsafe-inline'",
+                            "img-src 'self' data: https: blob:",
                             "connect-src 'self' https: wss:",
                             "frame-src 'self' https:",
                             "object-src 'none'",

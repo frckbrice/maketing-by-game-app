@@ -28,6 +28,7 @@
     "password": "Password",
     "name": "Name",
     "phone": "Phone",
+    "role": "Role",
     "description": "Description",
     "price": "Price",
     "status": "Status",
@@ -45,7 +46,10 @@
     "winners": "Winners",
     "appName": "BlackFriday",
     "switchToLightTheme": "Switch to light theme",
-    "switchToDarkTheme": "Switch to dark theme"
+    "switchToDarkTheme": "Switch to dark theme",
+    "redirecting": "Redirecting...",
+    "goHome": "Go Home",
+    "admin": "Admin"
   },
   "navigation": {
     "home": "Home",
@@ -58,37 +62,44 @@
   "auth": {
     "login": {
       "title": "Welcome Back",
-      "subtitle": "Sign in to your lottery account",
+      "subtitle": "Sign in to your account to continue playing",
       "email": "Email Address",
       "password": "Password",
       "submit": "Sign In",
-      "forgotPassword": "Forgot your password?",
       "noAccount": "Don't have an account?",
       "signUp": "Sign up",
-      "backToHome": "Back to Home"
+      "forgotPassword": "Forgot your password?",
+      "backToHome": "← Back to Home"
     },
     "register": {
-      "title": "Join the Lottery",
-      "subtitle": "Create your account and start winning",
-      "firstName": "First Name",
-      "lastName": "Last Name",
+      "title": "Create Account",
+      "subtitle": "Join our Game community and start winning",
       "email": "Email Address",
       "password": "Password",
       "confirmPassword": "Confirm Password",
-      "role": "Account Type",
-      "roleUser": "User",
-      "roleVendor": "Vendor",
-      "roleDescription": "Choose your account type. Users can participate in games, Vendors can create and manage games.",
-      "terms": "I agree to the ",
-      "termsLink": "Terms and Conditions",
-      "and": " and ",
-      "privacyLink": "Privacy Policy",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "phoneNumber": "Phone Number",
+      "acceptTerms": "I accept the terms and conditions",
       "submit": "Create Account",
-      "alreadyHaveAccount": "Already have an account? ",
-      "signInHere": "Sign in here",
       "hasAccount": "Already have an account?",
-      "signIn": "Sign in here",
-      "backToHome": "Back to Home"
+      "signIn": "Sign in",
+      "backToHome": "← Back to Home"
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "subtitle": "Enter your email address and we'll send you a link to reset your password.",
+      "email": "Email Address",
+      "submit": "Send Reset Link",
+      "backToLogin": "← Back to Login",
+      "checkEmail": "Check Your Email",
+      "emailSent": "We've sent a password reset link to",
+      "emailInstructions": "Click the link in the email to reset your password. The link will expire in 1 hour.",
+      "backToLoginButton": "Back to Login"
+    },
+    "errors": {
+      "popupBlocked": "Popup blocked by browser. Please allow popups for this site or try again.",
+      "popupBlockedInstructions": "To fix this: 1) Allow popups for this site, 2) Disable ad blockers, or 3) Try signing in again."
     }
   },
   "LocaleSwitcher": {
@@ -97,13 +108,31 @@
     "french": "French"
   },
   "LocaleLayout": {
-    "title": "Lottery App"
+    "title": "Game App"
   },
   "home": {
     "hero": {
       "title": "Win Your Dream Products",
       "subtitle": "Join thousands of winners who have transformed their lives with life-changing jackpots",
       "cta": "Start Playing Now",
+      "secondaryCta": "Create Account",
+      "badge": "GAME OF THE YEAR 2024",
+      "badgeLight": "TRUSTED PLATFORM",
+      "mainHeading": {
+        "dark": {
+          "line1": "WE PROVIDE",
+          "line2": "GAMES",
+          "line3": "PLACE TO GET",
+          "line4": "POWERS OF",
+          "line5": "ACE WINNERS!"
+        },
+        "light": {
+          "line1": "WIN BIG WITH",
+          "line2": "OUR GAMES"
+        }
+      },
+      "description": "Transform your dreams into reality with our innovative Game platform. Join thousands of winners who have changed their lives forever.",
+      "descriptionDark": "Win incredible prizes including the latest tech, trendy fashion, premium sneakers, and home appliances. Your dream products are waiting!",
       "stats": {
         "players": "Active Players",
         "winners": "Total Winners",
@@ -114,12 +143,20 @@
         "deliveryRate": "Delivery Rate"
       }
     },
+    "stats": {
+      "title": "Our Success Numbers",
+      "subtitle": "Join thousands of winners who have already changed their lives",
+      "totalPlayers": "Total Players",
+      "totalWinners": "Total Winners",
+      "totalPrizes": "Total Prizes",
+      "totalValue": "Total Value"
+    },
     "howItWorks": {
       "title": "How It Works",
       "subtitle": "Follow these simple steps to start your journey towards winning life-changing prizes",
       "description": {
         "dark": "Experience the thrill of winning with our simple 4-step process designed for maximum excitement and rewards.",
-        "light": "Follow these simple steps to start your journey towards winning life-changing prizes with our secure lottery platform."
+        "light": "Follow these simple steps to start your journey towards winning life-changing prizes with our secure Game platform."
       },
       "steps": {
         "step1": {
@@ -144,21 +181,41 @@
         "subtitle": "Choose from our incredible product catalog featuring the latest tech, premium fashion, and top home appliances.",
         "cta": "Enter Contest",
         "bottomCta": "Ready to change your life? Join thousands of winners today!",
-        "startPlaying": "Start Playing All Games"
+        "startPlaying": "Start Playing All Games",
+        "prizes": {
+          "techBundle": {
+            "name": "Tech Bundle",
+            "amount": "$1,500",
+            "products": ["iPhone 15 Pro Max", "MacBook Pro", "AirPods Pro"]
+          },
+          "fashionPack": {
+            "name": "Fashion Pack",
+            "amount": "$800",
+            "products": ["Nike Air Max", "Designer Bag", "Premium Watch"]
+          },
+          "homeSetup": {
+            "name": "Home Setup",
+            "amount": "$1,200",
+            "products": ["Smart Refrigerator", "4K TV", "Coffee Maker"]
+          }
+        }
       }
     },
     "winners": {
       "title": "Recent Winners",
       "subtitle": "Celebrate with our latest jackpot winners from around the world who have changed their lives forever",
       "jackpotTitle": "JACKPOT WINNERS",
+      "jackpotLabel": "JACKPOT WINNER",
       "latestWinners": "Latest Winners",
       "description": "Join our community of winners who have received incredible products from top brands like Apple, Nike, Samsung, and more.",
       "viewAllWinners": "View All Winners",
       "verifiedWinner": "VERIFIED WINNER",
-      "wonIn": "Won in"
+      "wonIn": "Won in",
+      "trustedByPlayers": "Trusted by thousands of players worldwide",
+      "whyChooseUs": "Why players choose us"
     },
     "footer": {
-      "description": "Transform your dreams into reality with our innovative lottery platform. Join thousands of winners who have changed their lives forever.",
+      "description": "Transform your dreams into reality with our innovative Game platform. Join thousands of winners who have changed their lives forever.",
       "quickLinks": "Quick Links",
       "support": "Support",
       "legal": "Legal",
@@ -166,7 +223,7 @@
       "newsletter": "Stay Updated",
       "newsletterPlaceholder": "Enter your email",
       "newsletterButton": "Subscribe",
-      "copyright": "© 2025 LotteryApp. All rights reserved.",
+      "copyright": "© 2025 GameApp. All rights reserved.",
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
       "contactUs": "Contact Us",
@@ -186,40 +243,66 @@
     }
   },
   "dashboard": {
-    "welcome": "Welcome back, {name}! 👋",
-    "subtitle": "Manage your lottery games, track participants, and grow your business.",
-    "activeGames": "Active Games",
-    "totalParticipants": "Total Participants",
-    "yourTickets": "Your Tickets",
-    "createGame": "Create Game",
-    "createGameDescription": "Launch a new marketing lottery to promote your products and engage customers.",
-    "createNewGame": "Create New Game",
-    "viewGames": "View Games",
-    "viewGamesDescription": "Browse all available lottery games and participate in exciting promotions.",
+    "welcome": "Welcome",
+    "manageYourAccount": "Manage your account and track your Game activities",
+    "playerWelcome": "Welcome to your player dashboard! Browse and join exciting lottery games.",
+    "vendorWelcome": "Manage your lottery games and track performance. Create new games and monitor results.",
+    "adminWelcome": "Full system administration. Manage users, games, and platform settings.",
+    "accessDenied": "Access Denied",
+    "pleaseLogin": "Please log in to access your dashboard",
+    "profile": "Profile",
+    "quickActions": "Quick Actions",
+    "stats": "Statistics",
+    "playGames": "Play Games",
     "browseGames": "Browse Games",
-    "myTickets": "My Tickets",
-    "myTicketsDescription": "View all your lottery tickets and track your participation history.",
-    "viewTickets": "View Tickets"
+    "createGame": "Create Game",
+    "manageGames": "Manage Games",
+    "adminPanel": "Admin Panel",
+    "manageUsers": "Manage Users",
+    "viewHistory": "View History",
+    "settings": "Settings",
+    "gamesPlayed": "Games Played",
+    "wins": "Wins",
+    "totalWinnings": "Total Winnings"
+  },
+  "profile": {
+    "accessDenied": "Access Denied",
+    "pleaseLogin": "Please log in to access your profile",
+    "totalTickets": "Total Tickets",
+    "totalSpent": "Total Spent",
+    "totalWinnings": "Total Winnings",
+    "gamesPlayed": "Games Played",
+    "gameHistory": "Game History",
+    "gameHistoryDescription": "View all your lottery tickets and game results",
+    "noTickets": "No tickets found. Start playing to see your history here!",
+    "game": "Game",
+    "ticketNumber": "Ticket Number",
+    "purchaseDate": "Purchase Date",
+    "price": "Price",
+    "status": "Status",
+    "result": "Result",
+    "winner": "Winner",
+    "notWinner": "Not Winner",
+    "unknownGame": "Unknown Game",
+    "showing": "Showing",
+    "of": "of"
   },
   "games": {
-    "title": "Available Games",
-    "subtitle": "Discover exciting marketing lotteries and win amazing prizes. Join games with real-time participant tracking!",
-    "search": "Search games...",
-    "allCategories": "All Categories",
-    "noGames": "No games found",
-    "noGamesDescription": "Try adjusting your search or filters, or check back later for new lottery games!",
-    "joinGame": "Join Game",
-    "viewDetails": "View Details",
+    "title": "Lottery Games",
+    "subtitle": "Choose from our exciting selection of lottery games",
+    "searchPlaceholder": "Search games...",
+    "noGamesFound": "No games found",
+    "tryDifferentSearch": "Try adjusting your search or filters",
+    "categories": {
+      "all": "All Categories",
+      "jackpot": "Jackpot",
+      "daily": "Daily",
+      "weekly": "Weekly"
+    },
     "ticketPrice": "Ticket Price",
     "participants": "Participants",
-    "maxParticipants": "Max Participants",
     "endDate": "End Date",
     "progress": "Progress",
-    "status": {
-      "draft": "Draft",
-      "active": "Active",
-      "drawing": "Drawing",
-      "closed": "Closed"
-    }
+    "joinGame": "Join the Game"
   }
 }

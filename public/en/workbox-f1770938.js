@@ -1,5 +1,14 @@
+// AMD shim for Service Worker usage (no-op if an AMD loader is present)
+if (typeof self.define === 'undefined') {
+  self.workbox = self.workbox || {};
+  self.define = function (_deps, factory) {
+    factory(self.workbox);
+  };
+}
+
 define(['exports'], function (t) {
   'use strict';
+  // …rest of module…
   try {
     self['workbox:core:7.0.0'] && _();
   } catch (t) {}
@@ -906,7 +915,6 @@ define(['exports'], function (t) {
             } catch (t) {
               J = !1;
             }
-          J = !1;
         }
         return J;
       })()

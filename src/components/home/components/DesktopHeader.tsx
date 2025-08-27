@@ -1,4 +1,6 @@
+'use client';
 import { LocaleSwitcher } from '@/components/ui/LocaleSwitcher';
+import { UserProfileDropdown } from '@/components/ui/UserProfileDropdown';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,11 +19,11 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 10);
+      setIsScrolled(window.scrollY > 10);
     };
-
-    window.addEventListener('scroll', handleScroll);
+    // Initialize on mount in case the page is already scrolled
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -43,7 +45,7 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
                 src='/en/icons/lottery_logo.jpeg'
                 alt='logo'
                 width={100}
-                height={100}
+                height={60}
                 className='rounded-lg w-full h-full object-contain'
               />
             </div>
@@ -136,18 +138,7 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
 
             {/* Auth Buttons */}
             {user ? (
-              <Link
-                href='/dashboard'
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                  isScrolled
-                    ? 'bg-orange-500 text-white hover:bg-orange-600'
-                    : isDark
-                      ? 'bg-orange-500/80 text-white hover:bg-orange-600/80'
-                      : 'bg-orange-500/80 text-white hover:bg-orange-600/80'
-                } backdrop-blur-sm`}
-              >
-                {t('common.dashboard')}
-              </Link>
+              <UserProfileDropdown />
             ) : (
               <div className='flex items-center space-x-3'>
                 <Link

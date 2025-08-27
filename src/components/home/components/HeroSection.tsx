@@ -1,5 +1,5 @@
 // HeroSection.jsx
-import { Button } from '@/components/globals/Button';
+import { Button } from '@/components/ui/Button';
 import {
   ArrowRight,
   Gift,
@@ -10,8 +10,11 @@ import {
   Trophy,
   Users,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 export const HeroSection = ({ isDark }: { isDark: boolean }) => {
+  const { t } = useTranslation();
   return (
     <section className='relative min-h-screen flex items-center overflow-hidden'>
       {/* Background Elements */}
@@ -64,7 +67,7 @@ export const HeroSection = ({ isDark }: { isDark: boolean }) => {
                 <span
                   className={`text-sm font-medium ${isDark ? 'text-orange-200' : 'text-slate-700'}`}
                 >
-                  {isDark ? 'LOTTERY OF 2024' : 'TRUSTED PLATFORM'}
+                  {isDark ? t('home.hero.badge') : t('home.hero.badgeLight')}
                 </span>
               </div>
             </div>
@@ -75,23 +78,29 @@ export const HeroSection = ({ isDark }: { isDark: boolean }) => {
                 <span
                   className={`block mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}
                 >
-                  {isDark ? 'WE PROVIDE' : 'WIN BIG WITH'}
+                  {isDark
+                    ? t('home.hero.mainHeading.dark.line1')
+                    : t('home.hero.mainHeading.light.line1')}
                 </span>
                 {isDark && (
-                  <span className='block text-white mb-2 italic'>LOTTERY</span>
+                  <span className='block text-white mb-2 italic'>
+                    {t('home.hero.mainHeading.dark.line2')}
+                  </span>
                 )}
                 <span
                   className={`block animate-pulse ${isDark ? 'bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent' : 'bg-gradient-to-r from-orange-500 via-orange-600 to-orange-500 bg-clip-text text-transparent'}`}
                 >
-                  {isDark ? 'PLACE TO GET' : 'LOTTERY GAMES'}
+                  {isDark
+                    ? t('home.hero.mainHeading.dark.line3')
+                    : t('home.hero.mainHeading.light.line2')}
                 </span>
                 {isDark && (
                   <>
                     <span className='block bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent'>
-                      POWERS OF
+                      {t('home.hero.mainHeading.dark.line4')}
                     </span>
                     <span className='block text-white font-black'>
-                      ACE WINNERS!
+                      {t('home.hero.mainHeading.dark.line5')}
                     </span>
                   </>
                 )}
@@ -104,27 +113,31 @@ export const HeroSection = ({ isDark }: { isDark: boolean }) => {
                 className={`text-lg leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
               >
                 {isDark
-                  ? 'Win incredible prizes including the latest tech, trendy fashion, premium sneakers, and home appliances. Your dream products are waiting!'
-                  : 'Experience the thrill of winning amazing products from top brands. From iPhone 15 Pro Max to Nike Air Jordan, MacBook Pro to designer fashion - play to win your favorites!'}
+                  ? t('home.hero.descriptionDark')
+                  : t('home.hero.description')}
               </p>
             </div>
 
             {/* CTA Buttons */}
             <div className='flex flex-col sm:flex-row gap-4 justify-center lg:justify-start'>
-              <Button
-                className={`px-8 py-4 text-lg font-bold rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300 ${isDark ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600' : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700'} text-white`}
-              >
-                <span className='flex items-center gap-2'>
-                  {isDark ? 'Over 60 Games' : 'Start Playing'}
-                  <ArrowRight className='w-5 h-5' />
-                </span>
-              </Button>
-              <Button
-                variant='outline'
-                className={`px-8 py-4 text-lg font-semibold rounded-xl border-2 transition-all duration-300 ${isDark ? 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white' : 'border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-orange-500'}`}
-              >
-                {isDark ? 'New To Casino?' : 'Learn More'}
-              </Button>
+              <Link href='/auth/login'>
+                <Button
+                  className={`px-8 py-4 text-lg font-bold rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300 ${isDark ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600' : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700'} text-white`}
+                >
+                  <span className='flex items-center gap-2'>
+                    {t('home.hero.cta')}
+                    <ArrowRight className='w-5 h-5' />
+                  </span>
+                </Button>
+              </Link>
+              <Link href='/auth/register'>
+                <Button
+                  variant='outline'
+                  className={`px-8 py-4 text-lg font-semibold rounded-xl border-2 transition-all duration-300 ${isDark ? 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white' : 'border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-orange-500'}`}
+                >
+                  {t('home.hero.secondaryCta')}
+                </Button>
+              </Link>
             </div>
 
             {/* Trust indicators */}
@@ -298,7 +311,7 @@ export const HeroSection = ({ isDark }: { isDark: boolean }) => {
               <div className='absolute bottom-20 left-16 w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-base shadow-lg animate-bounce'>
                 15
               </div>
-              <div className='absolute bottom-10 right-20 w-18 h-18 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg animate-pulse'>
+              <div className='absolute bottom-10 right-20 w-20 h-20 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg motion-safe:animate-pulse'>
                 42
               </div>
 

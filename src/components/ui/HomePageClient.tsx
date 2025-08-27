@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslation } from 'react-i18next';
-import HomePageComponent from '../../components/home/components/home';
+import HomePageComponent from '../home/components/home';
 
 interface HomePageClientProps {
   locale: string;

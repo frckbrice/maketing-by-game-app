@@ -1,3 +1,5 @@
+'use client';
+
 import { LocaleSwitcherCompact } from '@/components/ui/LocaleSwitcher';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { Gift, Menu, X } from 'lucide-react';
@@ -87,6 +89,7 @@ export function MobileNavigation({
 
           {/* Mobile Menu Button */}
           <button
+            type='button'
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className={`p-2 rounded-lg transition-all duration-300 ${
               isScrolled
@@ -133,21 +136,38 @@ export function MobileNavigation({
               {t('common.games')}
             </Link>
             {user ? (
-              <Link
-                href='/dashboard'
-                className={`block px-3 py-2 rounded-lg transition-all duration-300 ${
-                  isScrolled
-                    ? isDark
-                      ? 'text-slate-300 hover:bg-gray-800/80 hover:text-white'
-                      : 'text-slate-600 hover:bg-gray-100/80 hover:text-slate-900'
-                    : isDark
-                      ? 'text-white hover:bg-black/20 hover:text-orange-300'
-                      : 'text-slate-900 hover:bg-white/20 hover:text-orange-600'
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {t('common.dashboard')}
-              </Link>
+              <>
+                <Link
+                  href='/dashboard'
+                  className={`block px-3 py-2 rounded-lg transition-all duration-300 ${
+                    isScrolled
+                      ? isDark
+                        ? 'text-slate-300 hover:bg-gray-800/80 hover:text-white'
+                        : 'text-slate-600 hover:bg-gray-100/80 hover:text-slate-900'
+                      : isDark
+                        ? 'text-white hover:bg-black/20 hover:text-orange-300'
+                        : 'text-slate-900 hover:bg-white/20 hover:text-orange-600'
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t('common.dashboard')}
+                </Link>
+                <Link
+                  href='/profile'
+                  className={`block px-3 py-2 rounded-lg transition-all duration-300 ${
+                    isScrolled
+                      ? isDark
+                        ? 'text-slate-300 hover:bg-gray-800/80 hover:text-white'
+                        : 'text-slate-600 hover:bg-gray-100/80 hover:text-slate-900'
+                      : isDark
+                        ? 'text-white hover:bg-black/20 hover:text-orange-300'
+                        : 'text-slate-900 hover:bg-white/20 hover:text-orange-600'
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t('common.profile')}
+                </Link>
+              </>
             ) : (
               <Link
                 href='/auth/login'

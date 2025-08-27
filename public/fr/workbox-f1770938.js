@@ -1,7 +1,7 @@
 define(['exports'], function (t) {
   'use strict';
   try {
-    self['workbox:core:7.0.0'] && _();
+    self['workbox:core:7.0.0'];
   } catch (t) {}
   const e = (t, ...e) => {
     let s = t;
@@ -13,7 +13,7 @@ define(['exports'], function (t) {
     }
   }
   try {
-    self['workbox:routing:7.0.0'] && _();
+    self['workbox:routing:7.0.0'];
   } catch (t) {}
   const n = t => (t && 'object' == typeof t ? t : { handle: t });
   class r {
@@ -169,7 +169,7 @@ define(['exports'], function (t) {
     return (c().registerRoute(a), a);
   }
   try {
-    self['workbox:strategies:7.0.0'] && _();
+    self['workbox:strategies:7.0.0'];
   } catch (t) {}
   const u = {
       cacheWillUpdate: async ({ response: t }) =>
@@ -624,7 +624,7 @@ define(['exports'], function (t) {
       has: (e, s) => !!j(e, s) || t.has(e, s),
     }))(N);
   try {
-    self['workbox:expiration:7.0.0'] && _();
+    self['workbox:expiration:7.0.0'];
   } catch (t) {}
   const S = 'cache-entries',
     K = t => {
@@ -763,7 +763,7 @@ define(['exports'], function (t) {
     }
   }
   try {
-    self['workbox:range-requests:7.0.0'] && _();
+    self['workbox:range-requests:7.0.0'];
   } catch (t) {}
   async function H(t, e) {
     try {
@@ -826,7 +826,7 @@ define(['exports'], function (t) {
     return (t.waitUntil(s), s);
   }
   try {
-    self['workbox:precaching:7.0.0'] && _();
+    self['workbox:precaching:7.0.0'];
   } catch (t) {}
   function z(t) {
     if (!t) throw new s('add-to-cache-list-unexpected-type', { entry: t });
@@ -1280,13 +1280,16 @@ define(['exports'], function (t) {
         e.waitUntil(n);
         let r,
           i = await e.cacheMatch(t);
-        if (i);
-        else
-          try {
-            i = await n;
-          } catch (t) {
-            t instanceof Error && (r = t);
-          }
+        if (i) {
+          console.log('Response from cache', t.url);
+        } else {
+          console.log('No response from cache', t.url);
+        }
+        try {
+          i = await n;
+        } catch (t) {
+          t instanceof Error && (r = t);
+        }
         if (!i) throw new s('no-response', { url: t.url, error: r });
         return i;
       }

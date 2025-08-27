@@ -41,3 +41,5 @@ next-env.d.ts
 performance.ts
 
 docs/PLANS/package-manager-cleanup.md
+src/app/[locale]/test
+CLAUDE.md
