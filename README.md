@@ -1,4 +1,4 @@
-# Lottery Marketing Application
+#  Marketing by game App (WIP-- work in progress)
 
 A modern, **mobile-first PWA** for marketing lotteries that allows businesses to promote their products through interactive games with live participant counters and integrated advertising systems.
 
@@ -406,18 +406,17 @@ For comprehensive documentation, troubleshooting guides, and setup instructions,
 
 ### 📖 Quick Links
 
-- [📚 Documentation Index](docs/README.md) - Complete documentation overview
-- [🌍 i18n Setup Guide](docs/setup/i18n-setup-guide.md) - Internationalization setup
-- [🔧 Troubleshooting Guide](docs/troubleshooting/general-troubleshooting.md) - Common issues and solutions
-- [🚨 i18n Troubleshooting](docs/internationalization/i18n-troubleshooting-guide.md) - Internationalization issues
+- [ Documentation Index](docs/README.md) - Complete documentation overview
+- [ i18n Setup Guide](docs/setup/i18n-setup-guide.md) - Internationalization setup
+- [ Troubleshooting Guide](docs/troubleshooting/general-troubleshooting.md) - Common issues and solutions
+- [ i18n Troubleshooting](docs/internationalization/i18n-troubleshooting-guide.md) - Internationalization issues
 
-## 🆘 Support
+##  Support
 
 - **Documentation**: Check the [docs/](docs/) folder for detailed guides
 - **Issues**: Report bugs via GitHub Issues
-- **Discussions**: Join community discussions on GitHub
 
-## 🎯 Roadmap
+##  Roadmap 🎯
 
 ### Phase 1 (Current)
 
