@@ -155,11 +155,13 @@ const withPWA = require("@ducanh2912/next-pwa").default({
 // const withNextIntl = require('next-intl/plugin')('./i18n.ts');
 
 const nextConfig = {
+    // Enable standalone output for Docker deployment
+    output: 'standalone',
+    
+    // Enable experimental features
     experimental: {
-        optimizePackageImports: ["lucide-react", "@firebase/app", "@firebase/auth"],
-        // Performance optimizations
         optimizeCss: true,
-        // appDir: true
+        optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
     },
 
 

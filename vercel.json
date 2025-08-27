@@ -1,12 +1,6 @@
 {
   "version": 2,
   "name": "lottery-app",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
   "routes": [
     {
       "src": "/sw.js",
@@ -41,7 +35,7 @@
     "NODE_ENV": "production"
   },
   "functions": {
-    "src/app/api/**/*.ts": {
+    "app/api/**/*.ts": {
       "maxDuration": 30
     }
   },
