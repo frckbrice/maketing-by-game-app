@@ -520,6 +520,48 @@ export interface ModalProps {
   showCloseButton?: boolean;
 }
 
+interface UseDataTableOptions<T> {
+  queryKey: string[];
+  fetchFn: (params: DataTableParams) => Promise<DataTableResponse<T>>;
+  initialPageSize?: number;
+  staleTime?: number;
+  gcTime?: number;
+}
+
+interface DataTableParams {
+  page: number;
+  pageSize: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  search?: string;
+  filters?: Record<string, any>;
+}
+
+interface DataTableResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+interface UseDataTableReturn<T> {
+  data: T[] | undefined;
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  isLoading: boolean;
+  error: Error | null;
+  setPage: (page: number) => void;
+  setPageSize: (pageSize: number) => void;
+  setSortBy: (sortBy: string) => void;
+  setSortOrder: (sortOrder: 'asc' | 'desc') => void;
+  setSearch: (search: string) => void;
+  setFilters: (filters: Record<string, any>) => void;
+  refresh: () => void;
+}
+
 // Utility Types
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];

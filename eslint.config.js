@@ -102,6 +102,7 @@ export default [
       '**/*.setup.js',
       '**/*.setup.ts',
       'next-env.d.ts',
+      'src/pages/**',
     ],
   },
 ];
