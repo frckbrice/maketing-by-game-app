@@ -4,8 +4,6 @@
 
 Transform the lottery application into a production-ready, internationalized, themed application with proper feature organization, testing, and deployment workflow.
 
-## Current Status: Phase 1 Complete ✅
-
 ### What Has Been Accomplished
 
 #### 1. **Project Setup & Cleanup** ✅
@@ -13,7 +11,7 @@ Transform the lottery application into a production-ready, internationalized, th
 - Cleaned up public/ folder (removed unused SVG files)
 - Created new organized folder structure
 - Set up proper directory hierarchy for features
-- Standardized package manager (pnpm) for better performance. but we are using yarn here because of pnpm issue: not installing paackages.
+- Standardized on pnpm for better performance. Temporarily using Yarn due to a pnpm issue causing installs to fail (packages not installing). We’ll revert to pnpm once resolved.
 
 #### 2. **Internationalization (i18n) Setup** ✅
 

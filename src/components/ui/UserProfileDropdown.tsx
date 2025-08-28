@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 
 export function UserProfileDropdown() {
   const { user, logout } = useAuth();
-  const { t } = useTranslation();
+  const { t } = useTranslation('common');
   const router = useRouter();
 
   if (!user) {
@@ -99,11 +99,11 @@ export function UserProfileDropdown() {
           <>
             <DropdownMenuItem onClick={handleGamesClick}>
               <Gamepad2 className='mr-2 h-4 w-4' />
-              <span>{t('common.games')}</span>
+              <span>{t('games')}</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleProfileClick}>
               <User className='mr-2 h-4 w-4' />
-              <span>{t('common.profile')}</span>
+              <span>{t('profile')}</span>
             </DropdownMenuItem>
           </>
         )}
@@ -112,11 +112,11 @@ export function UserProfileDropdown() {
           <>
             <DropdownMenuItem onClick={handleDashboardClick}>
               <BarChart3 className='mr-2 h-4 w-4' />
-              <span>{t('common.dashboard')}</span>
+              <span>{t('dashboard')}</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleProfileClick}>
               <User className='mr-2 h-4 w-4' />
-              <span>{t('common.profile')}</span>
+              <span>{t('profile')}</span>
             </DropdownMenuItem>
           </>
         )}
@@ -124,13 +124,13 @@ export function UserProfileDropdown() {
         {user.role === 'ADMIN' && (
           <DropdownMenuItem onClick={handleAdminClick}>
             <Settings className='mr-2 h-4 w-4' />
-            <span>{t('common.admin')}</span>
+            <span>{t('admin')}</span>
           </DropdownMenuItem>
         )}
 
         <DropdownMenuItem>
           <Trophy className='mr-2 h-4 w-4' />
-          <span>{t('common.winners')}</span>
+          <span>{t('winners')}</span>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
@@ -140,7 +140,7 @@ export function UserProfileDropdown() {
           className='text-red-600 dark:text-red-400'
         >
           <LogOut className='mr-2 h-4 w-4' />
-          <span>{t('common.logout')}</span>
+          <span>{t('logout')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -19,10 +19,16 @@ check_requirements() {
         exit 1
     fi
     if ! command -v vercel &>/dev/null; then
-        echo "ℹ️ Vercel CLI not found. Using npx vercel@latest when needed."
-        USE_NPX_VERCEL=1
+        if command -v npx &>/dev/null; then
+            echo " Vercel CLI not found. Using npx vercel@latest when needed."
+            VERCEL_BIN="npx -y vercel@latest"
+        else
+            echo "❌ Neither Vercel CLI nor npx found. Install Vercel CLI or ensure npx is available."
+            exit 1
+        fi
     else
         echo "✅ Vercel CLI found"
+        VERCEL_BIN="vercel"
     fi
     if ! command -v gh &>/dev/null; then
         echo "❌ GitHub CLI not found. Please install from: https://cli.github.com/"
@@ -36,17 +42,31 @@ check_requirements() {
     else
         echo "✅ jq found"
     fi
-    if ! command -v yarn &>/dev/null; then
-        echo "ℹ️ yarn not found. Will use npm for build."
-        USE_NPM_BUILD=1
+    if [ -n "${USE_NPM_BUILD:-}" ]; then
+           if [ -n "${SKIP_DOCKER_TEST:-}" ]; then
+            echo "Skipping Docker build test (docker not available)."
+        else
+            echo "Testing Docker build..."
+            docker build -t lotteryapp:test .
+            if [ $? -eq 0 ]; then
+                echo "✅ Docker build successful"
+                echo "Cleaning up test image..."
+                docker rmi lotteryapp:test
+            else
+                echo "❌ Docker build failed"
+            fi
+        fi
+        echo "Skipping Docker build test (docker not available)."
     else
-        echo "✅ yarn found"
-    fi
-    if ! command -v docker &>/dev/null; then
-        echo "ℹ️ Docker not found. Docker build test will be skipped."
-        SKIP_DOCKER_TEST=1
-    else
-        echo "✅ Docker found"
+        echo "Testing Docker build..."
+        docker build -t lotteryapp:test .
+        if [ $? -eq 0 ]; then
+            echo "✅ Docker build successful"
+            echo "Cleaning up test image..."
+            docker rmi lotteryapp:test
+        else
+            echo "❌ Docker build failed"
+        fi
     fi
 }
 

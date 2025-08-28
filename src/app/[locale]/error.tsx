@@ -9,7 +9,11 @@ type Props = {
 
 export default function Error({ error, reset }: Props) {
   useEffect(() => {
-    // console.error(error); // TODO: Add proper error logging
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+    // TODO: forward to a telemetry adapter in production (Sentry/OTEL/etc.)
   }, [error]);
 
   return (

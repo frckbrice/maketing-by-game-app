@@ -66,7 +66,7 @@ To complete the lottery app design, you need to add the following images to the 
 
 The app is now fully responsive and ready for mobile use as a PWA! 🎉
 
-**Last Updated:** $(date)
-**Author:** Avom brice
+**Last Updated:** 2025-08-27
+**Author:** Avom Brice
 **Version:** 1.0.0
 **Status:** ✅ Active

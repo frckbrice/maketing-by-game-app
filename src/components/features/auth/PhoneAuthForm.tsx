@@ -23,15 +23,22 @@ export function PhoneAuthForm({
   const [verificationCode, setVerificationCode] = useState('');
   // const [codeSent, setCodeSent] = useState(false); // TODO: Use for UI feedback or remove
   const [step, setStep] = useState<'phone' | 'verification'>('phone');
+  const normalizedPhone = phoneNumber.replace(/\D/g, '');
+  const isValidPhone =
+    normalizedPhone.length >= 10 && normalizedPhone.length <= 15;
 
   const handleSendCode = async () => {
     if (!phoneNumber || phoneNumber.length < 10) {
       toast.error('Please enter a valid phone number');
       return;
     }
+    if (!isValidPhone) {
+      toast.error('Please enter a valid phone number');
+      return;
+    }
 
     try {
-      await sendPhoneVerificationCode(phoneNumber);
+      await sendPhoneVerificationCode(normalizedPhone);
       // setCodeSent(true); // TODO: Use for UI feedback
       setStep('verification');
       toast.success('Verification code sent to your phone!');

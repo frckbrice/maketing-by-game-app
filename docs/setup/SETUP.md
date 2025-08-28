@@ -260,7 +260,7 @@ After successful setup:
 
 If you encounter any issues, please refer to the troubleshooting section or open an issue on GitHub.
 
-**Last Updated:** $(date)
-**Author:** Avom brice
+**Last Updated:** 2025-08-27
+**Author:** Avom Brice
 **Version:** 1.0.0
 **Status:** ✅ Active

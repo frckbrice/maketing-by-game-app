@@ -1,13 +1,24 @@
-// HowItWorksSection.jsx
+'use client';
+
 import { Button } from '@/components/ui/Button';
 import { DollarSign, Target, Trophy, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
-import i18n from '../../../lib/i18n/config';
+
+type Prize = {
+  name: string;
+  value: number;
+  currency: string;
+  image: string;
+  products: string[];
+};
 
 export const HowItWorksSection = ({ isDark }: { isDark: boolean }) => {
   const { t } = useTranslation();
-  const locale = i18n.language;
+  const { i18n } = useTranslation();
+  const locale = (i18n.resolvedLanguage ?? i18n.language ?? 'en').split('-')[0];
+
+  // …rest of component
   const steps = [
     {
       icon: Target,
@@ -34,7 +45,7 @@ export const HowItWorksSection = ({ isDark }: { isDark: boolean }) => {
       color: 'from-purple-500 to-pink-500',
     },
   ];
-  const prizes = [
+  const prizes: Prize[] = [
     {
       name: t('home.howItWorks.products.prizes.techBundle.name'),
       value: 1500,

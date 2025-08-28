@@ -177,8 +177,8 @@ export const ProfilePage = () => {
       />
 
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-        {/* Back Button */}
-        <div className='mb-6'>
+        {/* Back Button and Vendor Application */}
+        <div className='mb-6 flex justify-between items-center'>
           <Button
             variant='ghost'
             onClick={() => router.back()}
@@ -187,6 +187,16 @@ export const ProfilePage = () => {
             <ArrowLeft className='h-4 w-4' />
             <span>{t('common.back')}</span>
           </Button>
+
+          {/* Vendor Application Button - Only show for USER role */}
+          {user.role === 'USER' && (
+            <Button
+              onClick={() => router.push('/vendor-application')}
+              className='bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white'
+            >
+              🏢 Apply to Become a Vendor
+            </Button>
+          )}
         </div>
 
         {/* Profile Header */}

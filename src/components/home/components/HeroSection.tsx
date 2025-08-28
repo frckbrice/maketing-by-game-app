@@ -1,4 +1,5 @@
-// HeroSection.jsx
+'use client';
+
 import { Button } from '@/components/ui/Button';
 import {
   ArrowRight,
@@ -120,24 +121,24 @@ export const HeroSection = ({ isDark }: { isDark: boolean }) => {
 
             {/* CTA Buttons */}
             <div className='flex flex-col sm:flex-row gap-4 justify-center lg:justify-start'>
-              <Link href='/auth/login'>
-                <Button
-                  className={`px-8 py-4 text-lg font-bold rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300 ${isDark ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600' : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700'} text-white`}
-                >
+              <Button
+                asChild
+                className={`px-8 py-4 text-lg font-bold rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300 ${isDark ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600' : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700'} text-white`}
+              >
+                <Link href='/auth/login' aria-label={t('home.hero.cta')}>
                   <span className='flex items-center gap-2'>
                     {t('home.hero.cta')}
-                    <ArrowRight className='w-5 h-5' />
+                    <ArrowRight className='w-5 h-5' aria-hidden='true' />
                   </span>
-                </Button>
-              </Link>
-              <Link href='/auth/register'>
-                <Button
-                  variant='outline'
-                  className={`px-8 py-4 text-lg font-semibold rounded-xl border-2 transition-all duration-300 ${isDark ? 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white' : 'border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-orange-500'}`}
-                >
-                  {t('home.hero.secondaryCta')}
-                </Button>
-              </Link>
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant='outline'
+                className={`px-8 py-4 text-lg font-semibold rounded-xl border-2 transition-all duration-300 ${isDark ? 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white' : 'border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-orange-500'}`}
+              >
+                <Link href='/auth/register'>{t('home.hero.secondaryCta')}</Link>
+              </Button>
             </div>
 
             {/* Trust indicators */}

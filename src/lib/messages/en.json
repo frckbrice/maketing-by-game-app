@@ -79,6 +79,11 @@
       "confirmPassword": "Confirm Password",
       "firstName": "First Name",
       "lastName": "Last Name",
+      "role": "Account Type",
+      "selectRole": "Select your account type",
+      "userRole": "Player - Browse and play games",
+      "vendorRole": "Vendor - Create and manage games",
+      "adminRole": "Admin - Full system access",
       "phoneNumber": "Phone Number",
       "acceptTerms": "I accept the terms and conditions",
       "submit": "Create Account",
@@ -93,9 +98,8 @@
       "submit": "Send Reset Link",
       "backToLogin": "← Back to Login",
       "checkEmail": "Check Your Email",
-      "emailSent": "We've sent a password reset link to",
-      "emailInstructions": "Click the link in the email to reset your password. The link will expire in 1 hour.",
-      "backToLoginButton": "Back to Login"
+      "emailSent": "We've sent a password reset link to {email}.",
+      "emailInstructions": "Click the link in the email to reset your password. The link will expire in {hours} hour(s)."
     },
     "errors": {
       "popupBlocked": "Popup blocked by browser. Please allow popups for this site or try again.",

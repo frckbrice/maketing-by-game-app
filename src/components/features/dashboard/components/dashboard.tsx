@@ -27,12 +27,12 @@ export const DashboardPage = () => {
   useEffect(() => {
     if (!loading && !user && !redirecting) {
       setRedirecting(true);
-      router.push('/');
+      router.replace('/');
     } else if (!loading && user && !redirecting) {
       // Redirect USER role to games page, they don't need dashboard
       if (user.role === 'USER') {
         setRedirecting(true);
-        router.push('/games');
+        router.replace('/games');
       }
     }
   }, [user, loading, router, redirecting]);
@@ -103,7 +103,9 @@ export const DashboardPage = () => {
               ? t('dashboard.playerWelcome')
               : user.role === 'VENDOR'
                 ? t('dashboard.vendorWelcome')
-                : t('dashboard.adminWelcome')}
+                : user.role === 'ADMIN'
+                  ? t('dashboard.adminWelcome')
+                  : t('dashboard.accessDenied')}
           </p>
           <div className='mt-2'>
             <Badge variant='outline' className='text-sm'>
@@ -146,8 +148,6 @@ export const DashboardPage = () => {
           <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700'>
             <h2 className='text-xl font-semibold text-gray-900 dark:text-white mb-4'>
               {t('dashboard.quickActions')}
-            </h2>
-            <div className='space-y-3'>
               {user.role === 'USER' ? (
                 <>
                   <button
@@ -178,7 +178,7 @@ export const DashboardPage = () => {
                     {t('dashboard.manageGames')}
                   </button>
                 </>
-              ) : (
+              ) : user.role === 'ADMIN' ? (
                 <>
                   <button
                     onClick={() => router.push('/admin')}
@@ -193,8 +193,15 @@ export const DashboardPage = () => {
                     {t('dashboard.manageUsers')}
                   </button>
                 </>
+              ) : (
+                <>
+                  <p className='text-gray-600 dark:text-gray-300'>
+                    {t('dashboard.accessDenied')}
+                  </p>
+                </>
               )}
-            </div>
+            </h2>
+            <div className='space-y-3'></div>
           </div>
 
           {/* Stats */}

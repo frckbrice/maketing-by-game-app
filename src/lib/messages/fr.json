@@ -81,9 +81,10 @@
       "confirmPassword": "Confirmer le mot de passe",
       "phoneNumber": "Numéro de téléphone",
       "role": "Type de Compte",
-      "roleUser": "Utilisateur",
-      "roleVendor": "Vendeur",
-      "roleDescription": "Choisissez votre type de compte. Les utilisateurs peuvent participer aux jeux, les vendeurs peuvent créer et gérer des jeux.",
+      "selectRole": "Sélectionnez votre type de compte",
+      "userRole": "Joueur - Parcourir et jouer aux jeux",
+      "vendorRole": "Vendeur - Créer et gérer les jeux",
+      "adminRole": "Administrateur - Accès complet au système",
       "terms": "J'accepte les ",
       "termsLink": "Conditions générales",
       "and": " et la ",
@@ -229,7 +230,7 @@
       "title": "Gagnez Vos Produits de Rêve",
       "subtitle": "Rejoignez des milliers de gagnants qui ont transformé leur vie avec des jackpots qui changent la vie",
       "cta": "Commencer à Jouer",
-      "badge": "JEUX DE L&quote;ANNEE 2024, CAMEROUN",
+      "badge": "JEUX DE L'ANNÉE 2024, CAMEROUN",
       "badgeLight": "PLATEFORME DE CONFIANCE",
       "mainHeading": {
         "dark": {

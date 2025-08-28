@@ -81,7 +81,7 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
               {t('common.games')}
             </Link>
             <Link
-              href='#how-it-works'
+              href='/#how-it-works'
               className={`text-sm font-medium transition-all duration-300 ${
                 isScrolled
                   ? isDark
@@ -95,7 +95,7 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
               {t('common.howItWorks')}
             </Link>
             <Link
-              href='#winners'
+              href='/winners'
               className={`text-sm font-medium transition-all duration-300 ${
                 isScrolled
                   ? isDark

@@ -188,7 +188,7 @@ export const WinnersSection = ({ isDark }: { isDark: boolean }) => {
                         <Image
                           width={64}
                           height={64}
-                          src={`${locale}/images/${winner.image}`}
+                          src={`/${locale}/images/${winner.image}`}
                           alt={winner.name}
                           className='w-full h-full object-cover'
                         />

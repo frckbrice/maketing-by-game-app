@@ -10,7 +10,7 @@ import { PasswordResetForm } from '../../PasswordResetForm';
 
 export function ForgotPasswd() {
   const { t } = useTranslation();
-  const { theme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -23,22 +23,20 @@ export function ForgotPasswd() {
     return null;
   }
 
-  const isDark = theme === 'dark';
+  const isDark = resolvedTheme === 'dark';
+  const handleThemeToggle = () => setTheme(isDark ? 'light' : 'dark');
 
   return (
     <div className='min-h-screen bg-white dark:bg-gray-900'>
       {/* Desktop Header */}
-      <DesktopHeader
-        isDark={isDark}
-        onThemeToggle={() => setTheme(isDark ? 'light' : 'dark')}
-      />
+      <DesktopHeader isDark={isDark} onThemeToggle={handleThemeToggle} />
 
       {/* Mobile Navigation */}
       <MobileNavigation
         isDark={isDark}
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
-        onThemeToggle={() => setTheme(isDark ? 'light' : 'dark')}
+        onThemeToggle={handleThemeToggle}
       />
 
       <div className='flex items-center justify-center min-h-[calc(100vh-8rem)] p-4'>

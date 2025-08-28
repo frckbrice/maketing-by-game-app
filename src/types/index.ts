@@ -159,6 +159,27 @@ export interface BusinessDocument {
   verifiedAt?: Timestamp;
 }
 
+export interface VendorApplication {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  companyName: string;
+  businessRegistrationNumber: string;
+  companyWebsite?: string;
+  contactEmail: string;
+  contactPhone: string;
+  companyLogoUrl?: string;
+  businessCertificateUrl?: string;
+  productCategory: string;
+  description: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  rejectionReason?: string;
+  submittedAt: number;
+  reviewedAt?: number;
+  reviewedBy?: string;
+}
+
 // Lottery Game Types
 export type GameType = 'daily' | 'weekly' | 'monthly' | 'special';
 export type PrizeType = 'cash' | 'product' | 'service' | 'experience';

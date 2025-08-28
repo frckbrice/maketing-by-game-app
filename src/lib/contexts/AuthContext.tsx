@@ -3,7 +3,7 @@
 import { authService, firestoreService } from '@/lib/firebase/services';
 import type { User } from '@/types';
 import { User as FirebaseUser } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface AuthContextType {
@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-
+  const pathname = usePathname();
   useEffect(() => {
     const unsubscribe = authService.onAuthStateChange(async firebaseUser => {
       setFirebaseUser(firebaseUser);
@@ -55,10 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setUser(null);
         // If user is not authenticated and we're on a protected route, redirect to home
-        if (
-          typeof window !== 'undefined' &&
-          window.location.pathname.includes('/dashboard')
-        ) {
+        if (typeof window !== 'undefined' && pathname?.includes('/dashboard')) {
           router.push('/');
         }
       }
@@ -207,8 +204,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const deleteAccount = async () => {
     try {
       if (user) {
-        await authService.deleteAccount();
+        // await authService.deleteAccount();
+        // Delete Firestore data first
         await firestoreService.deleteUser(user.id);
+        // Then delete the auth account
+        await authService.deleteAccount();
         setUser(null);
         setFirebaseUser(null);
         // Redirect to home page after successful account deletion

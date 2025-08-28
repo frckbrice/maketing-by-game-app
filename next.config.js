@@ -292,11 +292,11 @@ const nextConfig = {
                         key: "Content-Security-Policy",
                         value: [
                             "default-src 'self'",
-                            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
+                            `script-src 'self' 'unsafe-inline' ${process.env.NODE_ENV !== "production" ? "'unsafe-eval' " : ""}https:`,
                             "style-src 'self' 'unsafe-inline' https:",
                             "font-src 'self' https: data:",
                             "img-src 'self' data: https: blob:",
-                            "connect-src 'self' https: wss:",
+                            `connect-src 'self' https: ${process.env.NODE_ENV !== "production" ? "ws:" : "wss:"}`,
                             "frame-src 'self' https:",
                             "object-src 'none'",
                             "base-uri 'self'",

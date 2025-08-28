@@ -147,7 +147,10 @@ async deleteUser(userId: string): Promise<void>
 
 ### **Authentication Security**
 
-- **OAuth 2.0**: Industry-standard authentication
+- **PKCE**: Required for public clients
+- **State/Nonce**: CSRF and replay protection
+- **Token Handling**: Short-lived tokens; no storage in localStorage
+- **Refresh Rotation**: Detect and revoke on reuse (if applicable)
 - **Password Policies**: Strong password requirements
 - **Session Management**: Secure session handling
 - **Rate Limiting**: Protection against brute force
@@ -220,21 +223,25 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_client_id
 
 ### **Basic Implementation**
 
-```tsx
 import { EnhancedAuthForm } from '@/components/features/auth';
+import { useRouter } from 'next/navigation';
 
 function LoginPage() {
-  return (
-    <div className='auth-container'>
-      <EnhancedAuthForm
-        mode='login'
-        onSuccess={() => router.push('/dashboard')}
-        onError={error => console.error(error)}
-      />
-    </div>
-  );
+const router = useRouter();
+return (
+
+<div className='auth-container'>
+<EnhancedAuthForm
+mode='login'
+onSuccess={() => router.push('/dashboard')}
+onError={error => console.error(error)}
+/>
+</div>
+);
 }
-```
+}
+
+````
 
 ### **Custom Styling**
 
@@ -246,7 +253,7 @@ function LoginPage() {
   onSuccess={handleSuccess}
   onError={handleError}
 />
-```
+````
 
 ### **Phone Authentication**
 
@@ -320,6 +327,10 @@ console.log('Auth State:', auth.currentUser);
 
 ** Authentication system successfully implemented and ready for production use! 🎉**
 
+**Last Updated:** $(date)
+**Author:** Avom brice
+**Version:** 1.0.0
+**Status:** ✅ Active
 **Last Updated:** $(date)
 **Author:** Avom brice
 **Version:** 1.0.0

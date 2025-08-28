@@ -5,6 +5,7 @@ import type {
   Payment,
   User,
   UserStatus,
+  VendorApplication,
   Winner,
 } from '@/types';
 import {
@@ -29,6 +30,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
   orderBy,
   query,
   serverTimestamp,
@@ -38,6 +40,48 @@ import {
 } from 'firebase/firestore';
 import { ROLE_CONFIG } from '../constants';
 import { auth, database, db } from './config';
+
+async function createGoogleUserDocument(user: FirebaseUser): Promise<void> {
+  const userData: Omit<User, 'id'> = {
+    email: user.email || '',
+    firstName: user.displayName?.split(' ')[0] || 'User',
+    lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+    role: 'USER',
+    status: 'ACTIVE' as UserStatus,
+    emailVerified: user.emailVerified,
+    phoneVerified: false,
+    twoFactorEnabled: false,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    preferences: {
+      language: 'en',
+      theme: 'system',
+      notifications: true,
+      emailUpdates: true,
+      smsUpdates: false,
+      timezone: 'UTC',
+      currency: 'USD',
+    },
+    notificationSettings: {
+      email: true,
+      sms: false,
+      push: true,
+      inApp: true,
+      marketing: false,
+      gameUpdates: true,
+      winnerAnnouncements: true,
+    },
+    privacySettings: {
+      profileVisibility: 'public',
+      showEmail: false,
+      showPhone: false,
+      allowContact: true,
+      dataSharing: true,
+    },
+  };
+
+  await setDoc(doc(db, 'users', user.uid), userData);
+}
 
 // Authentication services
 export const authService = {
@@ -593,6 +637,90 @@ export const realtimeService = {
   offUserPresenceChange(userId: string) {
     const presenceRef = ref(database, `gameCounters/${userId}`);
     off(presenceRef);
+  },
+
+  // Vendor application management
+  async submitVendorApplication(
+    application: Omit<VendorApplication, 'id' | 'submittedAt' | 'status'>
+  ): Promise<string> {
+    try {
+      const applicationData = {
+        ...application,
+        id: `app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        submittedAt: Date.now(),
+        status: 'PENDING' as const,
+      };
+
+      await setDoc(
+        doc(db, 'vendorApplications', applicationData.id),
+        applicationData
+      );
+      return applicationData.id;
+    } catch (error) {
+      console.error('Error submitting vendor application:', error);
+      throw error;
+    }
+  },
+
+  async getVendorApplication(
+    userId: string
+  ): Promise<VendorApplication | null> {
+    try {
+      const q = query(
+        collection(db, 'vendorApplications'),
+        where('userId', '==', userId),
+        orderBy('submittedAt', 'desc'),
+        limit(1)
+      );
+
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        return querySnapshot.docs[0].data() as VendorApplication;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting vendor application:', error);
+      return null;
+    }
+  },
+
+  async getAllVendorApplications(): Promise<VendorApplication[]> {
+    try {
+      const q = query(
+        collection(db, 'vendorApplications'),
+        orderBy('submittedAt', 'desc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => doc.data() as VendorApplication);
+    } catch (error) {
+      console.error('Error getting all vendor applications:', error);
+      return [];
+    }
+  },
+
+  async updateVendorApplicationStatus(
+    applicationId: string,
+    status: 'APPROVED' | 'REJECTED',
+    adminId: string,
+    rejectionReason?: string
+  ): Promise<void> {
+    try {
+      const updateData: Partial<VendorApplication> = {
+        status,
+        reviewedAt: Date.now(),
+        reviewedBy: adminId,
+      };
+
+      if (status === 'REJECTED' && rejectionReason) {
+        updateData.rejectionReason = rejectionReason;
+      }
+
+      await updateDoc(doc(db, 'vendorApplications', applicationId), updateData);
+    } catch (error) {
+      console.error('Error updating vendor application status:', error);
+      throw error;
+    }
   },
 };
 

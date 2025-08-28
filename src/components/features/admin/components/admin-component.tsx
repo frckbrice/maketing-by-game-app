@@ -27,16 +27,31 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-const createGameSchema = z.object({
-  title: z.string().min(3, 'Title must be at least 3 characters'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
-  productId: z.string().min(1, 'Please select a product'),
-  categoryId: z.string().min(1, 'Please select a category'),
-  ticketPrice: z.number().min(0.01, 'Ticket price must be greater than 0'),
-  maxParticipants: z.number().min(1, 'Must have at least 1 participant'),
-  startDate: z.string().min(1, 'Please select a start date'),
-  endDate: z.string().min(1, 'Please select an end date'),
-});
+const createGameSchema = z
+  .object({
+    title: z.string().min(3, 'Title must be at least 3 characters'),
+    description: z
+      .string()
+      .min(10, 'Description must be at least 10 characters'),
+    productId: z.string().min(1, 'Please select a product'),
+    categoryId: z.string().min(1, 'Please select a category'),
+    ticketPrice: z.number().min(0.01, 'Ticket price must be greater than 0'),
+    maxParticipants: z.number().min(1, 'Must have at least 1 participant'),
+    startDate: z.string().min(1, 'Please select a start date'),
+    endDate: z.string().min(1, 'Please select an end date'),
+  })
+  .refine(
+    data => {
+      if (!data.startDate || !data.endDate) return true;
+      const start = new Date(data.startDate);
+      const end = new Date(data.endDate);
+      return end > start;
+    },
+    {
+      message: 'End date must be after start date',
+      path: ['endDate'],
+    }
+  );
 
 type CreateGameFormData = z.infer<typeof createGameSchema>;
 
