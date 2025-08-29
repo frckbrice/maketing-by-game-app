@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { vendorService } from '@/lib/api/vendorService';
+import { useVendorGames } from '@/hooks/useApi';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import type { LotteryGame, PaginatedResponse } from '@/types';
 import {
@@ -36,14 +36,16 @@ export function VendorGames() {
   const { t, i18n } = useTranslation();
   const locale = i18n.language || 'en';
   const { user } = useAuth();
-  const [games, setGames] = useState<PaginatedResponse<LotteryGame> | null>(
-    null
-  );
-  const [loading, setLoading] = useState(true);
+  
+  // State variables
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
+
+  // TanStack Query hook
+  const { data: gamesData = [], isLoading: loading, refetch } = useVendorGames(user?.id || '', { page: currentPage, limit: pageSize, status: statusFilter });
+  const games = { data: gamesData, total: gamesData.length };
 
   useEffect(() => {
     if (user && (user.role === 'VENDOR' || user.role === 'ADMIN')) {

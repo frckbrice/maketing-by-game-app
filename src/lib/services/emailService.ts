@@ -81,7 +81,7 @@ export class EmailService {
               <h3 style="color: #2e7d32; margin: 0 0 10px 0;">What's Next?</h3>
               <ul style="color: #2e7d32; margin: 0; padding-left: 20px;">
                 <li>Access your vendor dashboard</li>
-                <li>Create and manage lottery games</li>
+                <li>Create and manage BlackFriday games</li>
                 <li>Track your earnings and analytics</li>
                 <li>Manage your business profile</li>
               </ul>
@@ -100,7 +100,7 @@ export class EmailService {
           </div>
           
           <div style="background: #333; color: white; text-align: center; padding: 20px; font-size: 12px;">
-            <p style="margin: 0;">© 2024 Lottery App. All rights reserved.</p>
+            <p style="margin: 0;">© 2025 BlackFriday App. All rights reserved.</p>
           </div>
         </div>
       `;
@@ -153,11 +153,105 @@ export class EmailService {
           </div>
           
           <div style="background: #333; color: white; text-align: center; padding: 20px; font-size: 12px;">
-            <p style="margin: 0;">© 2024 Lottery App. All rights reserved.</p>
+            <p style="margin: 0;">© 2025 BlackFriday App. All rights reserved.</p>
           </div>
         </div>
       `;
     }
+
+    return this.sendEmail({
+      to: userEmail,
+      subject,
+      html,
+    });
+  }
+
+  // Send BlackFriday ticket email
+  async sendTicketEmail(
+    userEmail: string,
+    userName: string,
+    ticketData: {
+      ticketNumber: string;
+      gameTitle: string;
+      price: number;
+      currency: string;
+      purchaseDate: string;
+      drawDate: string;
+      qrCode: string;
+    }
+  ): Promise<boolean> {
+    const subject = `🎫 Your BlackFriday Ticket - ${ticketData.ticketNumber}`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #FF5722 0%, #FF9800 100%); padding: 30px; text-align: center; color: white;">
+          <h1 style="margin: 0; font-size: 32px;">🎫 Your BlackFriday Ticket</h1>
+          <p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.9;">${ticketData.gameTitle}</p>
+        </div>
+        
+        <div style="padding: 30px; background: #f9f9f9;">
+          <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; border: 2px dashed #FF5722;">
+            <h2 style="color: #333; margin: 0 0 20px 0;">Ticket Details</h2>
+            
+            <div style="display: flex; justify-content: space-between; margin: 15px 0; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+              <span style="font-weight: bold; color: #666;">Ticket Number:</span>
+              <span style="font-family: 'Courier New', monospace; font-weight: bold; color: #FF5722;">${ticketData.ticketNumber}</span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin: 15px 0; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+              <span style="font-weight: bold; color: #666;">Player:</span>
+              <span style="font-weight: bold;">${userName}</span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin: 15px 0; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+              <span style="font-weight: bold; color: #666;">Price Paid:</span>
+              <span style="font-weight: bold; color: #4CAF50;">${ticketData.price} ${ticketData.currency}</span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin: 15px 0; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+              <span style="font-weight: bold; color: #666;">Purchase Date:</span>
+              <span>${ticketData.purchaseDate}</span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin: 15px 0; padding: 10px; background: #fff3cd; border-radius: 5px; border: 1px solid #ffc107;">
+              <span style="font-weight: bold; color: #856404;">Draw Date:</span>
+              <span style="font-weight: bold; color: #856404;">${ticketData.drawDate}</span>
+            </div>
+            
+            <div style="margin: 25px 0; padding: 20px; background: #e8f5e8; border-radius: 10px;">
+              <p style="margin: 0 0 10px 0; font-weight: bold; color: #2e7d32;">QR Code for Verification:</p>
+              <img src="${ticketData.qrCode}" alt="Ticket QR Code" style="width: 120px; height: 120px; border: 2px solid #4CAF50; border-radius: 5px; background: white; padding: 5px;" />
+              <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">Scan this code to verify your ticket</p>
+            </div>
+          </div>
+          
+          <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 20px; margin: 20px 0; border-radius: 5px;">
+            <h3 style="color: #1976d2; margin: 0 0 10px 0;">🍀 Good Luck!</h3>
+            <ul style="color: #1976d2; margin: 0; padding-left: 20px; line-height: 1.6;">
+              <li>Keep this ticket safe until the draw</li>
+              <li>Check the results on the draw date</li>
+              <li>Winners will be notified automatically</li>
+              <li>Use the QR code to verify your ticket anytime</li>
+            </ul>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/en/profile" 
+               style="background: #FF5722; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; display: inline-block; font-weight: bold; font-size: 16px; margin: 5px;">
+              View My Tickets
+            </a>
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/en/games" 
+               style="background: #4CAF50; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; display: inline-block; font-weight: bold; font-size: 16px; margin: 5px;">
+              Play More Games
+            </a>
+          </div>
+        </div>
+        
+        <div style="background: #333; color: white; text-align: center; padding: 20px; font-size: 12px;">
+          <p style="margin: 0;">© 2025 BlackFriday Marketing App. All rights reserved.</p>
+          <p style="margin: 5px 0 0 0;">This is an automated message. Please do not reply to this email.</p>
+        </div>
+      </div>
+    `;
 
     return this.sendEmail({
       to: userEmail,
@@ -200,7 +294,7 @@ export class EmailService {
         </div>
         
         <div style="background: #333; color: white; text-align: center; padding: 20px; font-size: 12px;">
-          <p style="margin: 0;">© 2024 Lottery App. All rights reserved.</p>
+          <p style="margin: 0;">© 2025 BlackFriday Marketing App. All rights reserved.</p>
         </div>
       </div>
     `;

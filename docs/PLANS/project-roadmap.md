@@ -1,4 +1,4 @@
-# Lottery App Project Roadmap
+# BlackFriday Marketing App Project Roadmap
 
 ## Project Overview
 

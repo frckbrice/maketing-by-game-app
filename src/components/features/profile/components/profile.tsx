@@ -22,7 +22,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { firestoreService } from '@/lib/firebase/services';
+import { useUserTickets, useUserGames } from '@/hooks/useApi';
 import type { LotteryGame, LotteryTicket } from '@/types';
 import {
   ArrowLeft,
@@ -47,9 +47,9 @@ export const ProfilePage = () => {
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
-  const [userTickets, setUserTickets] = useState<LotteryTicket[]>([]);
-  const [userGames, setUserGames] = useState<LotteryGame[]>([]);
-  const [ticketsLoading, setTicketsLoading] = useState(true);
+  // TanStack Query hooks
+  const { data: userTickets = [], isLoading: ticketsLoading } = useUserTickets(user?.id || '');
+  const { data: userGames = [] } = useUserGames(user?.id || '');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [vendorApplication, setVendorApplication] = useState<any>(null);
@@ -69,31 +69,6 @@ export const ProfilePage = () => {
     }
   }, [user, loading, router, redirecting]);
 
-  // Fetch user tickets and games
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (user) {
-        try {
-          setTicketsLoading(true);
-          const tickets = await firestoreService.getTickets(user.id);
-          setUserTickets(tickets);
-
-          // Get unique games from tickets
-          const gameIds = [...new Set(tickets.map(ticket => ticket.gameId))];
-          const games = await Promise.all(
-            gameIds.map(id => firestoreService.getGame(id))
-          );
-          setUserGames(games.filter(Boolean) as LotteryGame[]);
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-        } finally {
-          setTicketsLoading(false);
-        }
-      }
-    };
-
-    fetchUserData();
-  }, [user]);
 
   // Check vendor application status when user is logged in
   useEffect(() => {
@@ -106,9 +81,7 @@ export const ProfilePage = () => {
 
           // First, let's check if the collection exists and what's in it
           try {
-            const allApps = await (
-              firestoreService as any
-            ).getAllVendorApplications();
+            const allApps = await firestoreService.getAllVendorApplications();
             console.log('All vendor applications in database:', allApps);
 
             // Find our specific application

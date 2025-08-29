@@ -2,7 +2,7 @@
 
 ## Project Successfully Deployed!
 
-Your lottery app has been successfully deployed to Vercel with the following details:
+Your BlackFriday Marketing App has been successfully deployed to Vercel with the following details:
 
 ### Production URLs
 
@@ -158,7 +158,7 @@ Your app is optimized with:
 
 ---
 
-** Congratulations! Your lottery app is now live on Vercel! 🎉 **
+** Congratulations! Your BlackFriday Marketing App is now live on Vercel! 🎉 **
 
 **Last Updated:** $(date)
 **Author:** Avom brice

@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
 
     // Send email
     const info = await transporter.sendMail({
-      from: `"Lottery App" <${process.env.PROJECT_MAIL}>`,
+      from: `"BlackFriday Marketing App " <${process.env.PROJECT_MAIL}>`,
       to: to || userEmail,
       subject: emailSubject,
       text: text || emailHtml.replace(/<[^>]*>/g, ''),

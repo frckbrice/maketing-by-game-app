@@ -4,7 +4,7 @@ import { DesktopHeader } from '@/components/home/components/DesktopHeader';
 import { MobileNavigation } from '@/components/home/components/MobileNavigation';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { firestoreService } from '@/lib/firebase/services';
+import { useAdminStats } from '@/hooks/useApi';
 import {
   Activity,
   BarChart3,
@@ -27,15 +27,15 @@ export const AdminDashboard = () => {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [stats, setStats] = useState({
+  // TanStack Query hook for admin stats
+  const { data: stats = {
     totalUsers: 0,
     totalGames: 0,
     totalWinners: 0,
     pendingApplications: 0,
     totalRevenue: 0,
     activeGames: 0,
-  });
-  const [loadingStats, setLoadingStats] = useState(true);
+  }, isLoading: loadingStats } = useAdminStats();
   const router = useRouter();
 
   // Ensure component is mounted before accessing theme
@@ -50,41 +50,6 @@ export const AdminDashboard = () => {
     }
   }, [user, loading, router]);
 
-  // Fetch admin statistics
-  useEffect(() => {
-    const fetchAdminStats = async () => {
-      if (user && user.role === 'ADMIN') {
-        try {
-          setLoadingStats(true);
-          // Fetch various statistics
-          const [users, games, winners, applications] = await Promise.all([
-            (firestoreService as any).getAllUsers(),
-            (firestoreService as any).getAllGames(),
-            firestoreService.getWinners(),
-            (firestoreService as any).getAllVendorApplications(),
-          ]);
-
-          setStats({
-            totalUsers: users.length,
-            totalGames: games.length,
-            totalWinners: winners.length,
-            pendingApplications: applications.filter(
-              (app: any) => app.status === 'PENDING'
-            ).length,
-            totalRevenue: 0, // TODO: Calculate from transactions
-            activeGames: games.filter((game: any) => game.status === 'ACTIVE')
-              .length,
-          });
-        } catch (error) {
-          console.error('Error fetching admin stats:', error);
-        } finally {
-          setLoadingStats(false);
-        }
-      }
-    };
-
-    fetchAdminStats();
-  }, [user]);
 
   if (!mounted) {
     return null;
@@ -143,26 +108,26 @@ export const AdminDashboard = () => {
         onThemeToggle={() => setTheme(isDark ? 'light' : 'dark')}
       />
 
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+      <div className='max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8'>
         {/* Admin Header */}
-        <div className='mb-8'>
-          <div className='flex items-center space-x-4'>
-            <div className='p-3 bg-red-500 rounded-full'>
-              <Shield className='w-8 h-8 text-white' />
+        <div className='mb-6 sm:mb-8'>
+          <div className='flex items-center space-x-3 sm:space-x-4'>
+            <div className='p-2 sm:p-3 bg-red-500 rounded-full'>
+              <Shield className='w-6 h-6 sm:w-8 sm:h-8 text-white' />
             </div>
             <div>
-              <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>
+              <h1 className='text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white leading-tight'>
                 {t('admin.adminDashboard')}
               </h1>
-              <p className='text-gray-600 dark:text-gray-300'>
+              <p className='text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-1'>
                 {t('admin.welcomeMessage')}, {user.firstName}!
               </p>
             </div>
           </div>
-          <div className='mt-4'>
+          <div className='mt-3 sm:mt-4'>
             <Badge
               variant='outline'
-              className='text-sm border-red-500 text-red-600 dark:text-red-400'
+              className='text-xs sm:text-sm border-red-500 text-red-600 dark:text-red-400 px-2 py-1'
             >
               ADMIN
             </Badge>
@@ -170,32 +135,32 @@ export const AdminDashboard = () => {
         </div>
 
         {/* Statistics Grid */}
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8'>
-          <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8'>
+          <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 border border-gray-200 dark:border-gray-700'>
             <div className='flex items-center justify-between'>
               <div>
-                <p className='text-sm font-medium text-gray-600 dark:text-gray-400'>
+                <p className='text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 leading-tight'>
                   {t('admin.totalUsers')}
                 </p>
-                <p className='text-2xl font-bold text-gray-900 dark:text-white'>
+                <p className='text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1'>
                   {loadingStats ? '...' : stats.totalUsers}
                 </p>
               </div>
-              <Users className='w-8 h-8 text-blue-500' />
+              <Users className='w-6 h-6 sm:w-8 sm:h-8 text-blue-500 flex-shrink-0' />
             </div>
           </div>
 
-          <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700'>
+          <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 border border-gray-200 dark:border-gray-700'>
             <div className='flex items-center justify-between'>
               <div>
-                <p className='text-sm font-medium text-gray-600 dark:text-gray-400'>
+                <p className='text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 leading-tight'>
                   {t('admin.totalGames')}
                 </p>
-                <p className='text-2xl font-bold text-gray-900 dark:text-white'>
+                <p className='text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1'>
                   {loadingStats ? '...' : stats.totalGames}
                 </p>
               </div>
-              <Gamepad2 className='w-8 h-8 text-green-500' />
+              <Gamepad2 className='w-6 h-6 sm:w-8 sm:h-8 text-green-500 flex-shrink-0' />
             </div>
           </div>
 
@@ -259,28 +224,28 @@ export const AdminDashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8'>
-          <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700'>
-            <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center'>
-              <Plus className='w-5 h-5 text-green-500 mr-2' />
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8'>
+          <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 border border-gray-200 dark:border-gray-700'>
+            <h3 className='text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center'>
+              <Plus className='w-4 h-4 sm:w-5 sm:h-5 text-green-500 mr-2' />
               {t('admin.contentManagement')}
             </h3>
-            <div className='space-y-3'>
+            <div className='space-y-2 sm:space-y-3'>
               <button
                 onClick={() => router.push('/admin/categories')}
-                className='w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition-colors text-left'
+                className='w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 sm:py-2.5 px-4 sm:px-4 rounded-lg sm:rounded-md shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] text-left text-sm sm:text-base font-medium'
               >
                 {t('admin.manageCategories')}
               </button>
               <button
                 onClick={() => router.push('/admin/games')}
-                className='w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md transition-colors text-left'
+                className='w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 sm:py-2.5 px-4 sm:px-4 rounded-lg sm:rounded-md shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] text-left text-sm sm:text-base font-medium'
               >
                 {t('admin.manageGames')}
               </button>
               <button
                 onClick={() => router.push('/admin/winners')}
-                className='w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md transition-colors text-left'
+                className='w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white py-3 sm:py-2.5 px-4 sm:px-4 rounded-lg sm:rounded-md shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] text-left text-sm sm:text-base font-medium'
               >
                 {t('admin.manageWinners')}
               </button>
@@ -292,22 +257,22 @@ export const AdminDashboard = () => {
               <Users className='w-5 h-5 text-blue-500 mr-2' />
               {t('admin.userManagement')}
             </h3>
-            <div className='space-y-3'>
+            <div className='space-y-2 sm:space-y-3'>
               <button
                 onClick={() => router.push('/admin/users')}
-                className='w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition-colors text-left'
+                className='w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 sm:py-2.5 px-4 rounded-lg sm:rounded-md shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] text-left text-sm sm:text-base font-medium'
               >
                 {t('admin.manageUsers')}
               </button>
               <button
                 onClick={() => router.push('/admin/vendor-applications')}
-                className='w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md transition-colors text-left'
+                className='w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3 sm:py-2.5 px-4 rounded-lg sm:rounded-md shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] text-left text-sm sm:text-base font-medium'
               >
                 {t('admin.vendorApplications')}
               </button>
               <button
                 onClick={() => router.push('/admin/roles')}
-                className='w-full bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-md transition-colors text-left'
+                className='w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 sm:py-2.5 px-4 rounded-lg sm:rounded-md shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] text-left text-sm sm:text-base font-medium'
               >
                 {t('admin.manageRoles')}
               </button>
@@ -319,22 +284,22 @@ export const AdminDashboard = () => {
               <Settings className='w-5 h-5 text-gray-500 mr-2' />
               {t('admin.systemSettings')}
             </h3>
-            <div className='space-y-3'>
+            <div className='space-y-2 sm:space-y-3'>
               <button
                 onClick={() => router.push('/admin/settings')}
-                className='w-full bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-md transition-colors text-left'
+                className='w-full bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white py-3 sm:py-2.5 px-4 rounded-lg sm:rounded-md shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] text-left text-sm sm:text-base font-medium'
               >
                 {t('admin.generalSettings')}
               </button>
               <button
                 onClick={() => router.push('/admin/notifications')}
-                className='w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-md transition-colors text-left'
+                className='w-full bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white py-3 sm:py-2.5 px-4 rounded-lg sm:rounded-md shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] text-left text-sm sm:text-base font-medium'
               >
                 {t('admin.notificationSettings')}
               </button>
               <button
                 onClick={() => router.push('/admin/analytics')}
-                className='w-full bg-teal-500 hover:bg-teal-600 text-white py-2 px-4 rounded-md transition-colors text-left'
+                className='w-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white py-3 sm:py-2.5 px-4 rounded-lg sm:rounded-md shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] text-left text-sm sm:text-base font-medium'
               >
                 {t('admin.analytics')}
               </button>

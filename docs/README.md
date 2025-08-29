@@ -1,4 +1,4 @@
-# Lottery App Documentation
+# BlackFriday Marketing App Documentation
 
 Welcome to the comprehensive documentation for the Lottery Marketing Application. This documentation covers all aspects of the project, from setup to troubleshooting.
 

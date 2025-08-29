@@ -2,7 +2,7 @@
 
 ## **Required Images**
 
-To complete the lottery app design, you need to add the following images to the `public/images/` folder:
+To complete the BlackFriday Marketing App design, you need to add the following images to the `public/images/` folder:
 
 ### **1. Hero Section Image (lottery_1)**
 

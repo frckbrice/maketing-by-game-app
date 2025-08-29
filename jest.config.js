@@ -1,8 +1,11 @@
-export default {
+module.exports = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+  },
+  transform: {
+    '^.+\\.(ts|tsx)$': 'babel-jest',
   },
   testMatch: [
     '**/__tests__/**/*.{js,jsx,ts,tsx}',
@@ -23,6 +26,10 @@ export default {
       statements: 0,
     },
   },
-  // Skip tests for now since we don't have any
-  testPathIgnorePatterns: ['<rootDir>/.*'],
+  // Enable testing for admin components
+  testPathIgnorePatterns: [
+    '<rootDir>/node_modules/',
+    '<rootDir>/.next/',
+    '<rootDir>/coverage/',
+  ],
 };

@@ -80,6 +80,7 @@ class AdminService {
         id: doc.id,
         ...doc.data(),
       })) as User[];
+      
       const games = gamesSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
@@ -104,6 +105,7 @@ class AdminService {
       const todayRevenue = completedPayments
         .filter(p => p.createdAt >= todayStart)
         .reduce((sum, p) => sum + p.amount, 0);
+
       const monthlyRevenue = completedPayments
         .filter(p => p.createdAt >= monthStart)
         .reduce((sum, p) => sum + p.amount, 0);

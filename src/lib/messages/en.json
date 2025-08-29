@@ -491,5 +491,69 @@
     "analytics": "Analytics",
     "earnings": "Earnings",
     "profile": "Vendor Profile"
+  },
+  "payment": {
+    "title": "Purchase Ticket",
+    "chooseMethod": "Choose Payment Method",
+    "selectMethodSubtitle": "Select your preferred mobile money provider",
+    "enterPhone": "Enter Phone Number",
+    "enterPhoneSubtitle": "Enter your mobile money phone number",
+    "processing": "Processing Payment",
+    "processingSubtitle": "Please wait while we process your payment",
+    "success": "Payment Successful!",
+    "successSubtitle": "Your lottery ticket has been generated successfully",
+    "ticketPrice": "Ticket Price",
+    "participants": "Participants",
+    "methods": {
+      "orangeMoney": "Orange Money",
+      "orangeDescription": "Pay with your Orange Money account",
+      "mtnMomo": "MTN Mobile Money",
+      "mtnDescription": "Pay with your MTN Mobile Money account"
+    },
+    "phoneNumber": "Phone Number",
+    "enterPhonePrompt": "Enter your {method} number",
+    "security": {
+      "title": "Secure Payment",
+      "description": "Your transaction is encrypted and secure"
+    },
+    "continue": "Continue",
+    "payNow": "Pay Now",
+    "checkPhone": "Please check your phone for the payment request...",
+    "ticket": {
+      "yourTicket": "Your Ticket",
+      "ticketNumber": "Ticket Number",
+      "pricePaid": "Price Paid",
+      "scanToVerify": "Scan to verify",
+      "print": "Print",
+      "email": "Email",
+      "save": "Save",
+      "playAgain": "Play Again 🎮",
+      "viewProfile": "View Profile"
+    },
+    "errors": {
+      "enterPhone": "Please enter your phone number",
+      "invalidPhone": "Please enter a valid {method} phone number",
+      "loginRequired": "Please log in to purchase tickets",
+      "paymentFailed": "Payment failed. Please try again.",
+      "paymentDeclined": "Payment was declined or cancelled.",
+      "paymentExpired": "Payment request expired. Please try again.",
+      "paymentTimeout": "Payment timeout. Please check your phone and try again.",
+      "networkError": "Network error. Please check your connection and try again."
+    },
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "success": "Success",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "checking": "Checking payment status... ({attempt}/{total})"
+    },
+    "notifications": {
+      "initiated": "Processing {method} payment...",
+      "successful": "Payment successful via {method}! Ticket generated.",
+      "emailSent": "Ticket sent to your phone and email!",
+      "emailDelayed": "Ticket generated. Email delivery may be delayed."
+    }
   }
 }

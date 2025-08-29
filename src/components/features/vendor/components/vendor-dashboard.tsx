@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
@@ -34,7 +34,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { vendorService } from '@/lib/api/vendorService';
+import { useVendorStats, useVendorGames, useVendorRevenueChart, useVendorParticipationChart } from '@/hooks/useApi';
 
 interface VendorStats {
   totalGames: number;
@@ -61,104 +61,24 @@ const CHART_COLORS = ['#FF5722', '#FF9800', '#FFC107', '#4CAF50', '#2196F3'];
 export function VendorDashboard() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [stats, setStats] = useState<VendorStats | null>(null);
-  const [recentGames, setRecentGames] = useState<RecentGame[]>([]);
-  const [revenueChart, setRevenueChart] = useState<
-    Array<{ date: string; revenue: number }>
-  >([]);
-  const [participationChart, setParticipationChart] = useState<
-    Array<{ name: string; value: number }>
-  >([]);
-  const [loading, setLoading] = useState(true);
+  // TanStack Query hooks
+  const { data: stats, isLoading: statsLoading } = useVendorStats(user?.id || '');
+  const { data: vendorGames = [], isLoading: gamesLoading } = useVendorGames(user?.id || '');
+  const { data: revenueChart = [], isLoading: revenueLoading } = useVendorRevenueChart(user?.id || '');
+  const { data: participationChart = [], isLoading: participationLoading } = useVendorParticipationChart(user?.id || '');
 
-  useEffect(() => {
-    if (user && (user.role === 'VENDOR' || user.role === 'ADMIN')) {
-      loadDashboardData();
-    }
-  }, [user]);
+  const loading = statsLoading || gamesLoading || revenueLoading || participationLoading;
 
-  const loadDashboardData = async () => {
-    try {
-      setLoading(true);
-      const [statsData, gamesData, revenueData, participationData] =
-        await Promise.all([
-          vendorService.getVendorStats(user!.id),
-          vendorService.getVendorGames(user!.id, { limit: 5 }),
-          vendorService.getRevenueChart(user!.id),
-          vendorService.getParticipationChart(user!.id),
-        ]);
+  // Transform games to recent games format
+  const recentGames: RecentGame[] = vendorGames.slice(0, 5).map((game: any) => ({
+    id: game.id,
+    title: game.title,
+    status: game.status,
+    participants: game.currentParticipants || 0,
+    revenue: (game.currentParticipants || 0) * (game.ticketPrice || 0),
+    endDate: game.endDate,
+  }));
 
-      setStats(statsData);
-      // Transform LotteryGame to RecentGame format
-      const transformedGames = gamesData.data.map(game => ({
-        id: game.id,
-        title: game.title,
-        status: game.status,
-        participants: game.currentParticipants || 0,
-        revenue: 0, // Calculate from tickets if needed
-        endDate: game.endDate,
-      }));
-      setRecentGames(transformedGames);
-      setRevenueChart(revenueData);
-      setParticipationChart(participationData);
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
-      // Set mock data for development
-      setStats({
-        totalGames: 12,
-        activeGames: 8,
-        totalRevenue: 15680.5,
-        monthlyRevenue: 3240.75,
-        totalParticipants: 2847,
-        averageParticipation: 237,
-        conversionRate: 68.5,
-        pendingApprovals: 2,
-      });
-      setRecentGames([
-        {
-          id: '1',
-          title: 'iPhone 15 Pro Max Contest',
-          status: 'ACTIVE',
-          participants: 456,
-          revenue: 2280,
-          endDate: Date.now() + 5 * 24 * 60 * 60 * 1000,
-        },
-        {
-          id: '2',
-          title: 'Nike Air Jordan Giveaway',
-          status: 'DRAWING',
-          participants: 234,
-          revenue: 1170,
-          endDate: Date.now() + 1 * 24 * 60 * 60 * 1000,
-        },
-        {
-          id: '3',
-          title: 'MacBook Pro Bundle',
-          status: 'PENDING',
-          participants: 0,
-          revenue: 0,
-          endDate: Date.now() + 10 * 24 * 60 * 60 * 1000,
-        },
-      ]);
-      setRevenueChart([
-        { date: '2024-01-01', revenue: 1200 },
-        { date: '2024-01-02', revenue: 1800 },
-        { date: '2024-01-03', revenue: 1500 },
-        { date: '2024-01-04', revenue: 2200 },
-        { date: '2024-01-05', revenue: 1900 },
-        { date: '2024-01-06', revenue: 2400 },
-        { date: '2024-01-07', revenue: 2100 },
-      ]);
-      setParticipationChart([
-        { name: 'Tech & Phones', value: 35 },
-        { name: 'Fashion', value: 25 },
-        { name: 'Home Appliances', value: 20 },
-        { name: 'Computers', value: 20 },
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const getStatusBadge = (status: string) => {
     const badges = {
@@ -194,25 +114,25 @@ export function VendorDashboard() {
   }
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-4 sm:space-y-6 px-3 sm:px-4 lg:px-0'>
       {/* Header */}
       <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
         <div>
-          <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>
+          <h1 className='text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white leading-tight'>
             {t('vendor.welcomeMessage')}
           </h1>
-          <p className='text-gray-600 dark:text-gray-400'>
+          <p className='text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1'>
             Here&apos;s what&apos;s happening with your games today.
           </p>
         </div>
-        <div className='flex space-x-2'>
-          <Button asChild>
+        <div className='flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto'>
+          <Button asChild className='w-full sm:w-auto text-sm sm:text-base'>
             <Link href='/vendor-dashboard/create-game'>
               <Plus className='w-4 h-4 mr-2' />
               {t('vendor.createGame')}
             </Link>
           </Button>
-          <Button variant='outline' asChild>
+          <Button variant='outline' asChild className='w-full sm:w-auto text-sm sm:text-base'>
             <Link href='/vendor-dashboard/analytics'>
               <BarChart className='w-4 h-4 mr-2' />
               {t('vendor.analytics')}
@@ -222,7 +142,7 @@ export function VendorDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6'>
         <Card>
           <CardContent className='p-6'>
             <div className='flex items-center justify-between'>
@@ -364,7 +284,7 @@ export function VendorDashboard() {
                     fill='#8884d8'
                     dataKey='value'
                   >
-                    {participationChart.map((_, index) => (
+                    {participationChart.map((_: any, index: number) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={CHART_COLORS[index % CHART_COLORS.length]}

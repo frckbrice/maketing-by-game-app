@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase/config';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
 import { NextRequest, NextResponse } from 'next/server';
 
 // NOKASH API Configuration - Server-side only
@@ -99,55 +99,70 @@ export async function POST(request: NextRequest) {
       },
     };
 
-    // Make request to NOKASH API
-    const nokashResponse = await fetch(
-      `${NOKASH_CONFIG.apiUrl}/lapas-on-trans/trans/api-payin-request/407`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(nokashPayload),
-      }
-    );
+    // Make request to NOKASH API with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-    const nokashResult = await nokashResponse.json();
-
-    if (nokashResult.status === 'success' || nokashResult.status === 200) {
-      // Update payment record with NOKASH transaction ID
-      await addDoc(collection(db, 'payments'), {
-        ...paymentRecord,
-        nokashTransactionId: nokashResult.transaction_id,
-        status: 'PROCESSING',
-        updatedAt: serverTimestamp(),
-      });
-
-      return NextResponse.json({
-        success: true,
-        transactionId: paymentRecord.id,
-        nokashTransactionId: nokashResult.transaction_id,
-        status: 'PROCESSING',
-        message:
-          'Payment initiated. Please check your phone for the mobile money prompt.',
-      });
-    } else {
-      // Update payment record with failure
-      await addDoc(collection(db, 'payments'), {
-        ...paymentRecord,
-        status: 'FAILED',
-        errorMessage: nokashResult.message || 'Payment initiation failed',
-        updatedAt: serverTimestamp(),
-      });
-
-      return NextResponse.json(
+    try {
+      const nokashResponse = await fetch(
+        `${NOKASH_CONFIG.apiUrl}/lapas-on-trans/trans/api-payin-request/407`,
         {
-          success: false,
-          status: 'FAILED',
-          message: nokashResult.message || 'Payment initiation failed',
-          errorCode: nokashResult.error_code,
-        },
-        { status: 400 }
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(nokashPayload),
+          signal: controller.signal,
+        }
       );
+
+      clearTimeout(timeoutId);
+      const nokashResult = await nokashResponse.json();
+
+      if (nokashResult.status === 'success' || nokashResult.status === 200) {
+        // Update existing payment record instead of creating duplicate
+        await updateDoc(doc(db, 'payments', paymentRecord.id), {
+          nokashTransactionId: nokashResult.transaction_id,
+          status: 'PROCESSING',
+          updatedAt: serverTimestamp(),
+        });
+
+        return NextResponse.json({
+          success: true,
+          transactionId: paymentRecord.id,
+          nokashTransactionId: nokashResult.transaction_id,
+          status: 'PROCESSING',
+          message:
+            'Payment initiated. Please check your phone for the mobile money prompt.',
+        });
+      } else {
+        // Update existing payment record with failure
+        await updateDoc(doc(db, 'payments', paymentRecord.id), {
+          status: 'FAILED',
+          errorMessage: nokashResult.message || 'Payment initiation failed',
+          updatedAt: serverTimestamp(),
+        });
+
+        return NextResponse.json(
+          {
+            success: false,
+            status: 'FAILED',
+            message: nokashResult.message || 'Payment initiation failed',
+            errorCode: nokashResult.error_code,
+          },
+          { status: 400 }
+        );
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      // Handle network timeout or other errors
+      await updateDoc(doc(db, 'payments', paymentRecord.id), {
+        status: 'FAILED',
+        errorMessage: 'Network timeout or connection error',
+        updatedAt: serverTimestamp(),
+      });
+
+      throw error;
     }
   } catch (error) {
     console.error('Payment initiation error:', error);

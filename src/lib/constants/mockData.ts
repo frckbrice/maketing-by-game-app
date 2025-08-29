@@ -287,7 +287,7 @@ export const MOCK_GAMES: LotteryGame[] = [
     images: [
       {
         id: '1',
-        url: '/en/images/macbookpro.jpg', // Using existing image as placeholder
+        url: '/en/images/headset.jpg', // Using existing image as placeholder
         alt: 'Premium Gaming Headset',
         type: 'thumbnail',
         order: 1,

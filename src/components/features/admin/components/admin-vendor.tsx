@@ -268,7 +268,7 @@ export function AdminVendorApplicationsPage() {
           </div>
 
           {/* Filters */}
-          <div className='flex space-x-2 mb-6'>
+          <div className='flex flex-wrap gap-2 mb-6'>
             <Button
               variant={filterStatus === 'all' ? 'default' : 'outline'}
               onClick={() => setFilterStatus('all')}
@@ -323,23 +323,23 @@ export function AdminVendorApplicationsPage() {
         ) : (
           <div className='space-y-4'>
             {filteredApplications.map(application => (
-              <Card key={application.id} className='p-6'>
-                <div className='flex items-center justify-between'>
-                  <div className='flex items-center space-x-4'>
-                    <div className='w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center'>
-                      <Building2 className='w-6 h-6 text-white' />
+              <Card key={application.id} className='p-4 sm:p-6'>
+                <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0'>
+                  <div className='flex items-center space-x-3 sm:space-x-4'>
+                    <div className='w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center flex-shrink-0'>
+                      <Building2 className='w-5 h-5 sm:w-6 sm:h-6 text-white' />
                     </div>
-                    <div>
-                      <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
+                    <div className='min-w-0 flex-1'>
+                      <h3 className='text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate'>
                         {application.companyName}
                       </h3>
-                      <p className='text-gray-600 dark:text-gray-400'>
+                      <p className='text-sm text-gray-600 dark:text-gray-400 truncate'>
                         {application.userName} • {application.userEmail}
                       </p>
-                      <div className='flex items-center space-x-2 mt-1'>
+                      <div className='flex items-center flex-wrap gap-2 mt-1'>
                         {getStatusIcon(application.status)}
                         {getStatusBadge(application.status)}
-                        <span className='text-sm text-gray-500'>
+                        <span className='text-xs sm:text-sm text-gray-500'>
                           Submitted{' '}
                           {new Date(
                             application.submittedAt
@@ -349,7 +349,7 @@ export function AdminVendorApplicationsPage() {
                     </div>
                   </div>
 
-                  <div className='flex items-center space-x-2'>
+                  <div className='flex items-center space-x-2 flex-wrap gap-2'>
                     <Button
                       variant='outline'
                       size='sm'
@@ -357,6 +357,7 @@ export function AdminVendorApplicationsPage() {
                         setSelectedApplication(application);
                         setShowDetailsModal(true);
                       }}
+                      className='w-full sm:w-auto'
                     >
                       <Eye className='w-4 h-4 mr-2' />
                       View Details
@@ -368,7 +369,7 @@ export function AdminVendorApplicationsPage() {
                           size='sm'
                           onClick={() => handleApprove(application.id)}
                           disabled={processingAction === application.id}
-                          className='bg-green-600 hover:bg-green-700'
+                          className='bg-green-600 hover:bg-green-700 w-full sm:w-auto'
                         >
                           {processingAction === application.id ? (
                             <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white'></div>
@@ -391,7 +392,7 @@ export function AdminVendorApplicationsPage() {
                             }
                           }}
                           disabled={processingAction === application.id}
-                          className='border-red-500 text-red-600 hover:bg-red-50'
+                          className='border-red-500 text-red-600 hover:bg-red-50 w-full sm:w-auto'
                         >
                           <XCircle className='w-4 h-4 mr-2' />
                           Reject
@@ -401,22 +402,22 @@ export function AdminVendorApplicationsPage() {
                   </div>
                 </div>
 
-                <div className='mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm'>
-                  <div className='flex items-center space-x-2'>
-                    <Globe className='w-4 h-4 text-gray-400' />
-                    <span className='text-gray-600 dark:text-gray-400'>
+                <div className='mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 text-sm'>
+                  <div className='flex items-center space-x-2 truncate'>
+                    <Globe className='w-4 h-4 text-gray-400 flex-shrink-0' />
+                    <span className='text-gray-600 dark:text-gray-400 truncate'>
                       {application.companyWebsite || 'No website'}
                     </span>
                   </div>
-                  <div className='flex items-center space-x-2'>
-                    <Mail className='w-4 h-4 text-gray-400' />
-                    <span className='text-gray-600 dark:text-gray-400'>
+                  <div className='flex items-center space-x-2 truncate'>
+                    <Mail className='w-4 h-4 text-gray-400 flex-shrink-0' />
+                    <span className='text-gray-600 dark:text-gray-400 truncate'>
                       {application.contactEmail}
                     </span>
                   </div>
-                  <div className='flex items-center space-x-2'>
-                    <Phone className='w-4 h-4 text-gray-400' />
-                    <span className='text-gray-600 dark:text-gray-400'>
+                  <div className='flex items-center space-x-2 truncate'>
+                    <Phone className='w-4 h-4 text-gray-400 flex-shrink-0' />
+                    <span className='text-gray-600 dark:text-gray-400 truncate'>
                       {application.contactPhone}
                     </span>
                   </div>
@@ -438,30 +439,30 @@ export function AdminVendorApplicationsPage() {
 
       {/* Application Details Modal */}
       {showDetailsModal && selectedApplication && (
-        <div className='fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4'>
-          <div className='bg-white dark:bg-gray-800 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl'>
+        <div className='fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4'>
+          <div className='bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl'>
             {/* Modal Header */}
-            <div className='sticky top-0 bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 rounded-t-3xl'>
+            <div className='sticky top-0 bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 sm:p-6 rounded-t-2xl sm:rounded-t-3xl'>
               <div className='flex items-center justify-between'>
-                <h2 className='text-2xl font-bold'>Application Details</h2>
+                <h2 className='text-xl sm:text-2xl font-bold'>Application Details</h2>
                 <button
                   onClick={() => setShowDetailsModal(false)}
-                  className='w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors'
+                  className='w-8 h-8 sm:w-10 sm:h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors'
                 >
-                  <span className='text-white text-xl'>×</span>
+                  <span className='text-white text-lg sm:text-xl'>×</span>
                 </button>
               </div>
             </div>
 
             {/* Modal Content */}
-            <div className='p-6 space-y-6'>
+            <div className='p-4 sm:p-6 space-y-4 sm:space-y-6'>
               {/* Company Information */}
-              <div className='bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl p-6'>
-                <h3 className='text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center'>
-                  <Building2 className='w-6 h-6 text-orange-500 mr-2' />
+              <div className='bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl p-4 sm:p-6'>
+                <h3 className='text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center'>
+                  <Building2 className='w-5 h-5 sm:w-6 sm:h-6 text-orange-500 mr-2' />
                   Company Information
                 </h3>
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                   <div>
                     <p>
                       <strong>Company Name:</strong>{' '}
@@ -567,15 +568,49 @@ export function AdminVendorApplicationsPage() {
                       <strong>Business Certificate:</strong>
                     </p>
                     {selectedApplication.businessCertificateUrl ? (
-                      <div className='mt-2'>
-                        <a
-                          href={selectedApplication.businessCertificateUrl}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-blue-600 hover:text-blue-800 underline'
+                      <div className='mt-2 space-y-2'>
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          onClick={() => {
+                            // Create a new window to view the certificate
+                            if (selectedApplication.businessCertificateUrl) {
+                              const newWindow = window.open(selectedApplication.businessCertificateUrl, '_blank');
+                              if (!newWindow) {
+                                // If popup is blocked, try downloading
+                                const link = document.createElement('a');
+                                link.href = selectedApplication.businessCertificateUrl;
+                                link.download = `${selectedApplication.companyName}_certificate`;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                              }
+                            }
+                          }}
+                          className='flex items-center space-x-2'
                         >
-                          View Certificate
-                        </a>
+                          <FileText className='w-4 h-4' />
+                          <span>View Certificate</span>
+                        </Button>
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          onClick={() => {
+                            // Download the certificate
+                            if (selectedApplication.businessCertificateUrl) {
+                              const link = document.createElement('a');
+                              link.href = selectedApplication.businessCertificateUrl;
+                              link.download = `${selectedApplication.companyName}_certificate`;
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                            }
+                          }}
+                          className='flex items-center space-x-2'
+                        >
+                          <Eye className='w-4 h-4' />
+                          <span>Download</span>
+                        </Button>
                       </div>
                     ) : (
                       <p className='text-gray-500 text-sm'>Not provided</p>

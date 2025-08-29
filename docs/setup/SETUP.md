@@ -1,4 +1,4 @@
-# Lottery App Setup Guide
+# BlackFriday Marketing App Setup Guide
 
 This guide will help you set up the Lottery Marketing Application on your local machine.
 

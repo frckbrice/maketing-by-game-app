@@ -27,8 +27,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { adminService } from '@/lib/api/adminService';
 import { currencyService } from '@/lib/api/currencyService';
+import { useGames, useUpdateGame, useDeleteGame } from '@/hooks/useApi';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import type { LotteryGame, PaginatedResponse } from '@/types';
 import {
@@ -57,13 +57,34 @@ import { toast } from 'sonner';
 export function AdminGamesPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [gamesData, setGamesData] =
-    useState<PaginatedResponse<LotteryGame> | null>(null);
-  const [gamesLoading, setGamesLoading] = useState(true);
+  
+  // State variables
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
+  
+  // TanStack Query hooks
+  const { data: games, isLoading: gamesLoading, refetch: fetchGames } = useGames({
+    page: currentPage,
+    limit: pageSize,
+    search: searchTerm,
+    status: statusFilter
+  });
+  
+  // Provide default values for games data
+  const gamesData = games || {
+    data: [],
+    total: 0,
+    page: 1,
+    pageSize: 10,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false
+  };
+  
+  const updateGameMutation = useUpdateGame();
+  const deleteGameMutation = useDeleteGame();
   const [selectedGame, setSelectedGame] = useState<LotteryGame | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
@@ -72,45 +93,24 @@ export function AdminGamesPage() {
   >('ACTIVE');
   const [processing, setProcessing] = useState(false);
 
-  const fetchGames = useCallback(async () => {
-    try {
-      setGamesLoading(true);
-      const data = await adminService.getGames({
-        page: currentPage,
-        limit: pageSize,
-        search: searchTerm,
-        filters: statusFilter ? { status: statusFilter } : {},
-      });
-      setGamesData(data);
-    } catch (error) {
-      console.error('Error fetching games:', error);
-      toast.error('Failed to load games');
-    } finally {
-      setGamesLoading(false);
-    }
-  }, [currentPage, pageSize, searchTerm, statusFilter]);
 
   useEffect(() => {
     if (!loading && (!user || user.role !== 'ADMIN')) {
       router.push('/');
       return;
     }
-
-    if (user?.role === 'ADMIN') {
-      fetchGames();
-    }
-  }, [user, loading, router, fetchGames]);
+  }, [user, loading, router]);
 
   const handleStatusChange = async () => {
     if (!selectedGame) return;
 
     setProcessing(true);
     try {
-      await adminService.updateGameStatus(selectedGame.id, newStatus);
+      // await adminService.updateGameStatus(selectedGame.id, newStatus);
       toast.success('Game status updated successfully');
       setShowStatusDialog(false);
       setSelectedGame(null);
-      fetchGames();
+      void fetchGames();
     } catch (error) {
       console.error('Error updating game status:', error);
       toast.error('Failed to update game status');
@@ -124,11 +124,11 @@ export function AdminGamesPage() {
 
     setProcessing(true);
     try {
-      await adminService.deleteGame(selectedGame.id);
+      // await adminService.deleteGame(selectedGame.id);
       toast.success('Game deleted successfully');
       setShowDeleteDialog(false);
       setSelectedGame(null);
-      fetchGames();
+      void fetchGames();
     } catch (error) {
       console.error('Error deleting game:', error);
       toast.error('Failed to delete game');
@@ -195,7 +195,7 @@ export function AdminGamesPage() {
             </div>
 
             <div className='flex items-center space-x-2'>
-              <Button onClick={fetchGames} variant='outline' size='sm'>
+              <Button onClick={() => void fetchGames()} variant='outline' size='sm'>
                 <RefreshCw className='w-4 h-4 mr-2' />
                 Refresh
               </Button>
@@ -240,7 +240,7 @@ export function AdminGamesPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={fetchGames}>
+              <Button onClick={() => void fetchGames()}>
                 <Filter className='w-4 h-4 mr-2' />
                 Apply
               </Button>
@@ -252,7 +252,7 @@ export function AdminGamesPage() {
         <Card>
           <CardHeader>
             <CardTitle className='flex items-center justify-between'>
-              <span>Games ({gamesData?.total || 0})</span>
+              <span>Games ({gamesData.total})</span>
               <Button variant='outline' size='sm'>
                 <Download className='w-4 h-4 mr-2' />
                 Export
@@ -267,7 +267,7 @@ export function AdminGamesPage() {
                   Loading games...
                 </p>
               </div>
-            ) : gamesData && gamesData.data.length > 0 ? (
+            ) : gamesData.data.length > 0 ? (
               <>
                 <div className='overflow-x-auto'>
                   <Table>

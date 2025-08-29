@@ -103,9 +103,9 @@ export function GameCard({
 
   if (!mounted) {
     return (
-      <div className='bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 animate-pulse'>
-        <div className='h-48 bg-gray-200 dark:bg-gray-700 rounded-t-2xl' />
-        <div className='p-6 space-y-3'>
+      <div className='bg-white dark:bg-gray-800 rounded-lg sm:rounded-2xl border border-gray-200 dark:border-gray-700 animate-pulse'>
+        <div className='h-40 sm:h-48 bg-gray-200 dark:bg-gray-700 rounded-t-lg sm:rounded-t-2xl' />
+        <div className='p-4 sm:p-6 space-y-3'>
           <div className='h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4' />
           <div className='h-3 bg-gray-200 dark:bg-gray-700 rounded w-full' />
           <div className='h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3' />
@@ -117,7 +117,7 @@ export function GameCard({
   return (
     <>
       <article
-        className={`group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border ${
+        className={`group relative bg-white dark:bg-gray-800 rounded-lg sm:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border ${
           isSponsored
             ? 'border-yellow-300 dark:border-yellow-500 shadow-yellow-100 dark:shadow-yellow-900/20'
             : 'border-gray-200 dark:border-gray-700'
@@ -127,20 +127,22 @@ export function GameCard({
       >
         {/* Sponsored Badge */}
         {isSponsored && (
-          <div className='absolute top-3 left-3 z-10'>
-            <div className='bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center'>
+          <div className='absolute top-2 sm:top-3 left-2 sm:left-3 z-10'>
+            <div className='bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-xs font-bold px-2 sm:px-3 py-1 rounded-full shadow-lg flex items-center'>
               <Star className='w-3 h-3 mr-1' />
-              {t('games.gameCard.sponsored')}
+              <span className='hidden sm:inline'>{t('games.gameCard.sponsored')}</span>
+              <span className='sm:hidden'>★</span>
             </div>
           </div>
         )}
 
         {/* Status Badges */}
-        <div className='absolute top-3 right-3 z-10 flex flex-col space-y-2'>
+        <div className='absolute top-2 sm:top-3 right-2 sm:right-3 z-10 flex flex-col space-y-1 sm:space-y-2'>
           {isNew && (
             <div className='bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg flex items-center'>
               <Zap className='w-3 h-3 mr-1' />
-              {t('games.gameCard.new')}
+              <span className='hidden sm:inline'>{t('games.gameCard.new')}</span>
+              <span className='sm:hidden'>New</span>
             </div>
           )}
           {isHotGame && (
@@ -158,7 +160,7 @@ export function GameCard({
 
         {/* Product Image */}
         <div
-          className='relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 overflow-hidden cursor-pointer group'
+          className='relative h-40 sm:h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 overflow-hidden cursor-pointer group'
           onClick={() => setShowDetailModal(true)}
         >
           {game.images && game.images.length > 0 ? (
@@ -180,16 +182,16 @@ export function GameCard({
 
           {/* Hover overlay */}
           <div className='absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center'>
-            <div className='bg-white/90 dark:bg-gray-800/90 rounded-full p-3'>
-              <Eye className='w-6 h-6 text-gray-700 dark:text-gray-300' />
+            <div className='bg-white/90 dark:bg-gray-800/90 rounded-full p-2 sm:p-3'>
+              <Eye className='w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300' />
             </div>
           </div>
 
           {/* Company Logo Overlay */}
           {companyInfo && (
-            <div className='absolute bottom-3 right-3'>
-              <div className='bg-white dark:bg-gray-800 rounded-lg p-2 shadow-lg opacity-90 hover:opacity-100 transition-opacity'>
-                <div className='text-xs font-medium text-gray-600 dark:text-gray-300 truncate max-w-20'>
+            <div className='absolute bottom-2 sm:bottom-3 right-2 sm:right-3'>
+              <div className='bg-white dark:bg-gray-800 rounded-lg p-1.5 sm:p-2 shadow-lg opacity-90 hover:opacity-100 transition-opacity'>
+                <div className='text-xs font-medium text-gray-600 dark:text-gray-300 truncate max-w-16 sm:max-w-20'>
                   {companyInfo.name}
                 </div>
               </div>
@@ -201,13 +203,13 @@ export function GameCard({
         </div>
 
         {/* Card Content */}
-        <div className='p-6'>
+        <div className='p-4 sm:p-6'>
           {/* Title and Description */}
-          <div className='mb-4'>
-            <h3 className='text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors'>
+          <div className='mb-3 sm:mb-4'>
+            <h3 className='text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1 sm:mb-2 line-clamp-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors leading-tight'>
               {game.title}
             </h3>
-            <p className='text-sm text-gray-600 dark:text-gray-400 line-clamp-2'>
+            <p className='text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed'>
               {game.description}
             </p>
           </div>

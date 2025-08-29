@@ -3,11 +3,13 @@
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import {
-  firestoreService,
   productService,
   realtimeService,
 } from '@/lib/firebase/services';
-import type { GameCategory } from '@/types';
+import {
+  useCategories,
+  useCreateGame,
+} from '@/hooks/useApi';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   ArrowLeft,
@@ -16,6 +18,7 @@ import {
   Gamepad2,
   Menu,
   Package,
+  Plus,
   Settings,
   Users,
   X,
@@ -26,6 +29,16 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 const createGameSchema = z
   .object({
@@ -67,8 +80,17 @@ export function CreateGamePage() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<GameCategory[]>([]);
-  const [submitting, setSubmitting] = useState(false);
+  const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [newProductForm, setNewProductForm] = useState({
+    name: '',
+    description: '',
+    price: 0,
+    image: '',
+  });
+
+  // TanStack Query hooks
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+  const createGameMutation = useCreateGame();
 
   const {
     register,
@@ -90,105 +112,116 @@ export function CreateGamePage() {
   }, [user, loading, router]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchProducts = async () => {
       try {
-        const [productsData, categoriesData] = await Promise.all([
-          productService.getProducts(),
-          firestoreService.getCategories(),
-        ]);
+        const productsData = await productService.getProducts();
         setProducts(productsData);
-        setCategories(categoriesData);
       } catch (error) {
-        console.error('Error fetching data:', error); // TODO: Add proper error logging
-        toast.error('Failed to load products and categories');
+        console.error('Error fetching products:', error);
+        toast.error('Failed to load products');
       }
     };
 
     if (user?.role === 'ADMIN') {
-      fetchData();
+      fetchProducts();
     }
   }, [user]);
 
-  const onSubmit = async (data: CreateGameFormData) => {
-    if (!user) return;
+  const handleAddProduct = async () => {
+    if (!newProductForm.name.trim() || newProductForm.price <= 0) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
 
-    setSubmitting(true);
     try {
-      // Create game in Firestore
-      const selectedCategory = categories.find(
-        cat => cat.id === data.categoryId
-      );
-      const gameData = {
-        ...data,
-        createdBy: user.id,
-        currentParticipants: 0,
-        isPromoted: false,
-        viewCount: 0,
-        status: 'DRAFT' as const,
-        startDate: data.startDate
-          ? (() => {
-              const date = new Date(data.startDate);
-              return isNaN(date.getTime()) ? Date.now() : date.getTime();
-            })()
-          : Date.now(),
-        endDate: data.endDate
-          ? (() => {
-              const date = new Date(data.endDate);
-              return isNaN(date.getTime())
-                ? Date.now() + 7 * 24 * 60 * 60 * 1000
-                : date.getTime();
-            })()
-          : Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days from now
-        participants: 0,
-        tickets: [],
-        type: 'daily' as const,
-        currency: 'USD',
-        isActive: false,
-        rules: [],
-        images: [],
-        drawDate: data.endDate
-          ? new Date(data.endDate).getTime()
-          : Date.now() + 7 * 24 * 60 * 60 * 1000,
-        totalPrizePool: 0,
-        totalTickets: 0,
-        totalTicketsSold: 0,
-        prizes: [],
-        category: selectedCategory || {
-          id: data.categoryId,
-          name: 'Standard',
-          description: 'Standard lottery game',
-          icon: '🎲',
-          color: '#FF5722',
-          isActive: true,
-          sortOrder: 1,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-        },
+      const productData = {
+        ...newProductForm,
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
 
-      const gameId = await firestoreService.createGame(gameData);
-
-      // Initialize real-time counter
-      await realtimeService.updateGameCounter(gameId, {
-        participants: 0,
-        status: 'DRAFT', // Assuming GameStatus.DRAFT is 'DRAFT'
-        maxParticipants: data.maxParticipants,
-        lastUpdate: Date.now(),
-      });
-
-      toast.success('Game created successfully!');
-      router.push('/admin');
+      const productId = await productService.createProduct(productData);
+      const newProduct = { id: productId, ...productData };
+      setProducts(prev => [newProduct, ...prev]);
+      setShowAddProductModal(false);
+      setNewProductForm({ name: '', description: '', price: 0, image: '' });
+      toast.success('Product added successfully');
     } catch (error) {
-      // console.error('Error creating game:', error); // TODO: Add proper error logging
-      toast.error('Failed to create game. Please try again.');
-    } finally {
-      setSubmitting(false);
+      toast.error('Failed to add product');
     }
   };
 
-  if (loading) {
+  const onSubmit = async (data: CreateGameFormData) => {
+    if (!user) return;
+
+    const selectedCategory = categories.find(
+      cat => cat.id === data.categoryId
+    );
+    const gameData = {
+      ...data,
+      createdBy: user.id,
+      currentParticipants: 0,
+      isPromoted: false,
+      viewCount: 0,
+      status: 'DRAFT' as const,
+      startDate: data.startDate
+        ? (() => {
+            const date = new Date(data.startDate);
+            return isNaN(date.getTime()) ? Date.now() : date.getTime();
+          })()
+        : Date.now(),
+      endDate: data.endDate
+        ? (() => {
+            const date = new Date(data.endDate);
+            return isNaN(date.getTime())
+              ? Date.now() + 7 * 24 * 60 * 60 * 1000
+              : date.getTime();
+          })()
+        : Date.now() + 7 * 24 * 60 * 60 * 1000,
+      participants: 0,
+      tickets: [],
+      type: 'daily' as const,
+      currency: 'USD',
+      isActive: false,
+      rules: [],
+      images: [],
+      drawDate: data.endDate
+        ? new Date(data.endDate).getTime()
+        : Date.now() + 7 * 24 * 60 * 60 * 1000,
+      totalPrizePool: 0,
+      totalTickets: 0,
+      totalTicketsSold: 0,
+      prizes: [],
+      category: selectedCategory || {
+        id: data.categoryId,
+        name: 'Standard',
+        description: 'Standard lottery game',
+        icon: '🎲',
+        color: '#FF5722',
+        isActive: true,
+        sortOrder: 1,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    createGameMutation.mutate(gameData, {
+      onSuccess: async (gameId) => {
+        // Initialize real-time counter
+        await realtimeService.updateGameCounter(gameId, {
+          participants: 0,
+          status: 'DRAFT',
+          maxParticipants: data.maxParticipants,
+          lastUpdate: Date.now(),
+        });
+        router.push('/admin');
+      },
+    });
+  };
+
+  if (loading || categoriesLoading) {
     return (
       <div className='min-h-screen bg-lottery-900 flex items-center justify-center'>
         <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-lottery-500'></div>
@@ -370,12 +403,94 @@ export function CreateGamePage() {
                 </h3>
 
                 <div>
-                  <label
-                    htmlFor='productId'
-                    className='block text-sm font-medium text-lottery-200 mb-2'
-                  >
-                    Select Product *
-                  </label>
+                  <div className='flex items-center justify-between mb-2'>
+                    <label
+                      htmlFor='productId'
+                      className='block text-sm font-medium text-lottery-200'
+                    >
+                      Select Product *
+                    </label>
+                    <Dialog open={showAddProductModal} onOpenChange={setShowAddProductModal}>
+                      <DialogTrigger asChild>
+                        <Button
+                          type='button'
+                          variant='outline'
+                          size='sm'
+                          className='text-xs border-lottery-600 text-lottery-300 hover:bg-lottery-700'
+                        >
+                          <Plus className='w-3 h-3 mr-1' />
+                          Add Product
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className='bg-lottery-800 border-lottery-700'>
+                        <DialogHeader>
+                          <DialogTitle className='text-white'>Add New Product</DialogTitle>
+                        </DialogHeader>
+                        <div className='space-y-4'>
+                          <div>
+                            <Label htmlFor='productName' className='text-lottery-200'>Product Name *</Label>
+                            <Input
+                              id='productName'
+                              value={newProductForm.name}
+                              onChange={(e) => setNewProductForm({ ...newProductForm, name: e.target.value })}
+                              placeholder='Product name'
+                              className='bg-lottery-700/50 border-lottery-600/50 text-white'
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor='productDescription' className='text-lottery-200'>Description</Label>
+                            <Textarea
+                              id='productDescription'
+                              value={newProductForm.description}
+                              onChange={(e) => setNewProductForm({ ...newProductForm, description: e.target.value })}
+                              placeholder='Product description'
+                              className='bg-lottery-700/50 border-lottery-600/50 text-white'
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor='productPrice' className='text-lottery-200'>Price *</Label>
+                            <Input
+                              id='productPrice'
+                              type='number'
+                              step='0.01'
+                              min='0'
+                              value={newProductForm.price}
+                              onChange={(e) => setNewProductForm({ ...newProductForm, price: parseFloat(e.target.value) || 0 })}
+                              placeholder='0.00'
+                              className='bg-lottery-700/50 border-lottery-600/50 text-white'
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor='productImage' className='text-lottery-200'>Image URL</Label>
+                            <Input
+                              id='productImage'
+                              value={newProductForm.image}
+                              onChange={(e) => setNewProductForm({ ...newProductForm, image: e.target.value })}
+                              placeholder='https://example.com/image.jpg'
+                              className='bg-lottery-700/50 border-lottery-600/50 text-white'
+                            />
+                          </div>
+                          <div className='flex justify-end space-x-2 pt-4'>
+                            <Button
+                              type='button'
+                              variant='outline'
+                              onClick={() => setShowAddProductModal(false)}
+                              className='border-lottery-600 text-lottery-300'
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              type='button'
+                              onClick={handleAddProduct}
+                              className='bg-lottery-500 hover:bg-lottery-600'
+                            >
+                              Add Product
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                   <select
                     {...register('productId')}
                     id='productId'
@@ -529,10 +644,10 @@ export function CreateGamePage() {
             <div className='pt-6 border-t border-lottery-700/30'>
               <Button
                 type='submit'
-                disabled={submitting}
+                disabled={createGameMutation.isPending}
                 className='w-full py-3 bg-gradient-to-r from-lottery-500 to-lottery-600 hover:from-lottery-600 hover:to-lottery-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl'
               >
-                {submitting ? 'Creating Game...' : 'Create Game'}
+                {createGameMutation.isPending ? 'Creating Game...' : 'Create Game'}
               </Button>
             </div>
           </form>

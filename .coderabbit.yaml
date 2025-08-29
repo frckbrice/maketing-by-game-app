@@ -157,7 +157,7 @@ documentation:
 custom_rules:
   # Enforce project-specific conventions
   - name: 'lottery-app-conventions'
-    description: 'Enforce lottery app specific conventions'
+    description: 'Enforce BlackFriday Marketing App specific conventions'
     patterns:
       - 'Use CUID instead of UUID for IDs'
       - 'Follow mobile-first responsive design'

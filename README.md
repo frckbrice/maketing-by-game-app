@@ -2,7 +2,7 @@
 
 A modern, **mobile-first PWA** for marketing lotteries that allows businesses to promote their products through interactive games with live participant counters and integrated advertising systems.
 
-![Lottery App Home Page](public/en/images/lotto_home.png)
+![BlackFriday Marketing App Home Page](public/en/images/lotto_home.png)
 
 ## ✨ Features
 

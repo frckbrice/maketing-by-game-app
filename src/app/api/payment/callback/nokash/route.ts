@@ -86,6 +86,20 @@ async function generateTicket(paymentId: string, paymentData: any) {
     // Generate unique ticket number
     const ticketNumber = `${paymentData.gameId.toUpperCase()}-${Date.now().toString().slice(-6)}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
 
+    // Get user and game data for ticket generation
+    const [userDoc, gameDoc] = await Promise.all([
+      getDoc(doc(db, 'users', paymentData.userId)),
+      getDoc(doc(db, 'games', paymentData.gameId))
+    ]);
+
+    if (!userDoc.exists() || !gameDoc.exists()) {
+      console.error('User or game not found for ticket generation');
+      return;
+    }
+
+    const userData = userDoc.data();
+    const gameData = gameDoc.data();
+
     // Create ticket record
     const ticketData = {
       id: `ticket-${Date.now()}`,
@@ -104,9 +118,35 @@ async function generateTicket(paymentId: string, paymentData: any) {
 
     await addDoc(collection(db, 'tickets'), ticketData);
 
-    // TODO: Send ticket via email and SMS
-    // await sendTicketEmail(ticketData);
-    // await sendTicketSMS(ticketData, paymentData.phoneNumber);
+    // Send ticket via email with optimistic approach
+    try {
+      const ticketEmailData = {
+        ticketNumber,
+        gameTitle: gameData.title,
+        price: paymentData.amount,
+        currency: paymentData.currency,
+        purchaseDate: new Date().toLocaleDateString(),
+        drawDate: new Date(gameData.drawDate?.seconds * 1000 || Date.now() + 86400000).toLocaleDateString(),
+        qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(ticketNumber)}`,
+      };
+
+      // Send email via API endpoint for better error handling
+      await fetch('/api/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'ticket',
+          to: userData.email,
+          data: {
+            ...ticketEmailData,
+            userName: `${userData.firstName} ${userData.lastName}`,
+          },
+        }),
+      });
+    } catch (emailError) {
+      console.error('Error sending ticket email:', emailError);
+      // Continue processing even if email fails
+    }
 
     console.log('Ticket generated successfully:', ticketNumber);
   } catch (error) {

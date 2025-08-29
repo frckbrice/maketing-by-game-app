@@ -11,13 +11,14 @@ import {
 import { currencyService } from '@/lib/api/currencyService';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import {
-  securePaymentService,
-  PaymentMethod as SecurePaymentMethod,
+  securePaymentService
 } from '@/lib/services/securePaymentService';
 import { LotteryGame } from '@/types';
 import {
+  AlertCircle,
   CheckCircle,
   Download,
+  Loader2,
   Mail,
   Phone,
   Printer,
@@ -25,6 +26,7 @@ import {
   Smartphone,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 interface PaymentModalProps {
@@ -49,6 +51,7 @@ type PaymentStep = 'method' | 'phone' | 'processing' | 'success';
 
 export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [step, setStep] = useState<PaymentStep>('method');
   const [selectedMethod, setSelectedMethod] =
     useState<PaymentMethod>('ORANGE_MONEY');
@@ -58,7 +61,9 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
   const [convertedPrice, setConvertedPrice] = useState<number>(
     game.ticketPrice
   );
-  const [userCurrency, setUserCurrency] = useState<string>('XAF'); // Central African Franc
+  const [userCurrency, setUserCurrency] = useState<string>('XAF');
+  const [paymentAttempts, setPaymentAttempts] = useState(0);
+  const [statusMessage, setStatusMessage] = useState<string>('');
 
   // Convert price to XAF (Central African Franc)
   const convertPrice = useCallback(async () => {
@@ -115,14 +120,14 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
 
   const handlePhoneSubmit = () => {
     if (!phoneNumber.trim()) {
-      toast.error('Please enter your phone number');
+      toast.error(t('payment.errors.enterPhone'));
       return;
     }
 
     if (!validatePhoneNumber(phoneNumber, selectedMethod)) {
       const methodInfo =
         securePaymentService.getPaymentMethodInfo(selectedMethod);
-      toast.error(`Please enter a valid ${methodInfo.name} phone number`);
+      toast.error(t('payment.errors.invalidPhone', { method: methodInfo.name }));
       return;
     }
 
@@ -132,16 +137,17 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
 
   const handlePayment = async () => {
     if (!user) {
-      toast.error('Please log in to purchase tickets');
+      toast.error(t('payment.errors.loginRequired'));
       return;
     }
 
     setProcessing(true);
+    setPaymentAttempts(0);
 
     try {
       const methodInfo =
         securePaymentService.getPaymentMethodInfo(selectedMethod);
-      toast.info(`Processing ${methodInfo.name} payment...`);
+      toast.info(t('payment.notifications.initiated', { method: methodInfo.name }));
 
       // Initiate payment through secure API
       const paymentResult = await securePaymentService.initiatePayment({
@@ -160,41 +166,62 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
 
         const checkStatus = async (): Promise<void> => {
           if (attempts >= maxAttempts) {
-            throw new Error(
-              'Payment timeout. Please check your phone and try again.'
-            );
+            throw new Error(t('payment.errors.paymentTimeout'));
           }
 
-          const statusResult =
-            await securePaymentService.checkTransactionStatus(transactionId);
+          try {
+            const statusResult =
+              await securePaymentService.checkTransactionStatus(transactionId);
 
-          if (statusResult?.status === 'SUCCESS') {
-            // Generate ticket after successful payment
-            const newTicket = generateTicket(game);
-            setTicket(newTicket);
+            if (statusResult?.status === 'SUCCESS') {
+              // Generate ticket after successful payment
+              const newTicket = generateTicket(game);
+              setTicket(newTicket);
 
-            // Send ticket via email and SMS
-            await Promise.all([
-              sendTicketEmail(newTicket),
-              sendTicketSMS(newTicket, phoneNumber),
-            ]);
+              // Optimistic UI update - show success immediately
+              setStep('success');
+              toast.success(
+                t('payment.notifications.successful', { method: methodInfo.name })
+              );
 
-            setStep('success');
-            toast.success(
-              `Payment successful via ${methodInfo.name}! Ticket sent to your phone and email.`
-            );
-          } else if (
-            statusResult?.status === 'FAILED' ||
-            statusResult?.status === 'CANCELLED'
-          ) {
-            throw new Error(
-              statusResult.message || 'Payment was declined or cancelled.'
-            );
-          } else if (statusResult?.status === 'EXPIRED') {
-            throw new Error('Payment request expired. Please try again.');
-          } else {
-            // Still processing, check again after 5 seconds
+              // Send notifications in background (non-blocking)
+              Promise.all([
+                sendTicketEmail(newTicket),
+                sendTicketSMS(newTicket, phoneNumber),
+              ])
+                .then(() => {
+                  toast.success(t('payment.notifications.emailSent'));
+                })
+                .catch(() => {
+                  toast.info(t('payment.notifications.emailDelayed'));
+                });
+            } else if (
+              statusResult?.status === 'FAILED' ||
+              statusResult?.status === 'CANCELLED'
+            ) {
+              throw new Error(
+                statusResult.message || t('payment.errors.paymentDeclined')
+              );
+            } else if (statusResult?.status === 'EXPIRED') {
+              throw new Error(t('payment.errors.paymentExpired'));
+            } else {
+              // Still processing, check again after 3 seconds for better UX
+              attempts++;
+              setPaymentAttempts(attempts);
+              setStatusMessage(
+                t('payment.status.checking', {
+                  attempt: attempts,
+                  total: maxAttempts,
+                })
+              );
+              setTimeout(checkStatus, 3000);
+            }
+          } catch (networkError) {
+            // Handle network errors gracefully
             attempts++;
+            if (attempts >= maxAttempts) {
+              throw new Error(t('payment.errors.networkError'));
+            }
             setTimeout(checkStatus, 5000);
           }
         };
@@ -202,44 +229,80 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
         // Start status checking
         setTimeout(checkStatus, 5000);
       } else {
-        throw new Error(paymentResult.message || 'Payment initiation failed');
+        throw new Error(paymentResult.message || t('payment.errors.paymentFailed'));
       }
     } catch (error) {
       console.error('Payment failed:', error);
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Payment failed. Please try again.'
+          : t('payment.errors.paymentFailed')
       );
       setStep('phone');
     } finally {
       setProcessing(false);
+      setPaymentAttempts(0);
+      setStatusMessage('');
     }
   };
 
   const sendTicketSMS = async (ticketData: Ticket, phone: string) => {
-    // In production, integrate with SMS API
-    console.log(`Sending ticket SMS to ${phone}:`, ticketData.ticketNumber);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // Send SMS notification via API
+      await fetch('/api/notifications/send-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: phone,
+          message: `🎫 Your lottery ticket: ${ticketData.ticketNumber} for ${ticketData.gameTitle}. Good luck! Check your email for full details.`,
+          ticketNumber: ticketData.ticketNumber,
+        }),
+      });
+      console.log(`SMS sent to ${phone} for ticket:`, ticketData.ticketNumber);
+    } catch (error) {
+      console.error('Error sending SMS:', error);
+      // Continue without SMS if it fails
+    }
   };
 
   const sendTicketEmail = async (ticketData: Ticket) => {
-    // In production, this would be a server-side API call
-    console.log('Sending ticket email:', ticketData);
-    // Simulate email sending
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // Send email via optimized API
+      await fetch('/api/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'ticket',
+          to: user?.email,
+          data: {
+            ticketNumber: ticketData.ticketNumber,
+            gameTitle: ticketData.gameTitle,
+            price: ticketData.price,
+            currency: ticketData.currency,
+            purchaseDate: new Date(ticketData.purchaseDate).toLocaleDateString(),
+            drawDate: new Date(game.drawDate).toLocaleDateString(),
+            qrCode: ticketData.qrCode,
+            userName: `${user?.firstName} ${user?.lastName}`,
+          },
+        }),
+      });
+      console.log('Email sent for ticket:', ticketData.ticketNumber);
+    } catch (error) {
+      console.error('Error sending email:', error);
+      // Continue without email if it fails
+    }
   };
 
   const printTicket = () => {
     if (!ticket) return;
 
     const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
+    if (printWindow && printWindow.document) {
+      const htmlContent = `
         <html>
           <head>
-            <title>Lottery Ticket - ${ticket.ticketNumber}</title>
-            <style>
+            <title>Game Ticket - ${ticket.ticketNumber}</title>
+          <style>
               body { 
                 font-family: Arial, sans-serif; 
                 max-width: 400px; 
@@ -256,7 +319,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
           </head>
           <body>
             <div class="header">
-              <h2>🎫 LOTTERY TICKET</h2>
+              <h2>🎫 BLACKFRIDAY TICKET</h2>
               <h3>${ticket.gameTitle}</h3>
             </div>
             <div class="ticket-info">
@@ -265,7 +328,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
               <p><strong>Purchase Date:</strong> ${new Date(ticket.purchaseDate).toLocaleString()}</p>
               <p><strong>Player:</strong> ${user?.firstName} ${user?.lastName}</p>
             </div>
-            <div class="qr-code">
+          <div class="qr-code">
               <img src="${ticket.qrCode}" alt="QR Code" />
               <p>Scan to verify</p>
             </div>
@@ -275,8 +338,10 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
             </div>
           </body>
         </html>
-      `);
-      printWindow.document.close();
+      `;
+
+      // Use innerHTML instead of deprecated document.write
+      printWindow.document.documentElement.innerHTML = htmlContent;
       printWindow.print();
     }
   };
@@ -320,15 +385,30 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
   const getModalTitle = () => {
     switch (step) {
       case 'method':
-        return 'Choose Payment Method';
+        return t('payment.chooseMethod');
       case 'phone':
-        return 'Enter Phone Number';
+        return t('payment.enterPhone');
       case 'processing':
-        return 'Processing Payment';
+        return t('payment.processing');
       case 'success':
-        return 'Payment Successful!';
+        return t('payment.success');
       default:
-        return 'Purchase Ticket';
+        return t('payment.title');
+    }
+  };
+
+  const getModalSubtitle = () => {
+    switch (step) {
+      case 'method':
+        return t('payment.selectMethodSubtitle');
+      case 'phone':
+        return t('payment.enterPhoneSubtitle');
+      case 'processing':
+        return statusMessage || t('payment.processingSubtitle');
+      case 'success':
+        return t('payment.successSubtitle');
+      default:
+        return '';
     }
   };
 
@@ -338,12 +418,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
         <DialogHeader>
           <DialogTitle className='text-center'>{getModalTitle()}</DialogTitle>
           <DialogDescription className='text-center'>
-            {step === 'method' && 'Select your preferred mobile money provider'}
-            {step === 'phone' && 'Enter your mobile money phone number'}
-            {step === 'processing' &&
-              'Please wait while we process your payment'}
-            {step === 'success' &&
-              'Your lottery ticket has been generated successfully'}
+            {getModalSubtitle()}
           </DialogDescription>
         </DialogHeader>
 
@@ -355,7 +430,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                 <h3 className='font-semibold mb-2'>{game.title}</h3>
                 <div className='space-y-2'>
                   <div className='flex justify-between text-sm'>
-                    <span className='text-muted-foreground'>Ticket Price:</span>
+                    <span className='text-muted-foreground'>{t('payment.ticketPrice')}:</span>
                     <span className='font-semibold'>
                       {currencyService.formatCurrency(
                         convertedPrice,
@@ -364,7 +439,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                     </span>
                   </div>
                   <div className='flex justify-between text-sm'>
-                    <span className='text-muted-foreground'>Participants:</span>
+                    <span className='text-muted-foreground'>{t('payment.participants')}:</span>
                     <span>
                       {game.currentParticipants}/{game.maxParticipants}
                     </span>
@@ -374,7 +449,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
 
               {/* Mobile Money Options */}
               <div className='space-y-3'>
-                <h4 className='font-medium'>Choose Mobile Money Provider</h4>
+                <h4 className='font-medium'>{t('payment.chooseMethod')}</h4>
 
                 <button
                   onClick={() => setSelectedMethod('ORANGE_MONEY')}
@@ -389,9 +464,9 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                       <Smartphone className='w-6 h-6 text-white' />
                     </div>
                     <div>
-                      <div className='font-semibold'>Orange Money</div>
+                      <div className='font-semibold'>{t('payment.methods.orangeMoney')}</div>
                       <div className='text-sm text-muted-foreground'>
-                        Pay with your Orange Money account
+                        {t('payment.methods.orangeDescription')}
                       </div>
                     </div>
                   </div>
@@ -410,9 +485,9 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                       <Phone className='w-6 h-6 text-white' />
                     </div>
                     <div>
-                      <div className='font-semibold'>MTN Mobile Money</div>
+                      <div className='font-semibold'>{t('payment.methods.mtnMomo')}</div>
                       <div className='text-sm text-muted-foreground'>
-                        Pay with your MTN Mobile Money account
+                        {t('payment.methods.mtnDescription')}
                       </div>
                     </div>
                   </div>
@@ -425,10 +500,10 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                   <Shield className='w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5' />
                   <div className='text-sm'>
                     <div className='font-medium text-blue-900 dark:text-blue-100'>
-                      Secure Payment
+                      {t('payment.security.title')}
                     </div>
                     <div className='text-blue-700 dark:text-blue-200 text-xs'>
-                      Your transaction is encrypted and secure
+                      {t('payment.security.description')}
                     </div>
                   </div>
                 </div>
@@ -439,7 +514,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                 className='w-full'
                 size='lg'
               >
-                Continue -{' '}
+                {t('payment.continue')} -{' '}
                 {currencyService.formatCurrency(convertedPrice, userCurrency)}
               </Button>
             </>
@@ -472,7 +547,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
 
                 <div className='space-y-2'>
                   <label htmlFor='phoneNumber' className='text-sm font-medium'>
-                    Phone Number
+                    {t('payment.phoneNumber')}
                   </label>
                   <input
                     id='phoneNumber'
@@ -487,12 +562,9 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                     maxLength={12}
                   />
                   <p className='text-xs text-muted-foreground'>
-                    Enter your{' '}
-                    {
-                      securePaymentService.getPaymentMethodInfo(selectedMethod)
-                        .name
-                    }{' '}
-                    number
+                    {t('payment.enterPhonePrompt', {
+                      method: securePaymentService.getPaymentMethodInfo(selectedMethod).name
+                    })}
                   </p>
                 </div>
               </div>
@@ -503,14 +575,14 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                   onClick={() => setStep('method')}
                   className='flex-1'
                 >
-                  Back
+                  {t('common.back')}
                 </Button>
                 <Button
                   onClick={handlePhoneSubmit}
                   disabled={!phoneNumber.trim()}
                   className='flex-1'
                 >
-                  Pay Now
+                  {t('payment.payNow')}
                 </Button>
               </div>
             </>
@@ -519,12 +591,22 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
           {step === 'processing' && (
             <div className='text-center py-8'>
               <div className='w-16 h-16 mx-auto mb-4 bg-primary rounded-full flex items-center justify-center'>
-                <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary-foreground'></div>
+                <Loader2 className='w-8 h-8 text-primary-foreground animate-spin' />
               </div>
-              <h3 className='text-lg font-semibold mb-2'>Processing Payment</h3>
-              <p className='text-muted-foreground text-sm'>
-                Please check your phone for the payment request...
+              <h3 className='text-lg font-semibold mb-2'>{t('payment.processing')}</h3>
+              <p className='text-muted-foreground text-sm mb-4'>
+                {t('payment.checkPhone')}
               </p>
+              {paymentAttempts > 0 && (
+                <div className='bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-lg p-3 mt-4'>
+                  <div className='flex items-center justify-center space-x-2'>
+                    <AlertCircle className='w-4 h-4 text-blue-600 dark:text-blue-400' />
+                    <span className='text-sm text-blue-700 dark:text-blue-200'>
+                      {statusMessage}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -535,30 +617,30 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                   <CheckCircle className='w-8 h-8 text-white' />
                 </div>
                 <h3 className='text-lg font-semibold mb-2'>
-                  Payment Successful!
+                  {t('payment.success')}
                 </h3>
                 <p className='text-muted-foreground text-sm'>
-                  Your ticket has been sent to your phone and email
+                  {t('payment.successSubtitle')}
                 </p>
               </div>
 
               {/* Ticket Display */}
               <div className='bg-gradient-to-r from-orange-500 to-red-500 rounded-xl p-6 text-white'>
                 <div className='text-center mb-4'>
-                  <h4 className='text-lg font-bold'>🎫 Your Ticket</h4>
+                  <h4 className='text-lg font-bold'>🎫 {t('payment.ticket.yourTicket')}</h4>
                   <div className='text-sm opacity-90'>{ticket.gameTitle}</div>
                 </div>
 
                 <div className='bg-white/20 rounded-lg p-4 mb-4'>
                   <div className='grid grid-cols-2 gap-4 text-sm'>
                     <div>
-                      <div className='opacity-75'>Ticket Number</div>
+                      <div className='opacity-75'>{t('payment.ticket.ticketNumber')}</div>
                       <div className='font-mono font-bold text-xs'>
                         {ticket.ticketNumber}
                       </div>
                     </div>
                     <div>
-                      <div className='opacity-75'>Price Paid</div>
+                      <div className='opacity-75'>{t('payment.ticket.pricePaid')}</div>
                       <div className='font-bold'>
                         {currencyService.formatCurrency(
                           ticket.price,
@@ -575,7 +657,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                     alt='Ticket QR Code'
                     className='w-20 h-20 mx-auto bg-white rounded-lg p-1'
                   />
-                  <div className='text-xs opacity-75 mt-2'>Scan to verify</div>
+                  <div className='text-xs opacity-75 mt-2'>{t('payment.ticket.scanToVerify')}</div>
                 </div>
               </div>
 
@@ -589,7 +671,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                     className='flex flex-col items-center gap-1 h-auto py-3'
                   >
                     <Printer className='w-4 h-4' />
-                    <span className='text-xs'>Print</span>
+                    <span className='text-xs'>{t('payment.ticket.print')}</span>
                   </Button>
 
                   <Button
@@ -599,7 +681,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                     className='flex flex-col items-center gap-1 h-auto py-3'
                   >
                     <Mail className='w-4 h-4' />
-                    <span className='text-xs'>Email</span>
+                    <span className='text-xs'>{t('payment.ticket.email')}</span>
                   </Button>
 
                   <Button
@@ -609,7 +691,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                     className='flex flex-col items-center gap-1 h-auto py-3'
                   >
                     <Download className='w-4 h-4' />
-                    <span className='text-xs'>Save</span>
+                    <span className='text-xs'>{t('payment.ticket.save')}</span>
                   </Button>
                 </div>
 
@@ -618,7 +700,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                     onClick={handlePlayAgain}
                     className='bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600'
                   >
-                    Play Again 🎮
+                    {t('payment.ticket.playAgain')}
                   </Button>
 
                   <Button
@@ -628,7 +710,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                       window.location.href = '/profile';
                     }}
                   >
-                    View Profile
+                    {t('payment.ticket.viewProfile')}
                   </Button>
                 </div>
               </div>

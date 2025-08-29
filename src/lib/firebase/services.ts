@@ -404,6 +404,31 @@ export const firestoreService = {
     await deleteDoc(doc(db, 'users', userId));
   },
 
+  async getUsers(): Promise<User[]> {
+    const querySnapshot = await getDocs(
+      query(
+        collection(db, 'users'),
+        orderBy('createdAt', 'desc')
+      )
+    );
+    return mapFirestoreDocs<User>(querySnapshot);
+  },
+
+  async getUsersByRole(role: string): Promise<User[]> {
+    const querySnapshot = await getDocs(
+      query(
+        collection(db, 'users'),
+        where('role', '==', role),
+        orderBy('createdAt', 'desc')
+      )
+    );
+    return mapFirestoreDocs<User>(querySnapshot);
+  },
+
+  async createUser(userData: Omit<User, 'id'>): Promise<string> {
+    return createDocumentWithTimestamps('users', userData);
+  },
+
   // Category operations
   async getCategories(): Promise<GameCategory[]> {
     const querySnapshot = await getDocs(

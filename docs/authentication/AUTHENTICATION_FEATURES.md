@@ -2,7 +2,7 @@
 
 ## **Overview**
 
-The lottery app now includes a comprehensive authentication system with multiple sign-in methods, enhanced security features, and a modern user experience.
+The BlackFriday Marketing App now includes a comprehensive authentication system with multiple sign-in methods, enhanced security features, and a modern user experience.
 
 ## **Authentication Methods**
 

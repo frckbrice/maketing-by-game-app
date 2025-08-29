@@ -34,7 +34,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { vendorService } from '@/lib/api/vendorService';
-import { adminService } from '@/lib/api/adminService';
+import { useCategories, useCreateGame } from '@/hooks/useApi';
 import { toast } from 'sonner';
 import type { GameCategory } from '@/types';
 
@@ -136,7 +136,10 @@ export function CreateGame() {
   const { user } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<GameCategory[]>([]);
+  
+  // TanStack Query hooks
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+  const createGameMutation = useCreateGame();
   const [formData, setFormData] = useState<GameFormData>({
     title: '',
     description: '',
@@ -156,7 +159,6 @@ export function CreateGame() {
   const [imageUploadLoading, setImageUploadLoading] = useState(false);
 
   useEffect(() => {
-    loadCategories();
     // Set default dates
     const now = new Date();
     const tomorrow = new Date(now);
@@ -172,15 +174,6 @@ export function CreateGame() {
     }));
   }, []);
 
-  const loadCategories = async () => {
-    try {
-      const categoriesData = await adminService.getCategories();
-      setCategories(categoriesData);
-    } catch (error) {
-      console.error('Error loading categories:', error);
-      toast.error('Failed to load categories');
-    }
-  };
 
   const handleInputChange = (field: keyof GameFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));

@@ -99,11 +99,11 @@ export function UserProfileDropdown() {
           <>
             <DropdownMenuItem onClick={handleGamesClick}>
               <Gamepad2 className='mr-3 h-5 w-5' />
-              <span className='text-base'>{t('games')}</span>
+              <span className='text-base'>{t('navigation.games')}</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleProfileClick}>
               <User className='mr-3 h-5 w-5' />
-              <span className='text-base'>{t('profile')}</span>
+              <span className='text-base'>{t('navigation.profile')}</span>
             </DropdownMenuItem>
           </>
         )}
@@ -112,11 +112,11 @@ export function UserProfileDropdown() {
           <>
             <DropdownMenuItem onClick={handleDashboardClick}>
               <BarChart3 className='mr-3 h-5 w-5' />
-              <span className='text-base'>{t('dashboard')}</span>
+              <span className='text-base'>{t('navigation.dashboard')}</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleProfileClick}>
               <User className='mr-3 h-5 w-5' />
-              <span className='text-base'>{t('profile')}</span>
+              <span className='text-base'>{t('navigation.profile')}</span>
             </DropdownMenuItem>
           </>
         )}
@@ -124,13 +124,13 @@ export function UserProfileDropdown() {
         {user.role === 'ADMIN' && (
           <DropdownMenuItem onClick={handleAdminClick}>
             <Settings className='mr-2 h-4 w-4' />
-            <span>{t('admin')}</span>
+            <span>{t('navigation.admin')}</span>
           </DropdownMenuItem>
         )}
 
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push('/winners')}>
           <Trophy className='mr-2 h-4 w-4' />
-          <span>{t('winners')}</span>
+          <span>{t('navigation.winners')}</span>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
@@ -140,7 +140,7 @@ export function UserProfileDropdown() {
           className='text-red-600 dark:text-red-400'
         >
           <LogOut className='mr-2 h-4 w-4' />
-          <span>{t('logout')}</span>
+          <span>{t('navigation.logout')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

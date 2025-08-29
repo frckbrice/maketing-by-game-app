@@ -47,7 +47,7 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
             <div className='w-16 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105'>
               <Image
                 src='/en/icons/lottery_logo.jpeg'
-                alt='Lottery App Logo'
+                alt='BlackFriday Marketing App Logo'
                 width={64}
                 height={64}
                 className='rounded-2xl w-full h-full object-cover'

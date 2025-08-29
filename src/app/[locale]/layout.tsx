@@ -66,19 +66,15 @@ export default async function RootLayout({
         <meta name='msapplication-TileColor' content='#FF5722' />
         <meta name='msapplication-tap-highlight' content='no' />
         <link rel='manifest' href='/manifest.json' />
-        <link rel='apple-touch-icon' href='/icons/icon-192x192.png' />
-        <link
-          rel='icon'
-          type='image/png'
-          sizes='32x32'
-          href='/icons/icon-32x32.png'
-        />
+        <link rel='icon' href='/favicon.ico' />
+        <link rel='apple-touch-icon' href='/icons/apple-touch-icon.png' />
         <link
           rel='icon'
           type='image/png'
           sizes='16x16'
-          href='/icons/icon-16x16.png'
+          href='/icons/favicon-16x16.png'
         />
+        <link rel='icon' type='image/svg+xml' href='/icons/icon.svg' />
       </head>
       <body className={inter.className}>
         <QueryProvider>

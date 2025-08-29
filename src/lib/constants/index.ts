@@ -21,7 +21,7 @@ export const APP_CONFIG = {
   version: '1.0.0',
   description:
     'A modern lottery application with internationalization and PWA support',
-  author: 'Lottery App Team',
+  author: 'BlackFriday Marketing App Team',
   repository: 'https://github.com/your-org/lottery-app',
   license: 'Proprietary',
   environment: 'development' as 'development' | 'production' | 'test',
