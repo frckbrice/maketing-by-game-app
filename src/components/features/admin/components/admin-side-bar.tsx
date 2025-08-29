@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import {
   BarChart3,
@@ -19,6 +19,7 @@ import {
   Calendar,
   DollarSign,
   Tag,
+  Building2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -62,6 +63,11 @@ const navigation: NavItem[] = [
       { title: 'Vendors', href: '/admin/vendors', icon: ShoppingBag },
       { title: 'Admins', href: '/admin/admins', icon: Shield },
     ],
+  },
+  {
+    title: 'Vendor Applications',
+    href: '/admin/vendor-applications',
+    icon: Building2,
   },
   {
     title: 'Analytics',

@@ -239,7 +239,6 @@ onError={error => console.error(error)}
 </div>
 );
 }
-}
 
 ````
 

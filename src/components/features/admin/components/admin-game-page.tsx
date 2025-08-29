@@ -1,9 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -27,34 +27,31 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useAuth } from '@/lib/contexts/AuthContext';
 import { adminService } from '@/lib/api/adminService';
 import { currencyService } from '@/lib/api/currencyService';
+import { useAuth } from '@/lib/contexts/AuthContext';
 import type { LotteryGame, PaginatedResponse } from '@/types';
 import {
-  Search,
-  Filter,
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  PlayCircle,
-  PauseCircle,
-  Calendar,
-  Users,
-  DollarSign,
   ArrowLeft,
+  Calendar,
   ChevronLeft,
   ChevronRight,
-  MoreHorizontal,
-  RefreshCw,
+  DollarSign,
   Download,
-  Settings,
+  Edit,
+  Filter,
   Gamepad2,
+  PauseCircle,
+  PlayCircle,
+  Plus,
+  RefreshCw,
+  Search,
+  Trash2,
+  Users,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 export function AdminGamesPage() {

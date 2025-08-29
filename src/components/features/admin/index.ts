@@ -1,3 +1,4 @@
 // Admin feature components will be exported here
-// TODO: Implement admin components
-export { CreateGamePage } from './components/admin-component';
+export { AdminDashboard } from './components/admin-dashboard';
+export { AdminVendorApplicationsPage } from './components/admin-vendor';
+export { CreateGamePage } from './components/create-game';

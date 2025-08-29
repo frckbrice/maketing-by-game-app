@@ -1,6 +1,6 @@
-# 🌍 Internationalization (i18n) Troubleshooting Guide
+# Internationalization (i18n) Troubleshooting Guide
 
-## 📋 Table of Contents
+## Table of Contents
 
 1. [Issues Encountered](#issues-encountered)
 2. [Solutions Implemented](#solutions-implemented)
@@ -8,7 +8,7 @@
 4. [Best Practices](#best-practices)
 5. [Migration Guide](#migration-guide)
 
-## 🚨 Issues Encountered
+## Issues Encountered
 
 ### Issue 1: `next-intl` Routing Problems
 
@@ -30,7 +30,7 @@ Error: Invalid locale parameter
 **Root Cause:**
 
 - `next-intl` has complex middleware requirements
-- Conflicts with Next.js 15 App Router changes
+- Conflicts with Next.js 15 App Router changes: always lead to 404 page on /app/[locale]
 - Server-side rendering issues with locale detection
 - Overly complex configuration for simple use cases
 
@@ -328,5 +328,6 @@ import { useTranslation } from 'react-i18next';
 ---
 
 **Last Updated:** $(date)
+author: Avom brice
 **Version:** 1.0.0
 **Status:** ✅ Resolved

@@ -1,33 +1,26 @@
 'use client';
 
-import {
-  collection,
-  doc,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  limit,
-  updateDoc,
-  deleteDoc,
-  getDoc,
-  writeBatch,
-  serverTimestamp,
-  Timestamp,
-  startAfter,
-  QueryDocumentSnapshot,
-} from 'firebase/firestore';
+import { generateMockGamesForAdmin } from '@/lib/constants';
 import { db } from '@/lib/firebase/config';
 import type {
-  User,
-  LotteryGame,
   GameCategory,
-  AdminDashboard,
-  Winner,
-  Payment,
+  LotteryGame,
   LotteryTicket,
   PaginatedResponse,
+  Payment,
+  User,
 } from '@/types';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 
 interface AdminStats {
   activeUsers: number;
@@ -415,6 +408,13 @@ class AdminService {
         allowContact: true,
         dataSharing: false,
       },
+      socialMedia: {
+        facebook: undefined,
+        twitter: undefined,
+        instagram: undefined,
+        linkedin: undefined,
+        youtube: undefined,
+      },
       createdAt: Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000,
       updatedAt: Date.now(),
       lastLoginAt: Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000,
@@ -438,47 +438,7 @@ class AdminService {
   private getMockGames(
     options: PaginationOptions
   ): PaginatedResponse<LotteryGame> {
-    const mockGames: LotteryGame[] = Array.from({ length: 30 }, (_, i) => ({
-      id: `game-${i}`,
-      title: `Amazing Product ${i}`,
-      description: `Win this incredible product worth $${(Math.random() * 1000 + 100).toFixed(2)}`,
-      type: 'daily',
-      categoryId: `cat-${i % 4}`,
-      category: {
-        id: `cat-${i % 4}`,
-        name: [
-          'Tech & Phones',
-          'Fashion & Sneakers',
-          'Home Appliances',
-          'Computers',
-        ][i % 4],
-        description: 'Category description',
-        color: '#FF5722',
-        icon: '📱',
-        isActive: true,
-        sortOrder: i % 4,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      },
-      ticketPrice: Math.floor(Math.random() * 50) + 5,
-      currency: 'USD',
-      maxParticipants: Math.floor(Math.random() * 500) + 100,
-      currentParticipants: Math.floor(Math.random() * 300),
-      totalPrizePool: 0,
-      prizes: [],
-      rules: [],
-      images: [],
-      startDate: Date.now(),
-      endDate: Date.now() + 7 * 24 * 60 * 60 * 1000,
-      drawDate: Date.now() + 7 * 24 * 60 * 60 * 1000,
-      status: ['DRAFT', 'ACTIVE', 'DRAWING', 'CLOSED'][
-        Math.floor(Math.random() * 4)
-      ] as any,
-      isActive: Math.random() > 0.2,
-      createdBy: 'admin-1',
-      createdAt: Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000,
-      updatedAt: Date.now(),
-    }));
+    const mockGames: LotteryGame[] = generateMockGamesForAdmin(30);
 
     const startIndex = (options.page - 1) * options.limit;
     const endIndex = startIndex + options.limit;

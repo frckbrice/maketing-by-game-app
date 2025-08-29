@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -10,44 +10,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { adminService } from '@/lib/api/adminService';
 import { currencyService } from '@/lib/api/currencyService';
+import { useAuth } from '@/lib/contexts/AuthContext';
 import {
-  AreaChart,
+  Activity,
+  ArrowLeft,
+  BarChart3,
+  DollarSign,
+  Download,
+  Gamepad2,
+  PieChart as PieChartIcon,
+  RefreshCw,
+  TrendingDown,
+  TrendingUp,
+  Users,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import {
   Area,
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
   Cell,
   ComposedChart,
+  Line,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts';
-import {
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Users,
-  Gamepad2,
-  Calendar,
-  ArrowLeft,
-  Download,
-  RefreshCw,
-  BarChart3,
-  PieChart as PieChartIcon,
-  Activity,
-  Clock,
-} from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 
 interface AnalyticsData {
   overview: {
@@ -519,7 +514,8 @@ export function AdminAnalyticsPage() {
                                   'USD'
                                 )
                               : value,
-                            name.charAt(0).toUpperCase() + name.slice(1),
+                            name.toString().charAt(0).toUpperCase() +
+                              name.toString().slice(1),
                           ]}
                         />
                         <Bar

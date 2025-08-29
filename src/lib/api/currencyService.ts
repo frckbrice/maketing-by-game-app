@@ -13,8 +13,9 @@ export class CurrencyService {
   private cache: Map<string, { rates: ExchangeRates; timestamp: number }> =
     new Map();
   private readonly CACHE_DURATION = 60 * 60 * 1000; // 1 hour
-  private readonly API_URL = 'https://api.exchangerate-api.com/v4/latest/';
-  private readonly FALLBACK_API_URL = 'https://api.fixer.io/latest?access_key=';
+  private readonly API_URL = `https://v6.exchangerate-api.com/v6/${process.env.EXCHANGE_RATE_API_KEY}/latest/`;
+  private readonly FALLBACK_API_URL =
+    'http://data.fixer.io/api/latest?access_key=';
 
   public static getInstance(): CurrencyService {
     if (!CurrencyService.instance) {
@@ -105,15 +106,15 @@ export class CurrencyService {
   private async fetchFromFallbackApi(
     baseCurrency: string
   ): Promise<ExchangeRates> {
-    // Note: You'll need to get a free API key from fixer.io
-    const apiKey = process.env.NEXT_PUBLIC_FIXER_API_KEY;
+    // Note: need to get a free API key from fixer.io
+    const apiKey = process.env.FIXER_API_KEY;
 
     if (!apiKey) {
-      throw new Error('Fixer API key not configured');
+      throw new Error('Fixer for currency API key not configured');
     }
 
     const response = await fetch(
-      `${this.FALLBACK_API_URL}${apiKey}&base=${baseCurrency}`
+      `${this.FALLBACK_API_URL}${apiKey}&base=${baseCurrency}&symbols=USD,XAF,EUR`
     );
 
     if (!response.ok) {
@@ -141,6 +142,7 @@ export class CurrencyService {
         NGN: 411.0,
         KES: 108.5,
         GHS: 6.1,
+        XAF: 585.9, // Central African Franc (Cameroon)
       },
       EUR: {
         USD: 1.18,
@@ -156,6 +158,7 @@ export class CurrencyService {
         NGN: 484.0,
         KES: 127.8,
         GHS: 7.18,
+        XAF: 690.0, // Central African Franc (Cameroon)
       },
     };
 
@@ -178,6 +181,7 @@ export class CurrencyService {
       'NGN',
       'KES',
       'GHS',
+      'XAF', // Central African Franc
     ];
   }
 
@@ -216,6 +220,7 @@ export class CurrencyService {
       NGN: '₦',
       KES: 'KSh',
       GHS: '₵',
+      XAF: 'FCFA', // Central African Franc
     };
 
     return symbols[currency] || currency;

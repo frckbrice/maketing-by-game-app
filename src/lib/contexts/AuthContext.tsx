@@ -41,61 +41,205 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   useEffect(() => {
+    let isMounted = true;
+    let sessionCheckTimeout: NodeJS.Timeout | null = null;
+
+    // Enhanced session persistence with localStorage backup
+    const initializeAuth = async () => {
+      try {
+        // Check if user session exists in localStorage (for PWA offline support)
+        const cachedUser = localStorage.getItem('lottery-user-session');
+        const cachedTimestamp = localStorage.getItem(
+          'lottery-session-timestamp'
+        );
+
+        if (cachedUser && cachedTimestamp) {
+          const timestamp = parseInt(cachedTimestamp, 10);
+          const now = Date.now();
+          // Cache valid for 30 days
+          if (now - timestamp < 30 * 24 * 60 * 60 * 1000) {
+            const parsedUser = JSON.parse(cachedUser);
+            if (isMounted) {
+              setUser(parsedUser);
+            }
+          } else {
+            // Clear expired cache
+            localStorage.removeItem('lottery-user-session');
+            localStorage.removeItem('lottery-session-timestamp');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading cached session:', error);
+        // Clear corrupted cache
+        localStorage.removeItem('lottery-user-session');
+        localStorage.removeItem('lottery-session-timestamp');
+      }
+    };
+
     const unsubscribe = authService.onAuthStateChange(async firebaseUser => {
+      if (!isMounted) return;
+
       setFirebaseUser(firebaseUser);
 
       if (firebaseUser) {
         try {
           const userData = await firestoreService.getUser(firebaseUser.uid);
-          setUser(userData);
+          if (isMounted && userData) {
+            setUser(userData);
+
+            // Persist session with enhanced security
+            try {
+              localStorage.setItem(
+                'lottery-user-session',
+                JSON.stringify(userData)
+              );
+              localStorage.setItem(
+                'lottery-session-timestamp',
+                Date.now().toString()
+              );
+
+              // Set session expiry check
+              if (sessionCheckTimeout) clearTimeout(sessionCheckTimeout);
+              sessionCheckTimeout = setTimeout(
+                () => {
+                  // Refresh session every 24 hours
+                  if (isMounted && firebaseUser) {
+                    firestoreService
+                      .getUser(firebaseUser.uid)
+                      .then(refreshedUser => {
+                        if (refreshedUser && isMounted) {
+                          setUser(refreshedUser);
+                          localStorage.setItem(
+                            'lottery-user-session',
+                            JSON.stringify(refreshedUser)
+                          );
+                          localStorage.setItem(
+                            'lottery-session-timestamp',
+                            Date.now().toString()
+                          );
+                        }
+                      })
+                      .catch(console.error);
+                  }
+                },
+                24 * 60 * 60 * 1000
+              ); // 24 hours
+            } catch (error) {
+              console.error('Error persisting session:', error);
+            }
+          }
         } catch (error) {
           console.error('Error fetching user data:', error);
-          setUser(null);
+          if (isMounted) {
+            setUser(null);
+            // Clear invalid session
+            localStorage.removeItem('lottery-user-session');
+            localStorage.removeItem('lottery-session-timestamp');
+          }
         }
       } else {
-        setUser(null);
-        // If user is not authenticated and we're on a protected route, redirect to home
-        if (typeof window !== 'undefined' && pathname?.includes('/dashboard')) {
-          router.push('/');
+        if (isMounted) {
+          setUser(null);
+          // Clear session on logout
+          localStorage.removeItem('lottery-user-session');
+          localStorage.removeItem('lottery-session-timestamp');
+        }
+
+        // Enhanced protected route handling
+        if (typeof window !== 'undefined' && pathname) {
+          const protectedPaths = [
+            '/admin',
+            '/dashboard',
+            '/vendor-dashboard',
+            '/profile',
+          ];
+          const isProtectedRoute = protectedPaths.some(path =>
+            pathname.includes(path)
+          );
+
+          if (isProtectedRoute) {
+            router.push('/');
+          }
         }
       }
 
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     });
 
     // Check for redirect result when component mounts
     const checkRedirectResult = async () => {
       try {
         const redirectUser = await authService.getRedirectResult();
-        if (redirectUser) {
-          // User signed in via redirect, fetch their data
+        if (redirectUser && isMounted) {
           const userData = await firestoreService.getUser(redirectUser.uid);
-          setUser(userData);
-          setFirebaseUser(redirectUser);
+          if (isMounted && userData) {
+            setUser(userData);
+            setFirebaseUser(redirectUser);
+
+            // Persist redirect session
+            localStorage.setItem(
+              'lottery-user-session',
+              JSON.stringify(userData)
+            );
+            localStorage.setItem(
+              'lottery-session-timestamp',
+              Date.now().toString()
+            );
+          }
         }
       } catch (error) {
         console.error('Error checking redirect result:', error);
       }
     };
 
+    // Initialize with cached session first, then verify with Firebase
+    initializeAuth();
     checkRedirectResult();
 
-    return unsubscribe;
-  }, [router]);
+    return () => {
+      isMounted = false;
+      if (sessionCheckTimeout) clearTimeout(sessionCheckTimeout);
+      unsubscribe();
+    };
+  }, [router, pathname]);
 
   const login = async (email: string, password: string) => {
     try {
-      await authService.login(email, password);
-      // Role-based redirect after login
-      if (user) {
-        if (user.role === 'USER') {
-          router.push('/games');
-        } else if (user.role === 'VENDOR' || user.role === 'ADMIN') {
-          router.push('/dashboard');
+      const firebaseUser = await authService.login(email, password);
+
+      // Wait for user data to be fetched and role-based redirect
+      const userData = await firestoreService.getUser(firebaseUser.uid);
+      if (userData) {
+        setUser(userData);
+
+        // Enhanced role-based redirect with vendor dashboard support
+        switch (userData.role) {
+          case 'ADMIN':
+            router.push('/admin');
+            break;
+          case 'VENDOR':
+            router.push('/vendor-dashboard');
+            break;
+          case 'USER':
+          default:
+            router.push('/games');
+            break;
         }
+
+        // Persist session immediately after login
+        localStorage.setItem('lottery-user-session', JSON.stringify(userData));
+        localStorage.setItem(
+          'lottery-session-timestamp',
+          Date.now().toString()
+        );
       }
     } catch (error) {
       console.error('Login error:', error);
+      // Clear any corrupted session data
+      localStorage.removeItem('lottery-user-session');
+      localStorage.removeItem('lottery-session-timestamp');
       throw error;
     }
   };
@@ -129,11 +273,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
+      // Clear session data immediately
+      setUser(null);
+      setFirebaseUser(null);
+
+      // Clear persisted session
+      localStorage.removeItem('lottery-user-session');
+      localStorage.removeItem('lottery-session-timestamp');
+
+      // Clear any other cached data
+      sessionStorage.clear();
+
+      // Sign out from Firebase
       await authService.logout();
+
       // Redirect to home page after successful logout
       router.push('/');
     } catch (error) {
       console.error('Logout error:', error);
+      // Even if Firebase logout fails, clear local session
+      localStorage.removeItem('lottery-user-session');
+      localStorage.removeItem('lottery-session-timestamp');
+      sessionStorage.clear();
+      router.push('/');
       throw error;
     }
   };
@@ -141,7 +303,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // New authentication methods
   const signInWithGoogle = async () => {
     try {
-      await authService.signInWithGoogle();
+      const firebaseUser = await authService.signInWithGoogle();
+
+      if (firebaseUser) {
+        // Fetch and persist user data
+        const userData = await firestoreService.getUser(firebaseUser.uid);
+        if (userData) {
+          setUser(userData);
+
+          // Enhanced role-based redirect
+          switch (userData.role) {
+            case 'ADMIN':
+              router.push('/admin');
+              break;
+            case 'VENDOR':
+              router.push('/vendor-dashboard');
+              break;
+            case 'USER':
+            default:
+              router.push('/games');
+              break;
+          }
+
+          // Persist session
+          localStorage.setItem(
+            'lottery-user-session',
+            JSON.stringify(userData)
+          );
+          localStorage.setItem(
+            'lottery-session-timestamp',
+            Date.now().toString()
+          );
+        }
+      }
     } catch (error: any) {
       if (error.message === 'Redirecting to Google sign-in...') {
         // This is expected when falling back to redirect
@@ -149,6 +343,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       console.error('Google sign-in error:', error);
+      // Clear any corrupted session data
+      localStorage.removeItem('lottery-user-session');
+      localStorage.removeItem('lottery-session-timestamp');
       throw error;
     }
   };
@@ -193,7 +390,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       if (user) {
         await firestoreService.updateUser(user.id, updates);
-        setUser(prev => ({ ...prev, ...updates }) as User);
+        const updatedUser = { ...user, ...updates } as User;
+        setUser(updatedUser);
+
+        // Update persisted session
+        localStorage.setItem(
+          'lottery-user-session',
+          JSON.stringify(updatedUser)
+        );
+        localStorage.setItem(
+          'lottery-session-timestamp',
+          Date.now().toString()
+        );
       }
     } catch (error) {
       console.error('Update profile error:', error);

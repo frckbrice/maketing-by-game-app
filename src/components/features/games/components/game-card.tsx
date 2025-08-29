@@ -4,14 +4,18 @@ import { currencyService } from '@/lib/api/currencyService';
 import { LotteryGame } from '@/types';
 import {
   ArrowRight,
-  Clock,
-  Users,
-  Star,
-  Zap,
   Award,
+  Clock,
   ExternalLink,
+  Eye,
+  Star,
+  Users,
+  Zap,
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { GameDetailModal } from './GameDetailModal';
 import { PaymentModal } from './PaymentModal';
 
 interface GameCardProps {
@@ -29,7 +33,9 @@ export function GameCard({
   isSponsored = false,
   companyInfo,
 }: GameCardProps) {
+  const { t } = useTranslation();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<string>('');
   const [mounted, setMounted] = useState(false);
 
@@ -60,7 +66,7 @@ export function GameCard({
           setTimeRemaining(`${minutes}m`);
         }
       } else {
-        setTimeRemaining('Expired');
+        setTimeRemaining(t('games.gameCard.expired'));
       }
     };
 
@@ -81,6 +87,19 @@ export function GameCard({
   const isHotGame = progress > 75;
   const isAlmostFull = progress > 90;
   const isNew = Date.now() - game.createdAt < 24 * 60 * 60 * 1000; // Less than 24 hours old
+
+  // Ensure game has required properties with fallbacks
+  const safeCategory = game.category || {
+    id: 'general',
+    name: 'General',
+    description: 'General category',
+    icon: '🎁',
+    color: '#9E9E9E',
+    isActive: true,
+    sortOrder: 999,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
 
   if (!mounted) {
     return (
@@ -104,14 +123,14 @@ export function GameCard({
             : 'border-gray-200 dark:border-gray-700'
         } hover:transform hover:scale-[1.02]`}
         role='article'
-        aria-label={`Lottery game: ${game.title}`}
+        aria-label={`${t('games.gameCard.lotteryGame')}: ${game.title}`}
       >
         {/* Sponsored Badge */}
         {isSponsored && (
           <div className='absolute top-3 left-3 z-10'>
             <div className='bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center'>
               <Star className='w-3 h-3 mr-1' />
-              SPONSORED
+              {t('games.gameCard.sponsored')}
             </div>
           </div>
         )}
@@ -121,28 +140,48 @@ export function GameCard({
           {isNew && (
             <div className='bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg flex items-center'>
               <Zap className='w-3 h-3 mr-1' />
-              NEW
+              {t('games.gameCard.new')}
             </div>
           )}
           {isHotGame && (
             <div className='bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse flex items-center'>
-              🔥 HOT
+              {t('games.gameCard.hot')}
             </div>
           )}
           {isAlmostFull && (
             <div className='bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg flex items-center'>
               <Award className='w-3 h-3 mr-1' />
-              FILLING FAST
+              {t('games.gameCard.fillingFast')}
             </div>
           )}
         </div>
 
         {/* Product Image */}
-        <div className='relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 overflow-hidden'>
-          {/* Placeholder for product image - in production, use actual product images */}
-          <div className='absolute inset-0 flex items-center justify-center'>
-            <div className='text-6xl opacity-50'>
-              {game.category?.icon || '🎁'}
+        <div
+          className='relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 overflow-hidden cursor-pointer group'
+          onClick={() => setShowDetailModal(true)}
+        >
+          {game.images && game.images.length > 0 ? (
+            <Image
+              src={game.images[0].url || ''}
+              alt={safeCategory.name || 'Game Image'}
+              fill
+              className='object-cover w-full h-full transition-transform duration-300 group-hover:scale-105'
+              sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+              priority={false}
+            />
+          ) : (
+            <div className='absolute inset-0 flex items-center justify-center'>
+              <div className='text-6xl opacity-50'>
+                {safeCategory.icon || '🎁'}
+              </div>
+            </div>
+          )}
+
+          {/* Hover overlay */}
+          <div className='absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center'>
+            <div className='bg-white/90 dark:bg-gray-800/90 rounded-full p-3'>
+              <Eye className='w-6 h-6 text-gray-700 dark:text-gray-300' />
             </div>
           </div>
 
@@ -177,7 +216,7 @@ export function GameCard({
           <div className='grid grid-cols-2 gap-4 mb-4'>
             <div className='text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-xl'>
               <div className='text-xs text-gray-500 dark:text-gray-400 mb-1'>
-                Ticket Price
+                {t('games.gameCard.ticketPrice')}
               </div>
               <div className='font-bold text-gray-900 dark:text-white'>
                 {currencyService.formatCurrency(
@@ -189,7 +228,7 @@ export function GameCard({
 
             <div className='text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-xl'>
               <div className='text-xs text-gray-500 dark:text-gray-400 mb-1'>
-                Time Left
+                {t('games.gameCard.timeLeft')}
               </div>
               <div className='font-bold text-gray-900 dark:text-white flex items-center justify-center'>
                 <Clock className='w-3 h-3 mr-1' />
@@ -203,7 +242,7 @@ export function GameCard({
             <div className='flex items-center justify-between text-sm mb-2'>
               <span className='text-gray-600 dark:text-gray-400 flex items-center'>
                 <Users className='w-4 h-4 mr-1' />
-                Participants
+                {t('games.gameCard.participants')}
               </span>
               <span className='font-semibold text-gray-900 dark:text-white'>
                 {game.currentParticipants}/{game.maxParticipants}
@@ -217,7 +256,7 @@ export function GameCard({
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={progress}
-                aria-label={`${progress}% of tickets sold`}
+                aria-label={`${progress}% ${t('games.gameCard.ticketsSold')}`}
               >
                 <div
                   className={`h-full rounded-full transition-all duration-500 ease-out ${
@@ -241,7 +280,7 @@ export function GameCard({
             <div className='flex items-center justify-between mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl'>
               <div>
                 <div className='text-xs text-blue-600 dark:text-blue-400 font-medium'>
-                  Sponsored by
+                  {t('games.gameCard.sponsoredBy')}
                 </div>
                 <div className='text-sm font-semibold text-blue-900 dark:text-blue-100'>
                   {companyInfo.name}
@@ -258,7 +297,9 @@ export function GameCard({
                     );
                   }}
                   className='text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors'
-                  aria-label={`Visit ${companyInfo.name} website`}
+                  aria-label={t('games.gameCard.visitWebsite', {
+                    company: companyInfo.name,
+                  })}
                 >
                   <ExternalLink className='w-4 h-4' />
                 </button>
@@ -266,28 +307,43 @@ export function GameCard({
             </div>
           )}
 
-          {/* Play Button */}
-          <button
-            onClick={() => setShowPaymentModal(true)}
-            disabled={timeRemaining === 'Expired' || progress >= 100}
-            className={`w-full py-3 px-4 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
-              timeRemaining === 'Expired' || progress >= 100
-                ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
-            }`}
-            aria-label={`Play ${game.title} lottery game`}
-          >
-            {timeRemaining === 'Expired' ? (
-              'Expired'
-            ) : progress >= 100 ? (
-              'Full'
-            ) : (
-              <>
-                <span>Play Now</span>
-                <ArrowRight className='w-4 h-4' />
-              </>
-            )}
-          </button>
+          {/* Action Buttons */}
+          <div className='space-y-3'>
+            {/* View Details Button */}
+            <button
+              onClick={() => setShowDetailModal(true)}
+              className='w-full py-2 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-center space-x-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500'
+              aria-label={t('games.gameCard.viewDetails', {
+                title: game.title,
+              })}
+            >
+              <Eye className='w-4 h-4' />
+              <span>{t('games.gameCard.viewDetails')}</span>
+            </button>
+
+            {/* Play Button */}
+            <button
+              onClick={() => setShowPaymentModal(true)}
+              disabled={timeRemaining === 'Expired' || progress >= 100}
+              className={`w-full py-3 px-4 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
+                timeRemaining === 'Expired' || progress >= 100
+                  ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+              }`}
+              aria-label={t('games.gameCard.playGame', { title: game.title })}
+            >
+              {timeRemaining === t('games.gameCard.expired') ? (
+                t('games.gameCard.expired')
+              ) : progress >= 100 ? (
+                t('games.gameCard.full')
+              ) : (
+                <>
+                  <span>{t('games.gameCard.playNow')}</span>
+                  <ArrowRight className='w-4 h-4' />
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Hover Effect Overlay */}
@@ -299,6 +355,13 @@ export function GameCard({
         game={game}
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
+      />
+
+      {/* Game Detail Modal */}
+      <GameDetailModal
+        game={game}
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
       />
     </>
   );

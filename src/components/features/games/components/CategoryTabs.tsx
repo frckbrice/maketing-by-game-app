@@ -2,6 +2,7 @@
 
 import { GameCategory } from '@/types';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 import { useRef } from 'react';
 
 interface CategoryTabsProps {
@@ -34,24 +35,24 @@ export function CategoryTabs({
       {/* Scroll Buttons */}
       <button
         onClick={() => scrollTabs('left')}
-        className='absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white dark:bg-gray-800 shadow-lg rounded-full flex items-center justify-center hover:shadow-xl transition-shadow'
+        className='absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 border border-gray-200 dark:border-gray-700'
         aria-label='Scroll categories left'
       >
-        <ChevronLeft className='w-5 h-5 text-gray-600 dark:text-gray-300' />
+        <ChevronLeft className='w-6 h-6 text-gray-600 dark:text-gray-300' />
       </button>
 
       <button
         onClick={() => scrollTabs('right')}
-        className='absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white dark:bg-gray-800 shadow-lg rounded-full flex items-center justify-center hover:shadow-xl transition-shadow'
+        className='absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 border border-gray-200 dark:border-gray-700'
         aria-label='Scroll categories right'
       >
-        <ChevronRight className='w-5 h-5 text-gray-600 dark:text-gray-300' />
+        <ChevronRight className='w-6 h-6 text-gray-600 dark:text-gray-300' />
       </button>
 
       {/* Categories Carousel */}
       <div
         ref={scrollRef}
-        className='flex overflow-x-auto scrollbar-hide space-x-4 px-12 py-2'
+        className='flex overflow-x-auto scrollbar-hide space-x-4 px-12 py-4'
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {categories.map(category => {
@@ -62,10 +63,10 @@ export function CategoryTabs({
             <button
               key={category.id}
               onClick={() => onCategoryChange(category.id)}
-              className={`flex-shrink-0 group relative overflow-hidden rounded-2xl transition-all duration-300 min-w-[160px] ${
+              className={`flex-shrink-0 group relative overflow-hidden rounded-2xl transition-all duration-300 min-w-[120px] max-w-[140px] ${
                 isSelected
-                  ? 'bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg transform scale-105'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-lg hover:scale-102 border border-gray-200 dark:border-gray-700'
+                  ? 'bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-xl transform scale-105 ring-4 ring-orange-200 dark:ring-orange-800'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-lg hover:scale-102 border border-gray-200 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-600'
               }`}
               role='tab'
               aria-selected={isSelected}
@@ -73,7 +74,7 @@ export function CategoryTabs({
             >
               {/* Background Pattern */}
               <div
-                className={`absolute inset-0 opacity-10 ${
+                className={`absolute inset-0 opacity-5 ${
                   isSelected ? 'bg-white' : 'bg-gray-100 dark:bg-gray-700'
                 }`}
               >
@@ -85,19 +86,48 @@ export function CategoryTabs({
                 />
               </div>
 
-              <div className='relative p-6 text-center'>
-                {/* Icon */}
-                <div
-                  className={`text-4xl mb-3 transition-transform duration-300 group-hover:scale-110 ${
-                    isSelected ? 'animate-bounce' : ''
-                  }`}
-                >
-                  {category.icon}
+              <div className='relative p-3 text-center w-24 h-12'>
+                {/* Icon Container */}
+                <div className='relative mb-3'>
+                  <div
+                    className={` mx-auto rounded-full flex items-center animate-bounce-gentle justify-center w-16 h-16 transition-all duration-300 ${
+                      isSelected
+                        ? 'bg-white/20 backdrop-blur-sm'
+                        : 'bg-gray-100 dark:bg-gray-700'
+                    }`}
+                  >
+                    {/* Handle both emoji and image icons */}
+                    {category.icon.startsWith('http') ||
+                    category.icon.startsWith('/') ? (
+                      <Image
+                        src={category.icon}
+                        alt={category.name}
+                        width={32}
+                        height={32}
+                        className='w-16 h-16 object-contain'
+                      />
+                    ) : (
+                      <span
+                        className={`text-2xl ${
+                          isSelected
+                            ? 'text-white'
+                            : 'text-gray-600 dark:text-gray-400'
+                        }`}
+                      >
+                        {category.icon}
+                      </span>
+                    )}
+                  </div>
+                  {category.name}
+                  {/* Icon glow effect for selected */}
+                  {isSelected && (
+                    <div className='absolute inset-0 w-16 h-16 mx-auto rounded-full bg-white/30 blur-xl animate-pulse' />
+                  )}
                 </div>
 
                 {/* Category Name */}
                 <div
-                  className={`font-bold text-sm mb-2 ${
+                  className={`font-bold text-sm mb-2 line-clamp-2 ${
                     isSelected ? 'text-white' : 'text-gray-900 dark:text-white'
                   }`}
                 >
@@ -106,9 +136,9 @@ export function CategoryTabs({
 
                 {/* Games Count */}
                 <div
-                  className={`text-xs ${
+                  className={`text-xs font-medium ${
                     isSelected
-                      ? 'text-white/80'
+                      ? 'text-white/90'
                       : 'text-gray-500 dark:text-gray-400'
                   }`}
                 >
@@ -117,8 +147,8 @@ export function CategoryTabs({
 
                 {/* Active Indicator */}
                 {isSelected && (
-                  <div className='absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2'>
-                    <div className='w-3 h-3 bg-white rounded-full shadow-lg animate-pulse' />
+                  <div className='absolute bottom-2 left-1/2 transform -translate-x-1/2'>
+                    <div className='w-2 h-2 bg-white rounded-full shadow-lg animate-pulse' />
                   </div>
                 )}
               </div>
@@ -139,9 +169,11 @@ export function CategoryTabs({
       {/* Category Description */}
       {selectedCategory !== 'all' && (
         <div className='mt-6 text-center'>
-          <p className='text-gray-600 dark:text-gray-400 max-w-2xl mx-auto'>
-            {categories.find(c => c.id === selectedCategory)?.description}
-          </p>
+          <div className='inline-block bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl px-6 py-4 border border-orange-200 dark:border-orange-800'>
+            <p className='text-gray-700 dark:text-gray-300 max-w-2xl mx-auto text-sm leading-relaxed'>
+              {categories.find(c => c.id === selectedCategory)?.description}
+            </p>
+          </div>
         </div>
       )}
     </div>

@@ -10,6 +10,10 @@ import {
 } from '@/components/ui/dialog';
 import { currencyService } from '@/lib/api/currencyService';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import {
+  securePaymentService,
+  PaymentMethod as SecurePaymentMethod,
+} from '@/lib/services/securePaymentService';
 import { LotteryGame } from '@/types';
 import {
   CheckCircle,
@@ -40,13 +44,14 @@ interface Ticket {
   qrCode: string;
 }
 
-type PaymentMethod = 'orange' | 'mtn';
+type PaymentMethod = 'ORANGE_MONEY' | 'MTN_MOMO';
 type PaymentStep = 'method' | 'phone' | 'processing' | 'success';
 
 export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
   const { user } = useAuth();
   const [step, setStep] = useState<PaymentStep>('method');
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('orange');
+  const [selectedMethod, setSelectedMethod] =
+    useState<PaymentMethod>('ORANGE_MONEY');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [processing, setProcessing] = useState(false);
   const [ticket, setTicket] = useState<Ticket | null>(null);
@@ -105,18 +110,7 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
     phone: string,
     method: PaymentMethod
   ): boolean => {
-    // Remove spaces and special characters
-    const cleanPhone = phone.replace(/[\s-()]/g, '');
-
-    if (method === 'orange') {
-      // Orange Money numbers start with 69 or 65
-      return /^(237)?(69|65)\d{7}$/.test(cleanPhone);
-    } else if (method === 'mtn') {
-      // MTN Mobile Money numbers start with 67, 68, or 65
-      return /^(237)?(67|68|65)\d{7}$/.test(cleanPhone);
-    }
-
-    return false;
+    return securePaymentService.validatePhoneNumber(phone, method);
   };
 
   const handlePhoneSubmit = () => {
@@ -126,9 +120,9 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
     }
 
     if (!validatePhoneNumber(phoneNumber, selectedMethod)) {
-      const provider =
-        selectedMethod === 'orange' ? 'Orange Money' : 'MTN Mobile Money';
-      toast.error(`Please enter a valid ${provider} phone number`);
+      const methodInfo =
+        securePaymentService.getPaymentMethodInfo(selectedMethod);
+      toast.error(`Please enter a valid ${methodInfo.name} phone number`);
       return;
     }
 
@@ -145,32 +139,77 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
     setProcessing(true);
 
     try {
-      // Simulate mobile money payment processing
-      const providerName =
-        selectedMethod === 'orange' ? 'Orange Money' : 'MTN Mobile Money';
-      toast.info(`Processing ${providerName} payment...`);
+      const methodInfo =
+        securePaymentService.getPaymentMethodInfo(selectedMethod);
+      toast.info(`Processing ${methodInfo.name} payment...`);
 
-      // In production, this would integrate with Orange Money/MTN Mobile Money APIs
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      // Initiate payment through secure API
+      const paymentResult = await securePaymentService.initiatePayment({
+        gameId: game.id,
+        paymentMethod: selectedMethod,
+        phoneNumber,
+        amount: convertedPrice,
+        currency: userCurrency,
+      });
 
-      // Generate ticket after successful payment
-      const newTicket = generateTicket(game);
-      setTicket(newTicket);
+      if (paymentResult.success && paymentResult.transactionId) {
+        // Start polling for payment status
+        const transactionId = paymentResult.transactionId;
+        let attempts = 0;
+        const maxAttempts = 60; // 5 minutes with 5-second intervals
 
-      // Send ticket via email and SMS
-      await Promise.all([
-        sendTicketEmail(newTicket),
-        sendTicketSMS(newTicket, phoneNumber),
-      ]);
+        const checkStatus = async (): Promise<void> => {
+          if (attempts >= maxAttempts) {
+            throw new Error(
+              'Payment timeout. Please check your phone and try again.'
+            );
+          }
 
-      setStep('success');
-      toast.success(
-        `Payment successful via ${providerName}! Ticket sent to your phone and email.`
-      );
+          const statusResult =
+            await securePaymentService.checkTransactionStatus(transactionId);
+
+          if (statusResult?.status === 'SUCCESS') {
+            // Generate ticket after successful payment
+            const newTicket = generateTicket(game);
+            setTicket(newTicket);
+
+            // Send ticket via email and SMS
+            await Promise.all([
+              sendTicketEmail(newTicket),
+              sendTicketSMS(newTicket, phoneNumber),
+            ]);
+
+            setStep('success');
+            toast.success(
+              `Payment successful via ${methodInfo.name}! Ticket sent to your phone and email.`
+            );
+          } else if (
+            statusResult?.status === 'FAILED' ||
+            statusResult?.status === 'CANCELLED'
+          ) {
+            throw new Error(
+              statusResult.message || 'Payment was declined or cancelled.'
+            );
+          } else if (statusResult?.status === 'EXPIRED') {
+            throw new Error('Payment request expired. Please try again.');
+          } else {
+            // Still processing, check again after 5 seconds
+            attempts++;
+            setTimeout(checkStatus, 5000);
+          }
+        };
+
+        // Start status checking
+        setTimeout(checkStatus, 5000);
+      } else {
+        throw new Error(paymentResult.message || 'Payment initiation failed');
+      }
     } catch (error) {
       console.error('Payment failed:', error);
       toast.error(
-        'Payment failed. Please check your phone number and try again.'
+        error instanceof Error
+          ? error.message
+          : 'Payment failed. Please try again.'
       );
       setStep('phone');
     } finally {
@@ -338,9 +377,9 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                 <h4 className='font-medium'>Choose Mobile Money Provider</h4>
 
                 <button
-                  onClick={() => setSelectedMethod('orange')}
+                  onClick={() => setSelectedMethod('ORANGE_MONEY')}
                   className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
-                    selectedMethod === 'orange'
+                    selectedMethod === 'ORANGE_MONEY'
                       ? 'border-orange-500 bg-orange-50 dark:bg-orange-500/10'
                       : 'border-border hover:border-orange-300'
                   }`}
@@ -359,9 +398,9 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                 </button>
 
                 <button
-                  onClick={() => setSelectedMethod('mtn')}
+                  onClick={() => setSelectedMethod('MTN_MOMO')}
                   className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
-                    selectedMethod === 'mtn'
+                    selectedMethod === 'MTN_MOMO'
                       ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-500/10'
                       : 'border-border hover:border-yellow-300'
                   }`}
@@ -412,21 +451,22 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                 <div className='text-center'>
                   <div
                     className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
-                      selectedMethod === 'orange'
+                      selectedMethod === 'ORANGE_MONEY'
                         ? 'bg-orange-500'
                         : 'bg-yellow-500'
                     }`}
                   >
-                    {selectedMethod === 'orange' ? (
+                    {selectedMethod === 'ORANGE_MONEY' ? (
                       <Smartphone className='w-8 h-8 text-white' />
                     ) : (
                       <Phone className='w-8 h-8 text-white' />
                     )}
                   </div>
                   <h4 className='font-semibold mb-2'>
-                    {selectedMethod === 'orange'
-                      ? 'Orange Money'
-                      : 'MTN Mobile Money'}
+                    {
+                      securePaymentService.getPaymentMethodInfo(selectedMethod)
+                        .name
+                    }
                   </h4>
                 </div>
 
@@ -440,18 +480,18 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
                     value={phoneNumber}
                     onChange={e => setPhoneNumber(e.target.value)}
                     placeholder={
-                      selectedMethod === 'orange'
-                        ? '69XXXXXXX or 65XXXXXXX'
-                        : '67XXXXXXX, 68XXXXXXX or 65XXXXXXX'
+                      securePaymentService.getPaymentMethodInfo(selectedMethod)
+                        .placeholder
                     }
                     className='w-full px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring'
                     maxLength={12}
                   />
                   <p className='text-xs text-muted-foreground'>
                     Enter your{' '}
-                    {selectedMethod === 'orange'
-                      ? 'Orange Money'
-                      : 'MTN Mobile Money'}{' '}
+                    {
+                      securePaymentService.getPaymentMethodInfo(selectedMethod)
+                        .name
+                    }{' '}
                     number
                   </p>
                 </div>

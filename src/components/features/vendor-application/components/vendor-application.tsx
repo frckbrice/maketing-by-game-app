@@ -29,13 +29,14 @@ import { toast } from 'sonner';
 
 export function VendorApplicationPage() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { theme, setTheme } = useTheme();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [existingApplication, setExistingApplication] = useState<any>(null);
+  const [checkingApplication, setCheckingApplication] = useState(true);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -68,12 +69,17 @@ export function VendorApplicationPage() {
 
   const checkExistingApplication = async () => {
     try {
-      const application = await firestoreService.getVendorApplication(user!.id);
+      setCheckingApplication(true);
+      const application = await (firestoreService as any).getVendorApplication(
+        user!.id
+      );
       if (application) {
         setExistingApplication(application);
       }
     } catch (error) {
       console.error('Error checking existing application:', error);
+    } finally {
+      setCheckingApplication(false);
     }
   };
 
@@ -83,15 +89,49 @@ export function VendorApplicationPage() {
 
   const isDark = theme === 'dark';
 
-  // Redirect if not logged in or already a vendor/admin
+  // Show loading state while authentication is being determined
+  if (loading) {
+    return (
+      <div className='min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500 mx-auto mb-4'></div>
+          <p className='text-gray-600 dark:text-gray-300'>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect if not logged in
   if (!user) {
-    router.push('/auth/login');
+    // Use replace to prevent back button issues
+    router.replace('/auth/login');
     return null;
   }
 
+  // Redirect if already a vendor/admin
   if (user.role === 'VENDOR' || user.role === 'ADMIN') {
-    router.push('/dashboard');
+    router.replace('/dashboard');
     return null;
+  }
+
+  // Ensure user has USER role to apply for vendor status
+  if (user.role !== 'USER') {
+    router.replace('/profile');
+    return null;
+  }
+
+  // Show loading state while checking existing application
+  if (checkingApplication) {
+    return (
+      <div className='min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500 mx-auto mb-4'></div>
+          <p className='text-gray-600 dark:text-gray-300'>
+            Checking application status...
+          </p>
+        </div>
+      </div>
+    );
   }
 
   const handleInputChange = (field: string, value: string) => {
@@ -117,16 +157,66 @@ export function VendorApplicationPage() {
     setSubmitting(true);
 
     try {
-      // Validate required fields
-      if (
-        !formData.companyName ||
-        !formData.businessRegistrationNumber ||
-        !formData.contactEmail ||
-        !formData.contactPhone ||
-        !formData.productCategory ||
-        !formData.description
+      // Enhanced client-side validation
+      const errors: string[] = [];
+
+      // Required field validation
+      if (!formData.companyName?.trim()) {
+        errors.push('Company name is required');
+      } else if (formData.companyName.trim().length < 2) {
+        errors.push('Company name must be at least 2 characters');
+      }
+
+      if (!formData.businessRegistrationNumber?.trim()) {
+        errors.push('Business registration number is required');
+      }
+
+      if (!formData.contactEmail?.trim()) {
+        errors.push('Contact email is required');
+      } else if (
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail.trim())
       ) {
-        toast.error('Please fill in all required fields');
+        errors.push('Please enter a valid email address');
+      }
+
+      if (!formData.contactPhone?.trim()) {
+        errors.push('Contact phone is required');
+      } else if (
+        !/^[+]?[1-9][\d]{0,15}$/.test(
+          formData.contactPhone.trim().replace(/\s/g, '')
+        )
+      ) {
+        errors.push('Please enter a valid phone number');
+      }
+
+      if (!formData.productCategory?.trim()) {
+        errors.push('Product category is required');
+      }
+
+      if (!formData.description?.trim()) {
+        errors.push('Business description is required');
+      } else if (formData.description.trim().length < 20) {
+        errors.push('Business description must be at least 20 characters');
+      }
+
+      // File validation
+      if (!companyLogo) {
+        errors.push('Company logo is required');
+      } else if (companyLogo.size > 5 * 1024 * 1024) {
+        // 5MB limit
+        errors.push('Company logo must be less than 5MB');
+      }
+
+      if (!businessCertificate) {
+        errors.push('Business certificate is required');
+      } else if (businessCertificate.size > 10 * 1024 * 1024) {
+        // 10MB limit
+        errors.push('Business certificate must be less than 10MB');
+      }
+
+      // Show all validation errors
+      if (errors.length > 0) {
+        errors.forEach(error => toast.error(error));
         return;
       }
 
@@ -145,9 +235,15 @@ export function VendorApplicationPage() {
       };
 
       // Submit application
-      await firestoreService.submitVendorApplication(applicationData);
+      const applicationId = await (
+        firestoreService as any
+      ).submitVendorApplication(applicationData);
 
-      toast.success('Vendor application submitted successfully!');
+      toast.success(
+        'Vendor application submitted successfully! Your application is now under review.'
+      );
+
+      // Redirect to profile page to show application status
       router.push('/profile');
     } catch (error) {
       console.error('Error submitting application:', error);

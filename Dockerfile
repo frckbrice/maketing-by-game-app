@@ -9,6 +9,8 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+
+# enable corepack before using yarn or pnpm
 RUN corepack enable && \
   if [ -f yarn.lock ]; then yarn install --immutable; \
   elif [ -f package-lock.json ]; then npm ci --no-audit --no-fund; \

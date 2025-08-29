@@ -28,12 +28,18 @@ export const DashboardPage = () => {
     if (!loading && !user && !redirecting) {
       setRedirecting(true);
       router.replace('/');
-    } else if (!loading && user && !redirecting) {
-      // Redirect USER role to games page, they don't need dashboard
-      if (user.role === 'USER') {
-        setRedirecting(true);
-        router.replace('/games');
-      }
+    }
+
+    // USER role users should be redirected to /game page, not dashboard
+    if (!loading && user && user.role === 'USER' && !redirecting) {
+      setRedirecting(true);
+      router.replace('/game');
+    }
+
+    // ADMIN role users should be redirected to admin dashboard
+    if (!loading && user && user.role === 'ADMIN' && !redirecting) {
+      setRedirecting(true);
+      router.replace('/admin');
     }
   }, [user, loading, router, redirecting]);
 
@@ -99,13 +105,11 @@ export const DashboardPage = () => {
             {t('dashboard.welcome')}, {user.firstName}!
           </h1>
           <p className='text-gray-600 dark:text-gray-300 mt-2'>
-            {user.role === 'USER'
-              ? t('dashboard.playerWelcome')
-              : user.role === 'VENDOR'
-                ? t('dashboard.vendorWelcome')
-                : user.role === 'ADMIN'
-                  ? t('dashboard.adminWelcome')
-                  : t('dashboard.accessDenied')}
+            {user.role === 'VENDOR'
+              ? t('dashboard.vendorWelcome')
+              : user.role === 'ADMIN'
+                ? t('dashboard.adminWelcome')
+                : t('dashboard.accessDenied')}
           </p>
           <div className='mt-2'>
             <Badge variant='outline' className='text-sm'>
@@ -148,22 +152,9 @@ export const DashboardPage = () => {
           <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700'>
             <h2 className='text-xl font-semibold text-gray-900 dark:text-white mb-4'>
               {t('dashboard.quickActions')}
-              {user.role === 'USER' ? (
-                <>
-                  <button
-                    onClick={() => router.push('/games')}
-                    className='w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md transition-colors'
-                  >
-                    {t('dashboard.browseGames')}
-                  </button>
-                  <button
-                    onClick={() => router.push('/profile')}
-                    className='w-full bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-md transition-colors'
-                  >
-                    {t('dashboard.viewHistory')}
-                  </button>
-                </>
-              ) : user.role === 'VENDOR' ? (
+            </h2>
+            <div className='space-y-3'>
+              {user.role === 'VENDOR' ? (
                 <>
                   <button
                     onClick={() => router.push('/admin/create-game')}
@@ -194,14 +185,13 @@ export const DashboardPage = () => {
                   </button>
                 </>
               ) : (
-                <>
-                  <p className='text-gray-600 dark:text-gray-300'>
-                    {t('dashboard.accessDenied')}
+                <div className='text-center py-4'>
+                  <p className='text-gray-500 dark:text-gray-400 text-sm'>
+                    {t('dashboard.noActionsAvailable')}
                   </p>
-                </>
+                </div>
               )}
-            </h2>
-            <div className='space-y-3'></div>
+            </div>
           </div>
 
           {/* Stats */}
@@ -212,7 +202,9 @@ export const DashboardPage = () => {
             <div className='space-y-3'>
               <div className='flex justify-between'>
                 <span className='text-gray-500 dark:text-gray-400'>
-                  {t('dashboard.gamesPlayed')}
+                  {user.role === 'VENDOR'
+                    ? t('dashboard.gamesCreated')
+                    : t('dashboard.gamesPlayed')}
                 </span>
                 <span className='text-gray-900 dark:text-white font-semibold'>
                   0
@@ -220,18 +212,22 @@ export const DashboardPage = () => {
               </div>
               <div className='flex justify-between'>
                 <span className='text-gray-500 dark:text-gray-400'>
-                  {t('dashboard.wins')}
+                  {user.role === 'VENDOR'
+                    ? t('dashboard.totalRevenue')
+                    : t('dashboard.wins')}
                 </span>
                 <span className='text-gray-900 dark:text-white font-semibold'>
-                  0
+                  {user.role === 'VENDOR' ? '$0' : '0'}
                 </span>
               </div>
               <div className='flex justify-between'>
                 <span className='text-gray-500 dark:text-gray-400'>
-                  {t('dashboard.totalWinnings')}
+                  {user.role === 'VENDOR'
+                    ? t('dashboard.activeGames')
+                    : t('dashboard.totalWinnings')}
                 </span>
                 <span className='text-gray-900 dark:text-white font-semibold'>
-                  $0
+                  {user.role === 'VENDOR' ? '0' : '$0'}
                 </span>
               </div>
             </div>

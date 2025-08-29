@@ -150,6 +150,8 @@ export function CreateGamePage() {
           ? new Date(data.endDate).getTime()
           : Date.now() + 7 * 24 * 60 * 60 * 1000,
         totalPrizePool: 0,
+        totalTickets: 0,
+        totalTicketsSold: 0,
         prizes: [],
         category: selectedCategory || {
           id: data.categoryId,

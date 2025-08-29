@@ -1,9 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -27,33 +27,32 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useAuth } from '@/lib/contexts/AuthContext';
 import { adminService } from '@/lib/api/adminService';
-import type { User, PaginatedResponse } from '@/types';
+import { useAuth } from '@/lib/contexts/AuthContext';
+import type { PaginatedResponse, User } from '@/types';
 import {
-  Search,
-  Filter,
-  Shield,
-  ShieldCheck,
-  ShieldX,
-  Users as UsersIcon,
-  Mail,
-  Phone,
-  Calendar,
+  AlertTriangle,
   ArrowLeft,
+  Ban,
+  Calendar,
+  CheckCircle,
   ChevronLeft,
   ChevronRight,
-  RefreshCw,
   Download,
   Eye,
-  Ban,
-  CheckCircle,
+  Filter,
+  Mail,
+  Phone,
+  RefreshCw,
+  Search,
+  Shield,
+  ShieldCheck,
+  Users as UsersIcon,
   XCircle,
-  AlertTriangle,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 export function AdminUsersPage() {
@@ -393,29 +392,29 @@ export function AdminUsersPage() {
                               {userData.emailVerified ? (
                                 <CheckCircle
                                   className='w-4 h-4 text-green-500'
-                                  title='Email verified'
+                                  aria-label='Email verified'
                                 />
                               ) : (
                                 <AlertTriangle
                                   className='w-4 h-4 text-yellow-500'
-                                  title='Email not verified'
+                                  aria-label='Email not verified'
                                 />
                               )}
                               {userData.phoneVerified ? (
                                 <CheckCircle
                                   className='w-4 h-4 text-green-500'
-                                  title='Phone verified'
+                                  aria-label='Phone verified'
                                 />
                               ) : (
                                 <XCircle
                                   className='w-4 h-4 text-gray-400'
-                                  title='Phone not verified'
+                                  aria-label='Phone not verified'
                                 />
                               )}
                               {userData.twoFactorEnabled && (
                                 <Shield
                                   className='w-4 h-4 text-blue-500'
-                                  title='2FA enabled'
+                                  aria-label='2FA enabled'
                                 />
                               )}
                             </div>
@@ -461,12 +460,12 @@ export function AdminUsersPage() {
                                 {userData.status === 'SUSPENDED' ? (
                                   <CheckCircle
                                     className='w-4 h-4'
-                                    title='Activate user'
+                                    aria-label='Activate user'
                                   />
                                 ) : (
                                   <Ban
                                     className='w-4 h-4'
-                                    title='Suspend user'
+                                    aria-label='Suspend user'
                                   />
                                 )}
                               </Button>

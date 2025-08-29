@@ -3,7 +3,7 @@
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { AdminSidebar } from './components/AdminSidebar';
+import { AdminSidebar } from './components/admin-side-bar';
 
 interface AdminLayoutProps {
   children: React.ReactNode;

@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 
 export function UserProfileDropdown() {
   const { user, logout } = useAuth();
-  const { t } = useTranslation('common');
+  const { t } = useTranslation();
   const router = useRouter();
 
   if (!user) {
@@ -68,9 +68,9 @@ export function UserProfileDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className='flex items-center space-x-2 rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors'>
-          <Avatar className='h-8 w-8'>
-            <AvatarFallback className='bg-orange-500 text-white text-sm font-medium'>
+        <button className='flex items-center space-x-2 rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors'>
+          <Avatar className='h-10 w-10'>
+            <AvatarFallback className='bg-orange-500 text-white text-base font-semibold'>
               {getInitials(user.firstName, user.lastName)}
             </AvatarFallback>
           </Avatar>
@@ -98,12 +98,12 @@ export function UserProfileDropdown() {
         {user.role === 'USER' && (
           <>
             <DropdownMenuItem onClick={handleGamesClick}>
-              <Gamepad2 className='mr-2 h-4 w-4' />
-              <span>{t('games')}</span>
+              <Gamepad2 className='mr-3 h-5 w-5' />
+              <span className='text-base'>{t('games')}</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleProfileClick}>
-              <User className='mr-2 h-4 w-4' />
-              <span>{t('profile')}</span>
+              <User className='mr-3 h-5 w-5' />
+              <span className='text-base'>{t('profile')}</span>
             </DropdownMenuItem>
           </>
         )}
@@ -111,12 +111,12 @@ export function UserProfileDropdown() {
         {(user.role === 'VENDOR' || user.role === 'ADMIN') && (
           <>
             <DropdownMenuItem onClick={handleDashboardClick}>
-              <BarChart3 className='mr-2 h-4 w-4' />
-              <span>{t('dashboard')}</span>
+              <BarChart3 className='mr-3 h-5 w-5' />
+              <span className='text-base'>{t('dashboard')}</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleProfileClick}>
-              <User className='mr-2 h-4 w-4' />
-              <span>{t('profile')}</span>
+              <User className='mr-3 h-5 w-5' />
+              <span className='text-base'>{t('profile')}</span>
             </DropdownMenuItem>
           </>
         )}

@@ -1,16 +1,29 @@
+import { GameCategory, LotteryGame } from '@/types';
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
+  limit,
+  orderBy,
   query,
   where,
-  orderBy,
-  limit,
 } from 'firebase/firestore';
+import {
+  getDefaultCategory,
+  getMockCategories,
+  getMockGames,
+  getMockGamesWithCategories,
+} from '../constants';
 import { db } from '../firebase/config';
-import { GameCategory, LotteryGame } from '@/types';
+import i18n from '../i18n/config';
 
 export class GameService {
   private static instance: GameService;
+
+  private locale = i18n.language === 'en' ? 'en' : 'ar';
+  private cache: Map<string, { data: any; timestamp: number }> = new Map();
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   public static getInstance(): GameService {
     if (!GameService.instance) {
@@ -19,8 +32,53 @@ export class GameService {
     return GameService.instance;
   }
 
+  // Cache management methods
+  private getFromCache(key: string): any | null {
+    const cached = this.cache.get(key);
+    if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
+      return cached.data;
+    }
+    return null;
+  }
+
+  private setCache(key: string, data: any): void {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+    });
+  }
+
+  private isCacheExpired(key: string): boolean {
+    const cached = this.cache.get(key);
+    if (!cached) return true;
+    return Date.now() - cached.timestamp >= this.CACHE_DURATION;
+  }
+
+  // Public method to clear cache (useful for testing or manual refresh)
+  public clearCache(): void {
+    this.cache.clear();
+    console.log('Cache cleared');
+  }
+
+  // Public method to refresh specific cache entry
+  public refreshCache(key: string): void {
+    this.cache.delete(key);
+    console.log(`Cache entry '${key}' refreshed`);
+  }
+
   async getCategories(): Promise<GameCategory[]> {
+    // 1. Check cache first
+    const cacheKey = 'categories';
+    const cachedData = this.getFromCache(cacheKey);
+
+    if (cachedData && !this.isCacheExpired(cacheKey)) {
+      console.log('Using cached categories data');
+      return cachedData as GameCategory[];
+    }
+
     try {
+      // 2. Fetch from API
+      console.log('Fetching categories from API...');
       const categoriesRef = collection(db, 'categories');
       const q = query(
         categoriesRef,
@@ -30,86 +88,161 @@ export class GameService {
       const snapshot = await getDocs(q);
 
       if (!snapshot.empty) {
-        return snapshot.docs.map(doc => ({
+        const categories = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
         })) as GameCategory[];
+
+        // Store in cache
+        this.setCache(cacheKey, categories);
+
+        return categories;
       }
 
-      // Fallback to mock categories
-      return this.getMockCategories();
+      // 3. Fallback to mock data ONLY in development
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('No API data available, using mock data for development');
+        return getMockCategories();
+      }
+
+      return [];
     } catch (error) {
       console.error('Error fetching categories from Firebase:', error);
-      return this.getMockCategories();
+
+      // 3. Fallback to mock data ONLY in development
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('API failed, using mock data for development');
+        return getMockCategories();
+      }
+
+      return [];
     }
   }
 
   async getGames(categoryId?: string): Promise<LotteryGame[]> {
+    // 1. Check cache first
+    const cacheKey = `games_${categoryId || 'all'}`;
+    const cachedData = this.getFromCache(cacheKey);
+
+    if (cachedData && !this.isCacheExpired(cacheKey)) {
+      console.log('Using cached games data');
+      return cachedData as LotteryGame[];
+    }
+
     try {
+      // 2. Fetch from API
+      console.log('Fetching games from API...');
       const gamesRef = collection(db, 'games');
-      let q = query(
-        gamesRef,
-        where('status', '==', 'ACTIVE'),
-        where('isActive', '==', true),
-        orderBy('createdAt', 'desc')
-      );
+      let q = query(gamesRef, where('isActive', '==', true));
 
       if (categoryId && categoryId !== 'all') {
         q = query(
           gamesRef,
           where('categoryId', '==', categoryId),
-          where('status', '==', 'ACTIVE'),
-          where('isActive', '==', true),
-          orderBy('createdAt', 'desc')
+          where('isActive', '==', true)
         );
       }
 
       const snapshot = await getDocs(q);
 
       if (!snapshot.empty) {
-        const games = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
+        const games = snapshot.docs.map(docSnapshot => ({
+          id: docSnapshot.id,
+          ...docSnapshot.data(),
         })) as LotteryGame[];
 
-        // Enrich with category data if needed
-        return await this.enrichGamesWithCategories(games);
+        // Enrich with category data and sponsor information
+        const enrichedGames = await this.enrichGamesWithCategories(games);
+
+        // Sort by creation date (newest first) on client side
+        const sortedGames = enrichedGames.sort(
+          (a, b) => b.createdAt - a.createdAt
+        );
+
+        // Store in cache
+        this.setCache(cacheKey, sortedGames);
+
+        return sortedGames;
       }
 
-      // Fallback to mock games
-      return this.getMockGames(categoryId);
+      // 3. Fallback to mock data ONLY in development
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('No API data available, using mock data for development');
+        return getMockGamesWithCategories(categoryId);
+      }
+
+      return [];
     } catch (error) {
       console.error('Error fetching games from Firebase:', error);
-      return this.getMockGames(categoryId);
+
+      // 3. Fallback to mock data ONLY in development
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('API failed, using mock data for development');
+        return getMockGames(categoryId);
+      }
+
+      return [];
     }
   }
 
-  async getFeaturedGames(limit: number = 6): Promise<LotteryGame[]> {
+  async getFeaturedGames(limitCount: number = 6): Promise<LotteryGame[]> {
+    // 1. Check cache first
+    const cacheKey = `featured_games_${limitCount}`;
+    const cachedData = this.getFromCache(cacheKey);
+
+    if (cachedData && !this.isCacheExpired(cacheKey)) {
+      console.log('Using cached featured games data');
+      return cachedData as LotteryGame[];
+    }
+
     try {
+      // 2. Fetch from API
+      console.log('Fetching featured games from API...');
       const gamesRef = collection(db, 'games');
       const q = query(
         gamesRef,
-        where('status', '==', 'ACTIVE'),
         where('isActive', '==', true),
-        orderBy('currentParticipants', 'desc'),
-        limit(limit)
+        limit(limitCount)
       );
 
       const snapshot = await getDocs(q);
 
       if (!snapshot.empty) {
-        const games = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
+        const games = snapshot.docs.map(docSnapshot => ({
+          id: docSnapshot.id,
+          ...docSnapshot.data(),
         })) as LotteryGame[];
 
-        return await this.enrichGamesWithCategories(games);
+        const enrichedGames = await this.enrichGamesWithCategories(games);
+
+        // Sort by creation date (newest first) on client side
+        const sortedGames = enrichedGames.sort(
+          (a, b) => b.createdAt - a.createdAt
+        );
+
+        // Store in cache
+        this.setCache(cacheKey, sortedGames);
+
+        return sortedGames;
       }
 
-      return this.getMockGames().slice(0, limit);
+      // 3. Fallback to mock data ONLY in development
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('No API data available, using mock data for development');
+        return getMockGamesWithCategories().slice(0, limitCount);
+      }
+
+      return [];
     } catch (error) {
-      console.error('Error fetching featured games:', error);
-      return this.getMockGames().slice(0, limit);
+      console.error('Error fetching featured games from Firebase:', error);
+
+      // 3. Fallback to mock data ONLY in development
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('API failed, using mock data for development');
+        return getMockGames().slice(0, limitCount);
+      }
+
+      return [];
     }
   }
 
@@ -120,239 +253,57 @@ export class GameService {
       const categories = await this.getCategories();
       const categoryMap = new Map(categories.map(cat => [cat.id, cat]));
 
-      return games.map(game => ({
-        ...game,
-        category:
-          categoryMap.get(game.categoryId) ||
-          game.category ||
-          this.getDefaultCategory(),
-      }));
+      // Enrich games with categories and sponsor information
+      const enrichedGames = await Promise.all(
+        games.map(async game => {
+          // Get category data
+          const category =
+            categoryMap.get(game.categoryId) ||
+            game.category ||
+            getDefaultCategory();
+
+          // Get sponsor/company data if createdBy is a VENDOR
+          // Note: createdBy contains the user ID, sponsor contains the full sponsor object
+          let sponsor = undefined;
+          try {
+            if (game.createdBy && game.createdBy !== 'admin') {
+              const userDoc = await getDoc(doc(db, 'users', game.createdBy));
+              if (userDoc.exists()) {
+                const userData = userDoc.data();
+                if (userData.role === 'VENDOR' && userData.businessProfile) {
+                  sponsor = {
+                    id: game.createdBy, // This is the same as createdBy
+                    companyName: userData.businessProfile.companyName,
+                    companyWebsite: userData.businessProfile.companyWebsite,
+                    companyLogo: userData.businessProfile.companyLogoUrl,
+                    description: userData.businessProfile.description,
+                  };
+                }
+              }
+            }
+            // If createdBy is 'admin' or no vendor data found, sponsor remains undefined
+          } catch (error) {
+            console.error(
+              'Error fetching sponsor data for game:',
+              game.id,
+              error
+            );
+            // Continue without sponsor data rather than failing
+          }
+
+          return {
+            ...game,
+            category,
+            sponsor,
+          };
+        })
+      );
+
+      return enrichedGames;
     } catch (error) {
       console.error('Error enriching games with categories:', error);
       return games;
     }
-  }
-
-  private getMockCategories(): GameCategory[] {
-    return [
-      {
-        id: 'tech',
-        name: 'Tech & Phones',
-        description: 'Latest smartphones, tablets, and tech gadgets',
-        icon: '📱',
-        color: '#FF5722',
-        isActive: true,
-        sortOrder: 1,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      },
-      {
-        id: 'fashion',
-        name: 'Fashion & Sneakers',
-        description: 'Designer clothing, shoes, and accessories',
-        icon: '👟',
-        color: '#E91E63',
-        isActive: true,
-        sortOrder: 2,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      },
-      {
-        id: 'home',
-        name: 'Home Appliances',
-        description: 'Kitchen appliances, home decor, and furniture',
-        icon: '🏠',
-        color: '#4CAF50',
-        isActive: true,
-        sortOrder: 3,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      },
-      {
-        id: 'computers',
-        name: 'Computers',
-        description: 'Laptops, PCs, gaming equipment, and accessories',
-        icon: '💻',
-        color: '#2196F3',
-        isActive: true,
-        sortOrder: 4,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      },
-    ];
-  }
-
-  private getMockGames(categoryId?: string): LotteryGame[] {
-    const mockGames: LotteryGame[] = [
-      {
-        id: '1',
-        title: 'iPhone 15 Pro Max 256GB',
-        description:
-          'Latest iPhone 15 Pro Max in Natural Titanium - Brand new, unlocked',
-        type: 'daily',
-        categoryId: 'tech',
-        category: this.getMockCategories()[0],
-        ticketPrice: 25,
-        currency: 'USD',
-        maxParticipants: 400,
-        currentParticipants: 287,
-        totalPrizePool: 10000,
-        prizes: [],
-        rules: [],
-        images: [],
-        startDate: Date.now(),
-        endDate: Date.now() + 5 * 24 * 60 * 60 * 1000,
-        drawDate: Date.now() + 5 * 24 * 60 * 60 * 1000,
-        status: 'ACTIVE',
-        isActive: true,
-        createdBy: 'admin',
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      },
-      {
-        id: '2',
-        title: 'Nike Air Jordan 1 Retro High',
-        description:
-          'Authentic Nike Air Jordan 1 Retro High - Size 9-12 available',
-        type: 'weekly',
-        categoryId: 'fashion',
-        category: this.getMockCategories()[1],
-        ticketPrice: 15,
-        currency: 'USD',
-        maxParticipants: 300,
-        currentParticipants: 189,
-        totalPrizePool: 4500,
-        prizes: [],
-        rules: [],
-        images: [],
-        startDate: Date.now(),
-        endDate: Date.now() + 10 * 24 * 60 * 60 * 1000,
-        drawDate: Date.now() + 10 * 24 * 60 * 60 * 1000,
-        status: 'ACTIVE',
-        isActive: true,
-        createdBy: 'admin',
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      },
-      {
-        id: '3',
-        title: 'KitchenAid Stand Mixer',
-        description:
-          'Professional 6-Qt KitchenAid Stand Mixer with attachments',
-        type: 'weekly',
-        categoryId: 'home',
-        category: this.getMockCategories()[2],
-        ticketPrice: 20,
-        currency: 'USD',
-        maxParticipants: 250,
-        currentParticipants: 164,
-        totalPrizePool: 5000,
-        prizes: [],
-        rules: [],
-        images: [],
-        startDate: Date.now(),
-        endDate: Date.now() + 12 * 24 * 60 * 60 * 1000,
-        drawDate: Date.now() + 12 * 24 * 60 * 60 * 1000,
-        status: 'ACTIVE',
-        isActive: true,
-        createdBy: 'admin',
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      },
-      {
-        id: '4',
-        title: 'MacBook Pro M3 14"',
-        description: 'Latest MacBook Pro 14" with M3 chip, 16GB RAM, 512GB SSD',
-        type: 'monthly',
-        categoryId: 'computers',
-        category: this.getMockCategories()[3],
-        ticketPrice: 45,
-        currency: 'USD',
-        maxParticipants: 200,
-        currentParticipants: 127,
-        totalPrizePool: 9000,
-        prizes: [],
-        rules: [],
-        images: [],
-        startDate: Date.now(),
-        endDate: Date.now() + 20 * 24 * 60 * 60 * 1000,
-        drawDate: Date.now() + 20 * 24 * 60 * 60 * 1000,
-        status: 'ACTIVE',
-        isActive: true,
-        createdBy: 'admin',
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      },
-      {
-        id: '5',
-        title: 'Samsung 65" QLED 4K TV',
-        description: 'Samsung 65" Neo QLED 4K Smart TV with Quantum HDR',
-        type: 'monthly',
-        categoryId: 'tech',
-        category: this.getMockCategories()[0],
-        ticketPrice: 35,
-        currency: 'USD',
-        maxParticipants: 180,
-        currentParticipants: 98,
-        totalPrizePool: 6300,
-        prizes: [],
-        rules: [],
-        images: [],
-        startDate: Date.now(),
-        endDate: Date.now() + 18 * 24 * 60 * 60 * 1000,
-        drawDate: Date.now() + 18 * 24 * 60 * 60 * 1000,
-        status: 'ACTIVE',
-        isActive: true,
-        createdBy: 'admin',
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      },
-      {
-        id: '6',
-        title: 'Dyson V15 Detect Vacuum',
-        description:
-          'Dyson V15 Detect Absolute Cordless Vacuum with laser detection',
-        type: 'weekly',
-        categoryId: 'home',
-        category: this.getMockCategories()[2],
-        ticketPrice: 30,
-        currency: 'USD',
-        maxParticipants: 150,
-        currentParticipants: 89,
-        totalPrizePool: 4500,
-        prizes: [],
-        rules: [],
-        images: [],
-        startDate: Date.now(),
-        endDate: Date.now() + 14 * 24 * 60 * 60 * 1000,
-        drawDate: Date.now() + 14 * 24 * 60 * 60 * 1000,
-        status: 'ACTIVE',
-        isActive: true,
-        createdBy: 'admin',
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      },
-    ];
-
-    if (categoryId && categoryId !== 'all') {
-      return mockGames.filter(game => game.categoryId === categoryId);
-    }
-
-    return mockGames;
-  }
-
-  private getDefaultCategory(): GameCategory {
-    return {
-      id: 'general',
-      name: 'General',
-      description: 'General category',
-      icon: '🎁',
-      color: '#9E9E9E',
-      isActive: true,
-      sortOrder: 999,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
   }
 }
 

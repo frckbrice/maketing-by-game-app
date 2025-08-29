@@ -4,41 +4,10 @@ import { CheckCircle, Clock, Gift, Shield, Trophy } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
 
-// Mock data with AI-generated winner images and product wins
-const mockWinners = [
-  {
-    name: 'NGUYEN SOPHIE',
-    country: 'NGOA EKELE',
-    prize: 'TECH BUNDLE',
-    amount: 'iPhone 15 Pro Max + MacBook Pro',
-    date: 'JUIN 2025',
-    image: 'winner1.png',
-  },
-  {
-    name: 'RIM A RIBAM JENER',
-    country: 'NKOABANG',
-    prize: 'FASHION PACK',
-    amount: 'Nike Air Jordan + Designer Clothes',
-    date: 'JULY 2025',
-    image: 'winner2.png',
-  },
-  {
-    name: 'BELLO',
-    country: 'ETOUDI',
-    prize: 'HOME BUNDLE',
-    amount: 'Smart Appliances Package',
-    date: 'AUGUST 2025',
-    image: 'winner3.png',
-  },
-  {
-    name: 'HENRIETTE NDOU',
-    country: 'ESSOS',
-    prize: 'SNEAKER COLLECTION',
-    amount: 'Nike + Adidas Premium Pack',
-    date: 'AUGUST 2025',
-    image: 'winner4.png',
-  },
-];
+import { HOME_WINNERS } from '@/lib/constants';
+
+// Use centralized mock data
+const mockWinners = HOME_WINNERS;
 
 export const WinnersSection = ({ isDark }: { isDark: boolean }) => {
   const { t, i18n } = useTranslation();

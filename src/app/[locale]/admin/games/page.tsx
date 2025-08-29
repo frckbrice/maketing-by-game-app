@@ -1,7 +1,7 @@
 'use client';
 
-import { AdminLayout } from '@/components/features/admin/AdminLayout';
-import { AdminGamesPage } from '@/components/features/admin/components/AdminGamesPage';
+import { AdminLayout } from '@/components/features/admin/admin-layout';
+import { AdminGamesPage } from '@/components/features/admin/components/admin-game-page';
 
 export default function GamesManagementPage() {
   return (

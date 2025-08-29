@@ -49,7 +49,64 @@
     "switchToDarkTheme": "Passer au thème sombre",
     "redirecting": "Redirection...",
     "goHome": "Aller à l'accueil",
-    "admin": "Administration"
+    "admin": "Administration",
+    "checking": "Vérification..."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "setup": "Configuration des notifications...",
+    "initializing": "Initialisation du système de notifications",
+    "enabled": "Notifications Activées",
+    "enabledDescription": "Vous recevrez des notifications pour les mises à jour importantes",
+    "pushActive": "✅ Notifications push actives",
+    "emailEnabled": "✅ Notifications par email activées",
+    "fcmConfigured": "✅ Token FCM configuré",
+    "setupFailed": "Échec de la Configuration des Notifications",
+    "enableNotifications": "Activer les Notifications",
+    "enableDescription": "Recevez des notifications pour les mises à jour importantes, résultats de jeux, et plus",
+    "pushNotifications": "🔔 Notifications Push : Recevez des mises à jour instantanées dans votre navigateur",
+    "emailNotifications": "📧 Notifications par Email : Recevez des mises à jour détaillées par email",
+    "personalized": "🎯 Personnalisées : Seulement les notifications pertinentes pour vous",
+    "requestingPermission": "Demande d'Autorisation...",
+    "enableNotificationsButton": "Activer les Notifications",
+    "changeLater": "Vous pourrez modifier cela plus tard dans les paramètres de votre navigateur",
+    "tryAgain": "Réessayer"
+  },
+  "emails": {
+    "vendorApproved": {
+      "subject": "🎉 Demande de Vendeur Approuvée !",
+      "title": "🎉 Félicitations !",
+      "subtitle": "Votre demande de vendeur a été approuvée !",
+      "mainTitle": "Demande de Vendeur Approuvée",
+      "description": "Excellente nouvelle ! Votre demande de vendeur pour {companyName} a été approuvée.",
+      "whatsNext": "Et Maintenant ?",
+      "nextSteps": [
+        "Accédez à votre tableau de bord vendeur",
+        "Créez et gérez des jeux de loterie",
+        "Suivez vos gains et analyses",
+        "Gérez votre profil d'entreprise"
+      ],
+      "goToDashboard": "Aller au Tableau de Bord",
+      "supportMessage": "Si vous avez des questions, contactez notre équipe de support.",
+      "footer": "© 2024 Application de Loterie. Tous droits réservés."
+    },
+    "vendorRejected": {
+      "subject": "Mise à Jour de la Demande de Vendeur",
+      "title": "Mise à Jour de la Demande",
+      "subtitle": "Le statut de votre demande de vendeur a été mis à jour",
+      "mainTitle": "Statut de la Demande de Vendeur",
+      "description": "Votre demande de vendeur pour {companyName} n'a pas été approuvée pour le moment.",
+      "rejectionReason": "Raison du Rejet :",
+      "nextSteps": [
+        "Examinez les commentaires fournis",
+        "Traitez les problèmes mentionnés",
+        "Soumettez une nouvelle demande quand vous êtes prêt",
+        "Contactez le support si vous avez besoin de clarifications"
+      ],
+      "submitNewApplication": "Soumettre une Nouvelle Demande",
+      "encouragement": "Nous vous encourageons à faire une nouvelle demande une fois que vous aurez traité les commentaires.",
+      "footer": "© 2024 Application de Loterie. Tous droits réservés."
+    }
   },
   "navigation": {
     "home": "Accueil",
@@ -143,6 +200,27 @@
       "active": "Actif",
       "drawing": "Tirage",
       "closed": "Fermé"
+    },
+    "gameCard": {
+      "sponsored": "SPONSORISÉ",
+      "new": "NOUVEAU",
+      "hot": "🔥 CHAUD",
+      "fillingFast": "SE REMPLIT RAPIDEMENT",
+      "ticketPrice": "Prix du Billet",
+      "timeLeft": "Temps Restant",
+      "participants": "Participants",
+      "sponsoredBy": "Sponsorisé par",
+      "expired": "Expiré",
+      "full": "Complet",
+      "playNow": "Jouer Maintenant",
+      "lotteryGame": "Jeu de loterie",
+      "ticketsSold": "de billets vendus",
+      "visitWebsite": "Visiter le site web de {company}",
+      "playGame": "Jouer au jeu de loterie {title}",
+      "viewDetails": "Voir les Détails",
+      "description": "Description",
+      "type": "Type",
+      "category": "Catégorie"
     }
   },
   "LocaleSwitcher": {
@@ -358,177 +436,105 @@
       }
     }
   },
-  "common": {
-    "appName": "App de Loterie",
-    "email": "Email",
-    "phone": "Téléphone",
-    "password": "Mot de passe",
-    "name": "Nom",
-    "role": "Rôle",
-    "login": "Connexion",
-    "register": "S'inscrire",
-    "logout": "Déconnexion",
-    "welcome": "Bienvenue",
-    "games": "Jeux",
-    "howItWorks": "Comment ça marche",
-    "winners": "Gagnants",
-    "dashboard": "Tableau de bord",
-    "switchToLightTheme": "Passer au thème clair",
-    "switchToDarkTheme": "Passer au thème sombre"
+
+  "winners": {
+    "title": "🏆 Nos Gagnants",
+    "subtitle": "Célébrons les joueurs chanceux qui ont transformé leurs billets en prix incroyables",
+    "totalWinners": "Total des Gagnants",
+    "totalPrizes": "Total des Prix",
+    "gamesWon": "Jeux Gagnés",
+    "cities": "Villes",
+    "periods": {
+      "allTime": "Tout le Temps",
+      "thisMonth": "Ce Mois",
+      "thisWeek": "Cette Semaine",
+      "today": "Aujourd'hui"
+    },
+    "winner": "GAGNANT",
+    "game": "Jeu",
+    "category": "Catégorie",
+    "ticket": "Billet",
+    "won": "Gagné",
+    "viewDetails": "Voir les Détails",
+    "noWinnersFound": "Aucun gagnant trouvé pour cette période",
+    "checkBackLater": "Revenez plus tard pour de nouveaux gagnants !",
+    "productDetails": "Détails du Produit",
+    "winnerInfo": "Informations du Gagnant",
+    "gameDetails": "Détails du Jeu",
+    "sponsorInfo": "Sponsorisé par",
+    "close": "Fermer",
+    "learnMore": "En Savoir Plus",
+    "visitWebsite": "Visiter le Site Web"
   },
-  "navigation": {
-    "home": "Accueil",
-    "games": "Jeux",
-    "dashboard": "Tableau de bord",
-    "profile": "Profil"
-  },
-  "home": {
-    "hero": {
-      "title": "Gagnez Vos Produits de Rêve",
-      "subtitle": "Rejoignez des milliers de gagnants qui ont transformé leur vie avec des jackpots qui changent la vie",
-      "cta": "Commencer à Jouer",
-      "secondaryCta": "Créer un Compte",
-      "badge": "JEUX DE L'ANNEE 2024, CAMEROUN"
-    },
-    "howItWorks": {
-      "title": "Comment ça marche",
-      "subtitle": "Étapes simples pour commencer à gagner",
-      "step1": {
-        "title": "Choisissez Votre Jeu",
-        "description": "Sélectionnez parmi notre variété de jeux de loterie avec différents pools de prix"
-      },
-      "step2": {
-        "title": "Achetez des Billets",
-        "description": "Achetez des billets pour votre jeu choisi à des prix abordables"
-      },
-      "step3": {
-        "title": "Attendez les Résultats",
-        "description": "Regardez le tirage en direct et voyez si vous êtes le gagnant chanceux"
-      }
-    },
-    "winners": {
-      "title": "Gagnants Récents",
-      "subtitle": "Voyez qui gagne gros avec nos jeux de loterie",
-      "jackpotLabel": "GAGNANT DU JACKPOT",
-      "trustedByPlayers": "Fait confiance par des milliers de joueurs dans le monde",
-      "whyChooseUs": "Pourquoi les joueurs nous choisissent"
-    },
-    "stats": {
-      "title": "Nos Chiffres de Succès",
-      "subtitle": "Statistiques réelles de notre plateforme",
-      "totalWinners": "Total des Gagnants",
-      "totalPrizes": "Total des Prix Décernés",
-      "activeGames": "Jeux Actifs",
-      "productsWon": "Produits Gagnés",
-      "prizeValue": "Valeur des Prix",
-      "deliveryRate": "Taux de Livraison"
-    },
-    "cta": {
-      "title": "Prêt à Commencer à Gagner ?",
-      "subtitle": "Rejoignez des milliers de joueurs qui ont déjà gagné gros",
-      "button": "Commencer Maintenant"
-    }
-  },
-  "auth": {
-    "login": {
-      "title": "Bon Retour",
-      "subtitle": "Connectez-vous à votre compte pour continuer à jouer",
-      "email": "Adresse Email",
-      "password": "Mot de passe",
-      "submit": "Se Connecter",
-      "noAccount": "Vous n'avez pas de compte ?",
-      "signUp": "S'inscrire",
-      "forgotPassword": "Mot de passe oublié ?",
-      "backToHome": "← Retour à l'Accueil"
-    },
-    "register": {
-      "title": "Créer un Compte",
-      "subtitle": "Rejoignez notre communauté de loterie et commencez à gagner",
-      "email": "Adresse Email",
-      "password": "Mot de passe",
-      "confirmPassword": "Confirmer le Mot de passe",
-      "firstName": "Prénom",
-      "lastName": "Nom de Famille",
-      "phoneNumber": "Numéro de Téléphone",
-      "acceptTerms": "J'accepte les termes et conditions",
-      "submit": "Créer un Compte",
-      "hasAccount": "Vous avez déjà un compte ?",
-      "signIn": "Se connecter",
-      "backToHome": "← Retour à l'Accueil"
-    },
-    "forgotPassword": {
-      "title": "Réinitialiser le mot de passe",
-      "subtitle": "Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
-      "email": "Adresse e-mail",
-      "submit": "Envoyer le lien de réinitialisation",
-      "backToLogin": "← Retour à la connexion",
-      "checkEmail": "Vérifiez votre e-mail",
-      "emailSent": "Nous avons envoyé un lien de réinitialisation du mot de passe à",
-      "emailInstructions": "Cliquez sur le lien dans l'e-mail pour réinitialiser votre mot de passe. Le lien expirera dans 1 heure.",
-      "backToLoginButton": "Retour à la connexion"
-    }
-  },
-  "games": {
-    "title": "Jeux de Loterie",
-    "subtitle": "Choisissez parmi notre sélection passionnante de jeux de loterie",
-    "searchPlaceholder": "Rechercher des jeux...",
-    "noGamesFound": "Aucun jeu trouvé",
-    "tryDifferentSearch": "Essayez d'ajuster votre recherche ou vos filtres",
-    "categories": {
-      "all": "Toutes les Catégories",
-      "jackpot": "Jackpot",
-      "daily": "Quotidien",
-      "weekly": "Hebdomadaire"
-    },
-    "ticketPrice": "Prix du Billet",
-    "participants": "Participants",
-    "endDate": "Date de Fin",
-    "progress": "Progression",
-    "joinGame": "Rejoindre le Jeu"
-  },
-  "dashboard": {
-    "welcome": "Bienvenue",
-    "manageYourAccount": "Gérez votre compte et suivez vos activités de loterie",
-    "playerWelcome": "Bienvenue sur votre tableau de bord joueur ! Parcourez et rejoignez des jeux de loterie passionnants.",
-    "vendorWelcome": "Gérez vos jeux de loterie et suivez les performances. Créez de nouveaux jeux et surveillez les résultats.",
-    "adminWelcome": "Administration complète du système. Gérez les utilisateurs, les jeux et les paramètres de la plateforme.",
-    "accessDenied": "Accès Refusé",
-    "pleaseLogin": "Veuillez vous connecter pour accéder à votre tableau de bord",
-    "profile": "Profil",
-    "quickActions": "Actions Rapides",
-    "stats": "Statistiques",
-    "playGames": "Jouer aux Jeux",
-    "browseGames": "Parcourir les Jeux",
-    "createGame": "Créer un Jeu",
-    "manageGames": "Gérer les Jeux",
-    "adminPanel": "Panneau d'Administration",
-    "manageUsers": "Gérer les Utilisateurs",
-    "viewHistory": "Voir l'Historique",
-    "settings": "Paramètres",
-    "gamesPlayed": "Jeux Joués",
-    "wins": "Victoires",
-    "totalWinnings": "Gains Totaux"
+  "featureCard": {
+    "learnMore": "En Savoir Plus",
+    "getStarted": "Commencer",
+    "explore": "Explorer"
   },
   "profile": {
-    "accessDenied": "Accès Refusé",
-    "pleaseLogin": "Veuillez vous connecter pour accéder à votre profil",
-    "totalTickets": "Total des Billets",
-    "totalSpent": "Total Dépensé",
-    "totalWinnings": "Gains Totaux",
-    "gamesPlayed": "Jeux Joués",
+    "title": "Mon Profil",
+    "welcome": "Bon retour",
+    "personalInfo": "Informations Personnelles",
+    "accountStats": "Statistiques du Compte",
     "gameHistory": "Historique des Jeux",
-    "gameHistoryDescription": "Voir tous vos billets de loterie et résultats de jeux",
-    "noTickets": "Aucun billet trouvé. Commencez à jouer pour voir votre historique ici !",
-    "game": "Jeu",
+    "ticketHistory": "Historique des Billets",
+    "editProfile": "Modifier le Profil",
+    "changePassword": "Changer le Mot de Passe",
+    "logout": "Se Déconnecter",
+    "backToHome": "Retour à l'Accueil",
+    "totalTickets": "Total des Billets",
+    "activeGames": "Jeux Actifs",
+    "totalWinnings": "Total des Gains",
+    "memberSince": "Membre Depuis",
+    "lastLogin": "Dernière Connexion",
+    "email": "Email",
+    "phone": "Téléphone",
+    "address": "Adresse",
+    "city": "Ville",
+    "country": "Pays",
+    "saveChanges": "Sauvegarder",
+    "cancel": "Annuler",
+    "loading": "Chargement...",
+    "noTickets": "Aucun billet trouvé",
+    "noGames": "Aucun jeu trouvé",
+    "viewDetails": "Voir les Détails",
+    "gameName": "Nom du Jeu",
     "ticketNumber": "Numéro de Billet",
     "purchaseDate": "Date d'Achat",
-    "price": "Prix",
     "status": "Statut",
+    "prize": "Prix",
+    "active": "Actif",
+    "expired": "Expiré",
+    "won": "Gagné",
+    "pending": "En Attente",
+    "totalSpent": "Total Dépensé",
+    "gamesPlayed": "Jeux Joués",
+    "gameHistoryDescription": "Suivez votre participation aux jeux de loterie et vos résultats",
+    "game": "Jeu",
+    "price": "Prix",
     "result": "Résultat",
+    "unknownGame": "Jeu Inconnu",
     "winner": "Gagnant",
     "notWinner": "Pas Gagnant",
-    "unknownGame": "Jeu Inconnu",
     "showing": "Affichage",
-    "of": "sur"
+    "of": "sur",
+    "accessDenied": "Accès Refusé",
+    "pleaseLogin": "Veuillez vous connecter pour accéder à votre profil"
+  },
+
+  "vendor": {
+    "becomeAVendor": "Devenir Vendeur",
+    "applicationPending": "EN ATTENTE",
+    "applicationUnderReview": "Votre candidature est en cours d'examen",
+    "accessVendorDashboard": "Accéder au Tableau de Bord Vendeur",
+    "reapplyAsVendor": "Candidater à nouveau comme Vendeur",
+    "dashboard": "Tableau de Bord Vendeur",
+    "welcomeMessage": "Bienvenue sur votre tableau de bord vendeur",
+    "myGames": "Mes Jeux",
+    "createGame": "Créer un Jeu",
+    "applications": "Candidatures",
+    "analytics": "Analyses",
+    "earnings": "Revenus",
+    "profile": "Profil Vendeur"
   }
 }

@@ -4,6 +4,7 @@ import { LocaleSwitcherCompact } from '@/components/ui/LocaleSwitcher';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { Gift, Menu, X } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -20,8 +21,9 @@ export function MobileNavigation({
   setMobileMenuOpen,
   onThemeToggle,
 }: MobileNavigationProps) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { t } = useTranslation();
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -42,9 +44,12 @@ export function MobileNavigation({
           : `${isDark ? 'bg-transparent' : 'bg-transparent'}`
       }`}
     >
-      <div className='flex items-center justify-between px-4 py-3'>
-        <div className='flex items-center space-x-2'>
-          <div className='w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center'>
+      <div className='flex items-center justify-between px-6 py-3'>
+        <div
+          onClick={() => router.push('/')}
+          className='flex items-center space-x-3 cursor-pointer group'
+        >
+          <div className='w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105'>
             <Gift className='w-5 h-5 text-white' />
           </div>
           <span
@@ -69,7 +74,7 @@ export function MobileNavigation({
           {/* Theme Toggle Button */}
           <button
             onClick={onThemeToggle}
-            className={`p-2 rounded-full shadow-lg hover:scale-105 transition-all duration-300 ${
+            className={`p-3 rounded-full shadow-lg hover:scale-105 transition-all duration-300 text-lg ${
               isScrolled
                 ? isDark
                   ? 'bg-gray-800/80 text-yellow-400 hover:bg-gray-700/80'
@@ -91,7 +96,7 @@ export function MobileNavigation({
           <button
             type='button'
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={`p-2 rounded-lg transition-all duration-300 ${
+            className={`p-3 rounded-xl transition-all duration-300 ${
               isScrolled
                 ? isDark
                   ? 'text-slate-300 hover:bg-gray-800/80 hover:text-white'
@@ -103,9 +108,9 @@ export function MobileNavigation({
             aria-label={t('common.close')}
           >
             {mobileMenuOpen ? (
-              <X className='w-6 h-6' />
+              <X className='w-7 h-7' />
             ) : (
-              <Menu className='w-6 h-6' />
+              <Menu className='w-7 h-7' />
             )}
           </button>
         </div>
@@ -135,7 +140,12 @@ export function MobileNavigation({
             >
               {t('common.games')}
             </Link>
-            {user ? (
+            {loading ? (
+              // Loading state - show skeleton to prevent layout shift
+              <div className='space-y-3'>
+                <div className='h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse'></div>
+              </div>
+            ) : user ? (
               <>
                 <Link
                   href='/dashboard'
