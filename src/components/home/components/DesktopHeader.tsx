@@ -1,7 +1,10 @@
+'use client';
 import { LocaleSwitcher } from '@/components/ui/LocaleSwitcher';
+import { UserProfileDropdown } from '@/components/ui/UserProfileDropdown';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -11,17 +14,18 @@ export interface DesktopHeaderProps {
 }
 
 export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { t } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 10);
+      setIsScrolled(window.scrollY > 10);
     };
-
-    window.addEventListener('scroll', handleScroll);
+    // Initialize on mount in case the page is already scrolled
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -33,22 +37,25 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
           : `${isDark ? 'bg-transparent' : 'bg-transparent'}`
       }`}
     >
-      <div className='max-w-7xl mx-auto px-4 lg:px-8'>
-        <div className='flex items-center justify-between h-16'>
+      <div className='max-w-7xl mx-auto px-6 lg:px-8'>
+        <div className='flex items-center justify-between h-16 py-2'>
           {/* Logo */}
-          <div className='flex items-center space-x-2'>
-            <div className='w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center'>
-              {/* <Gift className='w-5 h-5 text-white' /> */}
+          <div
+            onClick={() => router.push('/')}
+            className='flex items-center space-x-3 cursor-pointer group'
+          >
+            <div className='w-16 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105'>
               <Image
                 src='/en/icons/lottery_logo.jpeg'
-                alt='logo'
-                width={100}
-                height={100}
-                className='rounded-lg w-full h-full object-contain'
+                alt='Lottery App Logo'
+                width={64}
+                height={64}
+                className='rounded-2xl w-full h-full object-cover'
+                priority
               />
             </div>
             <span
-              className={`font-bold text-xl transition-colors duration-300 ${
+              className={`font-bold text-2xl transition-colors duration-300 group-hover:text-orange-500 ${
                 isScrolled
                   ? isDark
                     ? 'text-white'
@@ -66,7 +73,7 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
           <nav className='flex items-center space-x-8'>
             <Link
               href='/games'
-              className={`text-sm font-medium transition-all duration-300 ${
+              className={`text-base font-semibold transition-all duration-300 hover:scale-105 ${
                 isScrolled
                   ? isDark
                     ? 'text-slate-300 hover:text-white'
@@ -79,8 +86,8 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
               {t('common.games')}
             </Link>
             <Link
-              href='#how-it-works'
-              className={`text-sm font-medium transition-all duration-300 ${
+              href='/#how-it-works'
+              className={`text-base font-semibold transition-all duration-300 hover:scale-105 ${
                 isScrolled
                   ? isDark
                     ? 'text-slate-300 hover:text-white'
@@ -93,8 +100,8 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
               {t('common.howItWorks')}
             </Link>
             <Link
-              href='#winners'
-              className={`text-sm font-medium transition-all duration-300 ${
+              href='/winners'
+              className={`text-base font-semibold transition-all duration-300 hover:scale-105 ${
                 isScrolled
                   ? isDark
                     ? 'text-slate-300 hover:text-white'
@@ -116,7 +123,7 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
             {/* Theme Toggle Button */}
             <button
               onClick={onThemeToggle}
-              className={`p-2 rounded-full shadow-lg hover:scale-105 transition-all duration-300 ${
+              className={`p-3 rounded-full shadow-lg hover:scale-105 transition-all duration-300 text-xl ${
                 isScrolled
                   ? isDark
                     ? 'bg-gray-800/80 text-yellow-400 hover:bg-gray-700/80'
@@ -135,24 +142,19 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
             </button>
 
             {/* Auth Buttons */}
-            {user ? (
-              <Link
-                href='/dashboard'
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                  isScrolled
-                    ? 'bg-orange-500 text-white hover:bg-orange-600'
-                    : isDark
-                      ? 'bg-orange-500/80 text-white hover:bg-orange-600/80'
-                      : 'bg-orange-500/80 text-white hover:bg-orange-600/80'
-                } backdrop-blur-sm`}
-              >
-                {t('common.dashboard')}
-              </Link>
+            {loading ? (
+              // Loading state - show skeleton to prevent layout shift
+              <div className='flex items-center space-x-3'>
+                <div className='w-16 h-9 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse'></div>
+                <div className='w-20 h-9 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse'></div>
+              </div>
+            ) : user ? (
+              <UserProfileDropdown />
             ) : (
               <div className='flex items-center space-x-3'>
                 <Link
                   href='/auth/login'
-                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                  className={`px-6 py-3 rounded-xl font-semibold text-base transition-all duration-300 hover:scale-105 ${
                     isScrolled
                       ? isDark
                         ? 'text-slate-300 hover:text-white'
@@ -166,7 +168,7 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
                 </Link>
                 <Link
                   href='/auth/register'
-                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                  className={`px-6 py-3 rounded-xl font-semibold text-base transition-all duration-300 hover:scale-105 ${
                     isScrolled
                       ? 'bg-orange-500 text-white hover:bg-orange-600'
                       : isDark

@@ -1,47 +1,17 @@
 // WinnersSection.jsx
-import { Button } from '@/components/globals/Button';
+import { Button } from '@/components/ui/Button';
 import { CheckCircle, Clock, Gift, Shield, Trophy } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
 
-// Mock data with AI-generated winner images and product wins
-const mockWinners = [
-  {
-    name: 'NGUYEN SOPHIE',
-    country: 'NGOA EKELE',
-    prize: 'TECH BUNDLE',
-    amount: 'iPhone 15 Pro Max + MacBook Pro',
-    date: 'JUIN 2025',
-    image: 'winner1.png',
-  },
-  {
-    name: 'RIM A RIBAM JENER',
-    country: 'NKOABANG',
-    prize: 'FASHION PACK',
-    amount: 'Nike Air Jordan + Designer Clothes',
-    date: 'JULY 2025',
-    image: 'winner2.png',
-  },
-  {
-    name: 'BELLO',
-    country: 'ETOUDI',
-    prize: 'HOME BUNDLE',
-    amount: 'Smart Appliances Package',
-    date: 'AUGUST 2025',
-    image: 'winner3.png',
-  },
-  {
-    name: 'HENRIETTE NDOU',
-    country: 'ESSOS',
-    prize: 'SNEAKER COLLECTION',
-    amount: 'Nike + Adidas Premium Pack',
-    date: 'AUGUST 2025',
-    image: 'winner4.png',
-  },
-];
+import { HOME_WINNERS } from '@/lib/constants';
+
+// Use centralized mock data
+const mockWinners = HOME_WINNERS;
 
 export const WinnersSection = ({ isDark }: { isDark: boolean }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language;
   const features = [
     {
       icon: Shield,
@@ -85,7 +55,7 @@ export const WinnersSection = ({ isDark }: { isDark: boolean }) => {
                       {/* Bottom Label */}
                       <div className='absolute bottom-8 left-1/2 transform -translate-x-1/2 w-24 h-8 bg-orange-500 rounded-lg flex items-center justify-center shadow-lg'>
                         <span className='text-white font-bold text-sm tracking-wide'>
-                          JACKPOT
+                          {t('home.winners.jackpotLabel')}
                         </span>
                       </div>
 
@@ -120,7 +90,7 @@ export const WinnersSection = ({ isDark }: { isDark: boolean }) => {
                 {/* Trust Badge */}
                 <div className='absolute bottom-4 left-4 bg-black/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-gray-700/50 shadow-lg'>
                   <div className='text-orange-400 font-bold text-sm'>
-                    TRUSTED BY PLAYERS
+                    {t('home.winners.trustedByPlayers')}
                   </div>
                   <div className='text-gray-500 text-xs'>Since 2020</div>
                 </div>
@@ -129,7 +99,7 @@ export const WinnersSection = ({ isDark }: { isDark: boolean }) => {
               {/* Features List */}
               <div className='space-y-8'>
                 <div className='inline-block px-4 py-2 rounded-full border border-orange-500/30 text-orange-400 text-sm font-semibold mb-6 bg-orange-500/5'>
-                  [ WHY CHOOSE US ]
+                  {t('home.winners.whyChooseUs')}
                 </div>
 
                 <h3 className='text-3xl lg:text-4xl font-bold text-white mb-8'>
@@ -187,7 +157,7 @@ export const WinnersSection = ({ isDark }: { isDark: boolean }) => {
                         <Image
                           width={64}
                           height={64}
-                          src={`/images/${winner.image}`}
+                          src={`/${locale}/images/${winner.image}`}
                           alt={winner.name}
                           className='w-full h-full object-cover'
                         />
@@ -257,7 +227,7 @@ export const WinnersSection = ({ isDark }: { isDark: boolean }) => {
                       {/* Bottom Label */}
                       <div className='absolute bottom-8 left-1/2 transform -translate-x-1/2 w-24 h-8 bg-orange-500 rounded-lg flex items-center justify-center shadow-lg'>
                         <span className='text-white font-bold text-sm tracking-wide'>
-                          JACKPOT
+                          {t('home.winners.jackpotLabel')}
                         </span>
                       </div>
 
@@ -292,7 +262,7 @@ export const WinnersSection = ({ isDark }: { isDark: boolean }) => {
                 {/* Trust Badge */}
                 <div className='absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-orange-200/50 shadow-lg'>
                   <div className='text-orange-600 font-bold text-sm'>
-                    TRUSTED BY PLAYERS
+                    {t('home.winners.trustedByPlayers')}
                   </div>
                   <div className='text-gray-600 text-xs'>Since 2020</div>
                 </div>
@@ -301,7 +271,7 @@ export const WinnersSection = ({ isDark }: { isDark: boolean }) => {
               {/* Features List */}
               <div className='space-y-8'>
                 <div className='inline-block px-4 py-2 rounded-full border border-orange-300/50 text-orange-600 text-sm font-semibold mb-6 bg-orange-100/30'>
-                  [ WHY CHOOSE US ]
+                  {t('home.winners.whyChooseUs')}
                 </div>
 
                 <h3 className='text-3xl lg:text-4xl font-bold text-gray-900 mb-8'>
@@ -382,7 +352,7 @@ export const WinnersSection = ({ isDark }: { isDark: boolean }) => {
                           {winner.amount}
                         </div>
                         <div className='text-gray-500 text-xs'>
-                          Won in {winner.date}
+                          {t('home.winners.wonIn')} {winner.date}
                         </div>
                       </div>
 

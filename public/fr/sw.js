@@ -162,44 +162,50 @@ define(['./workbox-f1770938'], function (e) {
           url: '/_next/static/media/e4af272ccee01ff0-s.p.woff2',
           revision: '65850a373e258f1c897a2b3d75eb74de',
         },
-        { url: '/favicon.ico', revision: '13146f9bfafc3426cdc978bbf7598fc6' },
         {
-          url: '/icons/apple-touch-icon.png',
-          revision: 'd41d8cd98f00b204e9800998ecf8427e',
-        },
-        {
-          url: '/icons/favicon-16x16.png',
-          revision: 'd41d8cd98f00b204e9800998ecf8427e',
-        },
-        {
-          url: '/icons/icon.svg',
-          revision: '2d4bee9d64da3349208db199f64ae15c',
-        },
-        {
-          url: '/icons/lottery_logo.jpeg',
+          url: '/fr/favicon.ico',
           revision: '13146f9bfafc3426cdc978bbf7598fc6',
         },
         {
-          url: '/images/lottory_1.jpg',
+          url: '/fr/icons/apple-touch-icon.png',
+          revision: 'd41d8cd98f00b204e9800998ecf8427e',
+        },
+        {
+          url: '/fr/icons/favicon-16x16.png',
+          revision: 'd41d8cd98f00b204e9800998ecf8427e',
+        },
+        {
+          url: '/fr/icons/icon.svg',
+          revision: '2d4bee9d64da3349208db199f64ae15c',
+        },
+        {
+          url: '/fr/icons/lottery_logo.jpeg',
+          revision: '13146f9bfafc3426cdc978bbf7598fc6',
+        },
+        {
+          url: '/fr/images/lottery_1.jpg',
           revision: 'ac6a0d129f611424f2403b304624ca00',
         },
         {
-          url: '/images/winner_1.png',
+          url: '/fr/images/winner_1.png',
           revision: '736d79de072f65e53baea61d6ca9670c',
         },
         {
-          url: '/images/winner_2.png',
+          url: '/fr/images/winner_2.png',
           revision: 'afe0b7748a408945a574be2b12659dfe',
         },
         {
-          url: '/images/winner_3.png',
+          url: '/fr/images/winner_3.png',
           revision: 'c28139c49727dae419e2b8f90c7907c8',
         },
         {
-          url: '/images/winner_4.png',
+          url: '/fr/images/winner_4.png',
           revision: '9cefc4833c4a6baeb714743c1a6fa519',
         },
-        { url: '/manifest.json', revision: '44219d6b6453c29e4326adb00e5c202e' },
+        {
+          url: '/fr/manifest.json',
+          revision: '44219d6b6453c29e4326adb00e5c202e',
+        },
       ],
       { ignoreURLParametersMatching: [/^utm_/, /^fbclid$/] }
     ),

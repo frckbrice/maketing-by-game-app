@@ -7,6 +7,7 @@ import {
   BarChart3,
   DollarSign,
   Gamepad2,
+  LucideIcon,
   Plus,
   Settings,
   Target,
@@ -588,7 +589,16 @@ export const MOCK_WINNERS = [
   },
 ];
 
-export const STEPS = (isDark: boolean) => [
+// --- add immediately above the STEPS export ---
+type Step = {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  color: string;
+};
+
+// step displayed on homepage.
+export const STEPS = (isDark: boolean): readonly Step[] => [
   {
     icon: Target,
     title: isDark ? 'Pick & Play' : 'Choose Numbers',
@@ -615,7 +625,7 @@ export const STEPS = (isDark: boolean) => [
   },
   {
     icon: Trophy,
-    title: isDark ? 'Bills Delivered' : 'Claim Prizes',
+    title: isDark ? 'Prizes Delivered' : 'Claim Prizes',
     description: isDark
       ? 'Instant payouts directly to your account when you win'
       : 'Claim your winnings instantly and securely',
@@ -628,3 +638,9 @@ export const PRIZES = [
   { name: 'Daily Bonus', amount: '$100,000', emoji: '💰' },
   { name: 'Weekly Prize', amount: '$1,000,000', emoji: '🏆' },
 ];
+
+// =============================================================================
+// MOCK DATA EXPORTS
+// =============================================================================
+
+export * from './mockData';

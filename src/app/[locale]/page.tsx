@@ -1,4 +1,4 @@
-import { HomePageClient } from './HomePageClient';
+import { HomePageClient } from '../../components/ui/HomePageClient';
 
 export async function generateStaticParams() {
   return [{ locale: 'en' }, { locale: 'fr' }];

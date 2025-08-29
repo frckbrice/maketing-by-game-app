@@ -10,19 +10,63 @@ echo ""
 # Check if required tools are installed
 check_requirements() {
     echo "Checking requirements..."
-    
-    if ! command -v vercel &> /dev/null; then
-        echo "❌ Vercel CLI not found. Installing..."
-        npm install -g vercel
+    if ! command -v node &>/dev/null; then
+        echo "❌ Node.js not found. Install from https://nodejs.org"
+        exit 1
+    fi
+    if ! command -v npm &>/dev/null; then
+        echo "❌ npm not found. Install Node.js which includes npm"
+        exit 1
+    fi
+    if ! command -v vercel &>/dev/null; then
+        if command -v npx &>/dev/null; then
+            echo " Vercel CLI not found. Using npx vercel@latest when needed."
+            VERCEL_BIN="npx -y vercel@latest"
+        else
+            echo "❌ Neither Vercel CLI nor npx found. Install Vercel CLI or ensure npx is available."
+            exit 1
+        fi
     else
         echo "✅ Vercel CLI found"
+        VERCEL_BIN="vercel"
     fi
-    
-    if ! command -v gh &> /dev/null; then
+    if ! command -v gh &>/dev/null; then
         echo "❌ GitHub CLI not found. Please install from: https://cli.github.com/"
         exit 1
     else
         echo "✅ GitHub CLI found"
+    fi
+    if ! command -v jq &>/dev/null; then
+        echo "❌ jq not found. Please install: https://stedolan.github.io/jq/"
+        exit 1
+    else
+        echo "✅ jq found"
+    fi
+    if [ -n "${USE_NPM_BUILD:-}" ]; then
+           if [ -n "${SKIP_DOCKER_TEST:-}" ]; then
+            echo "Skipping Docker build test (docker not available)."
+        else
+            echo "Testing Docker build..."
+            docker build -t lotteryapp:test .
+            if [ $? -eq 0 ]; then
+                echo "✅ Docker build successful"
+                echo "Cleaning up test image..."
+                docker rmi lotteryapp:test
+            else
+                echo "❌ Docker build failed"
+            fi
+        fi
+        echo "Skipping Docker build test (docker not available)."
+    else
+        echo "Testing Docker build..."
+        docker build -t lotteryapp:test .
+        if [ $? -eq 0 ]; then
+            echo "✅ Docker build successful"
+            echo "Cleaning up test image..."
+            docker rmi lotteryapp:test
+        else
+            echo "❌ Docker build failed"
+        fi
     fi
 }
 
@@ -47,9 +91,13 @@ get_project_info() {
     echo " Getting project information..."
     
     if [ -f ".vercel/project.json" ]; then
-        ORG_ID=$(cat .vercel/project.json | grep -o '"orgId":"[^"]*"' | cut -d'"' -f4)
-        PROJECT_ID=$(cat .vercel/project.json | grep -o '"projectId":"[^"]*"' | cut -d'"' -f4)
-        
+        ORG_ID=$(jq -r '.orgId // empty' .vercel/project.json)
+        PROJECT_ID=$(jq -r '.projectId // empty' .vercel/project.json)
+        if [ -z "${ORG_ID:-}" ] || [ -z "${PROJECT_ID:-}" ]; then
+            echo "❌ Could not read orgId/projectId from .vercel/project.json"
+            exit 1
+        fi
+
         echo "Organization ID: $ORG_ID"
         echo "Project ID: $PROJECT_ID"
         
@@ -93,13 +141,27 @@ setup_github_secrets() {
         
         echo "✅ GitHub secrets configured"
         echo ""
-        echo "⚠️  IMPORTANT: You still need to manually set:"
+        echo "⚠️  IMPORTANT: You still need to set private repo secrets (no NEXT_PUBLIC_):"
         echo "   - VERCEL_TOKEN (from Vercel dashboard)"
-        echo "   - NEXT_PUBLIC_DOCKER_USERNAME (your Docker username)"
-        echo "   - NEXT_PUBLIC_DOCKER_PASSWORD (your Docker password)"
+        echo "   - DOCKERHUB_USERNAME (your Docker Hub username)"
+        echo "   - DOCKERHUB_TOKEN (a Docker Hub access token)"
         echo ""
         echo "You can set these in GitHub repository settings:"
         echo "https://github.com/$REPO/settings/secrets/actions"
+        
+        # Optional: auto-wire secrets if present in the environment
+        if [ -n "${VERCEL_TOKEN:-}" ]; then
+          echo "Setting VERCEL_TOKEN from current env..."
+          gh secret set VERCEL_TOKEN --body "$VERCEL_TOKEN" --repo "$REPO"
+        fi
+        if [ -n "${DOCKERHUB_USERNAME:-}" ]; then
+          echo "Setting DOCKERHUB_USERNAME from current env..."
+          gh secret set DOCKERHUB_USERNAME --body "$DOCKERHUB_USERNAME" --repo "$REPO"
+        fi
+        if [ -n "${DOCKERHUB_TOKEN:-}" ]; then
+          echo "Setting DOCKERHUB_TOKEN from current env..."
+          gh secret set DOCKERHUB_TOKEN --body "$DOCKERHUB_TOKEN" --repo "$REPO"
+        fi
     else
         echo "❌ .env.vercel not found. Run get_project_info first."
         exit 1
@@ -154,3 +216,4 @@ main() {
 
 # Run main function
 main "$@"
+

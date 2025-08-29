@@ -1,10 +1,8 @@
 # Lottery App Project Roadmap
 
-## 🎯 Project Overview
+## Project Overview
 
 Transform the lottery application into a production-ready, internationalized, themed application with proper feature organization, testing, and deployment workflow.
-
-## 🚀 Current Status: Phase 1 Complete ✅
 
 ### What Has Been Accomplished
 
@@ -13,7 +11,7 @@ Transform the lottery application into a production-ready, internationalized, th
 - Cleaned up public/ folder (removed unused SVG files)
 - Created new organized folder structure
 - Set up proper directory hierarchy for features
-- Standardized package manager (pnpm) for better performance
+- Standardized on pnpm for better performance. Temporarily using Yarn due to a pnpm issue causing installs to fail (packages not installing). We’ll revert to pnpm once resolved.
 
 #### 2. **Internationalization (i18n) Setup** ✅
 
@@ -65,7 +63,7 @@ Transform the lottery application into a production-ready, internationalized, th
 - Added image optimization settings
 - Updated ESLint configuration for modern flat config
 
-## 📁 Current Folder Structure
+## Current Folder Structure
 
 ```
 src/
@@ -93,7 +91,7 @@ src/
 └── tests/                # Test files (ready for Phase 4)
 ```
 
-## 🎨 Theme System Features
+## Theme System Features ✅
 
 - **CSS Variables**: Dynamic theming with CSS custom properties
 - **Dark/Light Modes**: Automatic theme switching with system preference detection
@@ -102,7 +100,7 @@ src/
 - **Responsive**: Mobile-first design with responsive utilities
 - **Consistent Experience**: Both themes provide equal functionality and content
 
-## 🌍 Internationalization Features
+## Internationalization Features ✅
 
 - **Multi-language Support**: English and French
 - **Dynamic Routing**: Locale-based URL structure (`/en/dashboard`, `/fr/dashboard`)
@@ -111,7 +109,7 @@ src/
 - **Performance**: Efficient message loading and caching
 - **Complete Coverage**: All home page sections fully translated
 
-## 📱 UI Components & User Experience
+## UI Components & User Experience ✅
 
 - **Modern Design**: shadcn/ui components with custom lottery styling
 - **Responsive Layout**: Mobile-first design with responsive utilities
@@ -120,18 +118,18 @@ src/
 - **Consistent Theming**: Both light and dark modes provide equal experience
 - **Component Reusability**: Modular architecture for easy maintenance
 
-## 🔧 Technical Improvements
+## Technical Improvements ✅
 
 - **Build System**: Optimized Next.js configuration
 - **Code Quality**: ESLint, Prettier, and TypeScript configuration
 - **Performance**: Core Web Vitals monitoring and optimization
 - **Security**: Content Security Policy and security headers
 - **PWA**: Service worker and manifest configuration
-- **Image Optimization**: WebP/AVIF support with responsive images
+- **Image Optimization**: WebP/AVIF/png/jpeg support with responsive images
 
-## 🚧 Next Phases (Phase 2+)
+## Next Phases (Phase 2+)
 
-### Phase 2: Component Restructuring
+### Phase 2: Component Restructuring ✅
 
 - [ ] Move existing components to feature folders
 - [ ] Create reusable UI components
@@ -145,14 +143,14 @@ src/
 - [ ] Restructure authentication components
 - [ ] Update routing to use server components
 
-### Phase 4: Testing & Quality
+### Phase 4: Testing & Quality ✅
 
 - [ ] Create test files for important pages
 - [ ] Set up testing framework
 - [ ] Write component tests
 - [ ] Write integration tests
 
-### Phase 5: Deployment & CI/CD
+### Phase 5: Deployment & CI/CD ✅
 
 - [ ] Create Vercel deployment workflow
 - [ ] Set up environment variables
@@ -161,13 +159,14 @@ src/
 
 ### Phase 6: Version Control
 
-- [ ] Initialize Git repository
-- [ ] Set up GitHub CLI
-- [ ] Configure pre-commit hooks
+- [ ] Establish branching strategy (e.g., trunk-based or Git Flow)
+- [ ] Add PR/issue templates and CODEOWNERS
+- [ ] Enforce Conventional Commits + automated releases (Changesets/Semantic Release)
+- [ ] Enable required status checks and branch protections
 
 ## 📊 Performance Metrics
 
-- **Core Web Vitals**: LCP, FID, and CLS monitoring
+- **Core Web Vitals**: LCP, INP, and CLS monitoring
 - **Bundle Optimization**: Code splitting and tree shaking
 - **Image Optimization**: WebP/AVIF/png/jpeg support with responsive images
 - **Caching**: Service worker and HTTP caching strategies
@@ -194,5 +193,6 @@ src/
 
 ---
 
-_Last Updated: January 2025_
+_Last Updated: August 2025_
+author: Avom brice.
 _Status: Phase 1 Complete - Ready for Phase 2_
