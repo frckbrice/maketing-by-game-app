@@ -27,6 +27,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import {
@@ -77,6 +78,7 @@ interface Product {
 
 export function CreateGamePage() {
   const { user, loading } = useAuth();
+  const { t } = useTranslation();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
@@ -239,7 +241,7 @@ export function CreateGamePage() {
       <div className='lg:hidden'>
         <div className='bg-lottery-800/50 backdrop-blur-sm border-b border-lottery-700/30 p-4'>
           <div className='flex items-center justify-between'>
-            <h1 className='text-xl font-bold text-white'>Create Game</h1>
+            <h1 className='text-xl font-bold text-white'>{t('admin.createGame')}</h1>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className='text-lottery-300 hover:text-white transition-colors'
@@ -647,7 +649,7 @@ export function CreateGamePage() {
                 disabled={createGameMutation.isPending}
                 className='w-full py-3 bg-gradient-to-r from-lottery-500 to-lottery-600 hover:from-lottery-600 hover:to-lottery-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl'
               >
-                {createGameMutation.isPending ? 'Creating Game...' : 'Create Game'}
+                {createGameMutation.isPending ? t('admin.creatingGame') : t('admin.createGame')}
               </Button>
             </div>
           </form>

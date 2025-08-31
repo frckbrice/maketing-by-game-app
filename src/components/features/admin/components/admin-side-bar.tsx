@@ -1,95 +1,24 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/lib/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import {
-  BarChart3,
-  Bell,
-  FileText,
-  Gamepad2,
   Home,
   LogOut,
-  Settings,
-  Shield,
-  ShoppingBag,
-  Users,
   Menu,
-  X,
-  TrendingUp,
-  Calendar,
-  DollarSign,
-  Tag,
-  Building2,
+  Shield,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { useAuth } from '@/lib/contexts/AuthContext';
+import { DEFAULT_NAV_ITEMS } from '../api/data';
+import { AdminSidebarProps } from '../api/type';
 
-interface AdminSidebarProps {
-  className?: string;
-}
 
-interface NavItem {
-  title: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  badge?: string;
-  children?: NavItem[];
-}
 
-const navigation: NavItem[] = [
-  {
-    title: 'Dashboard',
-    href: '/admin',
-    icon: BarChart3,
-  },
-  {
-    title: 'Games',
-    href: '/admin/games',
-    icon: Gamepad2,
-    children: [
-      { title: 'All Games', href: '/admin/games', icon: Gamepad2 },
-      { title: 'Create Game', href: '/admin/create-game', icon: Gamepad2 },
-      { title: 'Categories', href: '/admin/categories', icon: Tag },
-    ],
-  },
-  {
-    title: 'Users',
-    href: '/admin/users',
-    icon: Users,
-    children: [
-      { title: 'All Users', href: '/admin/users', icon: Users },
-      { title: 'Vendors', href: '/admin/vendors', icon: ShoppingBag },
-      { title: 'Admins', href: '/admin/admins', icon: Shield },
-    ],
-  },
-  {
-    title: 'Vendor Applications',
-    href: '/admin/vendor-applications',
-    icon: Building2,
-  },
-  {
-    title: 'Analytics',
-    href: '/admin/analytics',
-    icon: TrendingUp,
-    children: [
-      { title: 'Overview', href: '/admin/analytics', icon: TrendingUp },
-      { title: 'Revenue', href: '/admin/analytics/revenue', icon: DollarSign },
-      { title: 'User Behavior', href: '/admin/analytics/users', icon: Users },
-    ],
-  },
-  {
-    title: 'Reports',
-    href: '/admin/reports',
-    icon: FileText,
-  },
-  {
-    title: 'Settings',
-    href: '/admin/settings',
-    icon: Settings,
-  },
-];
+
 
 export function AdminSidebar({ className }: AdminSidebarProps) {
   const pathname = usePathname();
@@ -137,7 +66,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
 
       {/* Navigation */}
       <nav className='flex-1 p-4 space-y-2 overflow-y-auto'>
-        {navigation.map(item => (
+        {DEFAULT_NAV_ITEMS.map(item => (
           <div key={item.title}>
             {item.children ? (
               <div>

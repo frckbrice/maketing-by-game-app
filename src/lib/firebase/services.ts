@@ -358,7 +358,7 @@ export const authService = {
 
   async sendPhoneVerificationCode(phoneNumber: string): Promise<void> {
     // For now, we'll simulate phone verification
-    // In production, you'd integrate with a service like Twilio or Firebase Phone Auth
+    //TODO:  In production, you'd integrate with a service like Twilio or Firebase Phone Auth
     console.log(`Sending verification code to ${phoneNumber}`);
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -366,7 +366,7 @@ export const authService = {
 
   async verifyPhoneCode(phoneNumber: string, code: string): Promise<void> {
     // For now, we'll simulate phone verification
-    // In production, you'd verify the code with your phone service
+    //TODO:  In production, you'd verify the code with your phone service
     console.log(`Verifying code ${code} for ${phoneNumber}`);
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -431,14 +431,31 @@ export const firestoreService = {
 
   // Category operations
   async getCategories(): Promise<GameCategory[]> {
-    const querySnapshot = await getDocs(
-      query(
-        collection(db, 'categories'),
-        where('isActive', '==', true),
-        orderBy('order', 'asc')
-      )
-    );
-    return mapFirestoreDocs<GameCategory>(querySnapshot);
+    try {
+      const querySnapshot = await getDocs(
+        query(
+          collection(db, 'categories'),
+          orderBy('sortOrder', 'asc')
+        )
+      );
+      const categories = mapFirestoreDocs<GameCategory>(querySnapshot);
+      
+      // Get games count for each category
+      const gamesSnapshot = await getDocs(collection(db, 'games'));
+      const games = mapFirestoreDocs<any>(gamesSnapshot);
+      
+      // Add games count to each category
+      const categoriesWithGamesCount = categories.map(category => ({
+        ...category,
+        gamesCount: games.filter(game => game.categoryId === category.id).length
+      }));
+      
+      return categoriesWithGamesCount;
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      // Return empty array instead of throwing to prevent breaking UI
+      return [];
+    }
   },
 
   async createCategory(category: Omit<GameCategory, 'id'>): Promise<string> {
@@ -735,6 +752,157 @@ export const firestoreService = {
     } catch (error) {
       handleFirestoreError(error, 'creating notification');
       throw error; // Re-throw after handling
+    }
+  },
+
+  async getNotifications(): Promise<any[]> {
+    try {
+      const querySnapshot = await getDocs(
+        query(
+          collection(db, 'notifications'),
+          orderBy('createdAt', 'desc')
+        )
+      );
+      return mapFirestoreDocs<any>(querySnapshot);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      return [];
+    }
+  },
+
+  async updateNotification(id: string, updates: any): Promise<void> {
+    try {
+      await updateDoc(doc(db, 'notifications', id), {
+        ...updates,
+        updatedAt: createTimestamp(),
+      });
+    } catch (error) {
+      console.error('Error updating notification:', error);
+      throw error;
+    }
+  },
+
+  async deleteNotification(id: string): Promise<void> {
+    try {
+      await deleteDoc(doc(db, 'notifications', id));
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      throw error;
+    }
+  },
+
+  // Admin statistics methods
+  async getAllTickets(): Promise<LotteryTicket[]> {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'tickets'));
+      return mapFirestoreDocs<LotteryTicket>(querySnapshot);
+    } catch (error) {
+      console.warn('Error fetching all tickets:', error);
+      return [];
+    }
+  },
+
+  async getAllPayments(): Promise<Payment[]> {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'payments'));
+      return mapFirestoreDocs<Payment>(querySnapshot);
+    } catch (error) {
+      console.warn('Error fetching all payments:', error);
+      return [];
+    }
+  },
+
+  // App Settings management
+  async getAppSettings(): Promise<any> {
+    try {
+      const settingsDoc = await getDoc(doc(db, 'settings', 'app'));
+      if (settingsDoc.exists()) {
+        return settingsDoc.data();
+      } else {
+        // Return default settings if none exist
+        const defaultSettings = {
+          general: {
+            siteName: 'Lottery App',
+            siteDescription: 'Win big with our exciting lottery games',
+            contactEmail: 'admin@lotteryapp.com',
+            supportPhone: '+1234567890',
+            maintenanceMode: false,
+            allowRegistration: true,
+            emailVerificationRequired: true,
+          },
+          game: {
+            defaultTicketPrice: 5,
+            maxTicketsPerUser: 100,
+            drawTimeHour: 20,
+            drawTimeMinute: 0,
+            maxGameDuration: 30,
+            minGameDuration: 1,
+            autoDrawEnabled: true,
+          },
+          payment: {
+            enabledMethods: ['nokash', 'card'],
+            minimumDeposit: 10,
+            maximumDeposit: 1000,
+            transactionFee: 0.05,
+            baseCurrency: 'USD',
+            enableCurrencyExchange: true,
+          },
+          notification: {
+            emailNotifications: true,
+            pushNotifications: true,
+            smsNotifications: false,
+            marketingEmails: false,
+            winnerNotifications: true,
+            gameReminders: true,
+          },
+          security: {
+            maxLoginAttempts: 5,
+            accountLockoutDuration: 300,
+            passwordMinLength: 8,
+            requireUppercase: true,
+            requireNumbers: true,
+            requireSpecialChars: false,
+            sessionTimeout: 1800,
+            twoFactorAuth: false,
+          },
+          appearance: {
+            primaryColor: '#FF5722',
+            secondaryColor: '#FF9800',
+            darkMode: true,
+            customCss: '',
+            logoUrl: '',
+            faviconUrl: '',
+          },
+          analytics: {
+            googleAnalyticsId: '',
+            enableAnalytics: true,
+            trackUserBehavior: true,
+            enableHeatmaps: false,
+            dataRetentionDays: 365,
+          },
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+        
+        // Save default settings to database
+        await setDoc(doc(db, 'settings', 'app'), defaultSettings);
+        return defaultSettings;
+      }
+    } catch (error) {
+      console.error('Error fetching app settings:', error);
+      throw error;
+    }
+  },
+
+  async updateAppSettings(settings: any): Promise<void> {
+    try {
+      await setDoc(doc(db, 'settings', 'app'), {
+        ...settings,
+        updatedAt: Date.now(),
+      }, { merge: true });
+    } catch (error) {
+      console.error('Error updating app settings:', error);
+      throw error;
     }
   },
 };

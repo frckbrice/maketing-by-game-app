@@ -252,7 +252,7 @@ class AdminService {
       let q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
 
       if (options.search) {
-        // Simple search implementation - in production, use Algolia or similar
+        //TODO:  Simple search implementation - in production, use Algolia or similar
         q = query(
           q,
           where('firstName', '>=', options.search),

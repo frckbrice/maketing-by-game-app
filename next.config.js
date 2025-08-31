@@ -203,26 +203,40 @@ const nextConfig = {
                         enforce: true,
                         priority: 5,
                     },
-                    // Separate large libraries
+                    // Separate React and React DOM
                     react: {
                         test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
                         name: "react",
                         chunks: "all",
-                        priority: 20,
+                        priority: 30,
+                    },
+                    // Separate Firebase (large library)
+                    firebase: {
+                        test: /[\\/]node_modules[\\/](firebase|@firebase)[\\/]/,
+                        name: "firebase",
+                        chunks: "all",
+                        priority: 25,
                     },
                     // Separate UI libraries
                     ui: {
                         test: /[\\/]node_modules[\\/](@radix-ui|lucide-react|react-icons)[\\/]/,
                         name: "ui",
                         chunks: "all",
-                        priority: 15,
+                        priority: 20,
+                    },
+                    // Charts and data viz
+                    charts: {
+                        test: /[\\/]node_modules[\\/](recharts|d3)[\\/]/,
+                        name: "charts",
+                        chunks: "all",
+                        priority: 18,
                     },
                     // Separate utility libraries
                     utils: {
-                        test: /[\\/]node_modules[\\/](lodash|date-fns|clsx)[\\/]/,
+                        test: /[\\/]node_modules[\\/](lodash|date-fns|clsx|zod)[\\/]/,
                         name: "utils",
                         chunks: "all",
-                        priority: 12,
+                        priority: 15,
                     },
                 },
             };
@@ -242,12 +256,8 @@ const nextConfig = {
             config.optimization.minimize = true;
         }
 
-        // Add compression for better performance
-        config.plugins.push(
-            new webpack.optimize.LimitChunkCountPlugin({
-                maxChunks: 1,
-            }),
-        );
+        // Remove the LimitChunkCountPlugin that was hurting performance
+        // Better to let Next.js handle chunk optimization automatically
 
         // Optimize for production
         if (!dev) {

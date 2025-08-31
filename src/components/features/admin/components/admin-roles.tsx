@@ -14,8 +14,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { useRoles, useVendors, useAdminUsers } from '../api/queries';
+import { useCreateRole, useUpdateRole, useDeleteRole } from '../api/mutations';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { firestoreService } from '@/lib/firebase/services';
 import {
   Crown,
   Edit2,
@@ -31,98 +32,42 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { DEFAULT_PERMISSIONS } from '../api/data';
+import { Permission, Role } from '../api/type';
 
-interface Role {
-  id: string;
-  name: string;
-  displayName: string;
-  description: string;
-  permissions: string[];
-  isSystem: boolean;
-  isActive: boolean;
-  userCount: number;
-  createdAt: number;
-  updatedAt: number;
-  createdBy: string;
-}
 
-interface Permission {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-}
 
-const DEFAULT_PERMISSIONS: Permission[] = [
-  // User Management
-  { id: 'users.read', name: 'View Users', description: 'View user profiles and lists', category: 'User Management' },
-  { id: 'users.create', name: 'Create Users', description: 'Create new user accounts', category: 'User Management' },
-  { id: 'users.update', name: 'Update Users', description: 'Edit user profiles and settings', category: 'User Management' },
-  { id: 'users.delete', name: 'Delete Users', description: 'Delete or deactivate user accounts', category: 'User Management' },
-  { id: 'users.ban', name: 'Ban Users', description: 'Ban or suspend user accounts', category: 'User Management' },
-  
-  // Game Management
-  { id: 'games.read', name: 'View Games', description: 'View game details and lists', category: 'Game Management' },
-  { id: 'games.create', name: 'Create Games', description: 'Create new lottery games', category: 'Game Management' },
-  { id: 'games.update', name: 'Update Games', description: 'Edit game settings and details', category: 'Game Management' },
-  { id: 'games.delete', name: 'Delete Games', description: 'Delete or archive games', category: 'Game Management' },
-  { id: 'games.publish', name: 'Publish Games', description: 'Publish games and make them active', category: 'Game Management' },
-  { id: 'games.moderate', name: 'Moderate Games', description: 'Approve or reject vendor games', category: 'Game Management' },
-  
-  // Financial
-  { id: 'payments.read', name: 'View Payments', description: 'View payment transactions', category: 'Financial' },
-  { id: 'payments.refund', name: 'Process Refunds', description: 'Issue refunds and adjustments', category: 'Financial' },
-  { id: 'reports.financial', name: 'Financial Reports', description: 'Access financial reports and analytics', category: 'Financial' },
-  
-  // Content Management
-  { id: 'categories.manage', name: 'Manage Categories', description: 'Create and edit game categories', category: 'Content Management' },
-  { id: 'winners.manage', name: 'Manage Winners', description: 'Manage winner announcements', category: 'Content Management' },
-  { id: 'notifications.send', name: 'Send Notifications', description: 'Send system notifications', category: 'Content Management' },
-  
-  // System Administration
-  { id: 'settings.read', name: 'View Settings', description: 'View system settings', category: 'System Administration' },
-  { id: 'settings.update', name: 'Update Settings', description: 'Modify system configuration', category: 'System Administration' },
-  { id: 'roles.manage', name: 'Manage Roles', description: 'Create and edit user roles', category: 'System Administration' },
-  { id: 'analytics.read', name: 'View Analytics', description: 'Access system analytics and reports', category: 'System Administration' },
-];
-
-const SYSTEM_ROLES = [
-  {
-    id: 'USER',
-    name: 'USER',
-    displayName: 'User',
-    description: 'Standard user with basic permissions',
-    permissions: ['games.read'],
-    isSystem: true,
-    isActive: true,
-  },
-  {
-    id: 'VENDOR',
-    name: 'VENDOR', 
-    displayName: 'Vendor',
-    description: 'Vendor with game creation permissions',
-    permissions: ['games.read', 'games.create', 'games.update'],
-    isSystem: true,
-    isActive: true,
-  },
-  {
-    id: 'ADMIN',
-    name: 'ADMIN',
-    displayName: 'Administrator',
-    description: 'Full administrative access',
-    permissions: DEFAULT_PERMISSIONS.map(p => p.id),
-    isSystem: true,
-    isActive: true,
-  },
-];
 
 export function AdminRolesPage() {
   const { t } = useTranslation();
   const { user, loading } = useAuth();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [loadingRoles, setLoadingRoles] = useState(true);
+  // TanStack Query hooks for real data
+  const { data: roles = [], isLoading: loadingRoles, error } = useRoles();
+  const { data: vendors = [] } = useVendors();
+  const { data: admins = [] } = useAdminUsers();
+  
+  // Mutation hooks
+  const createRole = useCreateRole();
+  const updateRole = useUpdateRole();
+  const deleteRole = useDeleteRole();
+
+  // Calculate user counts for roles
+  const rolesWithStats = roles.map(role => {
+    let userCount = 0;
+    switch (role.name) {
+      case 'VENDOR':
+        userCount = vendors.length;
+        break;
+      case 'ADMIN':
+        userCount = admins.length;
+        break;
+      default:
+        userCount = role.userCount || 0;
+    }
+    return { ...role, userCount };
+  });
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -147,31 +92,6 @@ export function AdminRolesPage() {
     }
   }, [user, loading, router]);
 
-  useEffect(() => {
-    if (user?.role === 'ADMIN') {
-      loadRoles();
-    }
-  }, [user]);
-
-  const loadRoles = async () => {
-    try {
-      setLoadingRoles(true);
-      // For now, use system roles with user counts
-      const mockRoles: Role[] = SYSTEM_ROLES.map(role => ({
-        ...role,
-        userCount: role.name === 'USER' ? 1250 : role.name === 'VENDOR' ? 45 : 3,
-        createdAt: Date.now() - 86400000,
-        updatedAt: Date.now(),
-        createdBy: 'system',
-      }));
-      setRoles(mockRoles);
-    } catch (error) {
-      console.error('Error loading roles:', error);
-      toast.error('Failed to load roles');
-    } finally {
-      setLoadingRoles(false);
-    }
-  };
 
   const handleCreate = async () => {
     if (!formData.name.trim() || !formData.displayName.trim()) {
@@ -194,11 +114,17 @@ export function AdminRolesPage() {
         updatedAt: Date.now(),
       };
 
-      // In a real implementation, this would save to Firestore
-      toast.success('Role created successfully');
-      loadRoles();
-      setShowCreateModal(false);
-      resetForm();
+      createRole.mutate(newRole, {
+        onSuccess: () => {
+          toast.success('Role created successfully');
+          setShowCreateModal(false);
+          resetForm();
+        },
+        onError: (error: any) => {
+          console.error('Error creating role:', error);
+          toast.error('Failed to create role');
+        }
+      });
     } catch (error) {
       console.error('Error creating role:', error);
       toast.error('Failed to create role');
@@ -229,11 +155,17 @@ export function AdminRolesPage() {
         updatedAt: Date.now(),
       };
 
-      // In a real implementation, this would update in Firestore
-      toast.success('Role updated successfully');
-      loadRoles();
-      setShowEditModal(false);
-      setSelectedRole(null);
+      updateRole.mutate({ id: selectedRole.id, ...updatedRole }, {
+        onSuccess: () => {
+          toast.success('Role updated successfully');
+          setShowEditModal(false);
+          setSelectedRole(null);
+        },
+        onError: (error: any) => {
+          console.error('Error updating role:', error);
+          toast.error('Failed to update role');
+        }
+      });
     } catch (error) {
       console.error('Error updating role:', error);
       toast.error('Failed to update role');
@@ -243,7 +175,7 @@ export function AdminRolesPage() {
   };
 
   const handleDelete = async (roleId: string) => {
-    const role = roles.find(r => r.id === roleId);
+    const role = rolesWithStats.find(r => r.id === roleId);
     if (!role) return;
 
     if (role.isSystem) {
@@ -262,9 +194,15 @@ export function AdminRolesPage() {
 
     try {
       setProcessingAction(roleId);
-      // In a real implementation, this would delete from Firestore
-      toast.success('Role deleted successfully');
-      loadRoles();
+      deleteRole.mutate(roleId, {
+        onSuccess: () => {
+          toast.success('Role deleted successfully');
+        },
+        onError: (error: any) => {
+          console.error('Error deleting role:', error);
+          toast.error('Failed to delete role');
+        }
+      });
     } catch (error) {
       console.error('Error deleting role:', error);
       toast.error('Failed to delete role');
@@ -281,9 +219,18 @@ export function AdminRolesPage() {
 
     try {
       setProcessingAction(role.id);
-      // In a real implementation, this would update in Firestore
-      toast.success(`Role ${!role.isActive ? 'activated' : 'deactivated'} successfully`);
-      loadRoles();
+      updateRole.mutate({ 
+        id: role.id, 
+        isActive: !role.isActive 
+      }, {
+        onSuccess: () => {
+          toast.success(`Role ${!role.isActive ? 'activated' : 'deactivated'} successfully`);
+        },
+        onError: (error: any) => {
+          console.error('Error toggling role status:', error);
+          toast.error('Failed to update role status');
+        }
+      });
     } catch (error) {
       console.error('Error toggling role status:', error);
       toast.error('Failed to update role status');
@@ -338,12 +285,26 @@ export function AdminRolesPage() {
     return null;
   }
 
-  if (loading || !user || user.role !== 'ADMIN') {
+  if (loading || loadingRoles || !user || user.role !== 'ADMIN') {
     return (
       <div className='min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center'>
         <div className='text-center'>
           <div className='animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mx-auto mb-4'></div>
           <p className='text-gray-600 dark:text-gray-300'>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className='min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center'>
+        <div className='text-center'>
+          <h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-2'>Error Loading Roles</h2>
+          <p className='text-gray-600 dark:text-gray-400 mb-4'>Please try refreshing the page</p>
+          <Button onClick={() => window.location.reload()} variant='outline'>
+            Refresh
+          </Button>
         </div>
       </div>
     );
@@ -481,34 +442,34 @@ export function AdminRolesPage() {
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6'>
             <Card className='p-4 text-center'>
               <div className='text-2xl font-bold text-gray-900 dark:text-white'>
-                {roles.length}
+                {rolesWithStats.length}
               </div>
               <div className='text-sm text-gray-600 dark:text-gray-400'>
-                Total Roles
+                {t('admin.totalRoles', 'Total Roles')}
               </div>
             </Card>
             <Card className='p-4 text-center'>
               <div className='text-2xl font-bold text-green-600'>
-                {roles.filter(role => role.isActive).length}
+                {rolesWithStats.filter(role => role.isActive).length}
               </div>
               <div className='text-sm text-gray-600 dark:text-gray-400'>
-                Active Roles
+                {t('admin.activeRoles', 'Active Roles')}
               </div>
             </Card>
             <Card className='p-4 text-center'>
               <div className='text-2xl font-bold text-blue-600'>
-                {roles.filter(role => role.isSystem).length}
+                {rolesWithStats.filter(role => role.isSystem).length}
               </div>
               <div className='text-sm text-gray-600 dark:text-gray-400'>
-                System Roles
+                {t('admin.systemRoles', 'System Roles')}
               </div>
             </Card>
             <Card className='p-4 text-center'>
               <div className='text-2xl font-bold text-orange-600'>
-                {roles.reduce((sum, role) => sum + role.userCount, 0)}
+                {rolesWithStats.reduce((sum, role) => sum + role.userCount, 0)}
               </div>
               <div className='text-sm text-gray-600 dark:text-gray-400'>
-                Total Users
+                {t('admin.totalUsers', 'Total Users')}
               </div>
             </Card>
           </div>
@@ -520,7 +481,7 @@ export function AdminRolesPage() {
             <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4'></div>
             <p className='text-gray-600 dark:text-gray-400'>Loading roles...</p>
           </div>
-        ) : roles.length === 0 ? (
+        ) : rolesWithStats.length === 0 ? (
           <Card className='p-8 text-center'>
             <Shield className='w-16 h-16 text-gray-400 mx-auto mb-4' />
             <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-2'>
@@ -536,7 +497,7 @@ export function AdminRolesPage() {
           </Card>
         ) : (
           <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6'>
-            {roles.map((role) => (
+            {rolesWithStats.map((role) => (
               <Card key={role.id} className='p-6 relative'>
                 <div className='flex items-start justify-between mb-4'>
                   <div className='flex items-center space-x-3'>

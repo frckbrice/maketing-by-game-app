@@ -13,7 +13,7 @@ import {
   Zap,
 } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GameDetailModal } from './GameDetailModal';
 import { PaymentModal } from './PaymentModal';
@@ -28,16 +28,22 @@ interface GameCardProps {
   };
 }
 
-export function GameCard({
+export const GameCard = React.memo<GameCardProps>(function GameCard({
   game,
   isSponsored = false,
   companyInfo,
-}: GameCardProps) {
+}) {
   const { t } = useTranslation();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<string>('');
   const [mounted, setMounted] = useState(false);
+
+  // Memoized handlers to prevent unnecessary re-renders
+  const handleOpenPaymentModal = useCallback(() => setShowPaymentModal(true), []);
+  const handleClosePaymentModal = useCallback(() => setShowPaymentModal(false), []);
+  const handleOpenDetailModal = useCallback(() => setShowDetailModal(true), []);
+  const handleCloseDetailModal = useCallback(() => setShowDetailModal(false), []);
 
   useEffect(() => {
     setMounted(true);
@@ -74,22 +80,25 @@ export function GameCard({
     const timer = setInterval(updateTimer, 60000); // Update every minute
 
     return () => clearInterval(timer);
-  }, [game.endDate, mounted]);
+  }, [game.endDate, mounted, t]);
 
-  const progress =
-    game.maxParticipants > 0
-      ? Math.min(
-          100,
-          Math.max(0, (game.currentParticipants / game.maxParticipants) * 100)
-        )
+  const gameStats = useMemo(() => {
+    const progress = game.maxParticipants > 0
+      ? Math.min(100, Math.max(0, (game.currentParticipants / game.maxParticipants) * 100))
       : 0;
 
-  const isHotGame = progress > 75;
-  const isAlmostFull = progress > 90;
-  const isNew = Date.now() - game.createdAt < 24 * 60 * 60 * 1000; // Less than 24 hours old
+    return {
+      progress,
+      isHotGame: progress > 75,
+      isAlmostFull: progress > 90,
+      isNew: Date.now() - game.createdAt < 24 * 60 * 60 * 1000,
+    };
+  }, [game.currentParticipants, game.maxParticipants, game.createdAt]);
 
-  // Ensure game has required properties with fallbacks
-  const safeCategory = game.category || {
+  const { progress, isHotGame, isAlmostFull, isNew } = gameStats;
+
+  // Memoize safe category to prevent recreation on every render
+  const safeCategory = useMemo(() => game.category || {
     id: 'general',
     name: 'General',
     description: 'General category',
@@ -99,16 +108,22 @@ export function GameCard({
     sortOrder: 999,
     createdAt: Date.now(),
     updatedAt: Date.now(),
-  };
+  }, [game.category]);
 
   if (!mounted) {
     return (
-      <div className='bg-white dark:bg-gray-800 rounded-lg sm:rounded-2xl border border-gray-200 dark:border-gray-700 animate-pulse'>
-        <div className='h-40 sm:h-48 bg-gray-200 dark:bg-gray-700 rounded-t-lg sm:rounded-t-2xl' />
-        <div className='p-4 sm:p-6 space-y-3'>
-          <div className='h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4' />
-          <div className='h-3 bg-gray-200 dark:bg-gray-700 rounded w-full' />
-          <div className='h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3' />
+      <div className='bg-white dark:bg-gray-800 rounded-lg sm:rounded-2xl border border-gray-200 dark:border-gray-700 animate-pulse h-[520px] sm:h-[540px] flex flex-col'>
+        <div className='h-40 sm:h-48 bg-gray-200 dark:bg-gray-700 rounded-t-lg sm:rounded-t-2xl flex-shrink-0' />
+        <div className='p-4 sm:p-6 space-y-3 flex-1 flex flex-col justify-between'>
+          <div className='space-y-3'>
+            <div className='h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4' />
+            <div className='h-3 bg-gray-200 dark:bg-gray-700 rounded w-full' />
+            <div className='h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3' />
+          </div>
+          <div className='space-y-2'>
+            <div className='h-8 bg-gray-200 dark:bg-gray-700 rounded w-full' />
+            <div className='h-10 bg-gray-200 dark:bg-gray-700 rounded w-full' />
+          </div>
         </div>
       </div>
     );
@@ -117,7 +132,7 @@ export function GameCard({
   return (
     <>
       <article
-        className={`group relative bg-white dark:bg-gray-800 rounded-lg sm:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border ${
+        className={`group relative bg-white dark:bg-gray-800 rounded-lg sm:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border h-[520px] sm:h-[540px] flex flex-col ${
           isSponsored
             ? 'border-yellow-300 dark:border-yellow-500 shadow-yellow-100 dark:shadow-yellow-900/20'
             : 'border-gray-200 dark:border-gray-700'
@@ -180,10 +195,17 @@ export function GameCard({
             </div>
           )}
 
-          {/* Hover overlay */}
+          {/* Hover overlay with tooltip */}
           <div className='absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center'>
-            <div className='bg-white/90 dark:bg-gray-800/90 rounded-full p-2 sm:p-3'>
+            <div className='relative bg-white/90 dark:bg-gray-800/90 rounded-full p-2 sm:p-3 group/tooltip'>
               <Eye className='w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300' />
+              {/* Tooltip */}
+              <div className='absolute -top-10 left-1/2 transform -translate-x-1/2 opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none'>
+                <div className='bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-medium px-2 py-1 rounded whitespace-nowrap'>
+                  {t('games.gameCard.viewDetails')}
+                  <div className='absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-100'></div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -203,15 +225,21 @@ export function GameCard({
         </div>
 
         {/* Card Content */}
-        <div className='p-4 sm:p-6'>
-          {/* Title and Description */}
-          <div className='mb-3 sm:mb-4'>
-            <h3 className='text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1 sm:mb-2 line-clamp-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors leading-tight'>
+        <div className='p-4 sm:p-6 flex flex-col h-[calc(100%-10rem)] sm:h-[calc(100%-12rem)]'>
+          {/* Title - Fixed height to ensure uniformity */}
+          <div className='mb-3 sm:mb-4 flex-shrink-0'>
+            <h3 
+              className='text-base sm:text-lg font-bold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors leading-tight h-12 sm:h-14 overflow-hidden'
+              title={game.title}
+              style={{ 
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                lineHeight: '1.5rem'
+              }}
+            >
               {game.title}
             </h3>
-            <p className='text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed'>
-              {game.description}
-            </p>
           </div>
 
           {/* Game Stats Grid */}
@@ -310,9 +338,9 @@ export function GameCard({
           )}
 
           {/* Action Buttons */}
-          <div className='space-y-3'>
+          <div className='space-y-3 mt-auto flex-shrink-0'>
             {/* View Details Button */}
-            <button
+            {/* <button
               onClick={() => setShowDetailModal(true)}
               className='w-full py-2 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-center space-x-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500'
               aria-label={t('games.gameCard.viewDetails', {
@@ -321,7 +349,7 @@ export function GameCard({
             >
               <Eye className='w-4 h-4' />
               <span>{t('games.gameCard.viewDetails')}</span>
-            </button>
+            </button> */}
 
             {/* Play Button */}
             <button
@@ -367,4 +395,4 @@ export function GameCard({
       />
     </>
   );
-}
+});

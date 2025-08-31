@@ -27,10 +27,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useDeleteGame, useGames, useUpdateGame } from '@/hooks/useApi';
 import { currencyService } from '@/lib/api/currencyService';
-import { useGames, useUpdateGame, useDeleteGame } from '@/hooks/useApi';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import type { LotteryGame, PaginatedResponse } from '@/types';
+import type { LotteryGame } from '@/types';
 import {
   ArrowLeft,
   Calendar,
@@ -51,16 +51,18 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 export function AdminGamesPage() {
   const { user, loading } = useAuth();
+  const { t } = useTranslation();
   const router = useRouter();
   
   // State variables
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   
@@ -69,7 +71,7 @@ export function AdminGamesPage() {
     page: currentPage,
     limit: pageSize,
     search: searchTerm,
-    status: statusFilter
+    status: statusFilter === 'all' ? '' : statusFilter
   });
   
   // Provide default values for games data
@@ -106,14 +108,15 @@ export function AdminGamesPage() {
 
     setProcessing(true);
     try {
+      // TODO: need to implement real data for update game status
       // await adminService.updateGameStatus(selectedGame.id, newStatus);
-      toast.success('Game status updated successfully');
+      toast.success(t('admin.gameStatusUpdated'));
       setShowStatusDialog(false);
       setSelectedGame(null);
       void fetchGames();
     } catch (error) {
       console.error('Error updating game status:', error);
-      toast.error('Failed to update game status');
+      toast.error(t('admin.failedToUpdateGameStatus'));
     } finally {
       setProcessing(false);
     }
@@ -124,14 +127,15 @@ export function AdminGamesPage() {
 
     setProcessing(true);
     try {
+      // TODO: need to implement real data for delete game
       // await adminService.deleteGame(selectedGame.id);
-      toast.success('Game deleted successfully');
+      toast.success(t('admin.gameDeletedSuccessfully'));
       setShowDeleteDialog(false);
       setSelectedGame(null);
       void fetchGames();
     } catch (error) {
       console.error('Error deleting game:', error);
-      toast.error('Failed to delete game');
+      toast.error(t('admin.failedToDeleteGame'));
     } finally {
       setProcessing(false);
     }
@@ -186,10 +190,10 @@ export function AdminGamesPage() {
               <Gamepad2 className='w-8 h-8 text-orange-500 mr-3' />
               <div>
                 <h1 className='text-xl font-semibold text-gray-900 dark:text-white'>
-                  Games Management
+                  {t('admin.gamesManagement')}
                 </h1>
                 <p className='text-sm text-gray-500 dark:text-gray-400'>
-                  Manage lottery games and settings
+                  {t('admin.manageLotteryGames')}
                 </p>
               </div>
             </div>
@@ -197,12 +201,12 @@ export function AdminGamesPage() {
             <div className='flex items-center space-x-2'>
               <Button onClick={() => void fetchGames()} variant='outline' size='sm'>
                 <RefreshCw className='w-4 h-4 mr-2' />
-                Refresh
+                {t('common.refresh')}
               </Button>
               <Button asChild size='sm'>
                 <Link href='/admin/create-game'>
                   <Plus className='w-4 h-4 mr-2' />
-                  Create Game
+                  {t('admin.createGame')}
                 </Link>
               </Button>
             </div>
@@ -232,7 +236,7 @@ export function AdminGamesPage() {
                     <SelectValue placeholder='Filter by status' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value=''>All Status</SelectItem>
+                    <SelectItem value='all'>All Status</SelectItem>
                     <SelectItem value='DRAFT'>Draft</SelectItem>
                     <SelectItem value='ACTIVE'>Active</SelectItem>
                     <SelectItem value='DRAWING'>Drawing</SelectItem>
@@ -255,7 +259,7 @@ export function AdminGamesPage() {
               <span>Games ({gamesData.total})</span>
               <Button variant='outline' size='sm'>
                 <Download className='w-4 h-4 mr-2' />
-                Export
+                {t('common.export')}
               </Button>
             </CardTitle>
           </CardHeader>
@@ -421,7 +425,7 @@ export function AdminGamesPage() {
                 <Button asChild>
                   <Link href='/admin/create-game'>
                     <Plus className='w-4 h-4 mr-2' />
-                    Create Game
+                        {t('admin.createGame')}
                   </Link>
                 </Button>
               </div>

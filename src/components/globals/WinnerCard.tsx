@@ -1,4 +1,5 @@
 import { Award } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Card } from './Card';
 
 export interface Winner {
@@ -42,8 +43,4 @@ export function WinnerCard({ winner, className }: WinnerCardProps) {
       </div>
     </Card>
   );
-}
-
-function cn(...classes: (string | undefined)[]): string {
-  return classes.filter(Boolean).join(' ');
 }

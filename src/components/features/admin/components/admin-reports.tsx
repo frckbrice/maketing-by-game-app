@@ -28,7 +28,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { adminService } from '@/lib/api/adminService';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { firestoreService } from '@/lib/firebase/services';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import {
   BarChart3,
@@ -223,17 +224,132 @@ export function AdminReportsPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // State management
-  const [reports, setReports] = useState<Report[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<ReportTemplate | null>(null);
   const [reportParameters, setReportParameters] = useState<Record<string, any>>({});
-  const [generating, setGenerating] = useState(false);
+
+  // Fetch reports with TanStack Query
+  const { data: reports = [], isLoading, error, refetch } = useQuery({
+    queryKey: ['admin-reports'],
+    queryFn: async () => {
+      try {
+        if (process.env.NODE_ENV === 'development') {
+          // Mock data for development
+          const mockReports: Report[] = [
+            {
+              id: '1',
+              name: 'Financial Summary - Q1 2025',
+              description: 'Quarterly financial overview with revenue analysis',
+              type: 'FINANCIAL',
+              format: 'PDF',
+              status: 'COMPLETED',
+              createdAt: Date.now() - 86400000,
+              completedAt: Date.now() - 86000000,
+              createdBy: user?.id || '',
+              downloadUrl: '/api/reports/1/download',
+              fileSize: 2048576,
+              parameters: { startDate: '2025-01-01', endDate: '2025-03-31' },
+            },
+            {
+              id: '2',
+              name: 'User Activity Report - January',
+              description: 'Monthly user engagement and activity metrics',
+              type: 'USERS',
+              format: 'CSV',
+              status: 'GENERATING',
+              createdAt: Date.now() - 3600000,
+              createdBy: user?.id || '',
+              parameters: { startDate: '2025-01-01', endDate: '2025-01-31' },
+            },
+            {
+              id: '3',
+              name: 'Game Performance Analysis',
+              description: 'Top performing games with detailed analytics',
+              type: 'GAMES',
+              format: 'XLSX',
+              status: 'FAILED',
+              createdAt: Date.now() - 7200000,
+              createdBy: user?.id || '',
+              parameters: { startDate: '2025-01-01', endDate: '2025-01-31' },
+            },
+          ];
+          return mockReports;
+        }
+        
+        // TODO: Implement real Firebase reports collection
+        // const reportsSnapshot = await firestoreService.getReports();
+        // return reportsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Report[];
+        
+        return [];
+      } catch (error) {
+        console.error('Error fetching reports:', error);
+        toast.error(t('admin.reports.loadError'));
+        throw error;
+      }
+    },
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    enabled: !!user && user.role === 'ADMIN',
+  });
+
+  // Create report mutation
+  const createReportMutation = useMutation({
+    mutationFn: async (reportData: Omit<Report, 'id' | 'createdAt' | 'status'>) => {
+      try {
+        // TODO: Implement real Firebase report creation
+        const newReport: Report = {
+          ...reportData,
+          id: Date.now().toString(),
+          status: 'PENDING',
+          createdAt: Date.now(),
+        };
+        
+        // Add to Firebase
+        // await firestoreService.createReport(newReport);
+        
+        return newReport;
+      } catch (error) {
+        console.error('Error creating report:', error);
+        throw error;
+      }
+    },
+    onSuccess: (newReport) => {
+      queryClient.setQueryData(['admin-reports'], (old: Report[] = []) => [newReport, ...old]);
+      toast.success(t('admin.reports.createSuccess'));
+      setShowCreateModal(false);
+      setSelectedTemplate(null);
+      setReportParameters({});
+      
+      // Simulate report generation with optimistic updates
+      setTimeout(() => {
+        queryClient.setQueryData(['admin-reports'], (old: Report[] = []) =>
+          old.map(r => r.id === newReport.id ? { ...r, status: 'GENERATING' as const } : r)
+        );
+        
+        setTimeout(() => {
+          queryClient.setQueryData(['admin-reports'], (old: Report[] = []) =>
+            old.map(r => r.id === newReport.id ? {
+              ...r,
+              status: 'COMPLETED' as const,
+              completedAt: Date.now(),
+              downloadUrl: `/api/reports/${newReport.id}/download`,
+              fileSize: Math.floor(Math.random() * 5000000) + 1000000,
+            } : r)
+          );
+        }, 5000);
+      }, 2000);
+    },
+    onError: (error) => {
+      console.error('Error creating report:', error);
+      toast.error(t('admin.reports.createError'));
+    },
+  });
 
   // Check admin permission
   useEffect(() => {
@@ -242,134 +358,62 @@ export function AdminReportsPage() {
     }
   }, [user, router]);
 
-  // Load reports
-  useEffect(() => {
-    if (user?.role === 'ADMIN') {
-      loadReports();
-    }
-  }, [user]);
-
-  const loadReports = async () => {
-    try {
-      setLoading(true);
-      // Mock data for now
-      const mockReports: Report[] = [
-        {
-          id: '1',
-          name: 'Financial Summary - Q4 2024',
-          description: 'Quarterly financial overview',
-          type: 'FINANCIAL',
-          format: 'PDF',
-          status: 'COMPLETED',
-          createdAt: Date.now() - 86400000,
-          completedAt: Date.now() - 86000000,
-          createdBy: user?.id || '',
-          downloadUrl: '/api/reports/1/download',
-          fileSize: 2048576,
-          parameters: { startDate: '2024-10-01', endDate: '2024-12-31' },
-        },
-        {
-          id: '2',
-          name: 'User Activity Report',
-          description: 'Monthly user engagement metrics',
-          type: 'USERS',
-          format: 'CSV',
-          status: 'GENERATING',
-          createdAt: Date.now() - 3600000,
-          createdBy: user?.id || '',
-          parameters: { startDate: '2024-12-01', endDate: '2024-12-31' },
-        },
-        {
-          id: '3',
-          name: 'Game Performance Analysis',
-          description: 'Top performing games analysis',
-          type: 'GAMES',
-          format: 'XLSX',
-          status: 'FAILED',
-          createdAt: Date.now() - 7200000,
-          createdBy: user?.id || '',
-          parameters: { startDate: '2024-11-01', endDate: '2024-11-30' },
-        },
-      ];
-      setReports(mockReports);
-    } catch (error) {
-      console.error('Error loading reports:', error);
-      toast.error(t('admin.reports.loadError'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleCreateReport = async () => {
     if (!selectedTemplate) return;
 
-    try {
-      setGenerating(true);
-      
-      // Validate required parameters
-      const missingParams = selectedTemplate.parameters
-        .filter(param => param.required && !reportParameters[param.name])
-        .map(param => param.label);
+    // Validate required parameters
+    const missingParams = selectedTemplate.parameters
+      .filter(param => param.required && !reportParameters[param.name])
+      .map(param => param.label);
 
-      if (missingParams.length > 0) {
-        toast.error(`Missing required fields: ${missingParams.join(', ')}`);
-        return;
-      }
-
-      // Create new report
-      const newReport: Report = {
-        id: Date.now().toString(),
-        name: `${selectedTemplate.name} - ${new Date().toLocaleDateString()}`,
-        description: selectedTemplate.description,
-        type: selectedTemplate.type,
-        format: 'PDF',
-        status: 'PENDING',
-        createdAt: Date.now(),
-        createdBy: user?.id || '',
-        parameters: reportParameters,
-      };
-
-      setReports(prev => [newReport, ...prev]);
-      setShowCreateModal(false);
-      setSelectedTemplate(null);
-      setReportParameters({});
-      
-      toast.success(t('admin.reports.createSuccess'));
-
-      // Simulate report generation
-      setTimeout(() => {
-        setReports(prev => prev.map(r => 
-          r.id === newReport.id 
-            ? { ...r, status: 'GENERATING' as const }
-            : r
-        ));
-        
-        setTimeout(() => {
-          setReports(prev => prev.map(r => 
-            r.id === newReport.id 
-              ? { 
-                  ...r, 
-                  status: 'COMPLETED' as const, 
-                  completedAt: Date.now(),
-                  downloadUrl: `/api/reports/${newReport.id}/download`,
-                  fileSize: Math.floor(Math.random() * 5000000) + 1000000,
-                }
-              : r
-          ));
-        }, 5000);
-      }, 2000);
-
-    } catch (error) {
-      console.error('Error creating report:', error);
-      toast.error(t('admin.reports.createError'));
-    } finally {
-      setGenerating(false);
+    if (missingParams.length > 0) {
+      toast.error(`Missing required fields: ${missingParams.join(', ')}`);
+      return;
     }
+
+    // Create new report using mutation
+    const reportData = {
+      name: `${selectedTemplate.name} - ${new Date().toLocaleDateString()}`,
+      description: selectedTemplate.description,
+      type: selectedTemplate.type,
+      format: 'PDF' as const,
+      createdBy: user?.id || '',
+      parameters: reportParameters,
+    };
+
+    createReportMutation.mutate(reportData);
   };
 
   const handleDownload = async (reportId: string) => {
     try {
-      // In a real implementation, this would download the actual file
+      const report = reports.find(r => r.id === reportId);
+      if (!report || !report.downloadUrl) {
+        toast.error(t('admin.reports.downloadNotAvailable'));
+        return;
+      }
+
+      // Create a mock download for demonstration
+      // In production, this would be a real API endpoint
+      const mockData = {
+        reportId,
+        reportName: report.name,
+        generatedAt: new Date().toISOString(),
+        data: {
+          summary: 'Report generated successfully',
+          parameters: report.parameters,
+        },
+      };
+
+      const dataStr = JSON.stringify(mockData, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      
+      const exportFileDefaultName = `${report.name.toLowerCase().replace(/\s+/g, '-')}.json`;
+      
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+      
       toast.success(t('admin.reports.downloadStarted'));
     } catch (error) {
       console.error('Error downloading report:', error);
@@ -430,7 +474,7 @@ export function AdminReportsPage() {
     return matchesSearch && matchesStatus && matchesType;
   });
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
         <div className='max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8'>
@@ -551,10 +595,10 @@ export function AdminReportsPage() {
               <Button
                 variant='outline'
                 size='icon'
-                onClick={loadReports}
-                disabled={loading}
+                onClick={() => refetch()}
+                disabled={isLoading}
               >
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               </Button>
             </div>
           </div>
@@ -866,9 +910,16 @@ export function AdminReportsPage() {
             {selectedTemplate && (
               <Button
                 onClick={handleCreateReport}
-                disabled={generating}
+                disabled={createReportMutation.isPending}
               >
-                {generating ? t('admin.reports.generating', 'Generating...') : t('admin.reports.generate', 'Generate Report')}
+                {createReportMutation.isPending ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    {t('admin.reports.generating', 'Generating...')}
+                  </>
+                ) : (
+                  t('admin.reports.generate', 'Generate Report')
+                )}
               </Button>
             )}
           </DialogFooter>

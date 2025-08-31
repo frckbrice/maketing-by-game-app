@@ -1,28 +1,9 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { useTranslation } from 'react-i18next';
-import { useRouter } from 'next/navigation';
-import {
-  ArrowLeft,
-  Calendar,
-  DollarSign,
-  GamepadIcon,
-  Image,
-  Plus,
-  Save,
-  Upload,
-  X,
-  Users,
-  Clock,
-  Award,
-  Info,
-} from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -31,12 +12,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { adminService } from '@/lib/api/adminService';
 import { vendorService } from '@/lib/api/vendorService';
-import { useCategories, useCreateGame } from '@/hooks/useApi';
-import { toast } from 'sonner';
+import { useAuth } from '@/lib/contexts/AuthContext';
 import type { GameCategory } from '@/types';
+import {
+  ArrowLeft,
+  Award,
+  Calendar,
+  DollarSign,
+  GamepadIcon,
+  Image,
+  Info,
+  Plus,
+  Save,
+  Upload,
+  X
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 interface Prize {
   name: string;
@@ -136,10 +133,7 @@ export function CreateGame() {
   const { user } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  
-  // TanStack Query hooks
-  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
-  const createGameMutation = useCreateGame();
+  const [categories, setCategories] = useState<GameCategory[]>([]);
   const [formData, setFormData] = useState<GameFormData>({
     title: '',
     description: '',
@@ -159,6 +153,7 @@ export function CreateGame() {
   const [imageUploadLoading, setImageUploadLoading] = useState(false);
 
   useEffect(() => {
+    loadCategories();
     // Set default dates
     const now = new Date();
     const tomorrow = new Date(now);
@@ -174,6 +169,15 @@ export function CreateGame() {
     }));
   }, []);
 
+  const loadCategories = async () => {
+    try {
+      const categoriesData = await adminService.getCategories();
+      setCategories(categoriesData);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+      toast.error('Failed to load categories');
+    }
+  };
 
   const handleInputChange = (field: keyof GameFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));

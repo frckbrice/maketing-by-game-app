@@ -13,38 +13,40 @@ import {
   Twitter,
   Youtube,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export const Footer = ({ isDark }: { isDark: boolean }) => {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
     categories: [
-      { name: 'Tech & Phones', href: '#tech' },
-      { name: 'Fashion & Sneakers', href: '#fashion' },
-      { name: 'Home Appliances', href: '#home' },
-      { name: 'Computers', href: '#computers' },
-      { name: 'Premium Brands', href: '#brands' },
+      { name: t('footer.techPhones'), href: '#tech' },
+      { name: t('footer.fashionSneakers'), href: '#fashion' },
+      { name: t('footer.homeAppliances'), href: '#home' },
+      { name: t('footer.computers'), href: '#computers' },
+      { name: t('footer.premiumBrands'), href: '#brands' },
     ],
     support: [
-      { name: 'Help Center', href: '#help' },
-      { name: 'How to Play', href: '#how-to-play' },
-      { name: 'Contact Us', href: '#contact' },
-      { name: 'FAQ', href: '#faq' },
-      { name: 'Live Chat', href: '#chat' },
+      { name: t('footer.helpCenter'), href: '#help' },
+      { name: t('footer.howToPlay'), href: '#how-to-play' },
+      { name: t('footer.contactUs'), href: '#contact' },
+      { name: t('footer.faq'), href: '#faq' },
+      { name: t('footer.liveChat'), href: '#chat' },
     ],
     company: [
-      { name: 'About Us', href: '#about' },
-      { name: 'Winners Gallery', href: '#winners' },
-      { name: 'Careers', href: '#careers' },
-      { name: 'Press', href: '#press' },
-      { name: 'Partnerships', href: '#partnerships' },
+      { name: t('footer.aboutUs'), href: '#about' },
+      { name: t('footer.winnersGallery'), href: '#winners' },
+      { name: t('footer.careers'), href: '#careers' },
+      { name: t('footer.press'), href: '#press' },
+      { name: t('footer.partnerships'), href: '#partnerships' },
     ],
     legal: [
-      { name: 'Terms of Service', href: '#terms' },
-      { name: 'Privacy Policy', href: '#privacy' },
-      { name: 'Contest Rules', href: '#rules' },
-      { name: 'Security', href: '#security' },
-      { name: 'Licenses', href: '#licenses' },
+      { name: t('footer.termsOfService'), href: '#terms' },
+      { name: t('footer.privacyPolicy'), href: '#privacy' },
+      { name: t('footer.contestRules'), href: '#rules' },
+      { name: t('footer.security'), href: '#security' },
+      { name: t('footer.licenses'), href: '#licenses' },
     ],
   };
 
@@ -76,17 +78,17 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
   ];
 
   const trustBadges = [
-    { icon: Shield, text: 'SSL Secured', description: 'Bank-level encryption' },
-    { icon: Award, text: 'Licensed', description: 'Fully regulated platform' },
+    { icon: Shield, text: t('footer.sslSecured'), description: t('footer.bankLevelEncryption') },
+    { icon: Award, text: t('footer.licensed'), description: t('footer.fullyRegulatedPlatform') },
     {
       icon: Clock,
-      text: '24/7 Support',
-      description: 'Round-the-clock assistance',
+      text: t('footer.support24_7'),
+      description: t('footer.roundTheClockAssistance'),
     },
     {
       icon: CreditCard,
-      text: 'Secure Payments',
-      description: 'Multiple payment options',
+      text: t('footer.securePayments'),
+      description: t('footer.multiplePaymentOptions'),
     },
   ];
 
@@ -110,7 +112,7 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
               <span
                 className={`font-bold text-xl ${isDark ? 'text-white' : 'text-gray-900'}`}
               >
-                LotteryApp
+                {t('common.appName')}
               </span>
             </div>
 
@@ -119,9 +121,7 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
                 isDark ? 'text-gray-400' : 'text-gray-600'
               }`}
             >
-              Your trusted platform for international lottery games. Experience
-              the thrill of winning life-changing jackpots with complete
-              security and transparency.
+{t('footer.companyDescription')}
             </p>
 
             {/* Contact Info */}
@@ -336,19 +336,19 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
                 isDark ? 'text-white' : 'text-gray-900'
               }`}
             >
-              Stay Updated
+              {t('footer.stayUpdated')}
             </h3>
             <p
               className={`text-sm mb-4 ${
                 isDark ? 'text-gray-400' : 'text-gray-600'
               }`}
             >
-              Get the latest jackpot updates and exclusive offers
+{t('footer.newsletterDescription')}
             </p>
             <div className='flex gap-2'>
               <input
                 type='email'
-                placeholder='Enter your email'
+                placeholder={t('footer.enterEmail')}
                 className={`flex-1 px-4 py-2 rounded-lg text-sm transition-colors duration-200 ${
                   isDark
                     ? 'bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:border-orange-500'
@@ -356,7 +356,7 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
                 } focus:outline-none focus:ring-2 focus:ring-orange-500/20`}
               />
               <button className='px-6 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 transform hover:scale-105'>
-                Subscribe
+{t('footer.subscribe')}
               </button>
             </div>
           </div>
@@ -375,8 +375,7 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
           <div
             className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
           >
-            © {currentYear} LotteryApp. All rights reserved. | Licensed and
-            regulated platform.
+            © {currentYear} {t('common.appName')}. {t('footer.allRightsReserved')} | {t('footer.licensedPlatform')}
           </div>
 
           <div className='flex items-center space-x-6'>
@@ -385,22 +384,22 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
                 isDark ? 'text-gray-500' : 'text-gray-500'
               }`}
             >
-              18+ Only. Play Responsibly.
+{t('footer.playResponsibly')}
             </div>
             <div className='flex items-center space-x-4'>
               <img
                 src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCA2MCAzMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNjAiIGhlaWdodD0iMzAiIHJ4PSI0IiBmaWxsPSIjMTEyNTM3Ii8+CiAgPHRleHQgeD0iMzAiIHk9IjIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjRkZGIiBmb250LXNpemU9IjEwIiBmb250LWZhbWlseT0iQXJpYWwiPkxJQ0VOU0VEPC90ZXh0Pgo8L3N2Zz4='
-                alt='Gaming License'
+                alt={t('footer.gamingLicense')}
                 className='h-6 opacity-60 hover:opacity-80 transition-opacity'
               />
               <img
                 src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCA2MCAzMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNjAiIGhlaWdodD0iMzAiIHJ4PSI0IiBmaWxsPSIjMTU5NzU3Ii8+CiAgPHRleHQgeD0iMzAiIHk9IjIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjRkZGIiBmb250LXNpemU9IjEwIiBmb250LWZhbWlseT0iQXJpYWwiPlNTTDwvdGV4dD4KPC9zdmc+'
-                alt='SSL Certificate'
+                alt={t('footer.sslCertificate')}
                 className='h-6 opacity-60 hover:opacity-80 transition-opacity'
               />
               <img
                 src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCA2MCAzMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNjAiIGhlaWdodD0iMzAiIHJ4PSI0IiBmaWxsPSIjMjU2M0VCIi8+CiAgPHRleHQgeD0iMzAiIHk9IjIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjRkZGIiBmb250LXNpemU9IjEwIiBmb250LWZhbWlseT0iQXJpYWwiPlBDSTwvdGV4dD4KPC9zdmc+'
-                alt='PCI Compliance'
+                alt={t('footer.pciCompliance')}
                 className='h-6 opacity-60 hover:opacity-80 transition-opacity'
               />
             </div>
@@ -417,13 +416,13 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
         }`}
       >
         <div className='max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-center gap-2'>
-          <span>Must be 18+ to participate. Gambling can be addictive.</span>
+          <span>{t('footer.gamblingWarning')}</span>
           <div className='flex items-center gap-4'>
             <a
               href='#responsible-gaming'
               className='underline hover:text-orange-500 transition-colors'
             >
-              Get help if needed
+{t('footer.getHelp')}
             </a>
             <span>|</span>
             <a

@@ -10,12 +10,12 @@ importScripts(
 
 // Firebase configuration - this should match your app config
 const firebaseConfig = {
-  apiKey: 'AIzaSyBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+  apiKey: 'your-google-api-key',
   authDomain: 'lottery-app-91c88.firebaseapp.com',
-  projectId: 'lottery-app-91c88',
-  storageBucket: 'lottery-app-91c88.appspot.com',
-  messagingSenderId: '190184061635',
-  appId: '1:190184061635:web:XXXXXXXXXXXXXXXXXXXX',
+  projectId: 'your-project-id',
+  storageBucket: 'your-storage-bucket',
+  messagingSenderId: 'your-messaging-sender-id',
+  appId: '1:33333333333:web:your-app-id',
 };
 
 // Initialize Firebase

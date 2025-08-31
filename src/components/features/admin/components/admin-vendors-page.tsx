@@ -27,9 +27,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { adminService } from '@/lib/api/adminService';
+import { useVendors } from '../api/queries';
+import { useUpdateVendor, useSuspendVendor, useActivateVendor } from '../api/mutations';
+import { VendorData } from '../api/type';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import type { User, PaginatedResponse } from '@/types';
 import {
   AlertCircle,
   Building2,
@@ -46,35 +47,18 @@ import {
   ShieldAlert,
   ShieldCheck,
   Star,
-  Trash2,
   User as UserIcon,
   Users,
-  XCircle,
+  XCircle
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { StatusFilter } from '../api/type';
 
-interface VendorData {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  role: 'VENDOR';
-  status: 'ACTIVE' | 'SUSPENDED' | 'BANNED';
-  createdAt: number;
-  updatedAt: number;
-  companyName?: string;
-  productCategory?: string;
-  totalGames: number;
-  totalRevenue: number;
-  averageRating: number;
-  isVerified: boolean;
-}
 
-type StatusFilter = 'all' | 'ACTIVE' | 'SUSPENDED' | 'BANNED';
+
 
 export function AdminVendorsPage() {
   const { t } = useTranslation();
@@ -82,27 +66,21 @@ export function AdminVendorsPage() {
   const router = useRouter();
 
   // State management
-  const [vendors, setVendors] = useState<VendorData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [selectedVendor, setSelectedVendor] = useState<VendorData | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [actionType, setActionType] = useState<'suspend' | 'activate' | 'ban' | null>(null);
-  const [processing, setProcessing] = useState(false);
-  
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [vendorsData, setVendorsData] = useState<PaginatedResponse<VendorData>>({
-    data: [],
-    total: 0,
-    page: 1,
-    pageSize: 10,
-    totalPages: 0,
-    hasNext: false,
-    hasPrevious: false,
-  });
+
+  // TanStack Query hooks
+  const { data: vendors = [], isLoading, error } = useVendors();
+
+  // Mutation hooks for vendor actions
+  const suspendVendor = useSuspendVendor();
+  const activateVendor = useActivateVendor();
+  const updateVendor = useUpdateVendor();
 
   // Check admin permission
   useEffect(() => {
@@ -111,63 +89,87 @@ export function AdminVendorsPage() {
     }
   }, [user, router]);
 
-  // Load vendors data
-  useEffect(() => {
-    if (user?.role === 'ADMIN') {
-      loadVendors();
-    }
-  }, [user, currentPage, searchTerm, statusFilter]);
-
-  const loadVendors = async () => {
-    try {
-      setLoading(true);
-      // Mock response for now - replace with actual adminService.getVendors when implemented
-      const mockVendors: VendorData[] = [
-        {
-          id: '1',
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'john.doe@example.com',
-          phone: '+1234567890',
-          role: 'VENDOR',
-          status: 'ACTIVE',
-          createdAt: Date.now() - 86400000,
-          updatedAt: Date.now(),
-          companyName: 'Tech Solutions Inc',
-          productCategory: 'Electronics',
-          totalGames: 12,
-          totalRevenue: 15000,
-          averageRating: 4.5,
-          isVerified: true,
-        },
-      ];
-
-      const response: PaginatedResponse<VendorData> = {
-        data: mockVendors.filter(v => {
-          const matchesSearch = !searchTerm || 
-            v.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            v.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            v.email.toLowerCase().includes(searchTerm.toLowerCase());
-          const matchesStatus = statusFilter === 'all' || v.status === statusFilter;
-          return matchesSearch && matchesStatus;
-        }),
-        total: mockVendors.length,
-        page: currentPage,
-        pageSize: 10,
-        totalPages: Math.ceil(mockVendors.length / 10),
-        hasNext: currentPage < Math.ceil(mockVendors.length / 10),
-        hasPrevious: currentPage > 1,
+  // Calculate statistics from all vendors data (not filtered)
+  const stats = useMemo(() => {
+    if (!vendors.length) {
+      return {
+        total: 0,
+        active: 0,
+        suspended: 0,
+        banned: 0,
       };
-      
-      setVendorsData(response);
-      setVendors(response.data);
-    } catch (error) {
-      console.error('Error loading vendors:', error);
-      toast.error(t('admin.vendors.loadError'));
-    } finally {
-      setLoading(false);
     }
-  };
+
+    return {
+      total: vendors.length,
+      active: vendors.filter((v: VendorData) => v.status === 'ACTIVE').length,
+      suspended: vendors.filter((v: VendorData) => v.status === 'SUSPENDED').length,
+      banned: vendors.filter((v: VendorData) => v.status === 'BANNED').length,
+    };
+  }, [vendors]);
+
+  // Filter and search vendors
+  const filteredVendors = useMemo(() => {
+    let filtered = vendors;
+
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter((vendor: VendorData) =>
+        vendor.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vendor.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vendor.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vendor.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((vendor: VendorData) => vendor.status === statusFilter);
+    }
+
+    return filtered;
+  }, [vendors, searchTerm, statusFilter]);
+
+  // Convert vendors to VendorData format with calculated stats
+  const vendorsWithStats = useMemo(() => {
+    return filteredVendors.map((vendor: VendorData) => ({
+      id: vendor.id,
+      firstName: vendor.firstName || 'N/A',
+      lastName: vendor.lastName || 'N/A',
+      email: vendor.email,
+      phone: vendor.phone || '',
+      role: vendor.role,
+      status: vendor.status || 'ACTIVE',
+      createdAt: vendor.createdAt,
+      updatedAt: vendor.updatedAt,
+      companyName: vendor.companyName || 'N/A',
+      productCategory: vendor.productCategory || 'General',
+      totalGames: vendor.totalGames || 0,
+      totalRevenue: vendor.totalRevenue || 0,
+      averageRating: vendor.averageRating || 0,
+      isVerified: vendor.isVerified || false,
+    }));
+  }, [filteredVendors]);
+
+  // Create paginated response structure
+  const vendorsData = useMemo(() => {
+    const total = vendorsWithStats.length;
+    const pageSize = 10;
+    const totalPages = Math.ceil(total / pageSize);
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedData = vendorsWithStats.slice(startIndex, endIndex);
+
+    return {
+      data: paginatedData,
+      total,
+      page: currentPage,
+      pageSize,
+      totalPages,
+      hasNext: currentPage < totalPages,
+      hasPrevious: currentPage > 1,
+    };
+  }, [vendorsWithStats, currentPage]);
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
@@ -179,36 +181,57 @@ export function AdminVendorsPage() {
     setCurrentPage(1);
   };
 
-  const handleVendorAction = async () => {
+  const handleVendorAction = () => {
     if (!selectedVendor || !actionType) return;
 
-    try {
-      setProcessing(true);
-      
-      switch (actionType) {
-        case 'suspend':
-          await adminService.updateUserStatus(selectedVendor.id, 'SUSPENDED');
-          toast.success(t('admin.vendors.suspendSuccess'));
-          break;
-        case 'activate':
-          await adminService.updateUserStatus(selectedVendor.id, 'ACTIVE');
-          toast.success(t('admin.vendors.activateSuccess'));
-          break;
-        case 'ban':
-          await adminService.updateUserStatus(selectedVendor.id, 'SUSPENDED');
-          toast.success(t('admin.vendors.banSuccess'));
-          break;
-      }
+    const statusMap = {
+      suspend: 'SUSPENDED',
+      activate: 'ACTIVE',
+      ban: 'BANNED',
+    };
 
-      setShowConfirmModal(false);
-      setSelectedVendor(null);
-      setActionType(null);
-      await loadVendors();
-    } catch (error) {
-      console.error('Error updating vendor status:', error);
-      toast.error(t('admin.vendors.actionError'));
-    } finally {
-      setProcessing(false);
+    if (actionType === 'suspend') {
+      suspendVendor.mutate({
+        id: selectedVendor.id,
+        reason: 'Admin action'
+      }, {
+        onSuccess: () => {
+          toast.success(t('admin.vendors.suspendSuccess', 'Vendor suspended successfully'));
+          setShowConfirmModal(false);
+          setSelectedVendor(null);
+          setActionType(null);
+        },
+        onError: () => {
+          toast.error(t('admin.vendors.actionError', 'Failed to perform action'));
+        }
+      });
+    } else if (actionType === 'activate') {
+      activateVendor.mutate(selectedVendor.id, {
+        onSuccess: () => {
+          toast.success(t('admin.vendors.activateSuccess', 'Vendor activated successfully'));
+          setShowConfirmModal(false);
+          setSelectedVendor(null);
+          setActionType(null);
+        },
+        onError: () => {
+          toast.error(t('admin.vendors.actionError', 'Failed to perform action'));
+        }
+      });
+    } else if (actionType === 'ban') {
+      updateVendor.mutate({
+        id: selectedVendor.id,
+        status: 'BANNED'
+      }, {
+        onSuccess: () => {
+          toast.success(t('admin.vendors.banSuccess', 'Vendor banned successfully'));
+          setShowConfirmModal(false);
+          setSelectedVendor(null);
+          setActionType(null);
+        },
+        onError: () => {
+          toast.error(t('admin.vendors.actionError', 'Failed to perform action'));
+        }
+      });
     }
   };
 
@@ -245,7 +268,7 @@ export function AdminVendorsPage() {
     }
   };
 
-  if (loading && vendors.length === 0) {
+  if (isLoading) {
     return (
       <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
         <div className='max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8'>
@@ -295,7 +318,7 @@ export function AdminVendorsPage() {
           </Card>
           <Card className='p-4 text-center'>
             <div className='text-xl sm:text-2xl font-bold text-green-600'>
-              {vendors.filter(v => v.status === 'ACTIVE').length}
+              {stats.active}
             </div>
             <div className='text-xs sm:text-sm text-gray-600 dark:text-gray-400'>
               {t('admin.vendors.activeVendors', 'Active')}
@@ -303,7 +326,7 @@ export function AdminVendorsPage() {
           </Card>
           <Card className='p-4 text-center'>
             <div className='text-xl sm:text-2xl font-bold text-yellow-600'>
-              {vendors.filter(v => v.status === 'SUSPENDED').length}
+              {stats.suspended}
             </div>
             <div className='text-xs sm:text-sm text-gray-600 dark:text-gray-400'>
               {t('admin.vendors.suspendedVendors', 'Suspended')}
@@ -311,7 +334,7 @@ export function AdminVendorsPage() {
           </Card>
           <Card className='p-4 text-center'>
             <div className='text-xl sm:text-2xl font-bold text-red-600'>
-              {vendors.filter(v => v.status === 'BANNED').length}
+              {stats.banned}
             </div>
             <div className='text-xs sm:text-sm text-gray-600 dark:text-gray-400'>
               {t('admin.vendors.bannedVendors', 'Banned')}
@@ -349,10 +372,10 @@ export function AdminVendorsPage() {
               <Button
                 variant='outline'
                 size='icon'
-                onClick={loadVendors}
-                disabled={loading}
+                onClick={() => window.location.reload()}
+                disabled={isLoading}
               >
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               </Button>
             </div>
           </div>
@@ -367,12 +390,12 @@ export function AdminVendorsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? (
+            {isLoading ? (
               <div className='text-center py-8'>
                 <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-4'></div>
                 <p className='text-gray-600 dark:text-gray-300'>{t('common.loading')}</p>
               </div>
-            ) : vendors.length > 0 ? (
+            ) : vendorsWithStats.length > 0 ? (
               <>
                 {/* Desktop Table */}
                 <div className='hidden md:block overflow-x-auto'>
@@ -389,7 +412,7 @@ export function AdminVendorsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {vendors.map((vendor) => (
+                        {vendorsWithStats.map((vendor) => (
                         <TableRow key={vendor.id}>
                           <TableCell>
                             <div className='flex items-center space-x-3'>
@@ -481,7 +504,7 @@ export function AdminVendorsPage() {
 
                 {/* Mobile Cards */}
                 <div className='md:hidden space-y-4'>
-                  {vendors.map((vendor) => (
+                    {vendorsWithStats.map((vendor) => (
                     <Card key={vendor.id} className='p-4'>
                       <div className='flex items-start justify-between mb-3'>
                         <div className='flex items-center space-x-3'>
@@ -703,15 +726,19 @@ export function AdminVendorsPage() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant='outline' onClick={() => setShowConfirmModal(false)} disabled={processing}>
+            <Button 
+              variant='outline' 
+              onClick={() => setShowConfirmModal(false)} 
+              disabled={suspendVendor.isPending || activateVendor.isPending || updateVendor.isPending}
+            >
               {t('common.cancel')}
             </Button>
             <Button
               onClick={handleVendorAction}
-              disabled={processing}
+              disabled={suspendVendor.isPending || activateVendor.isPending || updateVendor.isPending}
               variant={actionType === 'ban' ? 'destructive' : 'default'}
             >
-              {processing ? t('common.processing') : t('common.confirm')}
+              {(suspendVendor.isPending || activateVendor.isPending || updateVendor.isPending) ? t('common.processing') : t('common.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

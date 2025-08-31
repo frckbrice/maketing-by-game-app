@@ -63,8 +63,8 @@ export function AdminUsersPage() {
   );
   const [usersLoading, setUsersLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -82,8 +82,8 @@ export function AdminUsersPage() {
         limit: pageSize,
         search: searchTerm,
         filters: {
-          ...(roleFilter && { role: roleFilter }),
-          ...(statusFilter && { status: statusFilter }),
+          ...(roleFilter !== 'all' && { role: roleFilter }),
+          ...(statusFilter !== 'all' && { status: statusFilter }),
         },
       });
       setUsersData(data);
@@ -295,7 +295,7 @@ export function AdminUsersPage() {
                     <SelectValue placeholder='Filter by role' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value=''>All Roles</SelectItem>
+                    <SelectItem value='all'>All Roles</SelectItem>
                     <SelectItem value='USER'>Users</SelectItem>
                     <SelectItem value='VENDOR'>Vendors</SelectItem>
                     <SelectItem value='ADMIN'>Admins</SelectItem>
@@ -308,7 +308,7 @@ export function AdminUsersPage() {
                     <SelectValue placeholder='Filter by status' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value=''>All Status</SelectItem>
+                    <SelectItem value='all'>All Status</SelectItem>
                     <SelectItem value='ACTIVE'>Active</SelectItem>
                     <SelectItem value='SUSPENDED'>Suspended</SelectItem>
                     <SelectItem value='INACTIVE'>Inactive</SelectItem>

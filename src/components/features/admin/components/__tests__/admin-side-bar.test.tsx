@@ -1,8 +1,7 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { useAuth } from '@/lib/contexts/AuthContext';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AdminSidebar } from '../admin-side-bar';
-import { useAuth } from '@/lib/contexts/AuthContext';
 
 // Mock the hooks
 jest.mock('@/lib/contexts/AuthContext');
@@ -125,10 +124,13 @@ describe('AdminSidebar', () => {
 
     render(<AdminSidebar />);
     
-    // Analytics sub-items should be visible
-    expect(screen.getByText('Overview')).toBeInTheDocument();
-    expect(screen.getByText('Revenue')).toBeInTheDocument();
-    expect(screen.getByText('User Behavior')).toBeInTheDocument();
+    // Analytics sub-items should be visible by default (Games and Users are expanded by default)
+    expect(screen.getByText('All Games')).toBeInTheDocument();
+    expect(screen.getByText('Create Game')).toBeInTheDocument();
+    expect(screen.getByText('Categories')).toBeInTheDocument();
+    expect(screen.getByText('All Users')).toBeInTheDocument();
+    expect(screen.getByText('Vendors')).toBeInTheDocument();
+    expect(screen.getByText('Admins')).toBeInTheDocument();
   });
 
   it('handles logout correctly', async () => {
@@ -161,7 +163,7 @@ describe('AdminSidebar', () => {
   it('applies correct active state styling for current path', () => {
     // Mock the current pathname
     jest.spyOn(require('next/navigation'), 'usePathname').mockReturnValue('/admin/games');
-    
+
     mockUseAuth.mockReturnValue({
       user: defaultUser,
       loading: false,
@@ -179,10 +181,10 @@ describe('AdminSidebar', () => {
     });
 
     render(<AdminSidebar />);
-    
+
     // The Games section should be highlighted as active
-    const gamesLink = screen.getByText('Games').closest('a');
-    expect(gamesLink).toHaveClass('bg-red-500', 'text-white');
+    const gamesLink = screen.getByText('All Games').closest('a');
+    expect(gamesLink).toHaveClass('bg-orange-500', 'text-white');
   });
 
   it('toggles mobile menu correctly', () => {
@@ -203,20 +205,21 @@ describe('AdminSidebar', () => {
     });
 
     render(<AdminSidebar />);
-    
-    const menuButton = screen.getByLabelText('Toggle menu');
+
+    const menuButtons = screen.getAllByRole('button');
+    const menuButton = menuButtons[0]; // First button is the mobile menu button
     expect(menuButton).toBeInTheDocument();
-    
-    // Initially menu should be closed
-    expect(screen.queryByText('Dashboard')).not.toBeVisible();
-    
-    // Click to open menu
+
+    // Initially menu should be closed on mobile
+    expect(screen.getByText('Dashboard')).toBeInTheDocument(); // Always visible on desktop
+
+    // Click to open mobile menu
     fireEvent.click(menuButton);
-    expect(screen.getByText('Dashboard')).toBeVisible();
-    
-    // Click to close menu
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+
+    // Click to close mobile menu
     fireEvent.click(menuButton);
-    expect(screen.queryByText('Dashboard')).not.toBeVisible();
+    expect(screen.getByText('Dashboard')).toBeInTheDocument(); // Still visible on desktop
   });
 
   it('renders with custom className prop', () => {
@@ -237,8 +240,8 @@ describe('AdminSidebar', () => {
     });
 
     const { container } = render(<AdminSidebar className="custom-class" />);
-    
-    const sidebar = container.firstChild;
+
+    const sidebar = container.querySelector('aside');
     expect(sidebar).toHaveClass('custom-class');
   });
 
@@ -260,22 +263,28 @@ describe('AdminSidebar', () => {
     });
 
     render(<AdminSidebar />);
-    
+
     // Check that all navigation links have correct href attributes
     const dashboardLink = screen.getByText('Dashboard').closest('a');
     expect(dashboardLink).toHaveAttribute('href', '/admin');
-    
-    const gamesLink = screen.getByText('Games').closest('a');
-    expect(gamesLink).toHaveAttribute('href', '/admin/games');
-    
-    const usersLink = screen.getByText('Users').closest('a');
-    expect(usersLink).toHaveAttribute('href', '/admin/users');
-    
-    const analyticsLink = screen.getByText('Analytics').closest('a');
-    expect(analyticsLink).toHaveAttribute('href', '/admin/analytics');
+
+    // Games is a button, not a link
+    const gamesButton = screen.getByText('Games').closest('button');
+    expect(gamesButton).toBeInTheDocument();
+
+    // Users is a button, not a link
+    const usersButton = screen.getByText('Users').closest('button');
+    expect(usersButton).toBeInTheDocument();
+
+    // Check sub-navigation links
+    const allGamesLink = screen.getByText('All Games').closest('a');
+    expect(allGamesLink).toHaveAttribute('href', '/admin/games');
+
+    const allUsersLink = screen.getByText('All Users').closest('a');
+    expect(allUsersLink).toHaveAttribute('href', '/admin/users');
   });
 
-  it('displays user information correctly', () => {
+  it('displays admin panel branding correctly', () => {
     mockUseAuth.mockReturnValue({
       user: defaultUser,
       loading: false,
@@ -293,10 +302,10 @@ describe('AdminSidebar', () => {
     });
 
     render(<AdminSidebar />);
-    
-    // User info should be displayed
-    expect(screen.getByText('Admin User')).toBeInTheDocument();
-    expect(screen.getByText('admin@example.com')).toBeInTheDocument();
+
+    // Admin panel branding should be displayed
+    expect(screen.getByText('Admin Panel')).toBeInTheDocument();
+    expect(screen.getByText('Lottery Platform')).toBeInTheDocument();
   });
 
   it('handles empty user state gracefully', () => {

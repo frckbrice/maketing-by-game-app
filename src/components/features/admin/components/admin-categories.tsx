@@ -166,7 +166,7 @@ export function AdminCategoriesPage() {
       <div className='min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center'>
         <div className='text-center'>
           <div className='animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mx-auto mb-4'></div>
-          <p className='text-gray-600 dark:text-gray-300'>Loading...</p>
+          <p className='text-gray-600 dark:text-gray-300'>{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -184,10 +184,10 @@ export function AdminCategoriesPage() {
               </div>
               <div>
                 <h1 className='text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white'>
-                  Categories Management
+                  {t('admin.categoriesManagement')}
                 </h1>
                 <p className='text-gray-600 dark:text-gray-400'>
-                  Manage game categories and organization
+                  {t('admin.manageCategoriesDescription')}
                 </p>
               </div>
             </div>
@@ -199,19 +199,19 @@ export function AdminCategoriesPage() {
                 className='flex items-center space-x-2'
               >
                 <Gamepad2 className='w-4 h-4' />
-                <span>Create Game</span>
+                <span>{t('admin.createGame')}</span>
               </Button>
               
               <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
                 <DialogTrigger asChild>
                   <Button className='flex items-center space-x-2'>
                     <Plus className='w-4 h-4' />
-                    <span>Create Category</span>
+                    <span>{t('admin.createCategory')}</span>
                   </Button>
                 </DialogTrigger>
               <DialogContent className='max-w-2xl'>
                 <DialogHeader>
-                  <DialogTitle>Create New Category</DialogTitle>
+                  <DialogTitle>{t('admin.createNewCategory')}</DialogTitle>
                 </DialogHeader>
                 <div className='space-y-4'>
                   <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -283,10 +283,9 @@ export function AdminCategoriesPage() {
                     </Button>
                     <Button onClick={handleCreate} disabled={createCategoryMutation.isPending}>
                       {createCategoryMutation.isPending ? (
-                        <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white'></div>
-                      ) : (
-                        'Create Category'
-                      )}
+                        <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white dark:border-gray-300 mr-2'></div>
+                      ) : null}
+                      {createCategoryMutation.isPending ? t('common.creating') : t('admin.createCategory')}
                     </Button>
                   </div>
                 </div>
@@ -302,7 +301,7 @@ export function AdminCategoriesPage() {
                 {categories.length}
               </div>
               <div className='text-sm text-gray-600 dark:text-gray-400'>
-                Total Categories
+                {t('admin.totalCategories')}
               </div>
             </Card>
             <Card className='p-4 text-center'>
@@ -310,7 +309,7 @@ export function AdminCategoriesPage() {
                 {categories.filter(cat => cat.isActive).length}
               </div>
               <div className='text-sm text-gray-600 dark:text-gray-400'>
-                Active Categories
+                {t('admin.activeCategories')}
               </div>
             </Card>
             <Card className='p-4 text-center'>
@@ -318,7 +317,7 @@ export function AdminCategoriesPage() {
                 {categories.filter(cat => !cat.isActive).length}
               </div>
               <div className='text-sm text-gray-600 dark:text-gray-400'>
-                Inactive Categories
+                {t('admin.inactiveCategories')}
               </div>
             </Card>
             <Card className='p-4 text-center'>
@@ -326,7 +325,7 @@ export function AdminCategoriesPage() {
                 {categories.reduce((sum, cat) => sum + (cat.gamesCount || 0), 0)}
               </div>
               <div className='text-sm text-gray-600 dark:text-gray-400'>
-                Total Games
+                {t('admin.totalGames')}
               </div>
             </Card>
           </div>
@@ -336,7 +335,7 @@ export function AdminCategoriesPage() {
         {loadingCategories ? (
           <div className='text-center py-12'>
             <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4'></div>
-            <p className='text-gray-600 dark:text-gray-400'>Loading categories...</p>
+            <p className='text-gray-600 dark:text-gray-400'>{t('admin.loadingCategories')}</p>
           </div>
         ) : categories.length === 0 ? (
           <Card className='p-8 text-center'>

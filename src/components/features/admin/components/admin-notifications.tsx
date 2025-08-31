@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/lib/contexts/AuthContext';
@@ -22,24 +22,12 @@ import {
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { useCreateNotification, useDeleteNotification, useSendNotification } from '../api/mutations';
+import { useNotifications } from '../api/queries';
+import { Notification } from '../api/type';
 
 
-interface Notification {
-    id: string;
-    title: string;
-    message: string;
-    type: 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS';
-    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-    status: 'DRAFT' | 'SENT' | 'SCHEDULED' | 'FAILED';
-    targetAudience: 'ALL' | 'USERS' | 'VENDORS' | 'ADMINS' | 'SPECIFIC';
-    recipients: string[];
-    scheduledFor?: Date;
-    sentAt?: Date;
-    createdAt: Date;
-    createdBy: string;
-    readCount: number;
-    totalRecipients: number;
-}
 
 export function AdminNotificationsPage() {
     const { t } = useTranslation();
@@ -56,43 +44,17 @@ export function AdminNotificationsPage() {
         search: '',
     });
 
-    // Mock data - replace with actual API calls
-    const mockNotifications: Notification[] = useMemo(() => [
-        {
-            id: '1',
-            title: 'System Maintenance',
-            message: 'Scheduled maintenance on Sunday at 2 AM UTC',
-            type: 'INFO',
-            priority: 'MEDIUM',
-            status: 'SENT',
-            targetAudience: 'ALL',
-            recipients: ['all-users'],
-            sentAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-            createdBy: 'admin-1',
-            readCount: 1250,
-            totalRecipients: 1500,
-        },
-        {
-            id: '2',
-            title: 'New Feature Available',
-            message: 'Check out our new lottery game types!',
-            type: 'SUCCESS',
-            priority: 'LOW',
-            status: 'SENT',
-            targetAudience: 'USERS',
-            recipients: ['active-users'],
-            sentAt: new Date(Date.now() - 12 * 60 * 60 * 1000),
-            createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000),
-            createdBy: 'admin-1',
-            readCount: 890,
-            totalRecipients: 1200,
-        },
-    ], []);
+    // Fetch notifications data
+    const { data: notifications = [], isLoading, error } = useNotifications();
+
+    // Mutation hooks
+    const createNotification = useCreateNotification();
+    const sendNotification = useSendNotification();
+    const deleteNotification = useDeleteNotification();
 
     // Filter notifications based on current filters
     const filteredNotifications = useMemo(() => {
-        return mockNotifications.filter(notification => {
+        return notifications.filter((notification: Notification) => {
             if (filters.type !== 'ALL' && notification.type !== filters.type) return false;
             if (filters.priority !== 'ALL' && notification.priority !== filters.priority) return false;
             if (filters.status !== 'ALL' && notification.status !== filters.status) return false;
@@ -101,14 +63,14 @@ export function AdminNotificationsPage() {
                 !notification.message.toLowerCase().includes(filters.search.toLowerCase())) return false;
             return true;
         });
-    }, [mockNotifications, filters]);
+    }, [notifications, filters]);
 
     // Simple pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize] = useState(10);
 
     // Paginated notifications
-    const paginatedNotifications = useMemo(() => {
+    const paginatedNotifications: Notification[] = useMemo(() => {
         const startIndex = (currentPage - 1) * pageSize;
         const endIndex = startIndex + pageSize;
         return filteredNotifications.slice(startIndex, endIndex);
@@ -126,34 +88,79 @@ export function AdminNotificationsPage() {
     // Handle notification actions
     const handleSendNotification = useCallback(async (notification: Notification) => {
         try {
-            console.log('Sending notification:', notification.id);
+            sendNotification.mutate(notification.id, {
+                onSuccess: () => {
+                    toast.success(t('admin.notifications.sendSuccess', 'Notification sent successfully'));
+                },
+                onError: () => {
+                    toast.error(t('admin.notifications.sendError', 'Failed to send notification'));
+                }
+            });
         } catch (error) {
             console.error('Error sending notification:', error);
+            toast.error(t('admin.notifications.sendError', 'Failed to send notification'));
         }
-    }, []);
+    }, [sendNotification, t]);
 
     const handleDeleteNotification = useCallback(async (id: string) => {
         try {
-            console.log('Deleting notification:', id);
+            if (window.confirm(t('admin.notifications.deleteConfirm', 'Are you sure you want to delete this notification?'))) {
+                deleteNotification.mutate(id, {
+                    onSuccess: () => {
+                        toast.success(t('admin.notifications.deleteSuccess', 'Notification deleted successfully'));
+                    },
+                    onError: () => {
+                        toast.error(t('admin.notifications.deleteError', 'Failed to delete notification'));
+                    }
+                });
+            }
         } catch (error) {
             console.error('Error deleting notification:', error);
+            toast.error(t('admin.notifications.deleteError', 'Failed to delete notification'));
         }
-    }, []);
+    }, [deleteNotification, t]);
 
     const handleCreateNotification = useCallback(async (notificationData: Partial<Notification>) => {
         try {
-            console.log('Creating notification:', notificationData);
-            setShowCreateModal(false);
+            createNotification.mutate(notificationData as Omit<Notification, "id" | "createdAt" | "sentAt" | "readCount" | "totalRecipients">, {
+                onSuccess: () => {
+                    toast.success(t('admin.notifications.createSuccess', 'Notification created successfully'));
+                    setShowCreateModal(false);
+                },
+                onError: () => {
+                    toast.error(t('admin.notifications.createError', 'Failed to create notification'));
+                }
+            });
         } catch (error) {
             console.error('Error creating notification:', error);
+            toast.error(t('admin.notifications.createError', 'Failed to create notification'));
         }
-    }, []);
+    }, [createNotification, t]);
 
     // Loading state
-    if (loading) {
+    if (loading || isLoading) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500"></div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                        {t('admin.notifications.errorTitle', 'Error Loading Notifications')}
+                    </h2>
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                        {t('admin.notifications.errorMessage', 'Please try refreshing the page')}
+                    </p>
+                    <Button onClick={() => window.location.reload()} variant="outline">
+                        {t('common.refresh', 'Refresh')}
+                    </Button>
+                </div>
             </div>
         );
     }
@@ -163,7 +170,7 @@ export function AdminNotificationsPage() {
         return null;
     }
 
-    const getTypeColor = (type: string) => {
+    const getTypeColor = (type: 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS') => {
         switch (type) {
             case 'INFO': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
             case 'WARNING': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
@@ -173,7 +180,7 @@ export function AdminNotificationsPage() {
         }
     };
 
-    const getPriorityColor = (priority: string) => {
+    const getPriorityColor = (priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT') => {
         switch (priority) {
             case 'LOW': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
             case 'MEDIUM': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
@@ -183,7 +190,7 @@ export function AdminNotificationsPage() {
         }
     };
 
-    const getStatusColor = (status: string) => {
+    const getStatusColor = (status: 'DRAFT' | 'SENT' | 'SCHEDULED' | 'FAILED') => {
         switch (status) {
             case 'DRAFT': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
             case 'SENT': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
@@ -217,9 +224,9 @@ export function AdminNotificationsPage() {
                     </div>
                 </div>
 
-                {/* Filters */}
+                {/* Filters - Fixed layout */}
                 <Card className="mb-6 p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Type
@@ -228,11 +235,16 @@ export function AdminNotificationsPage() {
                                 value={filters.type}
                                 onValueChange={(value) => setFilters(prev => ({ ...prev, type: value }))}
                             >
-                                <option value="ALL">All Types</option>
-                                <option value="INFO">Info</option>
-                                <option value="WARNING">Warning</option>
-                                <option value="ERROR">Error</option>
-                                <option value="SUCCESS">Success</option>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ALL">All Types</SelectItem>
+                                    <SelectItem value="INFO">Info</SelectItem>
+                                    <SelectItem value="WARNING">Warning</SelectItem>
+                                    <SelectItem value="ERROR">Error</SelectItem>
+                                    <SelectItem value="SUCCESS">Success</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
 
@@ -244,11 +256,16 @@ export function AdminNotificationsPage() {
                                 value={filters.priority}
                                 onValueChange={(value) => setFilters(prev => ({ ...prev, priority: value }))}
                             >
-                                <option value="ALL">All Priorities</option>
-                                <option value="LOW">Low</option>
-                                <option value="MEDIUM">Medium</option>
-                                <option value="HIGH">High</option>
-                                <option value="URGENT">Urgent</option>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ALL">All Priorities</SelectItem>
+                                    <SelectItem value="LOW">Low</SelectItem>
+                                    <SelectItem value="MEDIUM">Medium</SelectItem>
+                                    <SelectItem value="HIGH">High</SelectItem>
+                                    <SelectItem value="URGENT">Urgent</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
 
@@ -260,11 +277,16 @@ export function AdminNotificationsPage() {
                                 value={filters.status}
                                 onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
                             >
-                                <option value="ALL">All Statuses</option>
-                                <option value="DRAFT">Draft</option>
-                                <option value="SENT">Sent</option>
-                                <option value="SCHEDULED">Scheduled</option>
-                                <option value="FAILED">Failed</option>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ALL">All Statuses</SelectItem>
+                                    <SelectItem value="DRAFT">Draft</SelectItem>
+                                    <SelectItem value="SENT">Sent</SelectItem>
+                                    <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                                    <SelectItem value="FAILED">Failed</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
 
@@ -276,11 +298,16 @@ export function AdminNotificationsPage() {
                                 value={filters.targetAudience}
                                 onValueChange={(value) => setFilters(prev => ({ ...prev, targetAudience: value }))}
                             >
-                                <option value="ALL">All Audiences</option>
-                                <option value="USERS">Users</option>
-                                <option value="VENDORS">Vendors</option>
-                                <option value="ADMINS">Admins</option>
-                                <option value="SPECIFIC">Specific</option>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ALL">All Audiences</SelectItem>
+                                    <SelectItem value="USERS">Users</SelectItem>
+                                    <SelectItem value="VENDORS">Vendors</SelectItem>
+                                    <SelectItem value="ADMINS">Admins</SelectItem>
+                                    <SelectItem value="SPECIFIC">Specific</SelectItem>
+                                </SelectContent>
                             </Select>
                         </div>
 
@@ -304,7 +331,29 @@ export function AdminNotificationsPage() {
 
                 {/* Notifications List */}
                 <div className="space-y-4">
-                    {paginatedNotifications.map((notification: Notification) => (
+                    {paginatedNotifications.length === 0 ? (
+                        <Card className="p-12 text-center">
+                            <div className="text-gray-400 mb-4">
+                                <Users className="w-16 h-16 mx-auto" />
+                            </div>
+                            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                                {t('admin.notifications.noNotifications', 'No notifications found')}
+                            </h3>
+                            <p className="text-gray-600 dark:text-gray-400 mb-4">
+                                {filters.search || filters.type !== 'ALL' || filters.priority !== 'ALL' || filters.status !== 'ALL' || filters.targetAudience !== 'ALL'
+                                    ? t('admin.notifications.tryDifferentFilter', 'Try adjusting your filters')
+                                    : t('admin.notifications.createFirst', 'Create your first notification to get started')}
+                            </p>
+                            <Button
+                                onClick={() => setShowCreateModal(true)}
+                                className="bg-orange-500 hover:bg-orange-600 text-white"
+                            >
+                                <Plus className="w-4 h-4 mr-2" />
+                                {t('admin.notifications.createNew', 'Create Notification')}
+                            </Button>
+                        </Card>
+                    ) : (
+                        paginatedNotifications.map((notification: Notification) => (
                         <Card key={notification.id} className="p-6 hover:shadow-lg transition-shadow">
                             <div className="flex items-start justify-between">
                                 <div className="flex-1">
@@ -386,7 +435,8 @@ export function AdminNotificationsPage() {
                                 </div>
                             </div>
                         </Card>
-                    ))}
+                        ))
+                    )}
                 </div>
 
                 {/* Pagination */}
@@ -464,8 +514,14 @@ function CreateNotificationForm({ onSubmit }: { onSubmit: (data: Partial<Notific
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const submissionData: Partial<Notification> = {
-            ...formData,
+        const submissionData = {
+            title: formData.title,
+            message: formData.message,
+            type: formData.type,
+            priority: formData.priority,
+            targetAudience: formData.targetAudience,
+            status: 'DRAFT' as const,
+            recipients: formData.targetAudience === 'ALL' ? ['all-users'] : [formData.targetAudience.toLowerCase()],
             scheduledFor: formData.scheduledFor ? new Date(formData.scheduledFor) : undefined,
         };
         onSubmit(submissionData);
@@ -505,10 +561,15 @@ function CreateNotificationForm({ onSubmit }: { onSubmit: (data: Partial<Notific
                         value={formData.type}
                         onValueChange={(value: 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS') => setFormData(prev => ({ ...prev, type: value }))}
                     >
-                        <option value="INFO">Info</option>
-                        <option value="WARNING">Warning</option>
-                        <option value="ERROR">Error</option>
-                        <option value="SUCCESS">Success</option>
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="INFO">Info</SelectItem>
+                            <SelectItem value="WARNING">Warning</SelectItem>
+                            <SelectItem value="ERROR">Error</SelectItem>
+                            <SelectItem value="SUCCESS">Success</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
 
@@ -520,10 +581,15 @@ function CreateNotificationForm({ onSubmit }: { onSubmit: (data: Partial<Notific
                         value={formData.priority}
                         onValueChange={(value: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT') => setFormData(prev => ({ ...prev, priority: value }))}
                     >
-                        <option value="LOW">Low</option>
-                        <option value="MEDIUM">Medium</option>
-                        <option value="HIGH">High</option>
-                        <option value="URGENT">Urgent</option>
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="LOW">Low</SelectItem>
+                            <SelectItem value="MEDIUM">Medium</SelectItem>
+                            <SelectItem value="HIGH">High</SelectItem>
+                            <SelectItem value="URGENT">Urgent</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
             </div>
@@ -536,10 +602,15 @@ function CreateNotificationForm({ onSubmit }: { onSubmit: (data: Partial<Notific
                     value={formData.targetAudience}
                     onValueChange={(value: 'ALL' | 'USERS' | 'VENDORS' | 'ADMINS' | 'SPECIFIC') => setFormData(prev => ({ ...prev, targetAudience: value }))}
                 >
-                    <option value="ALL">All Audiences</option>
-                    <option value="USERS">Users</option>
-                    <option value="VENDORS">Vendors</option>
-                    <option value="ADMINS">Admins</option>
+                    <SelectTrigger>
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="ALL">All Audiences</SelectItem>
+                        <SelectItem value="USERS">Users</SelectItem>
+                        <SelectItem value="VENDORS">Vendors</SelectItem>
+                        <SelectItem value="ADMINS">Admins</SelectItem>
+                    </SelectContent>
                 </Select>
             </div>
 

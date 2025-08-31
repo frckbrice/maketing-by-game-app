@@ -2,6 +2,35 @@
 
 require('@testing-library/jest-dom');
 
+// Polyfill for TextEncoder/TextDecoder
+global.TextEncoder = require('util').TextEncoder;
+global.TextDecoder = require('util').TextDecoder;
+
+// Polyfill for ReadableStream
+global.ReadableStream = class ReadableStream {
+  constructor() {}
+  getReader() {
+    return {
+      read: () => Promise.resolve({ done: true, value: undefined }),
+      cancel: () => Promise.resolve(),
+      releaseLock: () => {},
+    };
+  }
+};
+
+// Polyfill for WritableStream
+global.WritableStream = class WritableStream {
+  constructor() {}
+  getWriter() {
+    return {
+      write: () => Promise.resolve(),
+      close: () => Promise.resolve(),
+      abort: () => Promise.resolve(),
+      releaseLock: () => {},
+    };
+  }
+};
+
 // Mock Next.js router
 jest.mock('next/router', () => ({
   useRouter() {
@@ -51,6 +80,8 @@ jest.mock('@/lib/firebase/config', () => ({
   app: {},
   analytics: null,
 }));
+
+// Mock API hooks - removed to allow test-specific mocking
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
@@ -109,3 +140,6 @@ global.matchMedia = jest.fn().mockImplementation(query => ({
   removeEventListener: jest.fn(),
   dispatchEvent: jest.fn(),
 }));
+
+// Mock window.confirm for JSDOM
+global.confirm = jest.fn(() => true);

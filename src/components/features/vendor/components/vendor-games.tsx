@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { useVendorGames } from '@/hooks/useApi';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import type { LotteryGame, PaginatedResponse } from '@/types';
+import type { LotteryGame } from '@/types';
 import {
   Calendar,
   ChevronLeft,
@@ -29,7 +29,7 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export function VendorGames() {
@@ -45,244 +45,51 @@ export function VendorGames() {
 
   // TanStack Query hook
   const { data: gamesData = [], isLoading: loading, refetch } = useVendorGames(user?.id || '', { page: currentPage, limit: pageSize, status: statusFilter });
-  const games = { data: gamesData, total: gamesData.length };
-
-  useEffect(() => {
-    if (user && (user.role === 'VENDOR' || user.role === 'ADMIN')) {
-      loadGames();
-    }
-  }, [user, currentPage, statusFilter]);
-
-  const loadGames = async () => {
-    try {
-      setLoading(true);
-      const gamesData = await vendorService.getVendorGames(user!.id, {
-        page: currentPage,
-        limit: pageSize,
-        status: statusFilter || undefined,
-      });
-      setGames(gamesData);
-    } catch (error) {
-      console.error('Error loading games:', error);
-      // Set mock data for development
-      setGames({
-        data: [
-          {
-            id: '1',
-            title: 'iPhone 15 Pro Max Contest',
-            description: 'Win the latest iPhone 15 Pro Max with 256GB storage',
-            type: 'daily',
-            categoryId: 'tech',
-            category: {
-              id: 'tech',
-              name: 'Tech & Phones',
-              description: 'Latest technology products',
-              color: '#2196F3',
-              icon: '📱',
-              isActive: true,
-              sortOrder: 1,
-              createdAt: Date.now(),
-              updatedAt: Date.now(),
-            },
-            ticketPrice: 5,
-            currency: 'USD',
-            maxParticipants: 500,
-            currentParticipants: 456,
-            totalPrizePool: 1200,
-            totalTickets: 0,
-            totalTicketsSold: 0,
-            prizes: [
-              {
-                id: '1',
-                name: 'iPhone 15 Pro Max',
-                description: '256GB, Natural Titanium',
-                type: 'product',
-                value: 1200,
-                currency: 'USD',
-                image: `${locale}/images/iphone15promax.jpg`,
-                quantity: 1,
-                remaining: 1,
-              },
-            ],
-            rules: [],
-            images: [
-              {
-                id: '1',
-                url: `${locale}/images/iphone15promax.jpg`,
-                alt: 'iPhone 15 Pro Max',
-                type: 'hero',
-                order: 1,
-              },
-            ],
-            startDate: Date.now() - 5 * 24 * 60 * 60 * 1000,
-            endDate: Date.now() + 2 * 24 * 60 * 60 * 1000,
-            drawDate: Date.now() + 2 * 24 * 60 * 60 * 1000,
-            status: 'ACTIVE',
-            isActive: true,
-            createdBy: user!.id,
-            createdAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
-            updatedAt: Date.now(),
-          },
-          {
-            id: '2',
-            title: 'Nike Air Jordan Giveaway',
-            description: 'Classic Nike Air Jordan sneakers',
-            type: 'weekly',
-            categoryId: 'fashion',
-            category: {
-              id: 'fashion',
-              name: 'Fashion & Sneakers',
-              description: 'Trendy fashion items',
-              color: '#FF5722',
-              icon: '👟',
-              isActive: true,
-              sortOrder: 2,
-              createdAt: Date.now(),
-              updatedAt: Date.now(),
-            },
-            ticketPrice: 3,
-            currency: 'USD',
-            maxParticipants: 300,
-            currentParticipants: 234,
-            totalPrizePool: 180,
-            totalTickets: 0,
-            totalTicketsSold: 0,
-            prizes: [
-              {
-                id: '2',
-                name: 'Nike Air Jordan',
-                description: 'Size 10, Red/Black colorway',
-                type: 'product',
-                value: 180,
-                currency: 'USD',
-                image: '/images/nikeairretro.webp',
-                quantity: 1,
-                remaining: 1,
-              },
-            ],
-            rules: [],
-            images: [
-              {
-                id: '2',
-                url: '/images/nikeairretro.webp',
-                alt: 'Nike Air Jordan',
-                type: 'hero',
-                order: 1,
-              },
-            ],
-            startDate: Date.now() - 3 * 24 * 60 * 60 * 1000,
-            endDate: Date.now() + 4 * 24 * 60 * 60 * 1000,
-            drawDate: Date.now() + 4 * 24 * 60 * 60 * 1000,
-            status: 'DRAWING',
-            isActive: true,
-            createdBy: user!.id,
-            createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
-            updatedAt: Date.now(),
-          },
-          {
-            id: '3',
-            title: 'MacBook Pro Bundle',
-            description: 'MacBook Pro M3 with accessories',
-            type: 'special',
-            categoryId: 'tech',
-            category: {
-              id: 'tech',
-              name: 'Tech & Phones',
-              description: 'Latest technology products',
-              color: '#2196F3',
-              icon: '💻',
-              isActive: true,
-              sortOrder: 1,
-              createdAt: Date.now(),
-              updatedAt: Date.now(),
-            },
-            ticketPrice: 15,
-            currency: 'USD',
-            maxParticipants: 200,
-            currentParticipants: 0,
-            totalPrizePool: 2500,
-            totalTickets: 0,
-            totalTicketsSold: 0,
-            prizes: [
-              {
-                id: '3',
-                name: 'MacBook Pro M3',
-                description: '14-inch, 16GB RAM, 512GB SSD',
-                type: 'product',
-                value: 2500,
-                currency: 'USD',
-                image: `${locale}/images/macbookpro.jpg`,
-                quantity: 1,
-                remaining: 1,
-              },
-            ],
-            rules: [],
-            images: [
-              {
-                id: '3',
-                url: `${locale}/images/macbookpro.jpg`,
-                alt: 'MacBook Pro',
-                type: 'hero',
-                order: 1,
-              },
-            ],
-            startDate: Date.now() + 1 * 24 * 60 * 60 * 1000,
-            endDate: Date.now() + 8 * 24 * 60 * 60 * 1000,
-            drawDate: Date.now() + 8 * 24 * 60 * 60 * 1000,
-            status: 'DRAFT',
-            isActive: false,
-            createdBy: user!.id,
-            createdAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
-            updatedAt: Date.now(),
-          },
-        ],
-        total: 3,
-        page: 1,
-        pageSize: 12,
-        totalPages: 1,
-        hasNext: false,
-        hasPrevious: false,
-      });
-    } finally {
-      setLoading(false);
-    }
+  const games = { 
+    data: gamesData, 
+    total: gamesData.length,
+    page: currentPage,
+    pageSize,
+    totalPages: Math.ceil(gamesData.length / pageSize),
+    hasNext: currentPage * pageSize < gamesData.length,
+    hasPrevious: currentPage > 1
   };
 
   const handleSearch = () => {
     setCurrentPage(1);
-    loadGames();
+    refetch();
   };
 
   const getStatusBadge = (status: string) => {
     const badges = {
-      ACTIVE: <Badge className='bg-green-500 text-white'>Active</Badge>,
+      ACTIVE: <Badge className='bg-green-500 text-white'>{t('vendor.status.active')}</Badge>,
       PENDING: (
-        <Badge className='bg-yellow-500 text-white'>Pending Approval</Badge>
+        <Badge className='bg-yellow-500 text-white'>{t('vendor.status.pending')}</Badge>
       ),
-      DRAWING: <Badge className='bg-blue-500 text-white'>Drawing</Badge>,
-      CLOSED: <Badge className='bg-gray-500 text-white'>Closed</Badge>,
-      DRAFT: <Badge className='bg-gray-400 text-white'>Draft</Badge>,
-      REJECTED: <Badge className='bg-red-500 text-white'>Rejected</Badge>,
+      DRAWING: <Badge className='bg-blue-500 text-white'>{t('vendor.status.drawing')}</Badge>,
+      CLOSED: <Badge className='bg-gray-500 text-white'>{t('vendor.status.closed')}</Badge>,
+      DRAFT: <Badge className='bg-gray-400 text-white'>{t('vendor.status.draft')}</Badge>,
+      REJECTED: <Badge className='bg-red-500 text-white'>{t('vendor.status.rejected')}</Badge>,
     };
-    return badges[status as keyof typeof badges] || <Badge>Unknown</Badge>;
+    return badges[status as keyof typeof badges] || <Badge>{t('common.unknown')}</Badge>;
   };
 
   const getTimeRemaining = (endDate: number) => {
     const now = Date.now();
     const diff = endDate - now;
 
-    if (diff <= 0) return 'Ended';
+    if (diff <= 0) return t('common.ended');
 
     const days = Math.floor(diff / (24 * 60 * 60 * 1000));
     const hours = Math.floor((diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
 
-    if (days > 0) return `${days}d ${hours}h left`;
-    return `${hours}h left`;
+    if (days > 0) return t('common.timeLeft', { days, hours });
+    return t('common.hoursLeft', { hours });
   };
 
   const filteredGames =
     games?.data.filter(
-      game =>
+      (game: LotteryGame) =>
         game.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         game.description.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
@@ -312,7 +119,7 @@ export function VendorGames() {
             {t('vendor.myGames')}
           </h1>
           <p className='text-gray-600 dark:text-gray-400'>
-            Manage and track your lottery games
+            {t('vendor.myGamesDescription')}
           </p>
         </div>
         <Button asChild>
@@ -331,7 +138,7 @@ export function VendorGames() {
               <div className='relative'>
                 <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
                 <Input
-                  placeholder='Search games...'
+                  placeholder={t('vendor.searchGames')}
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   className='pl-10'
@@ -341,21 +148,21 @@ export function VendorGames() {
             <div className='w-full md:w-48'>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
-                  <SelectValue placeholder='Filter by status' />
+                  <SelectValue placeholder={t('vendor.filterByStatus')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value=''>All Status</SelectItem>
-                  <SelectItem value='ACTIVE'>Active</SelectItem>
-                  <SelectItem value='PENDING'>Pending</SelectItem>
-                  <SelectItem value='DRAWING'>Drawing</SelectItem>
-                  <SelectItem value='CLOSED'>Closed</SelectItem>
-                  <SelectItem value='DRAFT'>Draft</SelectItem>
+                  <SelectItem value=''>{t('vendor.allStatus')}</SelectItem>
+                  <SelectItem value='ACTIVE'>{t('vendor.status.active')}</SelectItem>
+                  <SelectItem value='PENDING'>{t('vendor.status.pending')}</SelectItem>
+                  <SelectItem value='DRAWING'>{t('vendor.status.drawing')}</SelectItem>
+                  <SelectItem value='CLOSED'>{t('vendor.status.closed')}</SelectItem>
+                  <SelectItem value='DRAFT'>{t('vendor.status.draft')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <Button onClick={handleSearch}>
               <Filter className='w-4 h-4 mr-2' />
-              Apply
+              {t('common.apply')}
             </Button>
           </div>
         </CardContent>
@@ -364,7 +171,7 @@ export function VendorGames() {
       {/* Games Grid */}
       {filteredGames.length > 0 ? (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {filteredGames.map(game => (
+          {filteredGames.map((game: LotteryGame) => (
             <Card
               key={game.id}
               className='overflow-hidden hover:shadow-lg transition-shadow'
@@ -408,7 +215,7 @@ export function VendorGames() {
                   {/* Progress bar */}
                   <div>
                     <div className='flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1'>
-                      <span>Participation</span>
+                      <span>{t('vendor.participation')}</span>
                       <span>
                         {Math.round(
                           (game.currentParticipants / game.maxParticipants) *
@@ -421,7 +228,7 @@ export function VendorGames() {
                       <div
                         className='bg-gradient-to-r from-orange-400 to-red-500 h-2 rounded-full'
                         style={{
-                          width: `${Math.min((game.currentParticipants / game.maxParticipants) * 100, 100)} % `,
+                          width: `${Math.min((game.currentParticipants / game.maxParticipants) * 100, 100)}%`,
                         }}
                       />
                     </div>
@@ -437,7 +244,7 @@ export function VendorGames() {
                     >
                       <Link href={`/vendor-dashboard/games/${game.id}`}>
                         <Eye className='w-4 h-4 mr-1' />
-                        View
+                        {t('common.view')}
                       </Link>
                     </Button>
                     {(game.status === 'DRAFT' || game.status === 'CLOSED') && (
@@ -448,10 +255,10 @@ export function VendorGames() {
                         asChild
                       >
                         <Link
-                          href={`/ vendor - dashboard / games / ${game.id} / edit`}
+                          href={`/vendor-dashboard/games/${game.id}/edit`}
                         >
                           <Edit className='w-4 h-4 mr-1' />
-                          Edit
+                          {t('common.edit')}
                         </Link>
                       </Button>
                     )}
@@ -465,12 +272,12 @@ export function VendorGames() {
         <Card className='p-12 text-center'>
           <GamepadIcon className='w-16 h-16 text-gray-400 mx-auto mb-4' />
           <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-2'>
-            {searchTerm || statusFilter ? 'No games found' : 'No games yet'}
+            {searchTerm || statusFilter ? t('vendor.noGamesFound') : t('vendor.noGamesYet')}
           </h3>
           <p className='text-gray-600 dark:text-gray-400 mb-6'>
             {searchTerm || statusFilter
-              ? 'Try adjusting your search or filters'
-              : 'Create your first game to start earning revenue.'}
+              ? t('vendor.tryAdjustingFilters')
+              : t('vendor.createFirstGame')}
           </p>
           {!searchTerm && !statusFilter && (
             <Button asChild>
@@ -487,9 +294,9 @@ export function VendorGames() {
       {games && games.totalPages > 1 && (
         <div className='flex items-center justify-between'>
           <div className='text-sm text-gray-500 dark:text-gray-400'>
-            Showing {(games.page - 1) * games.pageSize + 1} to{' '}
-            {Math.min(games.page * games.pageSize, games.total)} of{' '}
-            {games.total} games
+            {t('common.showing')} {(games.page - 1) * games.pageSize + 1} {t('common.to')}{' '}
+            {Math.min(games.page * games.pageSize, games.total)} {t('common.of')}{' '}
+            {games.total} {t('vendor.games')}
           </div>
           <div className='flex items-center space-x-2'>
             <Button
@@ -501,7 +308,7 @@ export function VendorGames() {
               <ChevronLeft className='w-4 h-4' />
             </Button>
             <span className='text-sm font-medium'>
-              Page {games.page} of {games.totalPages}
+              {t('common.page')} {games.page} {t('common.of')} {games.totalPages}
             </span>
             <Button
               variant='outline'

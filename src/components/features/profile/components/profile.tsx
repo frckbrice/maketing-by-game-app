@@ -21,9 +21,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useUserGames, useUserTickets, useVendorApplication } from '@/hooks/useApi';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { useUserTickets, useUserGames } from '@/hooks/useApi';
-import type { LotteryGame, LotteryTicket } from '@/types';
 import {
   ArrowLeft,
   Calendar,
@@ -50,10 +49,9 @@ export const ProfilePage = () => {
   // TanStack Query hooks
   const { data: userTickets = [], isLoading: ticketsLoading } = useUserTickets(user?.id || '');
   const { data: userGames = [] } = useUserGames(user?.id || '');
+  const { data: vendorApplication } = useVendorApplication(user?.id || '');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
-  const [vendorApplication, setVendorApplication] = useState<any>(null);
-  const [checkingApplication, setCheckingApplication] = useState(false);
   const router = useRouter();
 
   // Ensure component is mounted before accessing theme
@@ -70,52 +68,20 @@ export const ProfilePage = () => {
   }, [user, loading, router, redirecting]);
 
 
-  // Check vendor application status when user is logged in
+  // Show vendor application status notifications
   useEffect(() => {
-    if (mounted && user && user.role === 'USER') {
-      const checkVendorApplication = async () => {
-        try {
-          setCheckingApplication(true);
-          console.log('Checking application status for user:', user.id);
-          console.log('User object:', user);
-
-          // First, let's check if the collection exists and what's in it
-          try {
-            const allApps = await firestoreService.getAllVendorApplications();
-            console.log('All vendor applications in database:', allApps);
-
-            // Find our specific application
-            const userApp = allApps.find((app: any) => app.userId === user.id);
-            console.log('Found user application:', userApp);
-          } catch (error) {
-            console.error('Error getting all applications:', error);
-          }
-
-          const app = await (firestoreService as any).getVendorApplication(
-            user.id
+    if (mounted && user && user.role === 'USER' && vendorApplication) {
+      if (vendorApplication.status !== 'PENDING') {
+        if (vendorApplication.status === 'APPROVED') {
+          toast.success('🎉 Your vendor application has been approved!');
+        } else if (vendorApplication.status === 'REJECTED') {
+          toast.error(
+            'Your vendor application was rejected. Check details below.'
           );
-          console.log('Application result from getVendorApplication:', app);
-          setVendorApplication(app);
-
-          // If application exists and status changed, show notification
-          if (app && app.status !== 'PENDING_VERIFICATION') {
-            if (app.status === 'APPROVED') {
-              toast.success('🎉 Your vendor application has been approved!');
-            } else if (app.status === 'REJECTED') {
-              toast.error(
-                'Your vendor application was rejected. Check details below.'
-              );
-            }
-          }
-        } catch (error) {
-          console.error('Error checking vendor application:', error);
-        } finally {
-          setCheckingApplication(false);
         }
-      };
-      checkVendorApplication();
+      }
     }
-  }, [mounted, user]);
+  }, [mounted, user, vendorApplication]);
 
   if (!mounted) {
     return null;
@@ -216,6 +182,7 @@ export const ProfilePage = () => {
             >
               <ArrowLeft className='h-4 w-4' />
               <span>{t('common.back')}</span>
+
             </Button>
 
             {/* Vendor Application Button - Only show for USER role */}

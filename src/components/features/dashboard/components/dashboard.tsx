@@ -33,13 +33,19 @@ export const DashboardPage = () => {
     // USER role users should be redirected to /game page, not dashboard
     if (!loading && user && user.role === 'USER' && !redirecting) {
       setRedirecting(true);
-      router.replace('/game');
+      router.replace('/games');
     }
 
     // ADMIN role users should be redirected to admin dashboard
     if (!loading && user && user.role === 'ADMIN' && !redirecting) {
       setRedirecting(true);
       router.replace('/admin');
+    }
+
+    // VENDOR role users should be redirected to admin dashboard
+    if (!loading && user && user.role === 'VENDOR' && !redirecting) {
+      setRedirecting(true);
+      router.replace('/vendor-dashboard');
     }
   }, [user, loading, router, redirecting]);
 

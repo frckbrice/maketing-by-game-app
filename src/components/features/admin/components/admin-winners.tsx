@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { currencyService } from '@/lib/api/currencyService';
-import { firestoreService } from '@/lib/firebase/services';
+import { useGameWinners } from '@/hooks/useApi';
 import {
   Calendar,
   Crown,
@@ -47,8 +47,7 @@ export function AdminWinnersPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [winners, setWinners] = useState<Winner[]>([]);
-  const [loadingWinners, setLoadingWinners] = useState(true);
+  const { data: winners = [], isLoading: loadingWinners } = useGameWinners();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'CLAIMED' | 'EXPIRED'>('ALL');
   const [dateRange, setDateRange] = useState({ from: '', to: '' });
@@ -63,24 +62,6 @@ export function AdminWinnersPage() {
     }
   }, [user, loading, router]);
 
-  useEffect(() => {
-    if (user?.role === 'ADMIN') {
-      loadWinners();
-    }
-  }, [user]);
-
-  const loadWinners = async () => {
-    try {
-      setLoadingWinners(true);
-      const winnersData = await (firestoreService as any).getAllWinners();
-      setWinners(winnersData || []);
-    } catch (error) {
-      console.error('Error loading winners:', error);
-      toast.error('Failed to load winners');
-    } finally {
-      setLoadingWinners(false);
-    }
-  };
 
   const handleExportWinners = async () => {
     try {

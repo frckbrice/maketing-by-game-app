@@ -25,7 +25,7 @@ import {
   Shield,
   Smartphone,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -49,7 +49,7 @@ interface Ticket {
 type PaymentMethod = 'ORANGE_MONEY' | 'MTN_MOMO';
 type PaymentStep = 'method' | 'phone' | 'processing' | 'success';
 
-export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
+export const PaymentModal = React.memo<PaymentModalProps>(function PaymentModal({ game, isOpen, onClose }) {
   const { user } = useAuth();
   const { t } = useTranslation();
   const [step, setStep] = useState<PaymentStep>('method');
@@ -720,4 +720,4 @@ export function PaymentModal({ game, isOpen, onClose }: PaymentModalProps) {
       </DialogContent>
     </Dialog>
   );
-}
+});

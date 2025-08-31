@@ -1,11 +1,13 @@
-import { useAdminStats } from '@/hooks/useApi';
+import * as useApiHooks from '@/hooks/useApi';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { render, screen, waitFor } from '@testing-library/react';
 import { AdminDashboard } from '../admin-dashboard';
 
 // Mock the hooks
 jest.mock('@/lib/contexts/AuthContext');
-jest.mock('@/hooks/useApi');
+jest.mock('@/hooks/useApi', () => ({
+    useAdminStats: jest.fn(),
+}));
 jest.mock('next/navigation', () => ({
     useRouter: () => ({
         push: jest.fn(),
@@ -15,7 +17,7 @@ jest.mock('next/navigation', () => ({
 
 // Mock the home components
 jest.mock('@/components/home/components/DesktopHeader', () => ({
-            DesktopHeader: ({ isDark, onThemeToggle }: { isDark: boolean; onThemeToggle: () => void }) => (
+    DesktopHeader: ({ isDark, onThemeToggle }: { isDark: boolean; onThemeToggle: () => void }) => (
         <div data-testid="desktop-header">
             <button onClick={onThemeToggle}>Toggle Theme</button>
             <span>Dark: {isDark ? 'true' : 'false'}</span>
@@ -24,7 +26,7 @@ jest.mock('@/components/home/components/DesktopHeader', () => ({
 }));
 
 jest.mock('@/components/home/components/MobileNavigation', () => ({
-            MobileNavigation: ({ isDark, onThemeToggle }: { isDark: boolean; onThemeToggle: () => void }) => (
+    MobileNavigation: ({ isDark, onThemeToggle }: { isDark: boolean; onThemeToggle: () => void }) => (
         <div data-testid="mobile-navigation">
             <button onClick={onThemeToggle}>Toggle Theme</button>
             <span>Dark: {isDark ? 'true' : 'false'}</span>
@@ -48,7 +50,6 @@ jest.mock('react-i18next', () => ({
 }));
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
-const mockUseAdminStats = useAdminStats as jest.MockedFunction<typeof useAdminStats>;
 
 describe('AdminDashboard', () => {
     const defaultUser = {
@@ -57,8 +58,40 @@ describe('AdminDashboard', () => {
         lastName: 'User',
         email: 'admin@example.com',
         role: 'ADMIN' as const,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        status: 'ACTIVE' as const,
+        emailVerified: true,
+        phoneVerified: false,
+        socialMedia: {},
+        phoneNumber: undefined,
+        avatar: undefined,
+        preferences: {
+            language: 'en',
+            theme: 'light' as const,
+            notifications: true,
+            emailUpdates: true,
+            smsUpdates: false,
+            timezone: 'UTC',
+            currency: 'USD',
+        },
+        twoFactorEnabled: false,
+        notificationSettings: {
+            email: true,
+            sms: false,
+            push: true,
+            inApp: true,
+            marketing: false,
+            gameUpdates: true,
+            winnerAnnouncements: true,
+        },
+        privacySettings: {
+            profileVisibility: 'public' as const,
+            showEmail: false,
+            showPhone: false,
+            allowContact: true,
+            dataSharing: false,
+        },
     };
 
     const defaultStats = {
@@ -72,6 +105,14 @@ describe('AdminDashboard', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+
+        // Mock the useAdminStats hook
+        (useApiHooks.useAdminStats as jest.Mock).mockReturnValue({
+            data: defaultStats,
+            isLoading: false,
+            error: null,
+            refetch: jest.fn(),
+        } as any);
     });
 
     it('renders loading state initially', () => {
@@ -91,15 +132,24 @@ describe('AdminDashboard', () => {
             deleteAccount: jest.fn(),
         });
 
+        // Override the mock for loading state
+        (useApiHooks.useAdminStats as jest.Mock).mockReturnValue({
+            data: undefined,
+            isLoading: true,
+            error: null,
+            refetch: jest.fn(),
+        } as any);
+
         render(<AdminDashboard />);
 
         expect(screen.getByText('common.loading')).toBeInTheDocument();
-        expect(screen.getByRole('status')).toBeInTheDocument(); // Loading spinner
+        const spinner = document.querySelector('.animate-spin');
+        expect(spinner).toBeInTheDocument();
     });
 
     it('renders access denied for non-admin users', async () => {
-            const mockRouter = { replace: jest.fn() };
-    jest.spyOn(require('next/navigation'), 'useRouter').mockReturnValue(mockRouter);
+        const mockRouter = { replace: jest.fn() };
+        jest.spyOn(require('next/navigation'), 'useRouter').mockReturnValue(mockRouter);
 
         mockUseAuth.mockReturnValue({
             user: { ...defaultUser, role: 'USER' },
@@ -116,6 +166,14 @@ describe('AdminDashboard', () => {
             updateProfile: jest.fn(),
             deleteAccount: jest.fn(),
         });
+
+        // Override the mock for access denied
+        (useApiHooks.useAdminStats as jest.Mock).mockReturnValue({
+            data: undefined,
+            isLoading: false,
+            error: null,
+            refetch: jest.fn(),
+        } as any);
 
         render(<AdminDashboard />);
 
@@ -141,12 +199,13 @@ describe('AdminDashboard', () => {
             deleteAccount: jest.fn(),
         });
 
-        mockUseAdminStats.mockReturnValue({
+        // Override the mock for admin dashboard
+        (useApiHooks.useAdminStats as jest.Mock).mockReturnValue({
             data: defaultStats,
             isLoading: false,
             error: null,
             refetch: jest.fn(),
-        });
+        } as any);
 
         render(<AdminDashboard />);
 
@@ -174,12 +233,13 @@ describe('AdminDashboard', () => {
             deleteAccount: jest.fn(),
         });
 
-        mockUseAdminStats.mockReturnValue({
+        // Override the mock for statistics
+        (useApiHooks.useAdminStats as jest.Mock).mockReturnValue({
             data: defaultStats,
             isLoading: false,
             error: null,
             refetch: jest.fn(),
-        });
+        } as any);
 
         render(<AdminDashboard />);
 
@@ -221,12 +281,13 @@ describe('AdminDashboard', () => {
             deleteAccount: jest.fn(),
         });
 
-        mockUseAdminStats.mockReturnValue({
+        // Override the mock for loading state
+        (useApiHooks.useAdminStats as jest.Mock).mockReturnValue({
             data: defaultStats,
             isLoading: true,
             error: null,
             refetch: jest.fn(),
-        });
+        } as any);
 
         render(<AdminDashboard />);
 
@@ -254,12 +315,13 @@ describe('AdminDashboard', () => {
             deleteAccount: jest.fn(),
         });
 
-        mockUseAdminStats.mockReturnValue({
+        // Override the mock for quick actions
+        (useApiHooks.useAdminStats as jest.Mock).mockReturnValue({
             data: defaultStats,
             isLoading: false,
             error: null,
             refetch: jest.fn(),
-        });
+        } as any);
 
         render(<AdminDashboard />);
 
@@ -298,12 +360,13 @@ describe('AdminDashboard', () => {
             deleteAccount: jest.fn(),
         });
 
-        mockUseAdminStats.mockReturnValue({
+        // Override the mock for recent activity
+        (useApiHooks.useAdminStats as jest.Mock).mockReturnValue({
             data: defaultStats,
             isLoading: false,
             error: null,
             refetch: jest.fn(),
-        });
+        } as any);
 
         render(<AdminDashboard />);
 
@@ -330,12 +393,13 @@ describe('AdminDashboard', () => {
             deleteAccount: jest.fn(),
         });
 
-        mockUseAdminStats.mockReturnValue({
+        // Override the mock for navigation
+        (useApiHooks.useAdminStats as jest.Mock).mockReturnValue({
             data: defaultStats,
             isLoading: false,
             error: null,
             refetch: jest.fn(),
-        });
+        } as any);
 
         render(<AdminDashboard />);
 
@@ -346,8 +410,8 @@ describe('AdminDashboard', () => {
     });
 
     it('handles theme toggle correctly', async () => {
-            const mockSetTheme = jest.fn();
-    jest.spyOn(require('next-themes'), 'useTheme').mockReturnValue({
+        const mockSetTheme = jest.fn();
+        jest.spyOn(require('next-themes'), 'useTheme').mockReturnValue({
             theme: 'light',
             setTheme: mockSetTheme,
         });
@@ -368,12 +432,13 @@ describe('AdminDashboard', () => {
             deleteAccount: jest.fn(),
         });
 
-        mockUseAdminStats.mockReturnValue({
+        // Override the mock for theme toggle
+        (useApiHooks.useAdminStats as jest.Mock).mockReturnValue({
             data: defaultStats,
             isLoading: false,
             error: null,
             refetch: jest.fn(),
-        });
+        } as any);
 
         render(<AdminDashboard />);
 
@@ -400,12 +465,13 @@ describe('AdminDashboard', () => {
             deleteAccount: jest.fn(),
         });
 
-        mockUseAdminStats.mockReturnValue({
+        // Override the mock for user info
+        (useApiHooks.useAdminStats as jest.Mock).mockReturnValue({
             data: defaultStats,
             isLoading: false,
             error: null,
             refetch: jest.fn(),
-        });
+        } as any);
 
         render(<AdminDashboard />);
 
@@ -415,3 +481,9 @@ describe('AdminDashboard', () => {
         });
     });
 });
+
+
+
+
+
+

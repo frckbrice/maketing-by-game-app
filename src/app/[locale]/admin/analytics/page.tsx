@@ -1,12 +1,24 @@
 'use client';
 
-import { AdminLayout } from '@/components/features/admin/admin-layout';
-import { AdminAnalyticsPage } from '@/components/features/admin/components/admin-analytics';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+import { AdminLayout } from '@/components/features/admin/components/admin-layout';
+import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
+
+const AdminAnalyticsPage = dynamic(
+  () => import('@/components/features/admin/components/admin-analytics').then(mod => ({ default: mod.AdminAnalyticsPage })),
+  {
+    loading: () => <LoadingSkeleton type="dashboard" />,
+    ssr: false
+  }
+);
 
 export default function AnalyticsPage() {
   return (
     <AdminLayout>
-      <AdminAnalyticsPage />
+      <Suspense fallback={<LoadingSkeleton type="dashboard" />}>
+        <AdminAnalyticsPage />
+      </Suspense>
     </AdminLayout>
   );
 }

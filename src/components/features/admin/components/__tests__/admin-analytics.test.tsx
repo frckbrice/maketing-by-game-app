@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AdminAnalytics } from '../admin-analytics';
+import { AdminAnalyticsPage } from '../admin-analytics';
 import { useAuth } from '@/lib/contexts/AuthContext';
 
 // Mock the hooks
@@ -22,7 +22,7 @@ jest.mock('react-i18next', () => ({
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 
-describe('AdminAnalytics', () => {
+describe('AdminAnalyticsPage', () => {
   const defaultUser = {
     id: '1',
     firstName: 'Admin',
@@ -81,7 +81,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     expect(screen.getByText('Analytics Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Comprehensive insights into platform performance')).toBeInTheDocument();
@@ -107,7 +107,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     await waitFor(() => {
       expect(mockRouter.replace).toHaveBeenCalledWith('/en/auth/login');
@@ -131,7 +131,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     await waitFor(() => {
       expect(screen.getByText('Analytics Dashboard')).toBeInTheDocument();
@@ -156,7 +156,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     await waitFor(() => {
       // Check user growth section
@@ -184,7 +184,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     await waitFor(() => {
       // Check game performance section
@@ -213,7 +213,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     await waitFor(() => {
       // Check revenue section
@@ -242,7 +242,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     await waitFor(() => {
       // Check engagement section
@@ -271,7 +271,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     const timeRangeSelect = screen.getByLabelText('Time Range');
     expect(timeRangeSelect).toBeInTheDocument();
@@ -301,7 +301,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     const exportButton = screen.getByText('Export Data');
     expect(exportButton).toBeInTheDocument();
@@ -329,7 +329,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     await waitFor(() => {
       // Check that chart placeholders are displayed
@@ -357,7 +357,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     await waitFor(() => {
       // Check chart type selection buttons
@@ -388,7 +388,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     await waitFor(() => {
       // Check that metric cards have proper styling
@@ -418,7 +418,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     await waitFor(() => {
       // Check that loading states are handled properly
@@ -444,7 +444,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     await waitFor(() => {
       // Check that trend indicators are displayed
@@ -473,7 +473,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     await waitFor(() => {
       // Check that responsive classes are applied
@@ -499,7 +499,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     await waitFor(() => {
       // Check summary statistics
@@ -525,7 +525,7 @@ describe('AdminAnalytics', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminAnalytics />);
+    render(<AdminAnalyticsPage />);
     
     const refreshButton = screen.getByText('Refresh Data');
     expect(refreshButton).toBeInTheDocument();

@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PasswordResetForm } from '../../PasswordResetForm';
+import { PasswordResetForm } from '../../reset-password/components/PasswordResetForm';
 
 export function ForgotPasswd() {
   const { t } = useTranslation();

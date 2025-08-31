@@ -4,7 +4,7 @@ A modern, **mobile-first PWA** for marketing lotteries that allows businesses to
 
 ![BlackFriday Marketing App Home Page](public/en/images/lotto_home.png)
 
-## ✨ Features
+##  Features
 
 ### Core Functionality
 
@@ -398,28 +398,28 @@ Ensure all Firebase configuration variables are set in your production environme
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 📚 Documentation
+##  Documentation
 
 For comprehensive documentation, troubleshooting guides, and setup instructions, see the [docs/](docs/) folder.
 
-### 📖 Quick Links
+###  Quick Links
 
-- [📚 Documentation Index](docs/README.md) - Complete documentation overview
-- [🌍 i18n Setup Guide](docs/setup/i18n-setup-guide.md) - Internationalization setup
-- [🔧 Troubleshooting Guide](docs/troubleshooting/general-troubleshooting.md) - Common issues and solutions
-- [🚨 i18n Troubleshooting](docs/internationalization/i18n-troubleshooting-guide.md) - Internationalization issues
+- [ Documentation Index](docs/README.md) - Complete documentation overview
+- [ i18n Setup Guide](docs/setup/i18n-setup-guide.md) - Internationalization setup
+- [ Troubleshooting Guide](docs/troubleshooting/general-troubleshooting.md) - Common issues and solutions
+- [ i18n Troubleshooting](docs/internationalization/i18n-troubleshooting-guide.md) - Internationalization issues
 
-## 🆘 Support
+##  Support
 
 - **Documentation**: Check the [docs/](docs/) folder for detailed guides
 - **Issues**: Report bugs via GitHub Issues
 - **Discussions**: Join community discussions on GitHub
 
-## 🎯 Roadmap
+##  Roadmap
 
 ### Phase 1 (Current)
 

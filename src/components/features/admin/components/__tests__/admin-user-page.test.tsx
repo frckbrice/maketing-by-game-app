@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AdminUserPage } from '../admin-user-page';
+import { AdminUsersPage } from '../admin-user-page';
 import { useAuth } from '@/lib/contexts/AuthContext';
 
 // Mock the hooks
@@ -22,7 +22,7 @@ jest.mock('react-i18next', () => ({
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 
-describe('AdminUserPage', () => {
+describe('AdminUsersPage', () => {
   const defaultUser = {
     id: '1',
     firstName: 'Admin',
@@ -93,7 +93,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     expect(screen.getByText('User Management')).toBeInTheDocument();
     expect(screen.getByText('Manage all users, vendors, and their permissions')).toBeInTheDocument();
@@ -119,7 +119,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     await waitFor(() => {
       expect(mockRouter.replace).toHaveBeenCalledWith('/en/auth/login');
@@ -143,7 +143,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     await waitFor(() => {
       // Check that all users are displayed
@@ -179,7 +179,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     await waitFor(() => {
       // Active users should show "Active" badge
@@ -209,7 +209,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     const createButton = screen.getByText('Create User');
     expect(createButton).toBeInTheDocument();
@@ -241,7 +241,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     await waitFor(() => {
       const editButtons = screen.getAllByText('Edit');
@@ -275,7 +275,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     await waitFor(() => {
       const deleteButtons = screen.getAllByText('Delete');
@@ -313,7 +313,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     const searchInput = screen.getByPlaceholderText('Search users...');
     expect(searchInput).toBeInTheDocument();
@@ -354,7 +354,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     const roleFilter = screen.getByLabelText('Role');
     expect(roleFilter).toBeInTheDocument();
@@ -395,7 +395,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     const statusFilter = screen.getByLabelText('Status');
     expect(statusFilter).toBeInTheDocument();
@@ -436,7 +436,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     const sortSelect = screen.getByLabelText('Sort by');
     expect(sortSelect).toBeInTheDocument();
@@ -474,7 +474,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     // Check pagination controls
     const pageSizeSelect = screen.getByLabelText('Show');
@@ -505,7 +505,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     await waitFor(() => {
       // Check total users count
@@ -539,7 +539,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     // Open create modal
     const createButton = screen.getByText('Create User');
@@ -574,7 +574,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     // Open create modal
     const createButton = screen.getByText('Create User');
@@ -608,7 +608,7 @@ describe('AdminUserPage', () => {
       deleteAccount: jest.fn(),
     });
 
-    render(<AdminUserPage />);
+    render(<AdminUsersPage />);
     
     await waitFor(() => {
       // Check that user activity data is displayed

@@ -57,3 +57,6 @@ public/en/images/ticket-*.json
 public/fr/images/ticket-*.json
 
 TODO.md
+lighthouse-*.json
+FIREBASE_*.md
+firebase-*.log
