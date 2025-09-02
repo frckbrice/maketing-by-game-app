@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { firestoreService } from '@/lib/firebase/services';
+import { firestoreService } from '@/lib/firebase/client-services';
 import {
   AlertCircle,
   ArrowLeft,

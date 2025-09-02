@@ -1,8 +1,11 @@
-import { GameCategory, LotteryGame } from '@/types';
+import { ID, Timestamp } from '@/types';
+
+// Re-export types from main types file
+export type { LotteryGame } from '@/types';
 
 // Games API Response Types
 export interface GamesResponse {
-  data: LotteryGame[];
+  data: import('@/types').LotteryGame[];
   total: number;
   page: number;
   limit: number;
@@ -12,6 +15,19 @@ export interface GamesResponse {
 export interface CategoriesResponse {
   data: GameCategory[];
   total: number;
+}
+
+// Game Category Types
+export interface GameCategory {
+  id: ID;
+  name: string;
+  description: string;
+  color: string;
+  icon: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 }
 
 // Games API Request Types
@@ -68,23 +84,5 @@ export interface GameCardData {
   status: string;
 }
 
-// Vendor Application Types
-export interface VendorApplication {
-  id: string;
-  userId: string;
-  status: 'pending' | 'approved' | 'rejected';
-  companyName: string;
-  businessRegistrationNumber?: string;
-  companyWebsite?: string;
-  contactEmail: string;
-  contactPhone?: string;
-  companyLogo?: string;
-  businessCertificate?: string;
-  productCategory: string;
-  description: string;
-  createdAt: number;
-  updatedAt: number;
-  reviewedBy?: string;
-  reviewedAt?: number;
-  rejectionReason?: string;
-}
+// Vendor Application interface is imported from vendor-application feature
+

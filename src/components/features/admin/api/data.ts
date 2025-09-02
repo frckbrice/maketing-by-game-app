@@ -1,4 +1,4 @@
-import { BarChart3, Building2, DollarSign, FileText, Gamepad2, Settings, Shield, ShoppingBag, Tag, TrendingUp, Users } from "lucide-react";
+import { BarChart3, Building2, DollarSign, FileText, Gamepad2, QrCode, Settings, Shield, ShoppingBag, Tag, TrendingUp, Users } from "lucide-react";
 import { AdminUser, NavItem, Permission } from "./type";
 
 // Mock data removed - production ready
@@ -133,6 +133,11 @@ export const DEFAULT_PERMISSIONS: Permission[] = [
         { title: 'Revenue', href: '/admin/analytics/revenue', icon: DollarSign },
         { title: 'User Behavior', href: '/admin/analytics/users', icon: Users },
       ],
+    },
+    {
+      title: 'QR Scan Events',
+      href: '/admin/scan-events',
+      icon: QrCode,
     },
     {
       title: 'Reports',

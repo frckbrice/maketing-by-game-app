@@ -28,25 +28,20 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { firestoreService } from '@/lib/firebase/services';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   BarChart3,
-  Calendar,
-  Clock,
   Download,
-  Eye,
   FileText,
   Filter,
   Gamepad2,
   MoreHorizontal,
-  PieChart,
   Plus,
   RefreshCw,
   Search,
   TrendingUp,
-  Users,
+  Users
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -240,7 +235,7 @@ export function AdminReportsPage() {
     queryFn: async () => {
       try {
         if (process.env.NODE_ENV === 'development') {
-          // Mock data for development
+          //TODO: Mock data for development
           const mockReports: Report[] = [
             {
               id: '1',
@@ -326,7 +321,7 @@ export function AdminReportsPage() {
       setSelectedTemplate(null);
       setReportParameters({});
       
-      // Simulate report generation with optimistic updates
+      //TODO: Simulate report generation with optimistic updates
       setTimeout(() => {
         queryClient.setQueryData(['admin-reports'], (old: Report[] = []) =>
           old.map(r => r.id === newReport.id ? { ...r, status: 'GENERATING' as const } : r)
@@ -392,8 +387,8 @@ export function AdminReportsPage() {
         return;
       }
 
-      // Create a mock download for demonstration
-      // In production, this would be a real API endpoint
+      //Create a mock download for demonstration
+      //TODO:  In production, this would be a real API endpoint
       const mockData = {
         reportId,
         reportName: report.name,

@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/table';
 import { useUserGames, useUserTickets, useVendorApplication } from '@/hooks/useApi';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import { Address, User, UserNotificationPreferences } from '@/types';
 import {
   ArrowLeft,
   Calendar,
@@ -38,6 +39,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { useAddAddress, useUpdateNotificationPreferences, useUpdateUserProfile } from '../api/mutations';
+import { useUserAddresses, useUserOrders } from '../api/queries';
 
 export const ProfilePage = () => {
   const { user, loading } = useAuth();
@@ -50,6 +53,15 @@ export const ProfilePage = () => {
   const { data: userTickets = [], isLoading: ticketsLoading } = useUserTickets(user?.id || '');
   const { data: userGames = [] } = useUserGames(user?.id || '');
   const { data: vendorApplication } = useVendorApplication(user?.id || '');
+
+  // Enhanced profile data
+  const { data: userOrders = [] } = useUserOrders(user?.id || '');
+  const { data: userAddresses = [] } = useUserAddresses(user?.id || '');
+
+  // Mutations for enhanced profile
+  const updateProfileMutation = useUpdateUserProfile();
+  const updateNotificationsMutation = useUpdateNotificationPreferences();
+  const addAddressMutation = useAddAddress();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const router = useRouter();
@@ -155,6 +167,31 @@ export const ProfilePage = () => {
     }).format(amount);
   };
 
+  // Enhanced profile handlers
+  const handleProfileUpdate = async (profileData: Partial<User>) => {
+    if (!user) return;
+
+    await updateProfileMutation.mutateAsync({
+      userId: user.id,
+      profileData
+    });
+  };
+
+  const handleNotificationUpdate = async (preferences: UserNotificationPreferences) => {
+    if (!user) return;
+
+    await updateNotificationsMutation.mutateAsync({
+      userId: user.id,
+      preferences
+    });
+  };
+
+  const handleAddressUpdate = async (addresses: Address[]) => {
+    // This handler is for the UserProfileTabs component
+    // Individual address operations are handled by separate mutations
+    console.log('Address update requested:', addresses);
+  };
+
   return (
     <>
       <div className='min-h-screen bg-white dark:bg-gray-900'>
@@ -172,7 +209,8 @@ export const ProfilePage = () => {
           onThemeToggle={() => setTheme(isDark ? 'light' : 'dark')}
         />
 
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+        <div
+          className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
           {/* Back Button and Vendor Application */}
           <div className='mb-6 flex justify-between items-center'>
             <Button

@@ -1,14 +1,3 @@
-import type {
-  GameCategory,
-  LotteryGame,
-  LotteryTicket,
-  Payment,
-  User,
-  UserRole,
-  UserStatus,
-  VendorApplication,
-  Winner,
-} from '@/types';
 import {
   createUserWithEmailAndPassword,
   deleteUser,
@@ -39,6 +28,17 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
+import type {
+  GameCategory,
+  LotteryGame,
+  LotteryTicket,
+  Payment,
+  User,
+  UserRole,
+  UserStatus,
+  VendorApplication,
+  Winner,
+} from '../../types';
 import { ROLE_CONFIG } from '../constants';
 import { auth, database, db } from './config';
 
@@ -101,7 +101,6 @@ const createBaseUserData = (
   status: 'ACTIVE' as UserStatus,
   emailVerified: false,
   phoneVerified: false,
-  twoFactorEnabled: false,
   createdAt: createDateTimestamp(),
   updatedAt: createDateTimestamp(),
   preferences: {
@@ -123,7 +122,6 @@ const createGoogleUserData = (user: FirebaseUser): Omit<User, 'id'> => ({
   status: 'ACTIVE' as UserStatus,
   emailVerified: user.emailVerified,
   phoneVerified: false,
-  twoFactorEnabled: false,
   createdAt: createDateTimestamp(),
   updatedAt: createDateTimestamp(),
   preferences: DEFAULT_USER_PREFERENCES,
@@ -904,6 +902,137 @@ export const firestoreService = {
       console.error('Error updating app settings:', error);
       throw error;
     }
+  },
+
+  // Marketplace operations
+  async getShops(params?: { limit?: number; status?: string }): Promise<any[]> {
+    try {
+      let q = query(collection(db, 'shops'), orderBy('createdAt', 'desc'));
+      
+      if (params?.status) {
+        q = query(q, where('status', '==', params.status));
+      }
+      
+      if (params?.limit) {
+        q = query(q, limit(params.limit));
+      }
+      
+      const querySnapshot = await getDocs(q);
+      return mapFirestoreDocs(querySnapshot);
+    } catch (error) {
+      console.error('Error fetching shops:', error);
+      return [];
+    }
+  },
+
+  async getShop(shopId: string): Promise<any | null> {
+    try {
+      const docRef = doc(db, 'shops', shopId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() };
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching shop:', error);
+      return null;
+    }
+  },
+
+  async createShop(shopData: any): Promise<string> {
+    return createDocumentWithTimestamps('shops', shopData);
+  },
+
+  async updateShop(shopId: string, data: any): Promise<void> {
+    await updateDocumentWithTimestamp('shops', shopId, data);
+  },
+
+  async getProducts(params?: { limit?: number; shopId?: string; categoryId?: string }): Promise<any[]> {
+    try {
+      let q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+      
+      if (params?.shopId) {
+        q = query(q, where('shopId', '==', params.shopId));
+      }
+      
+      if (params?.categoryId) {
+        q = query(q, where('categoryId', '==', params.categoryId));
+      }
+      
+      if (params?.limit) {
+        q = query(q, limit(params.limit));
+      }
+      
+      const querySnapshot = await getDocs(q);
+      return mapFirestoreDocs(querySnapshot);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      return [];
+    }
+  },
+
+  async getOrders(params?: { limit?: number; userId?: string; shopId?: string }): Promise<any[]> {
+    try {
+      let q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
+      
+      if (params?.userId) {
+        q = query(q, where('userId', '==', params.userId));
+      }
+      
+      if (params?.shopId) {
+        q = query(q, where('shopId', '==', params.shopId));
+      }
+      
+      if (params?.limit) {
+        q = query(q, limit(params.limit));
+      }
+      
+      const querySnapshot = await getDocs(q);
+      return mapFirestoreDocs(querySnapshot);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      return [];
+    }
+  },
+
+  async createOrder(orderData: any): Promise<string> {
+    return createDocumentWithTimestamps('orders', orderData);
+  },
+
+  async updateOrder(orderId: string, data: any): Promise<void> {
+    await updateDocumentWithTimestamp('orders', orderId, data);
+  },
+
+  async getVendorApplications(params?: { status?: string; limit?: number }): Promise<VendorApplication[]> {
+    try {
+      let q = query(collection(db, 'vendorApplications'), orderBy('createdAt', 'desc'));
+      
+      if (params?.status) {
+        q = query(q, where('status', '==', params.status));
+      }
+      
+      if (params?.limit) {
+        q = query(q, limit(params.limit));
+      }
+      
+      const querySnapshot = await getDocs(q);
+      return mapFirestoreDocs<VendorApplication>(querySnapshot);
+    } catch (error) {
+      console.error('Error fetching vendor applications:', error);
+      return [];
+    }
+  },
+
+  async updateVendorApplicationStatus(applicationId: string, status: string, adminId: string): Promise<void> {
+    await updateDocumentWithTimestamp('vendorApplications', applicationId, {
+      status,
+      reviewedBy: adminId,
+      reviewedAt: serverTimestamp(),
+    });
+  },
+
+  async createDocumentWithTimestamps(collection: string, data: any): Promise<string> {
+    return createDocumentWithTimestamps(collection, data);
   },
 };
 

@@ -1,7 +1,7 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/firebase/config';
-import { addDoc, collection, updateDoc, doc, deleteDoc, query, where, getDocs, limit, setDoc } from 'firebase/firestore';
-import { AdminUser, VendorData, Notification, Role, AppSettings } from './type';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { AdminUser, AppSettings, Notification, Role, VendorData } from './type';
 
 // Admin User Mutations
 export const useCreateAdmin = () => {
@@ -176,8 +176,58 @@ export const useSendNotification = () => {
           sentAt: new Date(),
         });
         
-        // TODO: Implement actual notification sending logic
-        // This would integrate with FCM or other notification services
+        // Send the notification through all channels
+        try {
+          // Get the notification data
+          const notificationDoc = await getDoc(doc(db, 'notifications', notificationId));
+          const notification = notificationDoc.data();
+          
+          if (notification) {
+            // Call the comprehensive notification API
+            const response = await fetch('/api/admin/send-notification', {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('auth_token') : ''}`,
+              },
+              body: JSON.stringify({
+                notificationId,
+                title: notification.title,
+                message: notification.message,
+                targetAudience: notification.targetAudience,
+                recipients: notification.recipients,
+              })
+            });
+            
+            if (!response.ok) {
+              const errorData = await response.json().catch(() => ({}));
+              throw new Error(errorData.error || 'Failed to send notification');
+            }
+            
+            const result = await response.json();
+            console.log('✅ Notification sent successfully:', result);
+            
+            // Update notification with final delivery stats
+            await updateDoc(doc(db, 'notifications', notificationId), {
+              finalDeliveryStats: result.stats,
+              fullyProcessed: true,
+            });
+          }
+        } catch (sendError) {
+          console.error('❌ Failed to send notification:', sendError);
+          
+          // Update notification status to show sending failed
+          await updateDoc(doc(db, 'notifications', notificationId), {
+            status: 'FAILED',
+            errorMessage: sendError instanceof Error ? sendError.message : String(sendError),
+            failedAt: new Date(),
+          }).catch(updateError => {
+            console.error('Failed to update notification status:', updateError);
+          });
+          
+          // Re-throw error so the UI can show the failure
+          throw sendError;
+        }
         
         return notificationId;
       } catch (error) {

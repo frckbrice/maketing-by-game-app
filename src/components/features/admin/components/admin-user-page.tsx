@@ -63,8 +63,8 @@ export function AdminUsersPage() {
   );
   const [usersLoading, setUsersLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [roleFilter, setRoleFilter] = useState<string>('ALL_ROLES');
+  const [statusFilter, setStatusFilter] = useState<string>('ALL_STATUS');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -82,8 +82,8 @@ export function AdminUsersPage() {
         limit: pageSize,
         search: searchTerm,
         filters: {
-          ...(roleFilter !== 'all' && { role: roleFilter }),
-          ...(statusFilter !== 'all' && { status: statusFilter }),
+          ...(roleFilter !== 'ALL_ROLES' && { role: roleFilter }),
+          ...(statusFilter !== 'ALL_STATUS' && { status: statusFilter }),
         },
       });
       setUsersData(data);
@@ -295,7 +295,7 @@ export function AdminUsersPage() {
                     <SelectValue placeholder='Filter by role' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='all'>All Roles</SelectItem>
+                    <SelectItem value='ALL_ROLES'>All Roles</SelectItem>
                     <SelectItem value='USER'>Users</SelectItem>
                     <SelectItem value='VENDOR'>Vendors</SelectItem>
                     <SelectItem value='ADMIN'>Admins</SelectItem>
@@ -308,7 +308,7 @@ export function AdminUsersPage() {
                     <SelectValue placeholder='Filter by status' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='all'>All Status</SelectItem>
+                    <SelectItem value='ALL_STATUS'>All Status</SelectItem>
                     <SelectItem value='ACTIVE'>Active</SelectItem>
                     <SelectItem value='SUSPENDED'>Suspended</SelectItem>
                     <SelectItem value='INACTIVE'>Inactive</SelectItem>
@@ -521,7 +521,7 @@ export function AdminUsersPage() {
                   No users found
                 </h3>
                 <p className='text-gray-500 dark:text-gray-400'>
-                  {searchTerm || roleFilter || statusFilter
+                  {searchTerm || (roleFilter !== 'ALL_ROLES') || (statusFilter !== 'ALL_STATUS')
                     ? 'Try adjusting your search or filters'
                     : 'No users are registered yet'}
                 </p>

@@ -3,8 +3,6 @@
 import { Footer } from '@/components/globals/footer';
 import { DesktopHeader } from '@/components/home/components/DesktopHeader';
 import { MobileNavigation } from '@/components/home/components/MobileNavigation';
-import { firestoreService } from '@/lib/firebase/services';
-import type { Winner } from '@/types';
 import {
   Calendar,
   Crown,
@@ -15,13 +13,9 @@ import {
   Trophy,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getMockWinners } from '../api/data';
-
-// Pagination constants
-const WINNERS_PER_PAGE = 12;
-const CACHE_TIME = 5 * 60 * 1000; // 5 minutes
+import { useWinners } from '../api/queries';
 
 export function WinnersPage() {
   const { t } = useTranslation();
@@ -31,110 +25,24 @@ export function WinnersPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('all');
   const [selectedWinner, setSelectedWinner] = useState<any>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-
-  // Data fetching state
-  const [winners, setWinners] = useState<Winner[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalWinners, setTotalWinners] = useState(0);
 
-  // Cache for performance
-  const [winnersCache, setWinnersCache] = useState<Map<string, Winner[]>>(
-    new Map()
-  );
-  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
+  // Use the new query hook
+  const {
+    data: winnersResponse,
+    isLoading: loading,
+    error,
+    refetch
+  } = useWinners(selectedPeriod, currentPage);
+
+  const winners = winnersResponse?.data || [];
+  const totalWinners = winnersResponse?.total || 0;
+  const hasMore = winnersResponse?.hasMore || false;
 
   // Ensure component is mounted before accessing theme
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // Fetch winners with caching and pagination
-  const fetchWinners = useCallback(
-    async (page: number, period: string, forceRefresh = false) => {
-      const cacheKey = `${period}_${page}`;
-      const now = Date.now();
-
-      // Check cache first (unless forcing refresh)
-      if (!forceRefresh && winnersCache.has(cacheKey)) {
-        const cachedData = winnersCache.get(cacheKey);
-        if (cachedData && now - lastFetchTime < CACHE_TIME) {
-          setWinners(cachedData);
-          setLoading(false);
-          return;
-        }
-      }
-
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Fetch winners from API
-        const allWinners = await firestoreService.getWinners();
-
-        // Filter by period
-        let filteredWinners = allWinners;
-        if (period !== 'all') {
-          const currentDate = new Date();
-          filteredWinners = allWinners.filter(winner => {
-            const winnerDate = new Date(winner.announcedAt);
-            switch (period) {
-              case 'monthly':
-                return (
-                  winnerDate.getMonth() === currentDate.getMonth() &&
-                  winnerDate.getFullYear() === currentDate.getFullYear()
-                );
-              case 'weekly': {
-                const weekAgo = new Date(
-                  currentDate.getTime() - 7 * 24 * 60 * 60 * 1000
-                );
-                return winnerDate >= weekAgo;
-              }
-              case 'daily':
-                return winnerDate.toDateString() === currentDate.toDateString();
-              default:
-                return true;
-            }
-          });
-        }
-
-        // Calculate pagination
-        const startIndex = (page - 1) * WINNERS_PER_PAGE;
-        const endIndex = startIndex + WINNERS_PER_PAGE;
-        const paginatedWinners = filteredWinners.slice(startIndex, endIndex);
-
-        setTotalWinners(filteredWinners.length);
-        setHasMore(endIndex < filteredWinners.length);
-        setWinners(paginatedWinners);
-
-        // Update cache
-        setWinnersCache(prev => new Map(prev.set(cacheKey, paginatedWinners)));
-        setLastFetchTime(now);
-      } catch (err) {
-        console.error('Error fetching winners:', err);
-        setError('Failed to load winners. Please try again.');
-
-        // Fallback to mock data if API fails
-        if (page === 1) {
-          setWinners(getMockWinners());
-          setTotalWinners(6);
-          setHasMore(false);
-        }
-      } finally {
-        setLoading(false);
-      }
-    },
-    [winnersCache, lastFetchTime]
-  );
-
-  // Fetch winners when period or page changes
-  useEffect(() => {
-    if (mounted) {
-      fetchWinners(currentPage, selectedPeriod);
-    }
-  }, [mounted, currentPage, selectedPeriod, fetchWinners]);
 
   // Handle period change
   const handlePeriodChange = (period: string) => {
@@ -257,7 +165,7 @@ export function WinnersPage() {
           {/* Loading State */}
           {loading && currentPage === 1 && (
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8'>
-              {Array.from({ length: WINNERS_PER_PAGE - 3 }).map((_, index) => (
+              {Array.from({ length: 3 }).map((_, index) => (
                 <div
                   key={index}
                   className='bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl animate-pulse'
@@ -277,11 +185,9 @@ export function WinnersPage() {
           {error && (
             <div className='text-center py-12'>
               <div className='bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 max-w-md mx-auto'>
-                <p className='text-red-600 dark:text-red-400 mb-4'>{error}</p>
+                <p className='text-red-600 dark:text-red-400 mb-4'>{error.message}</p>
                 <button
-                  onClick={() =>
-                    fetchWinners(currentPage, selectedPeriod, true)
-                  }
+                  onClick={() => refetch()}
                   className='bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors'
                 >
                   Try Again
@@ -388,7 +294,7 @@ export function WinnersPage() {
               </div>
 
               {/* Pagination */}
-              {totalWinners > WINNERS_PER_PAGE && (
+              {totalWinners > 3 && (
                 <div className='flex items-center justify-center space-x-2 mb-8'>
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
@@ -400,7 +306,7 @@ export function WinnersPage() {
 
                   <span className='px-4 py-2 text-gray-600 dark:text-gray-400'>
                     Page {currentPage} of{' '}
-                    {Math.ceil(totalWinners / WINNERS_PER_PAGE)}
+                    {Math.ceil(totalWinners / 3)}
                   </span>
 
                   <button

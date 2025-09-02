@@ -345,5 +345,7 @@ const nextConfig = {
 };
 
 // module.exports = withPWA(withNextIntl(nextConfig));
-module.exports = withPWA(nextConfig);
+module.exports = process.env.NODE_ENV === "production" 
+  ? withPWA(nextConfig) 
+  : nextConfig;
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { firestoreService } from '@/lib/firebase/services';
+import { firestoreService } from '@/lib/firebase/client-services';
 import type { PaginatedResponse } from '@/types';
 import { useMutation, UseMutationOptions, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -61,6 +61,11 @@ export const queryKeys = {
   products: ['products'] as const,
   product: (id: string) => ['products', id] as const,
   
+  // Shops
+  shops: ['shops'] as const,
+  shop: (id: string) => ['shops', id] as const,
+  topShops: (limit: number) => ['shops', 'top', limit] as const,
+  
   // Tickets
   tickets: ['tickets'] as const,
   ticket: (id: string) => ['tickets', id] as const,
@@ -86,9 +91,127 @@ export const useCategories = (options?: UseQueryOptions<any[], ApiError>) => {
     queryKey: queryKeys.categories,
     queryFn: async () => {
       try {
-        return await firestoreService.getCategories();
+        // Try to fetch from firestore first
+        if (firestoreService.getCategories) {
+          return await firestoreService.getCategories();
+        }
+        
+        
+        // Development fallback to mock data
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Using mock categories data for development');
+          return [
+            {
+              id: 'cat_1',
+              name: 'Electronics',
+              description: 'Electronic devices and gadgets',
+              icon: '📱',
+              color: '#3B82F6',
+              isActive: true,
+              sortOrder: 1
+            },
+            {
+              id: 'cat_2',
+              name: 'Fashion',
+              description: 'Clothing and accessories',
+              icon: '👗',
+              color: '#EC4899',
+              isActive: true,
+              sortOrder: 2
+            },
+            {
+              id: 'cat_3',
+              name: 'Home & Garden',
+              description: 'Home improvement and garden supplies',
+              icon: '🏠',
+              color: '#10B981',
+              isActive: true,
+              sortOrder: 3
+            },
+            {
+              id: 'cat_4',
+              name: 'Sports',
+              description: 'Sports equipment and fitness gear',
+              icon: '⚽',
+              color: '#F59E0B',
+              isActive: true,
+              sortOrder: 4
+            }
+          ];
+        }
+        
+        throw new Error('No categories available');
       } catch (error) {
         console.error('Error fetching categories:', error);
+        throw error;
+      }
+    },
+    retry: 3,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    ...options,
+  });
+};
+
+// Shops - Using shops API directly
+export const useShops = (options?: UseQueryOptions<any[], ApiError>) => {
+  return useQuery({
+    queryKey: queryKeys.shops,
+    queryFn: async () => {
+      try {
+        // Fallback to API call
+        const response = await fetch('/api/shops');
+        if (response.ok) {
+          return response.json();
+        }
+        
+        // Development fallback to mock data
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Using mock shops data for development');
+          return [
+            {
+              id: 'shop_1',
+              name: 'Electronics Store',
+              description: 'Premium electronics and gadgets',
+              category: 'Electronics',
+              logo: '',
+              ownerId: 'admin_1'
+            },
+            {
+              id: 'shop_2',
+              name: 'Fashion Boutique',
+              description: 'Trendy fashion and accessories',
+              category: 'Fashion',
+              logo: '',
+              ownerId: 'admin_1'
+            }
+          ];
+        }
+        
+        throw new Error('No shops available');
+      } catch (error) {
+        console.error('Error fetching shops:', error);
+        throw error;
+      }
+    },
+    retry: 3,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    ...options,
+  });
+};
+
+export const useTopShops = (limit: number = 6, options?: UseQueryOptions<any[], ApiError>) => {
+  return useQuery({
+    queryKey: queryKeys.topShops(limit),
+    queryFn: async () => {
+      try {
+        //TODO: For now, return empty array - will be implemented with shops API
+        return [];
+      } catch (error) {
+        console.error('Error fetching top shops:', error);
         throw error;
       }
     },
@@ -727,6 +850,58 @@ export const useCreateWinner = (options?: UseMutationOptions<any, ApiError, any>
   });
 };
 
+export const useCreateShop = (options?: UseMutationOptions<any, ApiError, any>) => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: any) => {
+      try {
+        // Try to create shop via API first
+        const response = await fetch('/api/shops', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+          return response.json();
+        }
+        
+        // Development fallback - create mock shop
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Using mock shop creation for development');
+          const shopId = `shop_${Date.now()}`;
+          return { id: shopId, ...data };
+        }
+        
+        throw new Error('Failed to create shop');
+      } catch (error) {
+        console.error('Shop creation error:', error);
+        throw error;
+      }
+    },
+    onSuccess: (data) => {
+      // Invalidate and refetch shops queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.shops });
+      queryClient.invalidateQueries({ queryKey: queryKeys.topShops(6) });
+      
+      // Optimistically update the shops list
+      queryClient.setQueryData(queryKeys.shops, (oldData: any[] | undefined) => {
+        if (oldData) {
+          return [...oldData, data];
+        }
+        return [data];
+      });
+      
+      toast.success('Shop created successfully');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to create shop');
+    },
+    ...options,
+  });
+};
+
 export const useUpdateWinner = (options?: UseMutationOptions<any, ApiError, { id: string; data: any }>) => {
   const queryClient = useQueryClient();
   
@@ -1084,6 +1259,93 @@ export const useUserGames = (userId: string, options?: UseQueryOptions<any[], Ap
       return games.filter(Boolean);
     },
     enabled: !!userId && tickets.length > 0,
+    ...options,
+  });
+};
+
+// Products hook
+export const useProducts = (options?: UseQueryOptions<any[], ApiError>) => {
+  return useQuery({
+    queryKey: queryKeys.products,
+    queryFn: async () => {
+      try {
+        // Try to fetch from firestore first
+        if (firestoreService.getProducts) {
+          return await firestoreService.getProducts();
+        }
+        
+        // Development fallback to mock data
+        if (process.env.NODE_ENV === 'development') {
+          return [
+            {
+              id: '1',
+              name: 'iPhone 15 Pro Max',
+              description: 'Latest iPhone with advanced features',
+              price: 1199,
+              currency: 'USD',
+              images: ['https://example.com/iphone15.jpg'],
+              category: 'Electronics',
+              tags: ['smartphone', 'apple', 'premium'],
+              shop: {
+                shopId: '1',
+                shopName: 'TechZone Central Africa',
+                shopLogo: 'https://example.com/techzone-logo.jpg',
+              },
+              rating: 4.8,
+              reviewCount: 156,
+              likeCount: 892,
+              shareCount: 234,
+              isAvailable: true,
+              isFeatured: true,
+              isNew: true,
+              stockQuantity: 25,
+              status: 'ACTIVE',
+              isLotteryEnabled: true,
+              lotteryPrice: 1199,
+              playedCount: 45,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+            },
+            {
+              id: '2',
+              name: 'Samsung Galaxy S24 Ultra',
+              description: 'Premium Android smartphone',
+              price: 1299,
+              currency: 'USD',
+              images: ['https://example.com/galaxy-s24.jpg'],
+              category: 'Electronics',
+              tags: ['smartphone', 'samsung', 'android'],
+              shop: {
+                shopId: '2',
+                shopName: 'Fashion Hub Cameroon',
+                shopLogo: 'https://example.com/fashionhub-logo.jpg',
+              },
+              rating: 4.6,
+              reviewCount: 89,
+              likeCount: 567,
+              shareCount: 123,
+              isAvailable: true,
+              isFeatured: false,
+              isNew: true,
+              stockQuantity: 18,
+              status: 'ACTIVE',
+              isLotteryEnabled: true,
+              lotteryPrice: 1299,
+              playedCount: 23,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+            },
+          ];
+        }
+        
+        throw new Error('Products service not available');
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+      }
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
     ...options,
   });
 };

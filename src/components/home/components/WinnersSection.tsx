@@ -1,8 +1,8 @@
 // WinnersSection.jsx
 import { Button } from '@/components/ui/Button';
 import { CheckCircle, Clock, Gift, Shield, Trophy } from 'lucide-react';
-import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
+import OptimizedImage from '@/components/performance/OptimizedImage';
 
 import { HOME_WINNERS } from '@/lib/constants';
 
@@ -154,7 +154,7 @@ export const WinnersSection = ({ isDark }: { isDark: boolean }) => {
                     <div className='text-center'>
                       {/* Winner Avatar */}
                       <div className='w-16 h-16 mx-auto mb-4 rounded-full overflow-hidden group-hover:scale-110 transition-transform duration-300 border-2 border-orange-500/30'>
-                        <Image
+                        <OptimizedImage
                           width={64}
                           height={64}
                           src={`/${locale}/images/${winner.image}`}

@@ -1,5 +1,5 @@
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { firestoreService } from '@/lib/firebase/services';
+import { firestoreService } from '@/lib/firebase/client-services';
 import { notificationService } from '@/lib/services/notificationService';
 import { useCallback, useEffect, useState } from 'react';
 

@@ -1,4 +1,4 @@
-import { realtimeService } from '@/lib/firebase/services';
+import { realtimeService } from '@/lib/firebase/client-services';
 import { useEffect, useState } from 'react';
 
 export function useGameCounter(gameId: string) {

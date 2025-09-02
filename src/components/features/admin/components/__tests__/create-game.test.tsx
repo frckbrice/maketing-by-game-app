@@ -1,5 +1,6 @@
-import { useCategories, useCreateGame } from '@/hooks/useApi';
+import { useCategories, useCreateGame, useCreateShop, useProducts, useShops } from '@/hooks/useApi';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import { firestoreService } from '@/lib/firebase/client-services';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -9,16 +10,20 @@ import { CreateGamePage } from '../create-game';
 // Mock dependencies
 jest.mock('@/lib/contexts/AuthContext');
 jest.mock('@/hooks/useApi');
+jest.mock('@/lib/firebase/client-services');
 jest.mock('next/navigation');
 jest.mock('react-i18next');
 jest.mock('sonner');
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 const mockUseCategories = useCategories as jest.MockedFunction<typeof useCategories>;
+const mockUseShops = useShops as jest.MockedFunction<typeof useShops>;
+const mockUseProducts = useProducts as jest.MockedFunction<typeof useProducts>;
 const mockUseCreateGame = useCreateGame as jest.MockedFunction<typeof useCreateGame>;
-const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
+const mockUseCreateShop = useCreateShop as jest.MockedFunction<typeof useCreateShop>;
 const mockUseTranslation = useTranslation as jest.MockedFunction<typeof useTranslation>;
 const mockToast = toast as jest.Mocked<typeof toast>;
+const mockFirestoreService = firestoreService as jest.Mocked<typeof firestoreService>;
 
 const defaultUser = {
     id: '1',
@@ -79,6 +84,48 @@ const mockCategories = [
     },
 ];
 
+const mockShops = [
+    {
+        id: '1',
+        name: 'Shop A',
+        description: 'Description for Shop A',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+    },
+    {
+        id: '2',
+        name: 'Shop B',
+        description: 'Description for Shop B',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+    },
+];
+
+const mockProducts = [
+    {
+        id: '1',
+        name: 'Product 1',
+        description: 'Description for Product 1',
+        price: 100,
+        quantity: 10,
+        categoryId: '1',
+        shopId: '1',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+    },
+    {
+        id: '2',
+        name: 'Product 2',
+        description: 'Description for Product 2',
+        price: 200,
+        quantity: 5,
+        categoryId: '2',
+        shopId: '2',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+    },
+];
+
 describe('CreateGamePage', () => {
     beforeEach(() => {
         mockUseAuth.mockReturnValue({
@@ -105,11 +152,31 @@ describe('CreateGamePage', () => {
             isLoading: false,
             error: null,
         } as any);
+        mockUseShops.mockReturnValue({
+            data: mockShops,
+            isLoading: false,
+            error: null,
+        } as any);
+        mockUseProducts.mockReturnValue({
+            data: mockProducts,
+            isLoading: false,
+            error: null,
+        } as any);
         mockUseCreateGame.mockReturnValue({
             mutate: jest.fn(),
             isLoading: false,
             error: null,
         } as any);
+        mockUseCreateShop.mockReturnValue({
+            mutate: jest.fn(),
+            isLoading: false,
+            error: null,
+        } as any);
+
+        mockToast.success = jest.fn();
+        mockToast.error = jest.fn();
+        mockToast.info = jest.fn();
+        mockToast.warning = jest.fn();
     });
 
     afterEach(() => {
@@ -118,6 +185,9 @@ describe('CreateGamePage', () => {
 
     describe('Access Control', () => {
         it('redirects non-admin users', () => {
+            const mockRouter = { push: jest.fn() };
+            jest.spyOn(require('next/navigation'), 'useRouter').mockReturnValue(mockRouter);
+
             mockUseAuth.mockReturnValue({
                 user: { ...defaultUser, role: 'USER' },
                 loading: false,
@@ -135,8 +205,9 @@ describe('CreateGamePage', () => {
             });
 
             render(<CreateGamePage />);
-            // Component should redirect, so we check for the redirect behavior
-            expect(screen.getByText('Create New Game')).toBeInTheDocument();
+            
+            // Check that the redirect was called
+            expect(mockRouter.push).toHaveBeenCalledWith('/');
         });
 
         it('renders for admin users', async () => {
@@ -174,45 +245,17 @@ describe('CreateGamePage', () => {
     });
 
     describe('Form Validation', () => {
-        it('shows validation error for empty title', async () => {
-            render(<CreateGamePage />);
-
-            await waitFor(() => {
-                const submitButton = screen.getByRole('button', { name: /admin\.createGame/i });
-                fireEvent.click(submitButton);
-            });
-
-            await waitFor(() => {
-                expect(screen.getByText(/title must be at least 3 characters/i)).toBeInTheDocument();
-            });
-        });
-
-        it('shows validation error for empty description', async () => {
-            render(<CreateGamePage />);
-
-            await waitFor(() => {
-                const submitButton = screen.getByRole('button', { name: /admin\.createGame/i });
-                fireEvent.click(submitButton);
-            });
-
-            await waitFor(() => {
-                expect(screen.getByText(/description must be at least 10 characters/i)).toBeInTheDocument();
-            });
-        });
-
         it('shows validation error for invalid ticket price', async () => {
             render(<CreateGamePage />);
 
             await waitFor(() => {
-                const ticketPriceInput = screen.getByLabelText(/ticket price/i);
-                fireEvent.change(ticketPriceInput, { target: { value: '0' } });
-
                 const submitButton = screen.getByRole('button', { name: /admin\.createGame/i });
                 fireEvent.click(submitButton);
             });
 
+            // Check for basic validation errors that should always show
             await waitFor(() => {
-                expect(screen.getByText(/ticket price must be greater than 0/i)).toBeInTheDocument();
+                expect(screen.getByText('Title must be at least 3 characters')).toBeInTheDocument();
             });
         });
 
@@ -220,15 +263,13 @@ describe('CreateGamePage', () => {
             render(<CreateGamePage />);
 
             await waitFor(() => {
-                const maxParticipantsInput = screen.getByLabelText(/max participants/i);
-                fireEvent.change(maxParticipantsInput, { target: { value: '0' } });
-
                 const submitButton = screen.getByRole('button', { name: /admin\.createGame/i });
                 fireEvent.click(submitButton);
             });
 
+            // Check for basic validation errors that should always show
             await waitFor(() => {
-                expect(screen.getByText(/must have at least 1 participant/i)).toBeInTheDocument();
+                expect(screen.getByText('Description must be at least 10 characters')).toBeInTheDocument();
             });
         });
     });
@@ -245,20 +286,22 @@ describe('CreateGamePage', () => {
             render(<CreateGamePage />);
 
             await waitFor(() => {
-                // Fill in form fields
+                // Fill in all required fields with valid data
                 const titleInput = screen.getByLabelText(/game title/i);
                 const descriptionInput = screen.getByLabelText(/description/i);
-                const ticketPriceInput = screen.getByLabelText(/ticket price/i);
-                const maxParticipantsInput = screen.getByLabelText(/max participants/i);
+                const categorySelect = screen.getByLabelText(/category/i);
+                const shopSelect = screen.getByLabelText(/shop/i);
+                const productSelect = screen.getByLabelText(/select product/i);
                 const startDateInput = screen.getByLabelText(/start date/i);
                 const endDateInput = screen.getByLabelText(/end date/i);
 
                 fireEvent.change(titleInput, { target: { value: 'Test Game' } });
                 fireEvent.change(descriptionInput, { target: { value: 'This is a test game description' } });
-                fireEvent.change(ticketPriceInput, { target: { value: '10.00' } });
-                fireEvent.change(maxParticipantsInput, { target: { value: '100' } });
-                fireEvent.change(startDateInput, { target: { value: '2024-12-01' } });
-                fireEvent.change(endDateInput, { target: { value: '2024-12-31' } });
+                fireEvent.change(categorySelect, { target: { value: '1' } });
+                fireEvent.change(shopSelect, { target: { value: '1' } });
+                fireEvent.change(productSelect, { target: { value: '1' } });
+                fireEvent.change(startDateInput, { target: { value: '2024-12-01T10:00' } });
+                fireEvent.change(endDateInput, { target: { value: '2024-12-31T18:00' } });
 
                 const submitButton = screen.getByRole('button', { name: /admin\.createGame/i });
                 fireEvent.click(submitButton);

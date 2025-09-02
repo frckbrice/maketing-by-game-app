@@ -1,6 +1,6 @@
 'use client';
 
-import { authService, firestoreService } from '@/lib/firebase/services';
+import { authService, firestoreService } from '@/lib/firebase/client-services';
 import type { User } from '@/types';
 import { User as FirebaseUser } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';

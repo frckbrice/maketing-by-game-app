@@ -45,238 +45,40 @@ import {
 } from 'recharts';
 import { COLORS } from '../api/data';
 import { AnalyticsData } from '../api/type';
+import { useAnalyticsData } from '../api/queries';
 
 
 
 export function AdminAnalyticsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(
-    null
-  );
-  const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('7d');
   const [refreshing, setRefreshing] = useState(false);
+  
+  // Use the admin analytics hook with time range parameter
+  const { data: analyticsData, isLoading: analyticsLoading, refetch } = useAnalyticsData(timeRange);
 
-  const fetchAnalytics = useCallback(async () => {
+  const handleRefresh = useCallback(async () => {
     try {
-      setAnalyticsLoading(true);
-
-      // Fetch real data from Firebase
-      const { firestoreService } = await import('@/lib/firebase/services');
-      const [users, games, tickets, payments, categories] = await Promise.all([
-        firestoreService.getUsers(),
-        firestoreService.getGames(),
-        firestoreService.getAllTickets(),
-        firestoreService.getAllPayments(),
-        firestoreService.getCategories(),
-      ]);
-
-      // Calculate time range
-      const now = Date.now();
-      let startTime = now;
-      switch (timeRange) {
-        case '7d':
-          startTime = now - (7 * 24 * 60 * 60 * 1000);
-          break;
-        case '30d':
-          startTime = now - (30 * 24 * 60 * 60 * 1000);
-          break;
-        case '90d':
-          startTime = now - (90 * 24 * 60 * 60 * 1000);
-          break;
-        case '1y':
-          startTime = now - (365 * 24 * 60 * 60 * 1000);
-          break;
-        default:
-          startTime = now - (30 * 24 * 60 * 60 * 1000);
-      }
-
-      // Calculate overview metrics
-      const totalRevenue = payments
-        .filter((payment: any) => payment.status === 'COMPLETED')
-        .reduce((sum: number, payment: any) => sum + payment.amount, 0);
-
-      const recentUsers = users.filter((user: any) => user.createdAt >= startTime);
-      const recentGames = games.filter((game: any) => game.createdAt >= startTime);
-      const recentTickets = tickets.filter((ticket: any) => ticket.createdAt >= startTime);
-      const recentPayments = payments
-        .filter((payment: any) => payment.createdAt >= startTime && payment.status === 'COMPLETED');
-
-      // Calculate growth rates (comparing with previous period)
-      const previousPeriodStart = startTime - (now - startTime);
-      const previousUsers = users.filter((user: any) =>
-        user.createdAt >= previousPeriodStart && user.createdAt < startTime);
-      const previousGames = games.filter((game: any) =>
-        game.createdAt >= previousPeriodStart && game.createdAt < startTime);
-      const previousPayments = payments.filter((payment: any) =>
-        payment.createdAt >= previousPeriodStart && payment.createdAt < startTime && payment.status === 'COMPLETED');
-
-      const previousRevenue = previousPayments.reduce((sum: number, payment: any) => sum + payment.amount, 0);
-      const recentRevenue = recentPayments.reduce((sum: number, payment: any) => sum + payment.amount, 0);
-
-      const revenueGrowth = previousRevenue > 0 ? ((recentRevenue - previousRevenue) / previousRevenue) * 100 : 0;
-      const userGrowth = previousUsers.length > 0 ? ((recentUsers.length - previousUsers.length) / previousUsers.length) * 100 : 0;
-      const gameGrowth = previousGames.length > 0 ? ((recentGames.length - previousGames.length) / previousGames.length) * 100 : 0;
-
-      // Calculate conversion rate (tickets bought / unique visitors estimate)
-      const uniqueParticipants = [...new Set(recentTickets.map((ticket: any) => ticket.userId))].length;
-      const conversionRate = users.length > 0 ? (uniqueParticipants / users.length) * 100 : 0;
-
-      // Generate revenue by day data
-      const revenueByDay = [];
-      const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
-      for (let i = days - 1; i >= 0; i--) {
-        const date = new Date(now - (i * 24 * 60 * 60 * 1000));
-        const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-        const dayEnd = dayStart + (24 * 60 * 60 * 1000);
-
-        const dayPayments = payments.filter((payment: any) =>
-          payment.createdAt >= dayStart && payment.createdAt < dayEnd && payment.status === 'COMPLETED');
-        const dayTickets = tickets.filter((ticket: any) =>
-          ticket.createdAt >= dayStart && ticket.createdAt < dayEnd);
-
-        revenueByDay.push({
-          date: date.toISOString().split('T')[0],
-          revenue: dayPayments.reduce((sum: number, payment: any) => sum + payment.amount, 0),
-          tickets: dayTickets.length,
-        });
-      }
-
-      // Generate users by day data
-      const usersByDay = [];
-      for (let i = days - 1; i >= 0; i--) {
-        const date = new Date(now - (i * 24 * 60 * 60 * 1000));
-        const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-        const dayEnd = dayStart + (24 * 60 * 60 * 1000);
-
-        const dayUsers = users.filter((user: any) =>
-          user.createdAt >= dayStart && user.createdAt < dayEnd);
-
-        usersByDay.push({
-          date: date.toISOString().split('T')[0],
-          users: dayUsers.length,
-          retention: 75 + Math.random() * 20, // Mock retention rate - would need analytics for real data
-        });
-      }
-
-      // Calculate category performance
-      const categoryPerformance = categories.map((category: any) => {
-        const categoryGames = games.filter((game: any) => game.categoryId === category.id);
-        const categoryGameIds = categoryGames.map((game: any) => game.id);
-        const categoryTickets = tickets.filter((ticket: any) => categoryGameIds.includes(ticket.gameId));
-        const categoryPayments = payments.filter((payment: any) =>
-          categoryTickets.some((ticket: any) => ticket.id === payment.ticketId) && payment.status === 'COMPLETED');
-        const categoryUsers = [...new Set(categoryTickets.map((ticket: any) => ticket.userId))];
-
-        return {
-          name: category.name,
-          revenue: categoryPayments.reduce((sum: number, payment: any) => sum + payment.amount, 0),
-          games: categoryGames.length,
-          users: categoryUsers.length,
-        };
-      }).sort((a, b) => b.revenue - a.revenue);
-
-      // Calculate top game performance
-      const gamePerformance = games
-        .map((game: any) => {
-          const gameTickets = tickets.filter((ticket: any) => ticket.gameId === game.id);
-          const gamePayments = payments.filter((payment: any) =>
-            gameTickets.some((ticket: any) => ticket.id === payment.ticketId) && payment.status === 'COMPLETED');
-          const participants = [...new Set(gameTickets.map((ticket: any) => ticket.userId))].length;
-          const revenue = gamePayments.reduce((sum: number, payment: any) => sum + payment.amount, 0);
-
-          return {
-            title: game.title,
-            participants,
-            revenue,
-            conversionRate: game.maxParticipants > 0 ? (participants / game.maxParticipants) * 100 : 0,
-          };
-        })
-        .sort((a, b) => b.revenue - a.revenue)
-        .slice(0, 10);
-
-      // Mock demographic data (would need user profile data for real demographics)
-      // TODO: need to implement real data for user demographics
-      const userDemographics = [
-        { name: '18-25', value: 35, color: '#f97316' },
-        { name: '26-35', value: 30, color: '#ef4444' },
-        { name: '36-45', value: 20, color: '#10b981' },
-        { name: '46-55', value: 10, color: '#3b82f6' },
-        { name: '55+', value: 5, color: '#8b5cf6' },
-      ];
-
-      // Mock device stats (would need analytics integration for real data)
-      // TODO: need to implement real data for device stats
-      const deviceStats = [
-        { device: 'Mobile', percentage: 65, users: Math.floor(users.length * 0.65) },
-        { device: 'Desktop', percentage: 25, users: Math.floor(users.length * 0.25) },
-        { device: 'Tablet', percentage: 10, users: Math.floor(users.length * 0.10) },
-      ];
-
-      const realData: AnalyticsData = {
-        overview: {
-          totalRevenue,
-          revenueGrowth: Math.round(revenueGrowth * 100) / 100,
-          totalUsers: users.length,
-          userGrowth: Math.round(userGrowth * 100) / 100,
-          totalGames: games.length,
-          gameGrowth: Math.round(gameGrowth * 100) / 100,
-          conversionRate: Math.round(conversionRate * 100) / 100,
-          conversionGrowth: 5.7, // Mock growth rate
-        },
-        revenueByDay,
-        usersByDay,
-        categoryPerformance,
-        gamePerformance,
-        userDemographics,
-        deviceStats,
-      };
-
-      setAnalyticsData(realData);
+      setRefreshing(true);
+      await refetch();
     } catch (error) {
-      console.error('Error fetching analytics:', error);
-      // Fallback to empty data structure to prevent UI breaking
-      const fallbackData: AnalyticsData = {
-        overview: {
-          totalRevenue: 0,
-          revenueGrowth: 0,
-          totalUsers: 0,
-          userGrowth: 0,
-          totalGames: 0,
-          gameGrowth: 0,
-          conversionRate: 0,
-          conversionGrowth: 0,
-        },
-        revenueByDay: [],
-        usersByDay: [],
-        categoryPerformance: [],
-        gamePerformance: [],
-        userDemographics: [],
-        deviceStats: [],
-      };
-      setAnalyticsData(fallbackData);
+      console.error('Error refreshing analytics:', error);
     } finally {
-      setAnalyticsLoading(false);
+      setRefreshing(false);
     }
-  }, [timeRange]);
+  }, [refetch]);
 
+  const handleTimeRangeChange = useCallback((newTimeRange: string) => {
+    setTimeRange(newTimeRange);
+    // The hook will automatically refetch when timeRange changes
+  }, []);
+  // Auth protection effects
   useEffect(() => {
     if (!loading && (!user || user.role !== 'ADMIN')) {
       router.push('/');
-      return;
     }
-
-    if (user?.role === 'ADMIN') {
-      fetchAnalytics();
-    }
-  }, [user, loading, router, fetchAnalytics]);
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await fetchAnalytics();
-    setRefreshing(false);
-  };
+  }, [user, loading, router]);
 
   if (loading || !user || user.role !== 'ADMIN') {
     return (

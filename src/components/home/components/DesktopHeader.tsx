@@ -113,6 +113,20 @@ export function DesktopHeader({ isDark, onThemeToggle }: DesktopHeaderProps) {
             >
               {t('common.winners')}
             </Link>
+            <Link
+              href='/about'
+              className={`text-base font-semibold transition-all duration-300 hover:scale-105 ${
+                isScrolled
+                  ? isDark
+                    ? 'text-slate-300 hover:text-white'
+                    : 'text-slate-600 hover:text-slate-900'
+                  : isDark
+                    ? 'text-white hover:text-orange-300'
+                    : 'text-slate-900 hover:text-orange-600'
+              }`}
+            >
+              {t('common.aboutUs')}
+            </Link>
           </nav>
 
           {/* Right side - Theme toggle and auth */}

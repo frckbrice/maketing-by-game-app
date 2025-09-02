@@ -1,5 +1,7 @@
 import { getMessagingInstance } from '@/lib/firebase/config';
 import { firestoreService } from '@/lib/firebase/services';
+import { realtimeService } from '@/lib/services/realtimeService';
+import { gamificationService } from '@/lib/services/gamificationService';
 import { getToken, onMessage } from 'firebase/messaging';
 
 export interface NotificationData {
@@ -201,17 +203,27 @@ export class NotificationService {
     notification: NotificationData
   ): Promise<void> {
     try {
-      //TODO: In a real implementation, this would be sent from your backend
-      // For now, we'll just log it
-      console.log('FCM notification would be sent to token:', userToken);
-      console.log('Notification data:', notification);
+          // Call the comprehensive notification API
+      const response = await fetch('/api/admin/send-notification', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('auth_token') : ''}`,
+        },
+        body: JSON.stringify({
+          notificationId: `fcm_${Date.now()}`,
+          title: notification.title,
+          message: notification.message,
+          targetAudience: 'CUSTOM',
+          recipients: [notification.userId],
+        })
+      });
 
-      //TODO: You would typically make an API call to your backend here
-      // const response = await fetch('/api/notifications/send-fcm', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ token: userToken, notification })
-      // });
+      if (response.ok) {
+        console.log('FCM notification sent successfully via API');
+      } else {
+        console.error('Failed to send FCM notification via API');
+      }
     } catch (error) {
       console.error('Error sending FCM notification:', error);
     }
@@ -341,6 +353,326 @@ export class NotificationService {
   // Update FCM token (call this when user logs in)
   async updateFCMToken(): Promise<string | null> {
     return this.initializeFCM();
+  }
+
+  // Game-related notifications
+  async sendGameStartNotification(userId: string, gameId: string, gameName: string): Promise<void> {
+    const notification: NotificationData = {
+      userId,
+      title: '🎮 Game Started!',
+      message: `${gameName} has just started. Join now to win amazing prizes!`,
+      type: 'info',
+      timestamp: Date.now(),
+      data: { type: 'game-started', gameId },
+    };
+
+    await Promise.all([
+      this.sendPushNotification(notification),
+      realtimeService.createLiveNotification({
+        userId,
+        type: 'game_update',
+        title: notification.title,
+        message: notification.message,
+        priority: 'medium',
+        data: notification.data,
+      }),
+    ]);
+  }
+
+  async sendGameWinnerNotification(userId: string, gameId: string, prize: string, prizeValue: number): Promise<void> {
+    const notification: NotificationData = {
+      userId,
+      title: '🎉 Congratulations! You Won!',
+      message: `You won ${prize} worth $${prizeValue}! Check your profile to claim your prize.`,
+      type: 'success',
+      timestamp: Date.now(),
+      data: { type: 'game-winner', gameId, prize, prizeValue },
+    };
+
+    await Promise.all([
+      this.sendPushNotification(notification),
+      realtimeService.createLiveNotification({
+        userId,
+        type: 'winner_announcement',
+        title: notification.title,
+        message: notification.message,
+        priority: 'high',
+        data: notification.data,
+      }),
+      // Award gamification points for winning
+      gamificationService.awardPoints(
+        userId,
+        100, // Bonus points for winning
+        'EARNED_GAME_PLAY',
+        `Won game: ${prize}`,
+        gameId,
+        'GAME'
+      ),
+    ]);
+  }
+
+  async sendGameEndingNotification(userId: string, gameId: string, gameName: string, timeLeft: string): Promise<void> {
+    const notification: NotificationData = {
+      userId,
+      title: '⏰ Last Chance!',
+      message: `${gameName} ends in ${timeLeft}. Don't miss your chance to win!`,
+      type: 'warning',
+      timestamp: Date.now(),
+      data: { type: 'game-ending', gameId },
+    };
+
+    await Promise.all([
+      this.sendPushNotification(notification),
+      realtimeService.createLiveNotification({
+        userId,
+        type: 'game_update',
+        title: notification.title,
+        message: notification.message,
+        priority: 'medium',
+        data: notification.data,
+      }),
+    ]);
+  }
+
+  // Gamification notifications
+  async sendLevelUpNotification(userId: string, newLevel: number, levelName: string): Promise<void> {
+    const notification: NotificationData = {
+      userId,
+      title: '📈 Level Up!',
+      message: `Congratulations! You've reached Level ${newLevel} (${levelName}). Keep playing to unlock more rewards!`,
+      type: 'success',
+      timestamp: Date.now(),
+      data: { type: 'level-up', level: newLevel, levelName },
+    };
+
+    await Promise.all([
+      this.sendPushNotification(notification),
+      realtimeService.createLiveNotification({
+        userId,
+        type: 'system_alert',
+        title: notification.title,
+        message: notification.message,
+        priority: 'medium',
+        data: notification.data,
+      }),
+    ]);
+  }
+
+  async sendBadgeEarnedNotification(userId: string, badgeName: string, badgeDescription: string): Promise<void> {
+    const notification: NotificationData = {
+      userId,
+      title: '🏆 Badge Earned!',
+      message: `You earned the "${badgeName}" badge! ${badgeDescription}`,
+      type: 'success',
+      timestamp: Date.now(),
+      data: { type: 'badge-earned', badgeName },
+    };
+
+    await Promise.all([
+      this.sendPushNotification(notification),
+      realtimeService.createLiveNotification({
+        userId,
+        type: 'system_alert',
+        title: notification.title,
+        message: notification.message,
+        priority: 'medium',
+        data: notification.data,
+      }),
+    ]);
+  }
+
+  async sendReferralRewardNotification(userId: string, points: number, referralCode: string): Promise<void> {
+    const notification: NotificationData = {
+      userId,
+      title: '🎁 Referral Reward!',
+      message: `You earned ${points} points from your referral! Someone used your code ${referralCode}.`,
+      type: 'success',
+      timestamp: Date.now(),
+      data: { type: 'referral-reward', points, referralCode },
+    };
+
+    await Promise.all([
+      this.sendPushNotification(notification),
+      realtimeService.createLiveNotification({
+        userId,
+        type: 'system_alert',
+        title: notification.title,
+        message: notification.message,
+        priority: 'medium',
+        data: notification.data,
+      }),
+    ]);
+  }
+
+  async sendStreakBonusNotification(userId: string, streakDays: number, pointsEarned: number): Promise<void> {
+    const notification: NotificationData = {
+      userId,
+      title: '🔥 Streak Bonus!',
+      message: `${streakDays} day streak! You earned ${pointsEarned} bonus points. Keep it up!`,
+      type: 'success',
+      timestamp: Date.now(),
+      data: { type: 'streak-bonus', streakDays, pointsEarned },
+    };
+
+    await Promise.all([
+      this.sendPushNotification(notification),
+      realtimeService.createLiveNotification({
+        userId,
+        type: 'system_alert',
+        title: notification.title,
+        message: notification.message,
+        priority: 'medium',
+        data: notification.data,
+      }),
+    ]);
+  }
+
+  // Order and marketplace notifications
+  async sendOrderConfirmationNotification(userId: string, orderId: string, orderTotal: number): Promise<void> {
+    const notification: NotificationData = {
+      userId,
+      title: '📦 Order Confirmed!',
+      message: `Your order #${orderId} for $${orderTotal} has been confirmed and is being processed.`,
+      type: 'success',
+      timestamp: Date.now(),
+      data: { type: 'order-confirmed', orderId, orderTotal },
+    };
+
+    await Promise.all([
+      this.sendPushNotification(notification),
+      realtimeService.createLiveNotification({
+        userId,
+        type: 'system_alert',
+        title: notification.title,
+        message: notification.message,
+        priority: 'medium',
+        data: notification.data,
+      }),
+    ]);
+  }
+
+  async sendOrderStatusUpdateNotification(userId: string, orderId: string, status: string, message: string): Promise<void> {
+    const statusEmoji = {
+      processing: '⚡',
+      shipped: '🚚',
+      delivered: '📦',
+      cancelled: '❌',
+    }[status] || '📋';
+
+    const notification: NotificationData = {
+      userId,
+      title: `${statusEmoji} Order Update`,
+      message: `Order #${orderId}: ${message}`,
+      type: status === 'cancelled' ? 'warning' : 'info',
+      timestamp: Date.now(),
+      data: { type: 'order-status', orderId, status },
+    };
+
+    await Promise.all([
+      this.sendPushNotification(notification),
+      realtimeService.createLiveNotification({
+        userId,
+        type: 'system_alert',
+        title: notification.title,
+        message: notification.message,
+        priority: 'medium',
+        data: notification.data,
+      }),
+    ]);
+  }
+
+  // Chat notifications
+  async sendNewMessageNotification(receiverId: string, senderName: string, shopName?: string): Promise<void> {
+    const notification: NotificationData = {
+      userId: receiverId,
+      title: '💬 New Message',
+      message: shopName 
+        ? `${senderName} from ${shopName} sent you a message`
+        : `${senderName} sent you a message`,
+      type: 'info',
+      timestamp: Date.now(),
+      data: { type: 'new-message', senderName, shopName },
+    };
+
+    await Promise.all([
+      this.sendPushNotification(notification),
+      realtimeService.createLiveNotification({
+        userId: receiverId,
+        type: 'new_message',
+        title: notification.title,
+        message: notification.message,
+        priority: 'medium',
+        data: notification.data,
+      }),
+    ]);
+  }
+
+  // System maintenance notifications
+  async sendMaintenanceNotification(userId: string, startTime: string, duration: string): Promise<void> {
+    const notification: NotificationData = {
+      userId,
+      title: '🔧 Scheduled Maintenance',
+      message: `System maintenance scheduled for ${startTime} (${duration}). Plan accordingly.`,
+      type: 'warning',
+      timestamp: Date.now(),
+      data: { type: 'maintenance', startTime, duration },
+    };
+
+    await Promise.all([
+      this.sendPushNotification(notification),
+      realtimeService.createLiveNotification({
+        userId,
+        type: 'system_alert',
+        title: notification.title,
+        message: notification.message,
+        priority: 'high',
+        data: notification.data,
+      }),
+    ]);
+  }
+
+  // Bulk notification sending
+  async sendBulkNotification(userIds: string[], notification: Omit<NotificationData, 'userId'>): Promise<void> {
+    const promises = userIds.map(userId => 
+      this.sendPushNotification({ ...notification, userId })
+    );
+    
+    await Promise.allSettled(promises);
+  }
+
+  // Notification preferences management
+  async getUserNotificationPreferences(userId: string): Promise<any> {
+    try {
+      const user = await firestoreService.getUser(userId);
+      return user?.notificationPreferences || {
+        push: true,
+        email: true,
+        sms: false,
+        gameUpdates: true,
+        marketing: true,
+        orderUpdates: true,
+      };
+    } catch (error) {
+      console.error('Error getting notification preferences:', error);
+      return {
+        push: true,
+        email: true,
+        sms: false,
+        gameUpdates: true,
+        marketing: true,
+        orderUpdates: true,
+      };
+    }
+  }
+
+  async updateUserNotificationPreferences(userId: string, preferences: any): Promise<void> {
+    try {
+      await firestoreService.updateUser(userId, {
+        notificationPreferences: preferences
+      });
+    } catch (error) {
+      console.error('Error updating notification preferences:', error);
+    }
   }
 }
 

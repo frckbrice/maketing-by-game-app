@@ -1,15 +1,31 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  Form
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  useCategories,
+  useCreateGame,
+  useCreateShop,
+  useProducts,
+  useShops,
+} from '@/hooks/useApi';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import {
   productService,
   realtimeService,
-} from '@/lib/firebase/services';
-import {
-  useCategories,
-  useCreateGame,
-} from '@/hooks/useApi';
+} from '@/lib/firebase/client-services';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   ArrowLeft,
@@ -30,16 +46,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Product } from '../../shops/api/types';
 
 const createGameSchema = z
   .object({
@@ -49,6 +56,8 @@ const createGameSchema = z
       .min(10, 'Description must be at least 10 characters'),
     productId: z.string().min(1, 'Please select a product'),
     categoryId: z.string().min(1, 'Please select a category'),
+    shopId: z.string().min(1, 'Please select a shop'),
+    currency: z.string().min(1, 'Please select a currency'),
     ticketPrice: z.number().min(0.01, 'Ticket price must be greater than 0'),
     maxParticipants: z.number().min(1, 'Must have at least 1 participant'),
     startDate: z.string().min(1, 'Please select a start date'),
@@ -69,43 +78,72 @@ const createGameSchema = z
 
 type CreateGameFormData = z.infer<typeof createGameSchema>;
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image?: string;
-}
+
 
 export function CreateGamePage() {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [showAddShopModal, setShowAddShopModal] = useState(false);
   const [newProductForm, setNewProductForm] = useState({
     name: '',
     description: '',
     price: 0,
     image: '',
   });
+  const [newShopForm, setNewShopForm] = useState({
+    name: '',
+    description: '',
+    category: '',
+  });
+
+  // Add custom styles for better dropdown visibility
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      select#categoryId option {
+        background-color: #1f2937 !important;
+        color: white !important;
+        padding: 8px 12px !important;
+      }
+      select#categoryId option:hover {
+        background-color: #374151 !important;
+      }
+      select#categoryId option:checked {
+        background-color: #3b82f6 !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   // TanStack Query hooks
-  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+  const { data: categories = [], isLoading: categoriesLoading, error: categoriesError } = useCategories();
+  const { data: shops = [], isLoading: shopsLoading, error: shopsError } = useShops();
+  const { data: products = [], isLoading: productsLoading, error: productsError } = useProducts();
   const createGameMutation = useCreateGame();
+  const createShopMutation = useCreateShop();
+
+  const form = useForm<CreateGameFormData>({
+    resolver: zodResolver(createGameSchema),
+    defaultValues: {
+      currency: 'USD',
+      ticketPrice: 1.0,
+      maxParticipants: 100,
+    },
+  });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
-  } = useForm<CreateGameFormData>({
-    resolver: zodResolver(createGameSchema),
-    defaultValues: {
-      ticketPrice: 1.0,
-      maxParticipants: 100,
-    },
-  });
+  } = form;
 
   useEffect(() => {
     if (!loading && (!user || user.role !== 'ADMIN')) {
@@ -113,25 +151,21 @@ export function CreateGamePage() {
     }
   }, [user, loading, router]);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const productsData = await productService.getProducts();
-        setProducts(productsData);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        toast.error('Failed to load products');
-      }
-    };
 
-    if (user?.role === 'ADMIN') {
-      fetchProducts();
-    }
-  }, [user]);
 
   const handleAddProduct = async () => {
     if (!newProductForm.name.trim() || newProductForm.price <= 0) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+
+    // Get current form values
+    const currentFormData = watch();
+    const selectedShop = shops.find(shop => shop.id === currentFormData.shopId);
+    const selectedCurrency = currentFormData.currency || 'USD';
+
+    if (!selectedShop) {
+      toast.error('Please select a shop first');
       return;
     }
 
@@ -143,13 +177,71 @@ export function CreateGamePage() {
       };
 
       const productId = await productService.createProduct(productData);
-      const newProduct = { id: productId, ...productData };
-      setProducts(prev => [newProduct, ...prev]);
+      const newProduct: Product = {
+        id: productId,
+        name: newProductForm.name,
+        description: newProductForm.description,
+        price: newProductForm.price,
+        currency: selectedCurrency,
+        images: newProductForm.image ? [newProductForm.image] : [],
+        category: selectedShop.category || 'general',
+        tags: [],
+        shop: {
+          shopId: selectedShop.id,
+          shopName: selectedShop.name,
+          shopLogo: selectedShop.logo || '',
+        },
+        rating: 0,
+        reviewCount: 0,
+        likeCount: 0,
+        shareCount: 0,
+        isAvailable: true,
+        isFeatured: false,
+        isNew: true,
+        stockQuantity: 1,
+        status: 'ACTIVE',
+        isLotteryEnabled: true,
+        lotteryPrice: newProductForm.price,
+        playedCount: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+      // Products are now managed by the useProducts hook
+      // The list will be refreshed via query invalidation
       setShowAddProductModal(false);
       setNewProductForm({ name: '', description: '', price: 0, image: '' });
       toast.success('Product added successfully');
     } catch (error) {
       toast.error('Failed to add product');
+    }
+  };
+
+  const handleAddShop = async () => {
+    if (!newShopForm.name.trim() || !newShopForm.category.trim()) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const shopData = {
+        name: newShopForm.name,
+        description: newShopForm.description,
+        category: newShopForm.category,
+        ownerId: user?.id || '',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+
+      const result = await createShopMutation.mutateAsync(shopData);
+      if (result?.id) {
+        // Refresh shops list
+        // The shops will be refreshed via query invalidation in the mutation
+        setShowAddShopModal(false);
+        setNewShopForm({ name: '', description: '', category: '' });
+        toast.success('Shop added successfully');
+      }
+    } catch (error) {
+      toast.error('Failed to add shop');
     }
   };
 
@@ -223,10 +315,13 @@ export function CreateGamePage() {
     });
   };
 
-  if (loading || categoriesLoading) {
+  if (loading || categoriesLoading || shopsLoading || productsLoading) {
     return (
       <div className='min-h-screen bg-lottery-900 flex items-center justify-center'>
-        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-lottery-500'></div>
+        <div className='text-center'>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-lottery-500 mx-auto mb-4'></div>
+          <p className='text-lottery-300'>Loading game creation form...</p>
+        </div>
       </div>
     );
   }
@@ -316,8 +411,60 @@ export function CreateGamePage() {
 
       {/* Main Content */}
       <div className='max-w-4xl mx-auto px-4 py-8 lg:px-6'>
+        {/* Error Display */}
+        {(categoriesError || shopsError || productsError) && (
+          <div className='mb-6 p-4 bg-red-900/20 border border-red-600/30 rounded-xl'>
+            <h3 className='text-red-400 font-semibold mb-2'>Data Loading Errors:</h3>
+            <ul className='text-red-300 text-sm space-y-1'>
+              {categoriesError && <li>• Categories: {categoriesError.message || 'Failed to load'}</li>}
+              {shopsError && <li>• Shops: {shopsError.message || 'Failed to load'}</li>}
+              {productsError && <li>• Products: {productsError.message || 'Failed to load'}</li>}
+            </ul>
+            <p className='text-red-400 text-sm mt-2'>Please refresh the page or contact support if the issue persists.</p>
+          </div>
+        )}
+
         <div className='bg-lottery-800/50 backdrop-blur-sm rounded-2xl p-6 lg:p-8 border border-lottery-700/30'>
-          <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+          {/* Data Summary */}
+          <div className='mb-6 p-4 bg-lottery-700/20 border border-lottery-600/30 rounded-xl'>
+            <h3 className='text-lottery-200 font-semibold mb-3'>📊 Data Status</h3>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4 text-sm'>
+              <div className='flex items-center space-x-2'>
+                <span className={`w-3 h-3 rounded-full ${categories && categories.length > 0 ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                <span className='text-lottery-300'>Categories: {categories?.length || 0}</span>
+              </div>
+              <div className='flex items-center space-x-2'>
+                <span className={`w-3 h-3 rounded-full ${shops && shops.length > 0 ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                <span className='text-lottery-300'>Shops: {shops?.length || 0}</span>
+              </div>
+              <div className='flex items-center space-x-2'>
+                <span className={`w-3 h-3 rounded-full ${products && products.length > 0 ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                <span className='text-lottery-300'>Products: {products?.length || 0}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Data Validation */}
+          {(!categories || categories.length === 0) && (
+            <div className='mb-6 p-4 bg-yellow-900/20 border border-yellow-600/30 rounded-xl'>
+              <p className='text-yellow-300'>⚠️ No categories available. Please add categories before creating games.</p>
+            </div>
+          )}
+
+          {(!shops || shops.length === 0) && (
+            <div className='mb-6 p-4 bg-yellow-900/20 border border-yellow-600/30 rounded-xl'>
+              <p className='text-yellow-300'>⚠️ No shops available. Please add shops before creating games.</p>
+            </div>
+          )}
+
+          {(!products || products.length === 0) && (
+            <div className='mb-6 p-4 bg-yellow-900/20 border border-yellow-600/30 rounded-xl'>
+              <p className='text-yellow-300'>⚠️ No products available. Please add products before creating games.</p>
+            </div>
+          )}
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
             {/* Basic Information */}
             <div className='space-y-6'>
               <div>
@@ -358,11 +505,18 @@ export function CreateGamePage() {
                     <select
                       {...register('categoryId')}
                       id='categoryId'
-                      className='w-full px-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
+                        className='w-full px-4 py-3 bg-lottery-700/80 border border-lottery-600/80 rounded-xl text-white placeholder-lottery-300 focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
+                        style={{
+                          colorScheme: 'dark'
+                        }}
                     >
-                      <option value=''>Select a category</option>
+                        <option value='' className='bg-lottery-700 text-white'>Select a category</option>
                       {categories.map(category => (
-                        <option key={category.id} value={category.id}>
+                        <option
+                          key={category.id}
+                          value={category.id}
+                          className='bg-lottery-700 text-white hover:bg-lottery-600'
+                        >
                           {category.name}
                         </option>
                       ))}
@@ -373,6 +527,136 @@ export function CreateGamePage() {
                       </p>
                     )}
                   </div>
+
+                    <div>
+                      <label
+                        htmlFor='shopId'
+                        className='block text-sm font-medium text-lottery-200 mb-2'
+                      >
+                        Shop *
+                      </label>
+                      <div className='flex items-center space-x-2'>
+                        <select
+                          {...register('shopId')}
+                          id='shopId'
+                          className='flex-1 px-4 py-3 bg-lottery-700/80 border border-lottery-600/80 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
+                          style={{
+                            colorScheme: 'dark'
+                          }}
+                        >
+                          <option value='' className='bg-lottery-700 text-white'>Select a shop</option>
+                          {shops.map(shop => (
+                            <option
+                              key={shop.id}
+                              value={shop.id}
+                              className='bg-lottery-700 text-white hover:bg-lottery-600'
+                            >
+                              {shop.name}
+                            </option>
+                          ))}
+                        </select>
+                        <Dialog open={showAddShopModal} onOpenChange={setShowAddShopModal}>
+                          <DialogTrigger asChild>
+                            <Button
+                              type='button'
+                              variant='outline'
+                              size='sm'
+                              className='text-xs border-lottery-600 text-lottery-300 hover:bg-lottery-700'
+                            >
+                              <Plus className='w-3 h-3 mr-1' />
+                              Add Shop
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className='bg-lottery-800 border-lottery-700'>
+                            <DialogHeader>
+                              <DialogTitle className='text-white'>Add New Shop</DialogTitle>
+                            </DialogHeader>
+                            <div className='space-y-4'>
+                              <div>
+                                <Label htmlFor='shopName' className='text-lottery-200'>Shop Name *</Label>
+                                <Input
+                                  id='shopName'
+                                  value={newShopForm.name}
+                                  onChange={(e) => setNewShopForm({ ...newShopForm, name: e.target.value })}
+                                  placeholder='Shop name'
+                                  className='bg-lottery-700/50 border-lottery-600/50 text-white'
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor='shopDescription' className='text-lottery-200'>Description</Label>
+                                <Textarea
+                                  id='shopDescription'
+                                  value={newShopForm.description}
+                                  onChange={(e) => setNewShopForm({ ...newShopForm, description: e.target.value })}
+                                  placeholder='Shop description'
+                                  className='bg-lottery-700/50 border-lottery-600/50 text-white'
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor='shopCategory' className='text-lottery-200'>Category *</Label>
+                                <Input
+                                  id='shopCategory'
+                                  value={newShopForm.category}
+                                  onChange={(e) => setNewShopForm({ ...newShopForm, category: e.target.value })}
+                                  placeholder='e.g., Electronics, Fashion'
+                                  className='bg-lottery-700/50 border-lottery-600/50 text-white'
+                                />
+                              </div>
+                              <div className='flex justify-end space-x-2 pt-4'>
+                                <Button
+                                  type='button'
+                                  variant='outline'
+                                  onClick={() => setShowAddShopModal(false)}
+                                  className='border-lottery-600 text-lottery-300'
+                                >
+                                  Cancel
+                                </Button>
+                                <Button
+                                  type='button'
+                                  onClick={handleAddShop}
+                                  className='bg-lottery-500 hover:bg-lottery-600'
+                                >
+                                  Add Shop
+                                </Button>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                      {errors.shopId && (
+                        <p className='mt-2 text-sm text-red-400'>
+                          {errors.shopId?.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor='currency'
+                        className='block text-sm font-medium text-lottery-200 mb-2'
+                      >
+                        Currency *
+                      </label>
+                      <select
+                        {...register('currency')}
+                        id='currency'
+                        className='w-full px-4 py-3 bg-lottery-700/80 border border-lottery-600/80 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
+                        style={{
+                          colorScheme: 'dark'
+                        }}
+                      >
+                        <option value='USD' className='bg-lottery-700 text-white'>USD - US Dollar</option>
+                        <option value='EUR' className='bg-lottery-700 text-white'>EUR - Euro</option>
+                        <option value='GBP' className='bg-lottery-700 text-white'>GBP - British Pound</option>
+                        <option value='CAD' className='bg-lottery-700 text-white'>CAD - Canadian Dollar</option>
+                        <option value='AUD' className='bg-lottery-700 text-white'>AUD - Australian Dollar</option>
+                      </select>
+                      {errors.currency && (
+                        <p className='mt-2 text-sm text-red-400'>
+                          {errors.currency?.message}
+                        </p>
+                      )}
+                    </div>
                 </div>
 
                 <div className='mt-6'>
@@ -653,6 +937,7 @@ export function CreateGamePage() {
               </Button>
             </div>
           </form>
+          </Form>
         </div>
       </div>
     </div>

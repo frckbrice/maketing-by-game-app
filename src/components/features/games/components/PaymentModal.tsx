@@ -13,6 +13,7 @@ import { useAuth } from '@/lib/contexts/AuthContext';
 import {
   securePaymentService
 } from '@/lib/services/securePaymentService';
+import { generateAllTicketNumbers } from '@/lib/utils/ticket-utils';
 import { LotteryGame } from '@/types';
 import {
   AlertCircle,
@@ -40,6 +41,11 @@ interface Ticket {
   gameId: string;
   gameTitle: string;
   ticketNumber: string;
+  alternativeNumbers?: {
+    readable: string;
+    simple: string;
+    formatted: string;
+  };
   price: number;
   currency: string;
   purchaseDate: number;
@@ -97,17 +103,20 @@ export const PaymentModal = React.memo<PaymentModalProps>(function PaymentModal(
   }, [isOpen, convertPrice]);
 
   const generateTicket = (gameData: LotteryGame): Ticket => {
-    const ticketNumber = `${gameData.id.toUpperCase()}-${Date.now().toString().slice(-6)}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
+    // Create a realistic Firebase-style ID for the demo
+    const firebaseId = Math.random().toString(36).substr(2, 9) + Math.random().toString(36).substr(2, 11);
+    const ticketNumbers = generateAllTicketNumbers(firebaseId);
 
     return {
-      id: `ticket-${Date.now()}`,
+      id: firebaseId,
       gameId: gameData.id,
       gameTitle: gameData.title,
-      ticketNumber,
+      ticketNumber: ticketNumbers.ticketNumber, // Primary user-facing number (formatted)
+      alternativeNumbers: ticketNumbers.alternativeNumbers,
       price: convertedPrice,
       currency: userCurrency,
       purchaseDate: Date.now(),
-      qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(ticketNumber)}`,
+      qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(firebaseId)}`,
     };
   };
 

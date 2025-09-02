@@ -1,8 +1,8 @@
 'use client';
 
 import { ExternalLink, X } from 'lucide-react';
-import Image from 'next/image';
 import { useState } from 'react';
+import OptimizedImage from '../../../performance/OptimizedImage';
 
 interface AdBannerProps {
   type: 'horizontal' | 'vertical' | 'square';
@@ -41,7 +41,7 @@ export function AdBanner({
   const handleClick = () => {
     window.open(ctaUrl, '_blank', 'noopener,noreferrer');
 
-    // Track ad click (in production, send to analytics)
+    //TODO:  Track ad click (in production, send to analytics)
     console.log('Ad clicked:', { company: company.name, title, ctaUrl });
   };
 
@@ -106,13 +106,13 @@ export function AdBanner({
         <div
           className={`relative overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0 ${getImageClasses()}`}
         >
-          <Image
+          <OptimizedImage
             src={imageUrl}
             alt={title}
             fill
             className='object-cover group-hover:scale-105 transition-transform duration-300'
             onError={() => setImageError(true)}
-            loading='lazy'
+            lazy={true}
           />
 
           {/* Overlay */}
@@ -126,13 +126,13 @@ export function AdBanner({
         <div className='flex items-center mb-2'>
           {company.logo && (
             <div className='w-6 h-6 rounded-full overflow-hidden mr-2 bg-white'>
-              <Image
+              <OptimizedImage
                 src={company.logo}
                 alt={`${company.name} logo`}
                 width={24}
                 height={24}
                 className='object-cover'
-                loading='lazy'
+                lazy={true}
               />
             </div>
           )}

@@ -62,7 +62,7 @@ export function AdminGamesPage() {
   
   // State variables
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('ALL_STATUS');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   
@@ -71,7 +71,7 @@ export function AdminGamesPage() {
     page: currentPage,
     limit: pageSize,
     search: searchTerm,
-    status: statusFilter === 'all' ? '' : statusFilter
+    status: statusFilter === 'ALL_STATUS' ? '' : statusFilter
   });
   
   // Provide default values for games data
@@ -236,7 +236,7 @@ export function AdminGamesPage() {
                     <SelectValue placeholder='Filter by status' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='all'>All Status</SelectItem>
+                    <SelectItem value='ALL_STATUS'>All Status</SelectItem>
                     <SelectItem value='DRAFT'>Draft</SelectItem>
                     <SelectItem value='ACTIVE'>Active</SelectItem>
                     <SelectItem value='DRAWING'>Drawing</SelectItem>

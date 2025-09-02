@@ -1,5 +1,5 @@
-import { useEffect, useCallback } from 'react';
-import { gameService } from '../api/gameService';
+import { gameService } from '@/lib/api/gameService';
+import { useCallback, useEffect } from 'react';
 
 interface BackgroundSyncOptions {
   syncInterval?: number; // milliseconds

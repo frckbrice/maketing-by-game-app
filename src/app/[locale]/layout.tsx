@@ -1,6 +1,11 @@
 // app/[locale]/layout.tsx
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { ThemeProvider } from '@/lib/themes/theme-provider';
+import { CartProvider } from '@/contexts/CartContext';
+import PerformanceMonitor from '@/components/performance/PerformanceMonitor';
+import PreloadManager from '@/components/performance/PreloadManager';
+import ServiceWorkerManager from '@/components/performance/ServiceWorkerManager';
+import ErrorBoundary from '@/components/performance/ErrorBoundary';
 import { Inter } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { Toaster } from 'sonner';
@@ -102,21 +107,30 @@ export default async function RootLayout({
         <link rel='icon' type='image/svg+xml' href='/icons/icon.svg' />
       </head>
       <body className={inter.className}>
-        <QueryProvider>
-          <ThemeProvider>
-            <AuthProvider>
-              <I18nProvider locale={locale}>
-                {children}
-                <Toaster
-                  position='top-right'
-                  richColors
-                  closeButton
-                  duration={4000}
-                />
-              </I18nProvider>
-            </AuthProvider>
-          </ThemeProvider>
-        </QueryProvider>
+        <ServiceWorkerManager />
+        <PreloadManager 
+          prefetchRoutes={['/games', '/shops', '/products', '/profile']}
+        />
+        <ErrorBoundary>
+          <QueryProvider>
+            <ThemeProvider>
+              <AuthProvider>
+                <CartProvider>
+                  <I18nProvider locale={locale}>
+                    <PerformanceMonitor />
+                    {children}
+                    <Toaster
+                      position='top-right'
+                      richColors
+                      closeButton
+                      duration={4000}
+                    />
+                  </I18nProvider>
+                </CartProvider>
+              </AuthProvider>
+            </ThemeProvider>
+          </QueryProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

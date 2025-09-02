@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { firestoreService } from '@/lib/firebase/services';
+import { firestoreService } from '@/lib/firebase/client-services';
 import {
   AlertCircle,
   Building2,

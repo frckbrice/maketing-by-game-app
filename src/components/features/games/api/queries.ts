@@ -1,21 +1,19 @@
-import { useQuery } from '@tanstack/react-query';
 import { GameCategory, LotteryGame } from '@/types';
-import { 
-  GamesQueryParams, 
-  GamesResponse, 
-  CategoriesResponse,
-  GameStats,
-  VendorApplication
-} from './types';
-import { 
-  getMockCategories, 
-  getMockGames, 
-  getMockFeaturedGames,
-  QUERY_KEYS,
-  GAMES_CACHE_TIME,
+import { useQuery } from '@tanstack/react-query';
+import {
   CATEGORIES_CACHE_TIME,
-  getCategoriesWithCounts
+  GAMES_CACHE_TIME,
+  getCategoriesWithCounts,
+  getMockCategories,
+  getMockFeaturedGames,
+  getMockGames,
+  QUERY_KEYS
 } from './data';
+import {
+  GamesQueryParams,
+  GamesResponse,
+  GameStats
+} from './types';
 
 // Games Query Hook
 export const useGames = (params: GamesQueryParams = {}) => {
@@ -151,30 +149,6 @@ export const useSearchGames = (searchTerm: string, enabled: boolean = true) => {
     enabled: enabled && searchTerm.length > 2,
     staleTime: 30 * 1000, // 30 seconds
     gcTime: 60 * 1000, // 1 minute
-    retry: 1,
-  });
-};
-
-// Vendor Application Query Hook
-export const useVendorApplication = (userId: string) => {
-  return useQuery({
-    queryKey: ['vendor-application', userId],
-    queryFn: async (): Promise<VendorApplication | null> => {
-      if (!userId) return null;
-      
-      // In development, return mock data
-      if (process.env.NODE_ENV === 'development') {
-        // Mock data - no pending application for demo
-        return null;
-      }
-      
-      // Production: Real Firebase query
-      // TODO: Implement real Firebase query to get vendor application
-      return null;
-    },
-    enabled: !!userId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
     retry: 1,
   });
 };

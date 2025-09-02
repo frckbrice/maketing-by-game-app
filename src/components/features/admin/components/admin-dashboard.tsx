@@ -9,6 +9,7 @@ import {
   Activity,
   BarChart3,
   Building2,
+  DollarSign,
   Gamepad2,
   Plus,
   Settings,
@@ -219,6 +220,62 @@ export const AdminDashboard = () => {
                 </p>
               </div>
               <BarChart3 className='w-8 h-8 text-green-500' />
+            </div>
+          </div>
+        </div>
+
+        {/* Marketplace Analytics Section */}
+        <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700 mb-6'>
+          <div className='flex items-center justify-between mb-6'>
+            <div>
+              <h3 className='text-xl font-bold text-gray-900 dark:text-white flex items-center'>
+                <Building2 className='w-6 h-6 text-purple-500 mr-3' />
+                {t('admin.marketplace.overview')}
+              </h3>
+              <p className='text-gray-600 dark:text-gray-400 text-sm mt-1'>
+                {t('admin.marketplace.overviewDescription')}
+              </p>
+            </div>
+            <button
+              onClick={() => router.push('/admin/marketplace')}
+              className='bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] text-sm font-medium'
+            >
+              {t('admin.marketplace.viewDetailed')}
+            </button>
+          </div>
+
+          {/* Marketplace Quick Stats */}
+          <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+            <div className='text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg'>
+              <div className='w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-2'>
+                <Building2 className='w-6 h-6 text-white' />
+              </div>
+              <p className='text-2xl font-bold text-gray-900 dark:text-white'>45</p>
+              <p className='text-sm text-gray-600 dark:text-gray-400'>{t('admin.marketplace.totalShops')}</p>
+            </div>
+
+            <div className='text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg'>
+              <div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-2'>
+                <Building2 className='w-6 h-6 text-white' />
+              </div>
+              <p className='text-2xl font-bold text-gray-900 dark:text-white'>326</p>
+              <p className='text-sm text-gray-600 dark:text-gray-400'>{t('admin.marketplace.totalProducts')}</p>
+            </div>
+
+            <div className='text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg'>
+              <div className='w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-2'>
+                <Building2 className='w-6 h-6 text-white' />
+              </div>
+              <p className='text-2xl font-bold text-gray-900 dark:text-white'>1.2K</p>
+              <p className='text-sm text-gray-600 dark:text-gray-400'>{t('admin.marketplace.totalOrders')}</p>
+            </div>
+
+            <div className='text-center p-4 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg'>
+              <div className='w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-2'>
+                <DollarSign className='w-6 h-6 text-white' />
+              </div>
+              <p className='text-2xl font-bold text-gray-900 dark:text-white'>$89K</p>
+              <p className='text-sm text-gray-600 dark:text-gray-400'>{t('admin.marketplace.totalRevenue')}</p>
             </div>
           </div>
         </div>

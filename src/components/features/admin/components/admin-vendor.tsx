@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { firestoreService } from '@/lib/firebase/services';
-import { notificationService } from '@/lib/services/notificationService';
+
+
 import {
   AlertCircle,
   Building2,
@@ -24,27 +24,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
-interface VendorApplication {
-  id: string;
-  userId: string;
-  userEmail: string;
-  userName: string;
-  companyName: string;
-  businessRegistrationNumber: string;
-  companyWebsite?: string;
-  contactEmail: string;
-  contactPhone: string;
-  productCategory: string;
-  description: string;
-  companyLogoUrl?: string;
-  businessCertificateUrl?: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  submittedAt: number;
-  reviewedAt?: number;
-  reviewedBy?: string;
-  rejectionReason?: string;
-  notes?: string;
-}
+import type { VendorApplication } from '../../vendor-application/api/types';
 
 export function AdminVendorApplicationsPage() {
   const { t } = useTranslation();
@@ -84,9 +64,18 @@ export function AdminVendorApplicationsPage() {
   const loadVendorApplications = async () => {
     try {
       setLoadingApplications(true);
-      // This would need to be implemented in the firestoreService
-      const apps = await (firestoreService as any).getAllVendorApplications();
-      setApplications(apps || []);
+      const response = await fetch('/api/admin/vendor-applications');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch vendor applications');
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        setApplications(result.data || []);
+      } else {
+        throw new Error(result.error || 'Failed to load applications');
+      }
     } catch (error) {
       console.error('Error loading vendor applications:', error);
       toast.error('Failed to load vendor applications');
@@ -106,18 +95,22 @@ export function AdminVendorApplicationsPage() {
         return;
       }
 
-      await (firestoreService as any).approveVendorApplication(
-        applicationId,
-        user!.id
-      );
+      const response = await fetch('/api/admin/vendor-applications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'approve',
+          applicationId,
+          adminId: user!.id,
+        }),
+      });
 
-      // Send notification to user
-      await notificationService.sendVendorApplicationNotification(
-        application.userId,
-        application.userEmail,
-        'APPROVED',
-        application.companyName
-      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to approve application');
+      }
 
       toast.success('Vendor application approved successfully');
       loadVendorApplications(); // Reload the list
@@ -140,20 +133,23 @@ export function AdminVendorApplicationsPage() {
         return;
       }
 
-      await (firestoreService as any).rejectVendorApplication(
-        applicationId,
-        user!.id,
-        reason
-      );
+      const response = await fetch('/api/admin/vendor-applications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'reject',
+          applicationId,
+          adminId: user!.id,
+          rejectionReason: reason,
+        }),
+      });
 
-      // Send notification to user
-      await notificationService.sendVendorApplicationNotification(
-        application.userId,
-        application.userEmail,
-        'REJECTED',
-        application.companyName,
-        reason
-      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to reject application');
+      }
 
       toast.success('Vendor application rejected');
       loadVendorApplications(); // Reload the list

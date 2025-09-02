@@ -1,14 +1,16 @@
+import '@testing-library/jest-dom';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { GameCard } from '../game-card';
 
-// Mock next/image
-jest.mock('next/image', () => {
-    return ({ src, alt, fill, className, sizes, priority, children }: any) => (
+// Mock OptimizedImage
+jest.mock('../../../performance/OptimizedImage', () => ({
+    __esModule: true,
+    default: ({ src, alt, fill, className, sizes, priority, children }: any) => (
         <div className={className} style={{ position: 'relative' }}>
             {children || <img src={src} alt={alt} />}
         </div>
-    );
-});
+    ),
+}));
 
 // Mock react-i18next
 const mockT = jest.fn((key: string, options?: any) => {
@@ -85,6 +87,8 @@ describe('GameCard', () => {
         id: 'game1',
         title: 'iPhone 15 Pro Max Giveaway',
         description: 'Win the latest iPhone!',
+        type: 'special' as const,
+        categoryId: 'phones',
         category: {
             id: 'phones',
             name: 'Phones',
@@ -100,13 +104,54 @@ describe('GameCard', () => {
         currency: 'USD',
         maxParticipants: 200,
         currentParticipants: 150,
+        totalTickets: 200,
+        totalTicketsSold: 150,
+        videoUrl: undefined,
+        totalPrizePool: 1000,
+        prizes: [
+            {
+                id: 'prize1',
+                name: 'iPhone 15 Pro Max',
+                description: 'Latest iPhone model',
+                type: 'product' as const,
+                value: 1000,
+                currency: 'USD',
+                image: undefined,
+                isActive: true,
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+            }
+        ],
+        rules: [
+            {
+                id: 'rule1',
+                title: 'Basic Rules',
+                description: 'Follow the basic rules',
+                order: 1,
+                isRequired: true,
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+            }
+        ],
+        images: [
+            {
+                id: 'img1',
+                url: '/images/iphone.jpg',
+                alt: 'iPhone',
+                order: 1,
+                isPrimary: true,
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+            }
+        ],
+        startDate: Date.now(),
         endDate: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days from now
         drawDate: Date.now() + 8 * 24 * 60 * 60 * 1000, // 8 days from now
+        status: 'ACTIVE' as const,
+        isActive: true,
+        createdBy: 'user1',
         createdAt: Date.now() - 12 * 60 * 60 * 1000, // 12 hours ago
-        images: [
-            { url: '/images/iphone.jpg', alt: 'iPhone' },
-        ],
-        status: 'ACTIVE',
+        updatedAt: Date.now(),
     };
 
     const mockCompanyInfo = {

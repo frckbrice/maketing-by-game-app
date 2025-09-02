@@ -12,9 +12,9 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
-import Image from 'next/image';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import OptimizedImage from '../../../performance/OptimizedImage';
 import { GameDetailModal } from './GameDetailModal';
 import { PaymentModal } from './PaymentModal';
 
@@ -179,7 +179,7 @@ export const GameCard = React.memo<GameCardProps>(function GameCard({
           onClick={() => setShowDetailModal(true)}
         >
           {game.images && game.images.length > 0 ? (
-            <Image
+            <OptimizedImage
               src={game.images[0].url || ''}
               alt={safeCategory.name || 'Game Image'}
               fill

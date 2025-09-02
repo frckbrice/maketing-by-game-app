@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/firebase/config';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
-import { AdminUser, VendorData, Notification, Role, AppSettings, AnalyticsData, RevenueData, RevenueMetrics } from './type';
+import { useQuery } from '@tanstack/react-query';
+import { addDoc, collection, getDocs, orderBy, query, where } from 'firebase/firestore';
+import { AdminUser, AnalyticsData, AppSettings, Notification, RevenueData, RevenueMetrics, Role, VendorData } from './type';
 
 // Admin Users Queries
 export const useAdminUsers = () => {
@@ -9,12 +9,25 @@ export const useAdminUsers = () => {
     queryKey: ['admin-users'],
     queryFn: async (): Promise<AdminUser[]> => {
       try {
-        // Implement real Firebase query for admin users
-        const adminsSnapshot = await getDocs(collection(db, 'admins'));
-        return adminsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as AdminUser[];
+        // Query users with ADMIN role from the users collection
+        const adminQuery = query(collection(db, 'users'), where('role', '==', 'ADMIN'));
+        const adminsSnapshot = await getDocs(adminQuery);
+        
+        return adminsSnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            firstName: data.firstName || 'Admin',
+            lastName: data.lastName || 'User',
+            email: data.email,
+            role: 'ADMIN',
+            permissions: ['ALL'], // Admins have all permissions
+            isActive: data.status === 'ACTIVE',
+            lastLogin: data.lastLoginAt ? new Date(data.lastLoginAt) : undefined,
+            createdAt: new Date(data.createdAt || Date.now()),
+            createdBy: data.createdBy || 'system',
+          };
+        }) as AdminUser[];
       } catch (error) {
         console.error('Error fetching admin users:', error);
         // Development fallback data
@@ -146,12 +159,113 @@ export const useRoles = () => {
     queryFn: async (): Promise<Role[]> => {
       try {
         const rolesSnapshot = await getDocs(collection(db, 'roles'));
-        return rolesSnapshot.docs.map(doc => ({
+        let roles = rolesSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         })) as Role[];
+        
+        // If no roles exist, create default ones
+        if (roles.length === 0) {
+          // Get user counts for each role
+          const usersSnapshot = await getDocs(collection(db, 'users'));
+          const users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          
+          const defaultRoles = [
+            {
+              name: 'USER',
+              displayName: 'User',
+              description: 'Regular user with basic permissions to play games',
+              permissions: ['games.view', 'tickets.view', 'profile.edit'],
+              isActive: true,
+              isSystem: true,
+              userCount: users.filter((u: any) => u.role === 'USER').length,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              createdBy: 'system',
+            },
+            {
+              name: 'VENDOR',
+              displayName: 'Vendor',
+              description: 'Vendor with permissions to create games and manage content',
+              permissions: ['games.create', 'games.edit', 'games.view', 'analytics.view'],
+              isActive: true,
+              isSystem: true,
+              userCount: users.filter((u: any) => u.role === 'VENDOR').length,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              createdBy: 'system',
+            },
+            {
+              name: 'ADMIN',
+              displayName: 'Administrator',
+              description: 'Administrator with full system access',
+              permissions: ['*'],
+              isActive: true,
+              isSystem: true,
+              userCount: users.filter((u: any) => u.role === 'ADMIN').length,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              createdBy: 'system',
+            },
+          ];
+          
+          // Create default roles in Firebase
+          const createdRoles = [];
+          for (const role of defaultRoles) {
+            const docRef = await addDoc(collection(db, 'roles'), role);
+            createdRoles.push({ id: docRef.id, ...role });
+          }
+          
+          return createdRoles;
+        }
+        
+        return roles;
       } catch (error) {
         console.error('Error fetching roles:', error);
+        // Development fallback
+        if (process.env.NODE_ENV === 'development') {
+          return [
+            {
+              id: 'user',
+              name: 'USER',
+              displayName: 'User',
+              description: 'Regular user with basic permissions',
+              permissions: ['games.view', 'tickets.view'],
+              isActive: true,
+              isSystem: true,
+              userCount: 150,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              createdBy: 'system',
+            },
+            {
+              id: 'vendor',
+              name: 'VENDOR',
+              displayName: 'Vendor',
+              description: 'Vendor with game creation permissions',
+              permissions: ['games.create', 'games.edit'],
+              isActive: true,
+              isSystem: true,
+              userCount: 25,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              createdBy: 'system',
+            },
+            {
+              id: 'admin',
+              name: 'ADMIN',
+              displayName: 'Administrator',
+              description: 'Full system access',
+              permissions: ['*'],
+              isActive: true,
+              isSystem: true,
+              userCount: 3,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              createdBy: 'system',
+            },
+          ];
+        }
         throw error;
       }
     },
@@ -211,41 +325,181 @@ export const useAppSettings = () => {
 };
 
 // Analytics Queries
-export const useAnalyticsData = () => {
+export const useAnalyticsData = (timeRange: string = '30d') => {
   return useQuery({
-    queryKey: ['admin-analytics'],
+    queryKey: ['admin-analytics', timeRange],
     queryFn: async (): Promise<AnalyticsData> => {
       try {
-        // In production, this would fetch real analytics from Firebase
-        // For now, calculate from actual data where possible
+        // Fetch real analytics from Firebase
+        const [usersSnapshot, gamesSnapshot, paymentsSnapshot, ticketsSnapshot, categoriesSnapshot] = await Promise.all([
+          getDocs(collection(db, 'users')),
+          getDocs(collection(db, 'games')),
+          getDocs(collection(db, 'payments')),
+          getDocs(collection(db, 'tickets')),
+          getDocs(collection(db, 'categories')),
+        ]);
         
-        const usersSnapshot = await getDocs(collection(db, 'users'));
-        const gamesSnapshot = await getDocs(collection(db, 'games'));
-        const paymentsSnapshot = await getDocs(collection(db, 'payments'));
+        const users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const games = gamesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const payments = paymentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const tickets = ticketsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const categories = categoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
-        const totalUsers = usersSnapshot.size;
-        const totalGames = gamesSnapshot.size;
-        const totalRevenue = paymentsSnapshot.docs.reduce((sum: number, doc: any) => {
-          return sum + (doc.data().amount || 0);
-        }, 0);
+        // Calculate time range based on timeRange parameter
+        const now = Date.now();
+        let startTime = now;
+        let days = 30; // default
+        switch (timeRange) {
+          case '7d':
+            startTime = now - (7 * 24 * 60 * 60 * 1000);
+            days = 7;
+            break;
+          case '30d':
+            startTime = now - (30 * 24 * 60 * 60 * 1000);
+            days = 30;
+            break;
+          case '90d':
+            startTime = now - (90 * 24 * 60 * 60 * 1000);
+            days = 90;
+            break;
+          case '1y':
+            startTime = now - (365 * 24 * 60 * 60 * 1000);
+            days = 365;
+            break;
+          default:
+            startTime = now - (30 * 24 * 60 * 60 * 1000);
+        }
+        
+        // Filter data by time range for current period
+        const completedPayments = payments.filter((p: any) => p.status === 'COMPLETED');
+        const recentUsers = users.filter((u: any) => u.createdAt >= startTime);
+        const recentGames = games.filter((g: any) => g.createdAt >= startTime);
+        const recentTickets = tickets.filter((t: any) => t.createdAt >= startTime);
+        const recentPayments = completedPayments.filter((p: any) => p.createdAt >= startTime);
+        
+        // Calculate previous period for growth comparison
+        const previousPeriodStart = startTime - (now - startTime);
+        const previousUsers = users.filter((u: any) => u.createdAt >= previousPeriodStart && u.createdAt < startTime);
+        const previousGames = games.filter((g: any) => g.createdAt >= previousPeriodStart && g.createdAt < startTime);
+        const previousPayments = completedPayments.filter((p: any) => p.createdAt >= previousPeriodStart && p.createdAt < startTime);
+        
+        // Calculate totals and growth rates
+        const totalRevenue = completedPayments.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+        const recentRevenue = recentPayments.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+        const previousRevenue = previousPayments.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+        
+        const revenueGrowth = previousRevenue > 0 ? ((recentRevenue - previousRevenue) / previousRevenue) * 100 : 0;
+        const userGrowth = previousUsers.length > 0 ? ((recentUsers.length - previousUsers.length) / previousUsers.length) * 100 : 0;
+        const gameGrowth = previousGames.length > 0 ? ((recentGames.length - previousGames.length) / previousGames.length) * 100 : 0;
+        
+        // Calculate conversion rate
+        const uniqueParticipants = Array.from(new Set(recentTickets.map((t: any) => t.userId))).length;
+        const conversionRate = users.length > 0 ? (uniqueParticipants / users.length) * 100 : 0;
+        
+        // Generate detailed revenue by day data
+        const revenueByDay = [];
+        for (let i = days - 1; i >= 0; i--) {
+          const date = new Date(now - (i * 24 * 60 * 60 * 1000));
+          const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+          const dayEnd = dayStart + (24 * 60 * 60 * 1000);
+
+          const dayPayments = completedPayments.filter((p: any) => p.createdAt >= dayStart && p.createdAt < dayEnd);
+          const dayTickets = tickets.filter((t: any) => t.createdAt >= dayStart && t.createdAt < dayEnd);
+
+          revenueByDay.push({
+            date: date.toISOString().split('T')[0],
+            revenue: dayPayments.reduce((sum: number, p: any) => sum + p.amount, 0),
+            tickets: dayTickets.length,
+          });
+        }
+
+        // Generate users by day data
+        const usersByDay = [];
+        for (let i = days - 1; i >= 0; i--) {
+          const date = new Date(now - (i * 24 * 60 * 60 * 1000));
+          const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+          const dayEnd = dayStart + (24 * 60 * 60 * 1000);
+
+          const dayUsers = users.filter((u: any) => u.createdAt >= dayStart && u.createdAt < dayEnd);
+
+          usersByDay.push({
+            date: date.toISOString().split('T')[0],
+            users: dayUsers.length,
+            retention: 75 + Math.random() * 20, // Mock retention - would need analytics integration
+          });
+        }
+        
+        // Calculate detailed category performance
+        const categoryPerformance = categories.map((category: any) => {
+          const categoryGames = games.filter((g: any) => g.categoryId === category.id);
+          const categoryGameIds = categoryGames.map((g: any) => g.id);
+          const categoryTickets = tickets.filter((t: any) => categoryGameIds.includes(t.gameId));
+          const categoryPayments = completedPayments.filter((p: any) => 
+            categoryTickets.some((t: any) => t.id === p.ticketId)
+          );
+          const categoryUsers = Array.from(new Set(categoryTickets.map((t: any) => t.userId)));
+
+          return {
+            name: category.name,
+            revenue: categoryPayments.reduce((sum: number, p: any) => sum + p.amount, 0),
+            games: categoryGames.length,
+            users: categoryUsers.length,
+          };
+        }).sort((a, b) => b.revenue - a.revenue);
+        
+        // Calculate detailed game performance
+        const gamePerformance = games
+          .map((game: any) => {
+            const gameTickets = tickets.filter((t: any) => t.gameId === game.id);
+            const gamePayments = completedPayments.filter((p: any) =>
+              gameTickets.some((t: any) => t.id === p.ticketId)
+            );
+            const participants = Array.from(new Set(gameTickets.map((t: any) => t.userId))).length;
+            const revenue = gamePayments.reduce((sum: number, p: any) => sum + p.amount, 0);
+
+            return {
+              id: game.id,
+              title: game.title,
+              participants,
+              revenue,
+              conversionRate: game.maxParticipants > 0 ? (participants / game.maxParticipants) * 100 : 0,
+            };
+          })
+          .sort((a, b) => b.revenue - a.revenue)
+          .slice(0, 10);
+        
+        // Mock demographic and device data (would need real analytics integration)
+        const userDemographics = [
+          { name: '18-25', value: 35, color: '#f97316' },
+          { name: '26-35', value: 30, color: '#ef4444' },
+          { name: '36-45', value: 20, color: '#10b981' },
+          { name: '46-55', value: 10, color: '#3b82f6' },
+          { name: '55+', value: 5, color: '#8b5cf6' },
+        ];
+        
+        const deviceStats = [
+          { device: 'Mobile', percentage: 65, users: Math.floor(users.length * 0.65) },
+          { device: 'Desktop', percentage: 25, users: Math.floor(users.length * 0.25) },
+          { device: 'Tablet', percentage: 10, users: Math.floor(users.length * 0.10) },
+        ];
         
         return {
           overview: {
             totalRevenue,
-            revenueGrowth: 12.5,
-            totalUsers,
-            userGrowth: 8.3,
-            totalGames,
-            gameGrowth: 15.2,
-            conversionRate: 3.2,
-            conversionGrowth: 2.1,
+            revenueGrowth: Math.round(revenueGrowth * 100) / 100,
+            totalUsers: users.length,
+            userGrowth: Math.round(userGrowth * 100) / 100,
+            totalGames: games.length,
+            gameGrowth: Math.round(gameGrowth * 100) / 100,
+            conversionRate: Math.round(conversionRate * 100) / 100,
+            conversionGrowth: 5.7, // Mock - would need historical data
           },
-          revenueByDay: [], // TODO: Implement real data aggregation
-          usersByDay: [],
-          categoryPerformance: [],
-          gamePerformance: [],
-          userDemographics: [],
-          deviceStats: [],
+          revenueByDay,
+          usersByDay,
+          categoryPerformance,
+          gamePerformance,
+          userDemographics,
+          deviceStats,
         };
       } catch (error) {
         console.error('Error fetching analytics:', error);
@@ -263,8 +517,55 @@ export const useRevenueData = (timeRange: string) => {
     queryKey: ['revenue-analytics', timeRange],
     queryFn: async (): Promise<RevenueData[]> => {
       try {
-        // In production, implement real Firebase aggregation queries
-        if (process.env.NODE_ENV === 'development') {
+        // Implement real Firebase aggregation queries
+        const [paymentsSnapshot, usersSnapshot, gamesSnapshot] = await Promise.all([
+          getDocs(collection(db, 'payments')),
+          getDocs(collection(db, 'users')),
+          getDocs(collection(db, 'games')),
+        ]);
+        
+        const payments = paymentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const games = gamesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // Calculate date range based on timeRange parameter
+        const now = Date.now();
+        let days = 30; // default
+        switch (timeRange) {
+          case '7d': days = 7; break;
+          case '30d': days = 30; break;
+          case '90d': days = 90; break;
+          case '1y': days = 365; break;
+        }
+        
+        const startDate = now - (days * 24 * 60 * 60 * 1000);
+        const completedPayments = payments.filter((p: any) => p.status === 'COMPLETED' && p.createdAt >= startDate);
+        
+        // Group by date
+        const revenueByDate: { [key: string]: RevenueData } = {};
+        
+        for (let i = 0; i < days; i++) {
+          const date = new Date(now - (i * 24 * 60 * 60 * 1000));
+          const dateStr = date.toISOString().split('T')[0];
+          
+          const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+          const dayEnd = dayStart + (24 * 60 * 60 * 1000);
+          
+          const dayPayments = completedPayments.filter((p: any) => p.createdAt >= dayStart && p.createdAt < dayEnd);
+          const dayUsers = users.filter((u: any) => u.createdAt >= dayStart && u.createdAt < dayEnd);
+          const dayGames = games.filter((g: any) => g.createdAt >= dayStart && g.createdAt < dayEnd);
+          
+          revenueByDate[dateStr] = {
+            date: dateStr,
+            revenue: dayPayments.reduce((sum: number, p: any) => sum + p.amount, 0),
+            transactions: dayPayments.length,
+            users: dayUsers.length,
+            games: dayGames.length,
+          };
+        }
+        
+        // Development fallback if no real data
+        if (process.env.NODE_ENV === 'development' && Object.keys(revenueByDate).length === 0) {
           return [
             { date: '2025-01-01', revenue: 12500, transactions: 150, users: 120, games: 45 },
             { date: '2025-01-02', revenue: 13800, transactions: 165, users: 135, games: 52 },
@@ -272,8 +573,7 @@ export const useRevenueData = (timeRange: string) => {
           ];
         }
         
-        // TODO: Implement real Firebase queries for revenue data aggregation
-        return [];
+        return Object.values(revenueByDate).reverse(); // Oldest first
       } catch (error) {
         console.error('Error fetching revenue data:', error);
         throw error;
@@ -289,7 +589,50 @@ export const useRevenueMetrics = (timeRange: string) => {
     queryKey: ['revenue-metrics', timeRange],
     queryFn: async (): Promise<RevenueMetrics> => {
       try {
-        if (process.env.NODE_ENV === 'development') {
+        // Calculate real metrics from Firebase data
+        const [paymentsSnapshot, usersSnapshot] = await Promise.all([
+          getDocs(collection(db, 'payments')),
+          getDocs(collection(db, 'users')),
+        ]);
+        
+        const payments = paymentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        const now = Date.now();
+        let days = 30; // default
+        switch (timeRange) {
+          case '7d': days = 7; break;
+          case '30d': days = 30; break;
+          case '90d': days = 90; break;
+          case '1y': days = 365; break;
+        }
+        
+        const startDate = now - (days * 24 * 60 * 60 * 1000);
+        const previousPeriodStart = startDate - (days * 24 * 60 * 60 * 1000);
+        
+        const currentPeriodPayments = payments.filter((p: any) => 
+          p.status === 'COMPLETED' && p.createdAt >= startDate
+        );
+        const previousPeriodPayments = payments.filter((p: any) => 
+          p.status === 'COMPLETED' && p.createdAt >= previousPeriodStart && p.createdAt < startDate
+        );
+        
+        const totalRevenue = currentPeriodPayments.reduce((sum: number, p: any) => sum + p.amount, 0);
+        const previousRevenue = previousPeriodPayments.reduce((sum: number, p: any) => sum + p.amount, 0);
+        const revenueGrowth = previousRevenue > 0 ? ((totalRevenue - previousRevenue) / previousRevenue) * 100 : 0;
+        
+        const totalTransactions = currentPeriodPayments.length;
+        const previousTransactions = previousPeriodPayments.length;
+        const transactionGrowth = previousTransactions > 0 ? ((totalTransactions - previousTransactions) / previousTransactions) * 100 : 0;
+        
+        const currentPeriodUsers = users.filter((u: any) => u.createdAt >= startDate).length;
+        const previousPeriodUsers = users.filter((u: any) => u.createdAt >= previousPeriodStart && u.createdAt < startDate).length;
+        const userGrowth = previousPeriodUsers > 0 ? ((currentPeriodUsers - previousPeriodUsers) / previousPeriodUsers) * 100 : 0;
+        
+        const averageOrderValue = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
+        
+        // Development fallback if no real data
+        if (process.env.NODE_ENV === 'development' && totalRevenue === 0) {
           return {
             totalRevenue: 111400,
             totalTransactions: 1290,
@@ -301,15 +644,14 @@ export const useRevenueMetrics = (timeRange: string) => {
           };
         }
         
-        // TODO: Implement real metrics calculation from Firebase
         return {
-          totalRevenue: 0,
-          totalTransactions: 0,
-          totalUsers: 0,
-          averageOrderValue: 0,
-          revenueGrowth: 0,
-          transactionGrowth: 0,
-          userGrowth: 0,
+          totalRevenue,
+          totalTransactions,
+          totalUsers: users.length,
+          averageOrderValue,
+          revenueGrowth,
+          transactionGrowth,
+          userGrowth,
         };
       } catch (error) {
         console.error('Error calculating revenue metrics:', error);

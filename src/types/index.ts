@@ -27,74 +27,6 @@ export interface PaginatedResponse<T> {
 
 // User and Authentication Types
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
-
-export interface UserPreferences {
-  language: string;
-  theme: 'light' | 'dark' | 'system';
-  notifications: boolean;
-  emailUpdates: boolean;
-  smsUpdates: boolean;
-  timezone: string;
-  currency: string;
-}
-
-export interface NotificationSettings {
-  email: boolean;
-  sms: boolean;
-  push: boolean;
-  inApp: boolean;
-  marketing: boolean;
-  gameUpdates: boolean;
-  winnerAnnouncements: boolean;
-}
-
-export interface PrivacySettings {
-  profileVisibility: 'public' | 'private' | 'friends';
-  showEmail: boolean;
-  showPhone: boolean;
-  allowContact: boolean;
-  dataSharing: boolean;
-}
-
-export interface AuthUser {
-  uid: string;
-  email: string;
-  emailVerified: boolean;
-  phoneNumber?: string;
-  phoneVerified: boolean;
-  displayName?: string;
-  photoURL?: string;
-  disabled: boolean;
-  metadata: {
-    creationTime: string;
-    lastSignInTime: string;
-  };
-}
-
-export interface LoginCredentials {
-  email: string;
-  password: string;
-  rememberMe?: boolean;
-}
-
-export interface RegisterCredentials {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber?: string;
-  acceptTerms: boolean;
-  acceptMarketing?: boolean;
-}
-
-export interface PasswordReset {
-  email: string;
-  currentPassword?: string;
-  newPassword: string;
-  confirmPassword: string;
-}
-
 export type UserRole = 'USER' | 'VENDOR' | 'ADMIN';
 
 export interface User {
@@ -107,28 +39,244 @@ export interface User {
   status: UserStatus;
   emailVerified: boolean;
   phoneVerified: boolean;
-  socialMedia: {
+  avatar?: string;
+  dateOfBirth?: string;
+  country?: string;
+  city?: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  lastLoginAt?: Timestamp;
+  // Enhanced profile fields
+  bio?: string;
+  timezone?: string;
+  preferredCurrency?: string;
+  notificationPreferences?: UserNotificationPreferences;
+  defaultShippingAddressId?: string;
+  // Additional fields used by firebase services
+  preferences?: {
+    language: string;
+    theme: string;
+    notifications: boolean;
+    emailUpdates: boolean;
+    smsUpdates: boolean;
+    timezone: string;
+    currency: string;
+  };
+  notificationSettings?: {
+    email: boolean;
+    sms: boolean;
+    push: boolean;
+    inApp: boolean;
+    marketing: boolean;
+    gameUpdates: boolean;
+    winnerAnnouncements: boolean;
+  };
+  privacySettings?: {
+    profileVisibility: 'public' | 'private';
+    showEmail: boolean;
+    showPhone: boolean;
+    allowContact: boolean;
+    dataSharing: boolean;
+  };
+  socialMedia?: {
     facebook?: string;
     twitter?: string;
     instagram?: string;
     linkedin?: string;
     youtube?: string;
   };
-  twoFactorEnabled: boolean;
-  avatar?: string;
-  dateOfBirth?: string;
-  country?: string;
-  city?: string;
-  preferences: UserPreferences;
-  notificationSettings: NotificationSettings;
-  privacySettings: PrivacySettings;
-  businessProfile?: BusinessProfile;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-  lastLoginAt?: Timestamp;
+  businessProfile?: {
+    companyName: string;
+    businessType: string;
+    taxId: string;
+    address: {
+      street: string;
+      city: string;
+      state: string;
+      country: string;
+      postalCode: string;
+    };
+    contactPerson: {
+      name: string;
+      email: string;
+      phone: string;
+    };
+    paymentMethods: any[];
+    subscriptionStatus: string;
+    subscriptionPlan: string;
+    maxGames: number;
+    canCreateGames: boolean;
+    canManageUsers: boolean;
+    verificationStatus: string;
+    documents: any[];
+  };
 }
 
-// Business Profile for VENDOR and ADMIN users
+// Enhanced User Notification Preferences
+export interface UserNotificationPreferences {
+  email: boolean;
+  sms: boolean;
+  push: boolean;
+  inApp: boolean;
+  marketing: boolean;
+  orderUpdates: boolean;
+  gameUpdates: boolean;
+  winnerAnnouncements: boolean;
+  paymentNotifications: boolean;
+  securityAlerts: boolean;
+  weeklyDigest: boolean;
+  newMessages: boolean;
+  priceDrops: boolean;
+  restockAlerts: boolean;
+  deliveryUpdates: boolean;
+}
+
+// Game Types
+export type GameType = 'daily' | 'weekly' | 'monthly' | 'special';
+export type PrizeType = 'cash' | 'product' | 'service' | 'experience';
+
+export interface GameCategory {
+  id: ID;
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface Prize {
+  id: ID;
+  name: string;
+  description: string;
+  type: PrizeType;
+  value: number;
+  currency: string;
+  image?: string;
+  isActive: boolean;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface GameRule {
+  id: ID;
+  title: string;
+  description: string;
+  order: number;
+  isRequired: boolean;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface GameImage {
+  id: ID;
+  url: string;
+  alt: string;
+  order: number;
+  isPrimary: boolean;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface LotteryGame {
+  id: ID;
+  title: string;
+  description: string;
+  type: GameType;
+  categoryId: ID;
+  category: GameCategory;
+  ticketPrice: number;
+  currency: string;
+  maxParticipants: number;
+  currentParticipants: number;
+  totalTickets: number;
+  totalTicketsSold: number;
+  videoUrl?: string;
+  totalPrizePool: number;
+  prizes: Prize[];
+  rules: GameRule[];
+  images: GameImage[];
+  startDate: Timestamp;
+  endDate: Timestamp;
+  drawDate: Timestamp;
+  status: 'DRAFT' | 'ACTIVE' | 'DRAWING' | 'CLOSED';
+  isActive: boolean;
+  createdBy: ID;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  sponsor?: {
+    id: ID;
+    companyName: string;
+    companyWebsite?: string;
+    companyLogo?: string;
+    description?: string;
+  };
+}
+
+// Ticket Types
+export interface LotteryTicket {
+  id: ID;
+  gameId: ID;
+  userId: ID;
+  vendorId: ID;
+  ticketNumber: string; // Primary user-facing number (formatted, e.g., "123-456")
+  alternativeNumbers?: {
+    readable: string;  // LT-2024-ABC123
+    simple: string;    // 123456
+    formatted: string; // 123-456
+  };
+  purchaseDate: Timestamp;
+  price: number;
+  currency: string;
+  status: 'valid' | 'used' | 'expired' | 'cancelled';
+  isWinner: boolean;
+  prizeId?: ID;
+  prizeAmount?: number;
+  claimedAt?: Timestamp;
+  expiresAt?: Timestamp;
+  lastScanAt?: Timestamp;
+  lastScanBy?: 'player' | 'vendor';
+  redemption?: {
+    vendorId: string;
+    redeemedAt: Timestamp;
+    device: 'web' | 'mobile';
+    method?: 'qr' | 'manual'; // How the ticket was validated
+  };
+  coupon?: {
+    code: string;
+    amountOff: number;
+    minPurchase?: number;
+    expiresAt?: Timestamp;
+    used: boolean;
+  };
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface TicketPurchase {
+  gameId: ID;
+  quantity: number;
+  paymentMethodId: ID;
+  totalAmount: number;
+  currency: string;
+}
+
+export interface ScanEvent {
+  id: ID;
+  ticketId: ID;
+  scannedBy: 'player' | 'vendor';
+  vendorId?: ID;
+  userId?: ID;
+  appVersion?: string;
+  device: 'web' | 'mobile';
+  result: 'VALIDATED' | 'VALID' | 'ALREADY_USED' | 'INVALID' | 'EXPIRED';
+  createdAt: Timestamp;
+  ip?: string;
+}
+
+// Business Profile Types
 export interface BusinessProfile {
   companyName: string;
   businessType: 'individual' | 'corporation' | 'partnership' | 'llc';
@@ -168,184 +316,336 @@ export interface BusinessDocument {
   verifiedAt?: Timestamp;
 }
 
-export interface VendorApplication {
+// Vendor Application Types - Imported from vendor-application feature
+export type { VendorApplication } from '../components/features/vendor-application/api/types';
+
+// Common Response Types
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+export interface ErrorResponse {
+  success: false;
+  error: string;
+  code?: string;
+  details?: Record<string, any>;
+}
+
+export interface SuccessResponse<T> {
+  success: true;
+  data: T;
+  message?: string;
+}
+
+// Order and Delivery Types
+export interface Address {
   id: string;
   userId: string;
-  userEmail: string;
-  userName: string;
-  companyName: string;
-  businessRegistrationNumber: string;
-  companyWebsite?: string;
-  contactEmail: string;
-  contactPhone: string;
-  companyLogoUrl?: string;
-  businessCertificateUrl?: string;
-  productCategory: string;
-  description: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  rejectionReason?: string;
-  submittedAt: number;
-  reviewedAt?: number;
-  reviewedBy?: string;
+  type: 'HOME' | 'WORK' | 'OTHER';
+  isDefault: boolean;
+  fullName: string;
+  phoneNumber: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  additionalInfo?: string;
+  createdAt: number;
+  updatedAt: number;
 }
 
-// Lottery Game Types
-export type GameType = 'daily' | 'weekly' | 'monthly' | 'special';
-export type PrizeType = 'cash' | 'product' | 'service' | 'experience';
-
-export interface Prize {
-  id: ID;
+export interface DeliveryMethod {
+  id: string;
   name: string;
   description: string;
-  type: PrizeType;
-  value: number;
+  price: number;
   currency: string;
-  image?: string;
+  estimatedDays: number;
+  isAvailable: boolean;
+  type: 'PICKUP' | 'HOME_DELIVERY';
+}
+
+export interface OrderItem {
+  productId: string;
+  productName: string;
+  productImage: string;
   quantity: number;
-  remaining: number;
+  price: number;
+  size?: string;
 }
 
-export interface GameRule {
+export interface Order {
+  id: string;
+  userId: string;
+  shopId: string;
+  shopName: string;
+  status: 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  items: OrderItem[];
+  subtotal: number;
+  deliveryFee: number;
+  tax: number;
+  total: number;
+  currency: string;
+  deliveryMethod: DeliveryMethod;
+  deliveryAddress?: Address;
+  paymentMethod: 'MOBILE_MONEY' | 'CREDIT_CARD' | 'PAYPAL';
+  paymentStatus: 'PENDING' | 'COMPLETED' | 'FAILED';
+  createdAt: number;
+  updatedAt: number;
+  estimatedDeliveryDate?: number;
+  actualDeliveryDate?: number;
+  orderNumber: string;
+}
+
+// Gamification Types
+export type LoyaltyPointTransactionType = 
+  | 'EARNED_GAME_PLAY' 
+  | 'EARNED_REFERRAL' 
+  | 'EARNED_PURCHASE' 
+  | 'EARNED_DAILY_LOGIN' 
+  | 'EARNED_STREAK_BONUS'
+  | 'REDEEMED_TICKET' 
+  | 'REDEEMED_DISCOUNT' 
+  | 'REDEEMED_PRIZE'
+  | 'EXPIRED'
+  | 'ADJUSTMENT';
+
+export interface LoyaltyPointTransaction {
   id: ID;
-  title: string;
+  userId: ID;
+  type: LoyaltyPointTransactionType;
+  points: number; // positive for earned, negative for spent
   description: string;
-  isRequired: boolean;
-  order: number;
+  referenceId?: ID; // game ID, order ID, etc.
+  referenceType?: 'GAME' | 'ORDER' | 'REFERRAL' | 'DAILY_LOGIN' | 'STREAK';
+  expiresAt?: Timestamp;
+  createdAt: Timestamp;
+  metadata?: Record<string, any>;
 }
 
-export interface GameImage {
-  id: ID;
-  url: string;
-  alt: string;
-  type: 'hero' | 'thumbnail' | 'gallery';
-  order: number;
+export interface UserLoyaltyProfile {
+  userId: ID;
+  totalPointsEarned: number;
+  totalPointsSpent: number;
+  currentBalance: number;
+  pointsExpiring30Days: number;
+  consecutiveDaysStreak: number;
+  longestStreak: number;
+  lastLoginDate: Timestamp;
+  level: number;
+  levelName: string;
+  nextLevelThreshold: number;
+  lifetimeGamesPlayed: number;
+  lifetimeReferrals: number;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 }
 
-export interface GameCategory {
+export interface LoyaltyLevel {
   id: ID;
+  level: number;
   name: string;
   description: string;
-  color: string;
+  minPoints: number;
+  maxPoints: number;
+  benefits: string[];
+  bonusMultiplier: number; // 1.0 = no bonus, 1.5 = 50% bonus
   icon: string;
+  color: string;
   isActive: boolean;
-  sortOrder: number;
   createdAt: Timestamp;
-  updatedAt: Timestamp;
 }
 
-export interface LotteryGame {
+export interface ReferralReward {
   id: ID;
-  title: string;
+  type: 'POINTS' | 'FREE_TICKETS' | 'DISCOUNT_COUPON';
+  value: number;
   description: string;
-  type: GameType;
-  categoryId: ID;
-  category: GameCategory;
-  ticketPrice: number;
-  currency: string;
-  maxParticipants: number;
-  currentParticipants: number;
-  totalTickets: number;
-  totalTicketsSold: number;
-  videoUrl?: string;
-  totalPrizePool: number;
-  prizes: Prize[];
-  rules: GameRule[];
-  images: GameImage[];
-  startDate: Timestamp;
-  endDate: Timestamp;
-  drawDate: Timestamp;
-  status: 'DRAFT' | 'ACTIVE' | 'DRAWING' | 'CLOSED';
   isActive: boolean;
-  createdBy: ID; // User ID who created the game (admin ID or vendor ID)
+  minimumGamePlays?: number; // referee must play X games to trigger reward
+}
+
+export interface Referral {
+  id: ID;
+  referrerId: ID; // user who referred
+  refereeId: ID; // user who was referred
+  referralCode: string;
+  status: 'PENDING' | 'COMPLETED' | 'EXPIRED';
+  rewardClaimed: boolean;
+  refereeGamesPlayed: number;
+  completedAt?: Timestamp;
+  rewardClaimedAt?: Timestamp;
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  // Sponsor/Company information - only populated if createdBy is a VENDOR
-  // The sponsor.id will be the same as createdBy when sponsor exists
-  sponsor?: {
-    id: ID; // Same as createdBy when sponsor exists
-    companyName: string;
-    companyWebsite?: string;
-    companyLogo?: string;
-    description?: string;
+  metadata?: {
+    refereeFirstPurchase?: Timestamp;
+    refereeFirstGamePlay?: Timestamp;
+    bonusPointsAwarded?: number;
   };
 }
 
-// Ticket Types
-export interface LotteryTicket {
-  id: ID;
-  gameId: ID;
+export interface UserReferralProfile {
   userId: ID;
-  ticketNumber: string;
-  purchaseDate: Timestamp;
-  price: number;
-  currency: string;
-  status: 'ACTIVE' | 'USED' | 'EXPIRED' | 'CANCELLED';
-  isWinner: boolean;
-  prizeId?: ID;
-  prizeAmount?: number;
-  claimedAt?: Timestamp;
+  personalReferralCode: string;
+  totalReferrals: number;
+  successfulReferrals: number;
+  pendingReferrals: number;
+  totalRewardsEarned: number;
+  lastReferralAt?: Timestamp;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
 
-export interface TicketPurchase {
-  gameId: ID;
-  quantity: number;
-  paymentMethodId: ID;
-  totalAmount: number;
+export interface DailyStreak {
+  id: ID;
+  userId: ID;
+  currentStreak: number;
+  longestStreak: number;
+  lastLoginDate: Timestamp;
+  streakBonuses: {
+    day: number;
+    pointsAwarded: number;
+    awardedAt: Timestamp;
+  }[];
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface GamePlayReward {
+  id: ID;
+  gameType: 'PLAY' | 'WIN' | 'LOSE';
+  basePoints: number;
+  bonusMultiplier: number;
+  description: string;
+  isActive: boolean;
+}
+
+export interface LoyaltyRedemption {
+  id: ID;
+  name: string;
+  description: string;
+  type: 'FREE_TICKET' | 'DISCOUNT_COUPON' | 'PRIZE' | 'BONUS_POINTS';
+  pointsCost: number;
+  value: number; // ticket value, discount amount, etc.
+  maxRedemptions?: number;
+  currentRedemptions: number;
+  isActive: boolean;
+  validUntil?: Timestamp;
+  requirements: {
+    minLevel?: number;
+    minLifetimePoints?: number;
+  };
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface UserRedemption {
+  id: ID;
+  userId: ID;
+  redemptionId: ID;
+  pointsUsed: number;
+  status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+  couponCode?: string;
+  usedAt?: Timestamp;
+  expiresAt?: Timestamp;
+  createdAt: Timestamp;
+  metadata?: Record<string, any>;
+}
+
+// Badge/Achievement Types
+export interface Badge {
+  id: ID;
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  type: 'PROGRESS' | 'MILESTONE' | 'SPECIAL';
+  category: 'GAMING' | 'SOCIAL' | 'SPENDING' | 'LOYALTY';
+  requirements: {
+    gamesPlayed?: number;
+    totalSpent?: number;
+    referrals?: number;
+    consecutiveDays?: number;
+    [key: string]: any;
+  };
+  rewardPoints: number;
+  isActive: boolean;
+  createdAt: Timestamp;
+}
+
+export interface UserBadge {
+  id: ID;
+  userId: ID;
+  badgeId: ID;
+  earnedAt: Timestamp;
+  progress?: number; // for progress-based badges
+  metadata?: Record<string, any>;
+}
+
+// Notification Types for Gamification
+export interface GamificationNotification {
+  id: ID;
+  userId: ID;
+  type: 'POINTS_EARNED' | 'LEVEL_UP' | 'BADGE_EARNED' | 'STREAK_BONUS' | 'REFERRAL_REWARD';
+  title: string;
+  message: string;
+  points?: number;
+  badgeId?: ID;
+  level?: number;
+  isRead: boolean;
+  createdAt: Timestamp;
+}
+
+// Product Types (Unified for marketplace and games)
+export interface Product {
+  id: ID;
+  name: string;
+  description: string;
+  price: number;
   currency: string;
+  originalPrice?: number;
+  discountPercentage?: number;
+  images: string[];
+  category: string;
+  tags: string[];
+  shop: {
+    shopId: ID; // this ID is the same with vendor author of this product.
+    shopName: string;
+    shopLogo?: string;
+  };
+  rating: number;
+  reviewCount: number;
+  likeCount: number;
+  shareCount: number;
+  isAvailable: boolean;
+  isFeatured: boolean;
+  isNew: boolean;
+  stockQuantity?: number;
+  status: 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK';
+  isLotteryEnabled: boolean;
+  lotteryPrice?: number;
+  playedCount: number;
+  features?: string[];
+  specifications?: Record<string, any>;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 }
 
 // Payment Types
-export type PaymentStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
-export type PaymentProvider =
-  | 'CREDIT_CARD'
-  | 'DEBIT_CARD'
-  | 'BANK_TRANSFER'
-  | 'DIGITAL_WALLET';
-
-export interface PaymentMethod {
-  id: ID;
-  userId: ID;
-  type: PaymentProvider;
-  name: string;
-  last4?: string;
-  brand?: string;
-  expiryMonth?: number;
-  expiryYear?: number;
-  isDefault: boolean;
-  isActive: boolean;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-}
-
-export interface PaymentIntent {
-  id: ID;
-  userId: ID;
-  amount: number;
-  currency: string;
-  status: PaymentStatus;
-  paymentMethodId: ID;
-  description: string;
-  metadata: Record<string, any>;
-  clientSecret?: string;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-}
-
 export interface Payment {
   id: ID;
   userId: ID;
-  ticketId: ID;
   amount: number;
   currency: string;
-  status: PaymentStatus;
-  paymentMethodId: ID;
-  paymentIntentId: ID;
+  status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+  method: string;
   transactionId?: string;
-  failureReason?: string;
-  refundedAt?: Timestamp;
-  refundAmount?: number;
+  description?: string;
+  metadata?: Record<string, any>;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -355,264 +655,15 @@ export interface Winner {
   id: ID;
   gameId: ID;
   userId: ID;
-  ticketId: ID;
-  prizeId: ID;
-  prizeAmount: number;
+  productId?: ID;
+  prize: string;
+  prizeValue: number;
   currency: string;
-  announcedAt: Timestamp;
+  status: 'PENDING' | 'CLAIMED' | 'DELIVERED';
   claimedAt?: Timestamp;
-  isClaimed: boolean;
+  deliveredAt?: Timestamp;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
 
-export interface WinnerAnnouncement {
-  id: ID;
-  gameId: ID;
-  winners: Winner[];
-  announcedAt: Timestamp;
-  announcementText: string;
-  isPublic: boolean;
-  createdAt: Timestamp;
-}
-
-// Notification Types
-export type NotificationType =
-  | 'INFO'
-  | 'SUCCESS'
-  | 'WARNING'
-  | 'ERROR'
-  | 'GAME_UPDATE'
-  | 'WINNER';
-export type NotificationPriority = 'low' | 'medium' | 'high' | 'urgent';
-
-export interface Notification {
-  id: ID;
-  userId: ID;
-  type: NotificationType;
-  priority: NotificationPriority;
-  title: string;
-  message: string;
-  data?: Record<string, any>;
-  isRead: boolean;
-  readAt?: Timestamp;
-  expiresAt?: Timestamp;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-}
-
-// Analytics Types
-export interface GameAnalytics {
-  gameId: ID;
-  totalTickets: number;
-  totalRevenue: number;
-  averageTicketPrice: number;
-  participantCount: number;
-  completionRate: number;
-  averageSessionDuration: number;
-  bounceRate: number;
-  conversionRate: number;
-  dateRange: {
-    start: Timestamp;
-    end: Timestamp;
-  };
-}
-
-export interface HourlyStats {
-  hour: number;
-  ticketsSold: number;
-  revenue: number;
-  participants: number;
-}
-
-export interface Demographics {
-  ageGroups: AgeGroupStats[];
-  locations: LocationStats[];
-  devices: DeviceStats[];
-}
-
-export interface AgeGroupStats {
-  ageGroup: string;
-  count: number;
-  percentage: number;
-}
-
-export interface LocationStats {
-  country: string;
-  city?: string;
-  count: number;
-  percentage: number;
-}
-
-export interface DeviceStats {
-  deviceType: string;
-  count: number;
-  percentage: number;
-}
-
-// Admin Types
-export interface AdminDashboard {
-  totalUsers: number;
-  activeUsers: number;
-  totalGames: number;
-  activeGames: number;
-  totalRevenue: number;
-  monthlyRevenue: number;
-  totalWinners: number;
-  systemHealth: SystemHealth;
-}
-
-export interface SystemHealth {
-  cpu: number;
-  memory: number;
-  disk: number;
-  network: number;
-  uptime: number;
-  lastCheck: Timestamp;
-}
-
-export interface AdminAction {
-  id: ID;
-  adminId: ID;
-  action: string;
-  targetType: string;
-  targetId: ID;
-  details: Record<string, any>;
-  timestamp: Timestamp;
-  ipAddress: string;
-  userAgent: string;
-}
-
-// API Response Types
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  errors?: ApiError[];
-  meta?: {
-    timestamp: Timestamp;
-    version: string;
-    requestId: string;
-  };
-}
-
-export interface ApiError {
-  field?: string;
-  message: string;
-  code: string;
-  details?: any;
-}
-
-// Form Types
-export interface FormField {
-  name: string;
-  label: string;
-  type:
-    | 'text'
-    | 'email'
-    | 'password'
-    | 'number'
-    | 'select'
-    | 'textarea'
-    | 'checkbox';
-  placeholder?: string;
-  required: boolean;
-  validation?: ValidationRule[];
-  options?: Array<{ value: string; label: string }>;
-  defaultValue?: any;
-}
-
-export interface ValidationRule {
-  type: 'required' | 'minLength' | 'maxLength' | 'pattern' | 'custom';
-  value?: any;
-  message: string;
-}
-
-// UI Component Types
-export interface ButtonProps {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  disabled?: boolean;
-  loading?: boolean;
-  fullWidth?: boolean;
-  onClick?: () => void;
-  children: React.ReactNode;
-}
-
-export interface InputProps {
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url';
-  placeholder?: string;
-  value?: string;
-  onChange?: (value: string) => void;
-  onBlur?: () => void;
-  onFocus?: () => void;
-  disabled?: boolean;
-  error?: string;
-  label?: string;
-  required?: boolean;
-}
-
-export interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title?: string;
-  children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
-  closeOnOverlayClick?: boolean;
-  showCloseButton?: boolean;
-}
-
-interface UseDataTableOptions<T> {
-  queryKey: string[];
-  fetchFn: (params: DataTableParams) => Promise<DataTableResponse<T>>;
-  initialPageSize?: number;
-  staleTime?: number;
-  gcTime?: number;
-}
-
-interface DataTableParams {
-  page: number;
-  pageSize: number;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-  search?: string;
-  filters?: Record<string, any>;
-}
-
-interface DataTableResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-}
-
-interface UseDataTableReturn<T> {
-  data: T[] | undefined;
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-  isLoading: boolean;
-  error: Error | null;
-  setPage: (page: number) => void;
-  setPageSize: (pageSize: number) => void;
-  setSortBy: (sortBy: string) => void;
-  setSortOrder: (sortOrder: 'asc' | 'desc') => void;
-  setSearch: (search: string) => void;
-  setFilters: (filters: Record<string, any>) => void;
-  refresh: () => void;
-}
-
-// Utility Types
-export type DeepPartial<T> = {
-  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
-};
-
-export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-
-export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>;
-
-export type ValueOf<T> = T[keyof T];
-
-export type ArrayElement<T> = T extends readonly (infer U)[] ? U : never;
+// Note: Marketplace types are defined inline to avoid circular imports

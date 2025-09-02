@@ -175,3 +175,5 @@ export interface AdminSidebarProps {
     badge?: string;
     children?: NavItem[];
   }
+
+// Product interface is imported from shops feature
