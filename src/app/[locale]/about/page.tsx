@@ -1,45 +1,48 @@
 import AboutPage from '@/components/pages/about/AboutPage';
-import { Metadata } from 'next';
+import { generateMetadata as generateSEOMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = {
-  title: 'About Us - Black Friday Check',
-  description: 'Learn about our ethical marketing innovation platform that serves merchants and consumers. We are not a gambling site, but a promotional campaign platform where everyone wins.',
-  keywords: [
-    'about us',
-    'ethical marketing',
-    'promotional campaigns', 
-    'black friday check',
-    'marketing platform',
-    'merchants',
-    'consumers',
-    'win-win',
-    'not gambling'
-  ],
-  authors: [{ name: 'Black Friday Check Team' }],
-  openGraph: {
-    title: 'About Us - Black Friday Check',
-    description: 'Discover our mission to create a healthy marketing ecosystem where merchants gain visibility and customers get real value.',
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+
+  return generateSEOMetadata({
+    title:
+      locale === 'fr'
+        ? 'À Propos - Application de Loterie'
+        : 'About Us - Lottery App',
+    description:
+      locale === 'fr'
+        ? 'Découvrez notre plateforme de loterie sécurisée et équitable. Nous offrons des jeux passionnants avec des prix incroyables pour tous les joueurs.'
+        : 'Learn about our secure and fair lottery platform. We offer exciting games with incredible prizes for all players.',
+    keywords:
+      locale === 'fr'
+        ? [
+            'à propos',
+            'loterie',
+            'plateforme',
+            'jeux',
+            'prix',
+            'sécurisé',
+            'équitable',
+          ]
+        : [
+            'about us',
+            'lottery',
+            'platform',
+            'games',
+            'prizes',
+            'secure',
+            'fair',
+          ],
+    url: '/about',
+    locale,
+    section: 'About',
     type: 'website',
-    locale: 'en_US',
-    alternateLocale: 'fr_FR',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'About Us - Black Friday Check',
-    description: 'Ethical marketing innovation platform serving merchants and consumers.',
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-  alternates: {
-    canonical: '/about',
-    languages: {
-      'en': '/en/about',
-      'fr': '/fr/about',
-    },
-  },
-};
+  });
+}
 
 export default function About() {
   return <AboutPage />;

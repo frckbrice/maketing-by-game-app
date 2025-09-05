@@ -21,7 +21,7 @@ export const ChatButton: React.FC<ChatButtonProps> = ({
   targetType,
   targetName,
   variant = 'default',
-  className = ''
+  className = '',
 }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -43,13 +43,15 @@ export const ChatButton: React.FC<ChatButtonProps> = ({
       // 1. Check if chat room already exists
       // 2. Create new chat room if it doesn't exist
       // 3. Navigate to chat interface
-      
+
       // For now, we'll simulate this
       const chatRoomId = `${user.id}_${targetId}`;
-      
+
       // Navigate to chat page
-      router.push(`/chat/${chatRoomId}?target=${targetName}&type=${targetType}`);
-      
+      router.push(
+        `/chat/${chatRoomId}?target=${targetName}&type=${targetType}`
+      );
+
       toast.success(t('social.chatStarted'));
     } catch (error) {
       console.error('Error starting chat:', error);
@@ -59,23 +61,33 @@ export const ChatButton: React.FC<ChatButtonProps> = ({
 
   const getButtonText = () => {
     if (variant === 'icon') return null;
-    
+
     switch (targetType) {
       case 'SHOP':
-        return variant === 'compact' ? t('social.chat') : t('social.contactShop');
+        return variant === 'compact'
+          ? t('social.chat')
+          : t('social.contactShop');
       case 'VENDOR':
-        return variant === 'compact' ? t('social.chat') : t('social.contactVendor');
+        return variant === 'compact'
+          ? t('social.chat')
+          : t('social.contactVendor');
       case 'USER':
-        return variant === 'compact' ? t('social.message') : t('social.sendMessage');
+        return variant === 'compact'
+          ? t('social.message')
+          : t('social.sendMessage');
       default:
         return t('social.chat');
     }
   };
 
   const getIcon = () => {
-    return targetType === 'SHOP' || targetType === 'VENDOR' 
-      ? <MessageCircle className={`${variant === 'icon' ? 'h-4 w-4' : 'h-4 w-4 mr-2'}`} />
-      : <Send className={`${variant === 'icon' ? 'h-4 w-4' : 'h-4 w-4 mr-2'}`} />;
+    return targetType === 'SHOP' || targetType === 'VENDOR' ? (
+      <MessageCircle
+        className={`${variant === 'icon' ? 'h-4 w-4' : 'h-4 w-4 mr-2'}`}
+      />
+    ) : (
+      <Send className={`${variant === 'icon' ? 'h-4 w-4' : 'h-4 w-4 mr-2'}`} />
+    );
   };
 
   const getButtonVariant = () => {
@@ -102,18 +114,20 @@ export const ChatButton: React.FC<ChatButtonProps> = ({
 
   const getButtonClasses = () => {
     let classes = `${className} transition-all duration-200`;
-    
+
     if (variant === 'icon') {
       classes += ' w-10 h-10 rounded-full flex items-center justify-center';
     }
-    
+
     // Color scheme based on target type
     if (targetType === 'SHOP' || targetType === 'VENDOR') {
-      classes += ' text-blue-600 border-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-900/20';
+      classes +=
+        ' text-blue-600 border-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-900/20';
     } else {
-      classes += ' text-purple-600 border-purple-600 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-400 dark:hover:bg-purple-900/20';
+      classes +=
+        ' text-purple-600 border-purple-600 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-400 dark:hover:bg-purple-900/20';
     }
-    
+
     return classes;
   };
 

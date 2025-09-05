@@ -28,7 +28,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useVendors } from '../api/queries';
-import { useUpdateVendor, useSuspendVendor, useActivateVendor } from '../api/mutations';
+import {
+  useUpdateVendor,
+  useSuspendVendor,
+  useActivateVendor,
+} from '../api/mutations';
 import { VendorData } from '../api/type';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import {
@@ -49,16 +53,13 @@ import {
   Star,
   User as UserIcon,
   Users,
-  XCircle
+  XCircle,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { StatusFilter } from '../api/type';
-
-
-
 
 export function AdminVendorsPage() {
   const { t } = useTranslation();
@@ -71,7 +72,9 @@ export function AdminVendorsPage() {
   const [selectedVendor, setSelectedVendor] = useState<VendorData | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [actionType, setActionType] = useState<'suspend' | 'activate' | 'ban' | null>(null);
+  const [actionType, setActionType] = useState<
+    'suspend' | 'activate' | 'ban' | null
+  >(null);
   const [currentPage, setCurrentPage] = useState(1);
 
   // TanStack Query hooks
@@ -103,7 +106,8 @@ export function AdminVendorsPage() {
     return {
       total: vendors.length,
       active: vendors.filter((v: VendorData) => v.status === 'ACTIVE').length,
-      suspended: vendors.filter((v: VendorData) => v.status === 'SUSPENDED').length,
+      suspended: vendors.filter((v: VendorData) => v.status === 'SUSPENDED')
+        .length,
       banned: vendors.filter((v: VendorData) => v.status === 'BANNED').length,
     };
   }, [vendors]);
@@ -114,17 +118,20 @@ export function AdminVendorsPage() {
 
     // Apply search filter
     if (searchTerm) {
-      filtered = filtered.filter((vendor: VendorData) =>
-        vendor.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vendor.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vendor.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vendor.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (vendor: VendorData) =>
+          vendor.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          vendor.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          vendor.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          vendor.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Apply status filter
     if (statusFilter !== 'all') {
-      filtered = filtered.filter((vendor: VendorData) => vendor.status === statusFilter);
+      filtered = filtered.filter(
+        (vendor: VendorData) => vendor.status === statusFilter
+      );
     }
 
     return filtered;
@@ -191,58 +198,82 @@ export function AdminVendorsPage() {
     };
 
     if (actionType === 'suspend') {
-      suspendVendor.mutate({
-        id: selectedVendor.id,
-        reason: 'Admin action'
-      }, {
-        onSuccess: () => {
-          toast.success(t('admin.vendors.suspendSuccess', 'Vendor suspended successfully'));
-          setShowConfirmModal(false);
-          setSelectedVendor(null);
-          setActionType(null);
+      suspendVendor.mutate(
+        {
+          id: selectedVendor.id,
+          reason: 'Admin action',
         },
-        onError: () => {
-          toast.error(t('admin.vendors.actionError', 'Failed to perform action'));
+        {
+          onSuccess: () => {
+            toast.success(
+              t('admin.vendors.suspendSuccess', 'Vendor suspended successfully')
+            );
+            setShowConfirmModal(false);
+            setSelectedVendor(null);
+            setActionType(null);
+          },
+          onError: () => {
+            toast.error(
+              t('admin.vendors.actionError', 'Failed to perform action')
+            );
+          },
         }
-      });
+      );
     } else if (actionType === 'activate') {
       activateVendor.mutate(selectedVendor.id, {
         onSuccess: () => {
-          toast.success(t('admin.vendors.activateSuccess', 'Vendor activated successfully'));
+          toast.success(
+            t('admin.vendors.activateSuccess', 'Vendor activated successfully')
+          );
           setShowConfirmModal(false);
           setSelectedVendor(null);
           setActionType(null);
         },
         onError: () => {
-          toast.error(t('admin.vendors.actionError', 'Failed to perform action'));
-        }
+          toast.error(
+            t('admin.vendors.actionError', 'Failed to perform action')
+          );
+        },
       });
     } else if (actionType === 'ban') {
-      updateVendor.mutate({
-        id: selectedVendor.id,
-        status: 'BANNED'
-      }, {
-        onSuccess: () => {
-          toast.success(t('admin.vendors.banSuccess', 'Vendor banned successfully'));
-          setShowConfirmModal(false);
-          setSelectedVendor(null);
-          setActionType(null);
+      updateVendor.mutate(
+        {
+          id: selectedVendor.id,
+          status: 'BANNED',
         },
-        onError: () => {
-          toast.error(t('admin.vendors.actionError', 'Failed to perform action'));
+        {
+          onSuccess: () => {
+            toast.success(
+              t('admin.vendors.banSuccess', 'Vendor banned successfully')
+            );
+            setShowConfirmModal(false);
+            setSelectedVendor(null);
+            setActionType(null);
+          },
+          onError: () => {
+            toast.error(
+              t('admin.vendors.actionError', 'Failed to perform action')
+            );
+          },
         }
-      });
+      );
     }
   };
 
-  const openActionModal = (vendor: VendorData, action: 'suspend' | 'activate' | 'ban') => {
+  const openActionModal = (
+    vendor: VendorData,
+    action: 'suspend' | 'activate' | 'ban'
+  ) => {
     setSelectedVendor(vendor);
     setActionType(action);
     setShowConfirmModal(true);
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+    const variants: Record<
+      string,
+      'default' | 'secondary' | 'destructive' | 'outline'
+    > = {
       ACTIVE: 'default',
       SUSPENDED: 'secondary',
       BANNED: 'destructive',
@@ -276,7 +307,10 @@ export function AdminVendorsPage() {
             <div className='h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3'></div>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
               {[...Array(4)].map((_, i) => (
-                <div key={i} className='h-24 bg-gray-200 dark:bg-gray-700 rounded-lg'></div>
+                <div
+                  key={i}
+                  className='h-24 bg-gray-200 dark:bg-gray-700 rounded-lg'
+                ></div>
               ))}
             </div>
             <div className='h-96 bg-gray-200 dark:bg-gray-700 rounded-lg'></div>
@@ -300,7 +334,10 @@ export function AdminVendorsPage() {
                 {t('admin.vendors.title', 'Vendor Management')}
               </h1>
               <p className='text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-1'>
-                {t('admin.vendors.subtitle', 'Manage vendor accounts and monitor performance')}
+                {t(
+                  'admin.vendors.subtitle',
+                  'Manage vendor accounts and monitor performance'
+                )}
               </p>
             </div>
           </div>
@@ -349,24 +386,40 @@ export function AdminVendorsPage() {
               <div className='relative'>
                 <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4' />
                 <Input
-                  placeholder={t('admin.vendors.searchPlaceholder', 'Search vendors...')}
+                  placeholder={t(
+                    'admin.vendors.searchPlaceholder',
+                    'Search vendors...'
+                  )}
                   value={searchTerm}
-                  onChange={(e) => handleSearch(e.target.value)}
+                  onChange={e => handleSearch(e.target.value)}
                   className='pl-10'
                 />
               </div>
             </div>
             <div className='flex gap-2'>
-              <Select value={statusFilter} onValueChange={(value: StatusFilter) => handleStatusFilter(value)}>
+              <Select
+                value={statusFilter}
+                onValueChange={(value: StatusFilter) =>
+                  handleStatusFilter(value)
+                }
+              >
                 <SelectTrigger className='w-[140px]'>
                   <Filter className='w-4 h-4 mr-2' />
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='all'>{t('admin.vendors.allStatuses', 'All Status')}</SelectItem>
-                  <SelectItem value='ACTIVE'>{t('admin.vendors.active', 'Active')}</SelectItem>
-                  <SelectItem value='SUSPENDED'>{t('admin.vendors.suspended', 'Suspended')}</SelectItem>
-                  <SelectItem value='BANNED'>{t('admin.vendors.banned', 'Banned')}</SelectItem>
+                  <SelectItem value='all'>
+                    {t('admin.vendors.allStatuses', 'All Status')}
+                  </SelectItem>
+                  <SelectItem value='ACTIVE'>
+                    {t('admin.vendors.active', 'Active')}
+                  </SelectItem>
+                  <SelectItem value='SUSPENDED'>
+                    {t('admin.vendors.suspended', 'Suspended')}
+                  </SelectItem>
+                  <SelectItem value='BANNED'>
+                    {t('admin.vendors.banned', 'Banned')}
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <Button
@@ -375,7 +428,9 @@ export function AdminVendorsPage() {
                 onClick={() => window.location.reload()}
                 disabled={isLoading}
               >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`}
+                />
               </Button>
             </div>
           </div>
@@ -393,7 +448,9 @@ export function AdminVendorsPage() {
             {isLoading ? (
               <div className='text-center py-8'>
                 <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-4'></div>
-                <p className='text-gray-600 dark:text-gray-300'>{t('common.loading')}</p>
+                <p className='text-gray-600 dark:text-gray-300'>
+                  {t('common.loading')}
+                </p>
               </div>
             ) : vendorsWithStats.length > 0 ? (
               <>
@@ -402,37 +459,58 @@ export function AdminVendorsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{t('admin.vendors.vendor', 'Vendor')}</TableHead>
-                        <TableHead>{t('admin.vendors.company', 'Company')}</TableHead>
-                        <TableHead>{t('admin.vendors.contact', 'Contact')}</TableHead>
-                        <TableHead>{t('admin.vendors.status', 'Status')}</TableHead>
-                        <TableHead>{t('admin.vendors.performance', 'Performance')}</TableHead>
-                        <TableHead>{t('admin.vendors.joinedDate', 'Joined')}</TableHead>
-                        <TableHead className='w-[100px]'>{t('common.actions')}</TableHead>
+                        <TableHead>
+                          {t('admin.vendors.vendor', 'Vendor')}
+                        </TableHead>
+                        <TableHead>
+                          {t('admin.vendors.company', 'Company')}
+                        </TableHead>
+                        <TableHead>
+                          {t('admin.vendors.contact', 'Contact')}
+                        </TableHead>
+                        <TableHead>
+                          {t('admin.vendors.status', 'Status')}
+                        </TableHead>
+                        <TableHead>
+                          {t('admin.vendors.performance', 'Performance')}
+                        </TableHead>
+                        <TableHead>
+                          {t('admin.vendors.joinedDate', 'Joined')}
+                        </TableHead>
+                        <TableHead className='w-[100px]'>
+                          {t('common.actions')}
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {vendorsWithStats.map((vendor) => (
+                      {vendorsWithStats.map(vendor => (
                         <TableRow key={vendor.id}>
                           <TableCell>
                             <div className='flex items-center space-x-3'>
                               <div className='w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center'>
                                 <span className='text-white text-sm font-medium'>
-                                  {vendor.firstName.charAt(0)}{vendor.lastName.charAt(0)}
+                                  {vendor.firstName.charAt(0)}
+                                  {vendor.lastName.charAt(0)}
                                 </span>
                               </div>
                               <div>
                                 <p className='font-medium text-gray-900 dark:text-white'>
                                   {vendor.firstName} {vendor.lastName}
                                 </p>
-                                <p className='text-sm text-gray-500'>{vendor.email}</p>
+                                <p className='text-sm text-gray-500'>
+                                  {vendor.email}
+                                </p>
                               </div>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div>
-                              <p className='font-medium'>{vendor.companyName || 'N/A'}</p>
-                              <p className='text-sm text-gray-500'>{vendor.productCategory || 'N/A'}</p>
+                              <p className='font-medium'>
+                                {vendor.companyName || 'N/A'}
+                              </p>
+                              <p className='text-sm text-gray-500'>
+                                {vendor.productCategory || 'N/A'}
+                              </p>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -444,7 +522,9 @@ export function AdminVendorsPage() {
                               {vendor.phone && (
                                 <div className='flex items-center space-x-2'>
                                   <Phone className='w-3 h-3 text-gray-400' />
-                                  <span className='text-sm'>{vendor.phone}</span>
+                                  <span className='text-sm'>
+                                    {vendor.phone}
+                                  </span>
                                 </div>
                               )}
                             </div>
@@ -459,11 +539,16 @@ export function AdminVendorsPage() {
                             <div className='space-y-1'>
                               <div className='flex items-center space-x-2'>
                                 <Gamepad2 className='w-3 h-3 text-gray-400' />
-                                <span className='text-sm'>{vendor.totalGames} {t('admin.vendors.games', 'games')}</span>
+                                <span className='text-sm'>
+                                  {vendor.totalGames}{' '}
+                                  {t('admin.vendors.games', 'games')}
+                                </span>
                               </div>
                               <div className='flex items-center space-x-2'>
                                 <Star className='w-3 h-3 text-yellow-500' />
-                                <span className='text-sm'>{vendor.averageRating.toFixed(1)}</span>
+                                <span className='text-sm'>
+                                  {vendor.averageRating.toFixed(1)}
+                                </span>
                               </div>
                             </div>
                           </TableCell>
@@ -488,7 +573,10 @@ export function AdminVendorsPage() {
                                 variant='outline'
                                 size='sm'
                                 onClick={() => {
-                                  const action = vendor.status === 'ACTIVE' ? 'suspend' : 'activate';
+                                  const action =
+                                    vendor.status === 'ACTIVE'
+                                      ? 'suspend'
+                                      : 'activate';
                                   openActionModal(vendor, action);
                                 }}
                               >
@@ -504,20 +592,23 @@ export function AdminVendorsPage() {
 
                 {/* Mobile Cards */}
                 <div className='md:hidden space-y-4'>
-                    {vendorsWithStats.map((vendor) => (
+                  {vendorsWithStats.map(vendor => (
                     <Card key={vendor.id} className='p-4'>
                       <div className='flex items-start justify-between mb-3'>
                         <div className='flex items-center space-x-3'>
                           <div className='w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center'>
                             <span className='text-white text-sm font-medium'>
-                              {vendor.firstName.charAt(0)}{vendor.lastName.charAt(0)}
+                              {vendor.firstName.charAt(0)}
+                              {vendor.lastName.charAt(0)}
                             </span>
                           </div>
                           <div>
                             <h3 className='font-medium text-gray-900 dark:text-white'>
                               {vendor.firstName} {vendor.lastName}
                             </h3>
-                            <p className='text-sm text-gray-500'>{vendor.companyName || 'No company'}</p>
+                            <p className='text-sm text-gray-500'>
+                              {vendor.companyName || 'No company'}
+                            </p>
                           </div>
                         </div>
                         <div className='flex items-center space-x-2'>
@@ -525,16 +616,19 @@ export function AdminVendorsPage() {
                           {getStatusBadge(vendor.status)}
                         </div>
                       </div>
-                      
+
                       <div className='space-y-2 text-sm'>
                         <div className='flex items-center space-x-2'>
                           <Mail className='w-4 h-4 text-gray-400' />
-                          <span className='text-gray-600 dark:text-gray-300'>{vendor.email}</span>
+                          <span className='text-gray-600 dark:text-gray-300'>
+                            {vendor.email}
+                          </span>
                         </div>
                         <div className='flex items-center space-x-2'>
                           <Gamepad2 className='w-4 h-4 text-gray-400' />
                           <span className='text-gray-600 dark:text-gray-300'>
-                            {vendor.totalGames} {t('admin.vendors.games', 'games')}
+                            {vendor.totalGames}{' '}
+                            {t('admin.vendors.games', 'games')}
                           </span>
                         </div>
                         <div className='flex items-center space-x-2'>
@@ -562,7 +656,10 @@ export function AdminVendorsPage() {
                           variant='outline'
                           size='sm'
                           onClick={() => {
-                            const action = vendor.status === 'ACTIVE' ? 'suspend' : 'activate';
+                            const action =
+                              vendor.status === 'ACTIVE'
+                                ? 'suspend'
+                                : 'activate';
                             openActionModal(vendor, action);
                           }}
                           className='flex-1'
@@ -588,9 +685,14 @@ export function AdminVendorsPage() {
                 {vendorsData.total > vendorsData.pageSize && (
                   <div className='flex items-center justify-between mt-6'>
                     <p className='text-sm text-gray-700 dark:text-gray-300'>
-                      {t('common.showing')} {((currentPage - 1) * vendorsData.pageSize) + 1} {t('common.to')}{' '}
-                      {Math.min(currentPage * vendorsData.pageSize, vendorsData.total)} {t('common.of')}{' '}
-                      {vendorsData.total} {t('common.results')}
+                      {t('common.showing')}{' '}
+                      {(currentPage - 1) * vendorsData.pageSize + 1}{' '}
+                      {t('common.to')}{' '}
+                      {Math.min(
+                        currentPage * vendorsData.pageSize,
+                        vendorsData.total
+                      )}{' '}
+                      {t('common.of')} {vendorsData.total} {t('common.results')}
                     </p>
                     <div className='flex items-center space-x-2'>
                       <Button
@@ -624,8 +726,14 @@ export function AdminVendorsPage() {
                 </h3>
                 <p className='text-gray-500 dark:text-gray-400'>
                   {searchTerm || statusFilter !== 'all'
-                    ? t('admin.vendors.tryDifferentFilter', 'Try adjusting your search or filters')
-                    : t('admin.vendors.noVendorsYet', 'No vendor applications have been approved yet')}
+                    ? t(
+                        'admin.vendors.tryDifferentFilter',
+                        'Try adjusting your search or filters'
+                      )
+                    : t(
+                        'admin.vendors.noVendorsYet',
+                        'No vendor applications have been approved yet'
+                      )}
                 </p>
               </div>
             )}
@@ -637,7 +745,9 @@ export function AdminVendorsPage() {
       <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
         <DialogContent className='max-w-2xl'>
           <DialogHeader>
-            <DialogTitle>{t('admin.vendors.vendorDetails', 'Vendor Details')}</DialogTitle>
+            <DialogTitle>
+              {t('admin.vendors.vendorDetails', 'Vendor Details')}
+            </DialogTitle>
           </DialogHeader>
           {selectedVendor && (
             <div className='space-y-4'>
@@ -655,7 +765,9 @@ export function AdminVendorsPage() {
                   <label className='text-sm font-medium text-gray-700 dark:text-gray-300'>
                     {t('admin.vendors.email', 'Email')}
                   </label>
-                  <p className='mt-1 text-gray-900 dark:text-white'>{selectedVendor.email}</p>
+                  <p className='mt-1 text-gray-900 dark:text-white'>
+                    {selectedVendor.email}
+                  </p>
                 </div>
                 <div>
                   <label className='text-sm font-medium text-gray-700 dark:text-gray-300'>
@@ -686,19 +798,25 @@ export function AdminVendorsPage() {
                     <p className='text-2xl font-bold text-gray-900 dark:text-white'>
                       {selectedVendor.totalGames}
                     </p>
-                    <p className='text-sm text-gray-500'>{t('admin.vendors.totalGames', 'Total Games')}</p>
+                    <p className='text-sm text-gray-500'>
+                      {t('admin.vendors.totalGames', 'Total Games')}
+                    </p>
                   </div>
                   <div className='text-center'>
                     <p className='text-2xl font-bold text-gray-900 dark:text-white'>
                       ${selectedVendor.totalRevenue.toLocaleString()}
                     </p>
-                    <p className='text-sm text-gray-500'>{t('admin.vendors.totalRevenue', 'Revenue')}</p>
+                    <p className='text-sm text-gray-500'>
+                      {t('admin.vendors.totalRevenue', 'Revenue')}
+                    </p>
                   </div>
                   <div className='text-center'>
                     <p className='text-2xl font-bold text-gray-900 dark:text-white'>
                       {selectedVendor.averageRating.toFixed(1)}
                     </p>
-                    <p className='text-sm text-gray-500'>{t('admin.vendors.avgRating', 'Avg Rating')}</p>
+                    <p className='text-sm text-gray-500'>
+                      {t('admin.vendors.avgRating', 'Avg Rating')}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -712,33 +830,57 @@ export function AdminVendorsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {actionType === 'suspend' && t('admin.vendors.confirmSuspend', 'Suspend Vendor')}
-              {actionType === 'activate' && t('admin.vendors.confirmActivate', 'Activate Vendor')}
-              {actionType === 'ban' && t('admin.vendors.confirmBan', 'Ban Vendor')}
+              {actionType === 'suspend' &&
+                t('admin.vendors.confirmSuspend', 'Suspend Vendor')}
+              {actionType === 'activate' &&
+                t('admin.vendors.confirmActivate', 'Activate Vendor')}
+              {actionType === 'ban' &&
+                t('admin.vendors.confirmBan', 'Ban Vendor')}
             </DialogTitle>
             <DialogDescription>
               {actionType === 'suspend' &&
-                t('admin.vendors.suspendWarning', 'This will temporarily suspend the vendor account.')}
+                t(
+                  'admin.vendors.suspendWarning',
+                  'This will temporarily suspend the vendor account.'
+                )}
               {actionType === 'activate' &&
-                t('admin.vendors.activateWarning', 'This will reactivate the vendor account.')}
+                t(
+                  'admin.vendors.activateWarning',
+                  'This will reactivate the vendor account.'
+                )}
               {actionType === 'ban' &&
-                t('admin.vendors.banWarning', 'This will permanently ban the vendor account.')}
+                t(
+                  'admin.vendors.banWarning',
+                  'This will permanently ban the vendor account.'
+                )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button 
-              variant='outline' 
-              onClick={() => setShowConfirmModal(false)} 
-              disabled={suspendVendor.isPending || activateVendor.isPending || updateVendor.isPending}
+            <Button
+              variant='outline'
+              onClick={() => setShowConfirmModal(false)}
+              disabled={
+                suspendVendor.isPending ||
+                activateVendor.isPending ||
+                updateVendor.isPending
+              }
             >
               {t('common.cancel')}
             </Button>
             <Button
               onClick={handleVendorAction}
-              disabled={suspendVendor.isPending || activateVendor.isPending || updateVendor.isPending}
+              disabled={
+                suspendVendor.isPending ||
+                activateVendor.isPending ||
+                updateVendor.isPending
+              }
               variant={actionType === 'ban' ? 'destructive' : 'default'}
             >
-              {(suspendVendor.isPending || activateVendor.isPending || updateVendor.isPending) ? t('common.processing') : t('common.confirm')}
+              {suspendVendor.isPending ||
+              activateVendor.isPending ||
+              updateVendor.isPending
+                ? t('common.processing')
+                : t('common.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

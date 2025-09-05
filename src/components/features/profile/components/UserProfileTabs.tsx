@@ -1,32 +1,49 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  Package, 
-  MapPin, 
-  Bell, 
-  User, 
-  CreditCard, 
-  Shield, 
+import {
+  Package,
+  MapPin,
+  Bell,
+  User,
+  CreditCard,
+  Shield,
   Settings,
   Eye,
   EyeOff,
   Gamepad2,
   Download,
-  Clock
+  Clock,
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { User as UserType, Order, Address, UserNotificationPreferences } from '@/types';
+import {
+  User as UserType,
+  Order,
+  Address,
+  UserNotificationPreferences,
+} from '@/types';
 
 // Add ticket and game types for completeness
 interface Ticket {
@@ -56,7 +73,9 @@ interface UserProfileTabsProps {
   games: Game[];
   onProfileUpdate: (data: Partial<UserType>) => Promise<void>;
   onAddressUpdate: (addresses: Address[]) => Promise<void>;
-  onNotificationUpdate: (preferences: UserNotificationPreferences) => Promise<void>;
+  onNotificationUpdate: (
+    preferences: UserNotificationPreferences
+  ) => Promise<void>;
   onTicketDownload: (ticketId: string) => Promise<void>;
 }
 
@@ -69,14 +88,14 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
   onProfileUpdate,
   onAddressUpdate,
   onNotificationUpdate,
-  onTicketDownload
+  onTicketDownload,
 }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   // Profile form state
   const [profileData, setProfileData] = useState({
     firstName: user.firstName,
@@ -87,7 +106,7 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
     country: user.country || '',
     city: user.city || '',
     timezone: user.timezone || '',
-    preferredCurrency: user.preferredCurrency || 'USD'
+    preferredCurrency: user.preferredCurrency || 'USD',
   });
 
   // Address form state
@@ -110,29 +129,30 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
     state: '',
     postalCode: '',
     country: '',
-    additionalInfo: ''
+    additionalInfo: '',
   });
 
   // Notification preferences state
-  const [notificationPrefs, setNotificationPrefs] = useState<UserNotificationPreferences>(
-    user.notificationPreferences || {
-      email: true,
-      sms: false,
-      push: true,
-      inApp: true,
-      marketing: false,
-      orderUpdates: true,
-      gameUpdates: true,
-      winnerAnnouncements: true,
-      paymentNotifications: true,
-      securityAlerts: true,
-      weeklyDigest: false,
-      newMessages: true,
-      priceDrops: false,
-      restockAlerts: false,
-      deliveryUpdates: true
-    }
-  );
+  const [notificationPrefs, setNotificationPrefs] =
+    useState<UserNotificationPreferences>(
+      user.notificationPreferences || {
+        email: true,
+        sms: false,
+        push: true,
+        inApp: true,
+        marketing: false,
+        orderUpdates: true,
+        gameUpdates: true,
+        winnerAnnouncements: true,
+        paymentNotifications: true,
+        securityAlerts: true,
+        weeklyDigest: false,
+        newMessages: true,
+        priceDrops: false,
+        restockAlerts: false,
+        deliveryUpdates: true,
+      }
+    );
 
   const tabs = [
     { id: 'profile', label: t('profile.tabs.profile'), icon: User },
@@ -140,7 +160,7 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
     { id: 'orders', label: t('profile.tabs.orders'), icon: Package },
     { id: 'addresses', label: t('profile.tabs.addresses'), icon: MapPin },
     { id: 'notifications', label: t('profile.tabs.notifications'), icon: Bell },
-    { id: 'security', label: t('profile.tabs.security'), icon: Shield }
+    { id: 'security', label: t('profile.tabs.security'), icon: Shield },
   ];
 
   const handleProfileSave = async () => {
@@ -168,7 +188,7 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
       ...newAddress,
       isDefault: addresses.length === 0,
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
 
     try {
@@ -182,7 +202,7 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
         state: '',
         postalCode: '',
         country: '',
-        additionalInfo: ''
+        additionalInfo: '',
       });
       toast.success(t('profile.address.addSuccess'));
     } catch (error) {
@@ -207,13 +227,15 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
       case 'profile':
         return (
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className='flex flex-row items-center justify-between'>
               <div>
                 <CardTitle>{t('profile.personalInfo')}</CardTitle>
-                <CardDescription>{t('profile.personalInfoDesc')}</CardDescription>
+                <CardDescription>
+                  {t('profile.personalInfoDesc')}
+                </CardDescription>
               </div>
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={() => {
                   if (isEditing) {
                     setProfileData({
@@ -225,7 +247,7 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
                       country: user.country || '',
                       city: user.city || '',
                       timezone: user.timezone || '',
-                      preferredCurrency: user.preferredCurrency || 'USD'
+                      preferredCurrency: user.preferredCurrency || 'USD',
                     });
                   }
                   setIsEditing(!isEditing);
@@ -234,134 +256,187 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
                 {isEditing ? t('common.cancel') : t('common.edit')}
               </Button>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardContent className='space-y-6'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div>
-                  <Label htmlFor="firstName">{t('profile.firstName')}</Label>
+                  <Label htmlFor='firstName'>{t('profile.firstName')}</Label>
                   <Input
-                    id="firstName"
+                    id='firstName'
                     value={profileData.firstName}
-                    onChange={(e) => setProfileData(prev => ({ ...prev, firstName: e.target.value }))}
+                    onChange={e =>
+                      setProfileData(prev => ({
+                        ...prev,
+                        firstName: e.target.value,
+                      }))
+                    }
                     disabled={!isEditing}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName">{t('profile.lastName')}</Label>
+                  <Label htmlFor='lastName'>{t('profile.lastName')}</Label>
                   <Input
-                    id="lastName"
+                    id='lastName'
                     value={profileData.lastName}
-                    onChange={(e) => setProfileData(prev => ({ ...prev, lastName: e.target.value }))}
+                    onChange={e =>
+                      setProfileData(prev => ({
+                        ...prev,
+                        lastName: e.target.value,
+                      }))
+                    }
                     disabled={!isEditing}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div>
-                  <Label htmlFor="email">{t('profile.email')}</Label>
+                  <Label htmlFor='email'>{t('profile.email')}</Label>
                   <Input
-                    id="email"
+                    id='email'
                     value={user.email}
                     disabled
-                    className="bg-gray-50 dark:bg-gray-800"
+                    className='bg-gray-50 dark:bg-gray-800'
                   />
                 </div>
                 <div>
-                  <Label htmlFor="phoneNumber">{t('profile.phoneNumber')}</Label>
+                  <Label htmlFor='phoneNumber'>
+                    {t('profile.phoneNumber')}
+                  </Label>
                   <Input
-                    id="phoneNumber"
+                    id='phoneNumber'
                     value={profileData.phoneNumber}
-                    onChange={(e) => setProfileData(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                    onChange={e =>
+                      setProfileData(prev => ({
+                        ...prev,
+                        phoneNumber: e.target.value,
+                      }))
+                    }
                     disabled={!isEditing}
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="bio">{t('profile.bio')}</Label>
+                <Label htmlFor='bio'>{t('profile.bio')}</Label>
                 <Textarea
-                  id="bio"
+                  id='bio'
                   value={profileData.bio}
-                  onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
+                  onChange={e =>
+                    setProfileData(prev => ({ ...prev, bio: e.target.value }))
+                  }
                   disabled={!isEditing}
                   placeholder={t('profile.bioPlaceholder')}
                   rows={3}
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                 <div>
-                  <Label htmlFor="country">{t('profile.country')}</Label>
+                  <Label htmlFor='country'>{t('profile.country')}</Label>
                   <Input
-                    id="country"
+                    id='country'
                     value={profileData.country}
-                    onChange={(e) => setProfileData(prev => ({ ...prev, country: e.target.value }))}
+                    onChange={e =>
+                      setProfileData(prev => ({
+                        ...prev,
+                        country: e.target.value,
+                      }))
+                    }
                     disabled={!isEditing}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="city">{t('profile.city')}</Label>
+                  <Label htmlFor='city'>{t('profile.city')}</Label>
                   <Input
-                    id="city"
+                    id='city'
                     value={profileData.city}
-                    onChange={(e) => setProfileData(prev => ({ ...prev, city: e.target.value }))}
+                    onChange={e =>
+                      setProfileData(prev => ({
+                        ...prev,
+                        city: e.target.value,
+                      }))
+                    }
                     disabled={!isEditing}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="dateOfBirth">{t('profile.dateOfBirth')}</Label>
+                  <Label htmlFor='dateOfBirth'>
+                    {t('profile.dateOfBirth')}
+                  </Label>
                   <Input
-                    id="dateOfBirth"
-                    type="date"
+                    id='dateOfBirth'
+                    type='date'
                     value={profileData.dateOfBirth}
-                    onChange={(e) => setProfileData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                    onChange={e =>
+                      setProfileData(prev => ({
+                        ...prev,
+                        dateOfBirth: e.target.value,
+                      }))
+                    }
                     disabled={!isEditing}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div>
-                  <Label htmlFor="timezone">{t('profile.timezone')}</Label>
-                  <Select 
-                    value={profileData.timezone} 
-                    onValueChange={(value) => setProfileData(prev => ({ ...prev, timezone: value }))}
+                  <Label htmlFor='timezone'>{t('profile.timezone')}</Label>
+                  <Select
+                    value={profileData.timezone}
+                    onValueChange={value =>
+                      setProfileData(prev => ({ ...prev, timezone: value }))
+                    }
                     disabled={!isEditing}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder={t('profile.selectTimezone')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="UTC">UTC</SelectItem>
-                      <SelectItem value="Africa/Douala">Africa/Douala (Cameroon)</SelectItem>
-                      <SelectItem value="Africa/Lagos">Africa/Lagos (Nigeria)</SelectItem>
-                      <SelectItem value="Africa/Kinshasa">Africa/Kinshasa (DRC)</SelectItem>
+                      <SelectItem value='UTC'>UTC</SelectItem>
+                      <SelectItem value='Africa/Douala'>
+                        Africa/Douala (Cameroon)
+                      </SelectItem>
+                      <SelectItem value='Africa/Lagos'>
+                        Africa/Lagos (Nigeria)
+                      </SelectItem>
+                      <SelectItem value='Africa/Kinshasa'>
+                        Africa/Kinshasa (DRC)
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="currency">{t('profile.preferredCurrency')}</Label>
-                  <Select 
-                    value={profileData.preferredCurrency} 
-                    onValueChange={(value) => setProfileData(prev => ({ ...prev, preferredCurrency: value }))}
+                  <Label htmlFor='currency'>
+                    {t('profile.preferredCurrency')}
+                  </Label>
+                  <Select
+                    value={profileData.preferredCurrency}
+                    onValueChange={value =>
+                      setProfileData(prev => ({
+                        ...prev,
+                        preferredCurrency: value,
+                      }))
+                    }
                     disabled={!isEditing}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="USD">USD</SelectItem>
-                      <SelectItem value="XAF">XAF (Central African CFA)</SelectItem>
-                      <SelectItem value="NGN">NGN (Nigerian Naira)</SelectItem>
-                      <SelectItem value="EUR">EUR</SelectItem>
+                      <SelectItem value='USD'>USD</SelectItem>
+                      <SelectItem value='XAF'>
+                        XAF (Central African CFA)
+                      </SelectItem>
+                      <SelectItem value='NGN'>NGN (Nigerian Naira)</SelectItem>
+                      <SelectItem value='EUR'>EUR</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               {isEditing && (
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsEditing(false)}>
+                <div className='flex justify-end space-x-2'>
+                  <Button variant='outline' onClick={() => setIsEditing(false)}>
                     {t('common.cancel')}
                   </Button>
                   <Button onClick={handleProfileSave} disabled={loading}>
@@ -378,106 +453,123 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
           <Card>
             <CardHeader>
               <CardTitle>{t('profile.gameHistory')}</CardTitle>
-              <CardDescription>{t('profile.gameHistoryDescription')}</CardDescription>
+              <CardDescription>
+                {t('profile.gameHistoryDescription')}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {tickets.length === 0 ? (
-                <div className="text-center py-12">
-                  <Gamepad2 className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                <div className='text-center py-12'>
+                  <Gamepad2 className='h-12 w-12 mx-auto text-gray-400 mb-4' />
+                  <h3 className='text-lg font-medium text-gray-900 dark:text-gray-100 mb-2'>
                     {t('profile.noTickets')}
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className='text-gray-600 dark:text-gray-400'>
                     {t('profile.noTicketsDesc')}
                   </p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {tickets.map((ticket) => {
+                <div className='space-y-4'>
+                  {tickets.map(ticket => {
                     const game = games.find(g => g.id === ticket.gameId);
                     const currentTime = Date.now();
-                    const isExpired = ticket.expiresAt ? ticket.expiresAt < currentTime : false;
-                    const canDownload = ticket.status === 'ACTIVE' && !isExpired;
-                    
+                    const isExpired = ticket.expiresAt
+                      ? ticket.expiresAt < currentTime
+                      : false;
+                    const canDownload =
+                      ticket.status === 'ACTIVE' && !isExpired;
+
                     return (
-                      <div key={ticket.id} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start mb-3">
+                      <div key={ticket.id} className='border rounded-lg p-4'>
+                        <div className='flex justify-between items-start mb-3'>
                           <div>
-                            <h4 className="font-medium">
+                            <h4 className='font-medium'>
                               {game?.title || t('profile.unknownGame')}
                             </h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <p className='text-sm text-gray-600 dark:text-gray-400'>
                               {t('profile.ticketNumber')}: {ticket.ticketNumber}
                             </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {new Date(ticket.purchaseDate).toLocaleDateString()}
+                            <p className='text-sm text-gray-600 dark:text-gray-400'>
+                              {new Date(
+                                ticket.purchaseDate
+                              ).toLocaleDateString()}
                             </p>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge 
-                              variant={ticket.status === 'ACTIVE' ? 'default' : 'secondary'}
+                          <div className='flex items-center space-x-2'>
+                            <Badge
+                              variant={
+                                ticket.status === 'ACTIVE'
+                                  ? 'default'
+                                  : 'secondary'
+                              }
                               className={
-                                ticket.status === 'ACTIVE' ? 'bg-green-500' :
-                                ticket.status === 'EXPIRED' ? 'bg-red-500' : ''
+                                ticket.status === 'ACTIVE'
+                                  ? 'bg-green-500'
+                                  : ticket.status === 'EXPIRED'
+                                    ? 'bg-red-500'
+                                    : ''
                               }
                             >
                               {ticket.status}
                             </Badge>
                             {ticket.isWinner && (
-                              <Badge className="bg-yellow-500 text-black">
+                              <Badge className='bg-yellow-500 text-black'>
                                 {t('profile.winner')}
                               </Badge>
                             )}
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-center">
-                          <div className="space-y-1">
-                            <p className="text-sm">
-                              <span className="font-medium">{t('profile.price')}: </span>
+                        <div className='flex justify-between items-center'>
+                          <div className='space-y-1'>
+                            <p className='text-sm'>
+                              <span className='font-medium'>
+                                {t('profile.price')}:{' '}
+                              </span>
                               {new Intl.NumberFormat('en-US', {
                                 style: 'currency',
-                                currency: ticket.currency
+                                currency: ticket.currency,
                               }).format(ticket.price)}
                             </p>
                             {ticket.isWinner && ticket.prizeAmount && (
-                              <p className="text-sm text-green-600 dark:text-green-400">
-                                <span className="font-medium">{t('profile.prize')}: </span>
+                              <p className='text-sm text-green-600 dark:text-green-400'>
+                                <span className='font-medium'>
+                                  {t('profile.prize')}:{' '}
+                                </span>
                                 {new Intl.NumberFormat('en-US', {
                                   style: 'currency',
-                                  currency: ticket.currency
+                                  currency: ticket.currency,
                                 }).format(ticket.prizeAmount)}
                               </p>
                             )}
                             {ticket.expiresAt && (
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {isExpired 
-                                  ? t('profile.expired') 
-                                  : `${t('profile.expires')}: ${new Date(ticket.expiresAt).toLocaleDateString()}`
-                                }
+                              <p className='text-xs text-gray-500 dark:text-gray-400'>
+                                {isExpired
+                                  ? t('profile.expired')
+                                  : `${t('profile.expires')}: ${new Date(ticket.expiresAt).toLocaleDateString()}`}
                               </p>
                             )}
                           </div>
-                          
-                          <div className="flex space-x-2">
+
+                          <div className='flex space-x-2'>
                             {canDownload ? (
                               <Button
-                                variant="outline"
-                                size="sm"
+                                variant='outline'
+                                size='sm'
                                 onClick={() => onTicketDownload(ticket.id)}
-                                className="flex items-center space-x-1"
+                                className='flex items-center space-x-1'
                               >
-                                <Download className="h-4 w-4" />
+                                <Download className='h-4 w-4' />
                                 <span>{t('profile.downloadTicket')}</span>
                               </Button>
                             ) : (
                               <Button
-                                variant="outline"
-                                size="sm"
+                                variant='outline'
+                                size='sm'
                                 disabled
-                                className="flex items-center space-x-1 opacity-50"
+                                className='flex items-center space-x-1 opacity-50'
                               >
-                                <Clock className="h-4 w-4" />
+                                <Clock className='h-4 w-4' />
                                 <span>{t('profile.cannotDownload')}</span>
                               </Button>
                             )}
@@ -501,44 +593,59 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
             </CardHeader>
             <CardContent>
               {orders.length === 0 ? (
-                <div className="text-center py-12">
-                  <Package className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                <div className='text-center py-12'>
+                  <Package className='h-12 w-12 mx-auto text-gray-400 mb-4' />
+                  <h3 className='text-lg font-medium text-gray-900 dark:text-gray-100 mb-2'>
                     {t('profile.noOrders')}
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className='text-gray-600 dark:text-gray-400'>
                     {t('profile.noOrdersDesc')}
                   </p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {orders.map((order) => (
-                    <div key={order.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
+                <div className='space-y-4'>
+                  {orders.map(order => (
+                    <div key={order.id} className='border rounded-lg p-4'>
+                      <div className='flex justify-between items-start mb-3'>
                         <div>
-                          <h4 className="font-medium">Order #{order.orderNumber}</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <h4 className='font-medium'>
+                            Order #{order.orderNumber}
+                          </h4>
+                          <p className='text-sm text-gray-600 dark:text-gray-400'>
                             {new Date(order.createdAt).toLocaleDateString()}
                           </p>
                         </div>
-                        <Badge 
-                          variant={order.status === 'DELIVERED' ? 'default' : 'secondary'}
-                          className={order.status === 'DELIVERED' ? 'bg-green-500' : ''}
+                        <Badge
+                          variant={
+                            order.status === 'DELIVERED'
+                              ? 'default'
+                              : 'secondary'
+                          }
+                          className={
+                            order.status === 'DELIVERED' ? 'bg-green-500' : ''
+                          }
                         >
                           {order.status}
                         </Badge>
                       </div>
-                      <div className="space-y-2">
+                      <div className='space-y-2'>
                         {order.items.map((item, index) => (
-                          <div key={index} className="flex justify-between text-sm">
-                            <span>{item.productName} × {item.quantity}</span>
+                          <div
+                            key={index}
+                            className='flex justify-between text-sm'
+                          >
+                            <span>
+                              {item.productName} × {item.quantity}
+                            </span>
                             <span>${item.price * item.quantity}</span>
                           </div>
                         ))}
                       </div>
-                      <div className="flex justify-between items-center mt-3 pt-3 border-t">
-                        <span className="font-medium">Total: ${order.total}</span>
-                        <Button variant="outline" size="sm">
+                      <div className='flex justify-between items-center mt-3 pt-3 border-t'>
+                        <span className='font-medium'>
+                          Total: ${order.total}
+                        </span>
+                        <Button variant='outline' size='sm'>
                           {t('profile.viewOrder')}
                         </Button>
                       </div>
@@ -552,54 +659,61 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
 
       case 'addresses':
         return (
-          <div className="space-y-6">
+          <div className='space-y-6'>
             <Card>
               <CardHeader>
                 <CardTitle>{t('profile.shippingAddresses')}</CardTitle>
-                <CardDescription>{t('profile.shippingAddressesDesc')}</CardDescription>
+                <CardDescription>
+                  {t('profile.shippingAddressesDesc')}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {addresses.length === 0 ? (
-                  <div className="text-center py-8">
-                    <MapPin className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                  <div className='text-center py-8'>
+                    <MapPin className='h-12 w-12 mx-auto text-gray-400 mb-4' />
+                    <h3 className='text-lg font-medium text-gray-900 dark:text-gray-100 mb-2'>
                       {t('profile.noAddresses')}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className='text-gray-600 dark:text-gray-400'>
                       {t('profile.noAddressesDesc')}
                     </p>
                   </div>
                 ) : (
-                  <div className="grid gap-4">
-                    {addresses.map((address) => (
-                      <div key={address.id} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start">
+                  <div className='grid gap-4'>
+                    {addresses.map(address => (
+                      <div key={address.id} className='border rounded-lg p-4'>
+                        <div className='flex justify-between items-start'>
                           <div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <h4 className="font-medium">{address.fullName}</h4>
+                            <div className='flex items-center gap-2 mb-2'>
+                              <h4 className='font-medium'>
+                                {address.fullName}
+                              </h4>
                               {address.isDefault && (
-                                <Badge variant="secondary">{t('profile.default')}</Badge>
+                                <Badge variant='secondary'>
+                                  {t('profile.default')}
+                                </Badge>
                               )}
-                              <Badge variant="outline">{address.type}</Badge>
+                              <Badge variant='outline'>{address.type}</Badge>
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <p className='text-sm text-gray-600 dark:text-gray-400'>
                               {address.streetAddress}
                             </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {address.city}, {address.state} {address.postalCode}
+                            <p className='text-sm text-gray-600 dark:text-gray-400'>
+                              {address.city}, {address.state}{' '}
+                              {address.postalCode}
                             </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <p className='text-sm text-gray-600 dark:text-gray-400'>
                               {address.country}
                             </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <p className='text-sm text-gray-600 dark:text-gray-400'>
                               {address.phoneNumber}
                             </p>
                           </div>
-                          <div className="flex space-x-2">
-                            <Button variant="outline" size="sm">
+                          <div className='flex space-x-2'>
+                            <Button variant='outline' size='sm'>
                               {t('common.edit')}
                             </Button>
-                            <Button variant="outline" size="sm">
+                            <Button variant='outline' size='sm'>
                               {t('common.delete')}
                             </Button>
                           </div>
@@ -616,98 +730,161 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
               <CardHeader>
                 <CardTitle>{t('profile.addAddress')}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className='space-y-4'>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div>
-                    <Label htmlFor="fullName">{t('profile.fullName')}</Label>
+                    <Label htmlFor='fullName'>{t('profile.fullName')}</Label>
                     <Input
-                      id="fullName"
+                      id='fullName'
                       value={newAddress.fullName}
-                      onChange={(e) => setNewAddress(prev => ({ ...prev, fullName: e.target.value }))}
+                      onChange={e =>
+                        setNewAddress(prev => ({
+                          ...prev,
+                          fullName: e.target.value,
+                        }))
+                      }
                     />
                   </div>
                   <div>
-                    <Label htmlFor="addressPhone">{t('profile.phoneNumber')}</Label>
+                    <Label htmlFor='addressPhone'>
+                      {t('profile.phoneNumber')}
+                    </Label>
                     <Input
-                      id="addressPhone"
+                      id='addressPhone'
                       value={newAddress.phoneNumber}
-                      onChange={(e) => setNewAddress(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                      onChange={e =>
+                        setNewAddress(prev => ({
+                          ...prev,
+                          phoneNumber: e.target.value,
+                        }))
+                      }
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="streetAddress">{t('profile.streetAddress')}</Label>
+                  <Label htmlFor='streetAddress'>
+                    {t('profile.streetAddress')}
+                  </Label>
                   <Input
-                    id="streetAddress"
+                    id='streetAddress'
                     value={newAddress.streetAddress}
-                    onChange={(e) => setNewAddress(prev => ({ ...prev, streetAddress: e.target.value }))}
+                    onChange={e =>
+                      setNewAddress(prev => ({
+                        ...prev,
+                        streetAddress: e.target.value,
+                      }))
+                    }
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                   <div>
-                    <Label htmlFor="addressCity">{t('profile.city')}</Label>
+                    <Label htmlFor='addressCity'>{t('profile.city')}</Label>
                     <Input
-                      id="addressCity"
+                      id='addressCity'
                       value={newAddress.city}
-                      onChange={(e) => setNewAddress(prev => ({ ...prev, city: e.target.value }))}
+                      onChange={e =>
+                        setNewAddress(prev => ({
+                          ...prev,
+                          city: e.target.value,
+                        }))
+                      }
                     />
                   </div>
                   <div>
-                    <Label htmlFor="state">{t('profile.state')}</Label>
+                    <Label htmlFor='state'>{t('profile.state')}</Label>
                     <Input
-                      id="state"
+                      id='state'
                       value={newAddress.state}
-                      onChange={(e) => setNewAddress(prev => ({ ...prev, state: e.target.value }))}
+                      onChange={e =>
+                        setNewAddress(prev => ({
+                          ...prev,
+                          state: e.target.value,
+                        }))
+                      }
                     />
                   </div>
                   <div>
-                    <Label htmlFor="postalCode">{t('profile.postalCode')}</Label>
+                    <Label htmlFor='postalCode'>
+                      {t('profile.postalCode')}
+                    </Label>
                     <Input
-                      id="postalCode"
+                      id='postalCode'
                       value={newAddress.postalCode}
-                      onChange={(e) => setNewAddress(prev => ({ ...prev, postalCode: e.target.value }))}
+                      onChange={e =>
+                        setNewAddress(prev => ({
+                          ...prev,
+                          postalCode: e.target.value,
+                        }))
+                      }
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div>
-                    <Label htmlFor="addressCountry">{t('profile.country')}</Label>
+                    <Label htmlFor='addressCountry'>
+                      {t('profile.country')}
+                    </Label>
                     <Input
-                      id="addressCountry"
+                      id='addressCountry'
                       value={newAddress.country}
-                      onChange={(e) => setNewAddress(prev => ({ ...prev, country: e.target.value }))}
+                      onChange={e =>
+                        setNewAddress(prev => ({
+                          ...prev,
+                          country: e.target.value,
+                        }))
+                      }
                     />
                   </div>
                   <div>
-                    <Label htmlFor="addressType">{t('profile.addressType')}</Label>
-                    <Select value={newAddress.type} onValueChange={(value: 'HOME' | 'WORK' | 'OTHER') => setNewAddress(prev => ({ ...prev, type: value }))}>
+                    <Label htmlFor='addressType'>
+                      {t('profile.addressType')}
+                    </Label>
+                    <Select
+                      value={newAddress.type}
+                      onValueChange={(value: 'HOME' | 'WORK' | 'OTHER') =>
+                        setNewAddress(prev => ({ ...prev, type: value }))
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="HOME">{t('profile.home')}</SelectItem>
-                        <SelectItem value="WORK">{t('profile.work')}</SelectItem>
-                        <SelectItem value="OTHER">{t('profile.other')}</SelectItem>
+                        <SelectItem value='HOME'>
+                          {t('profile.home')}
+                        </SelectItem>
+                        <SelectItem value='WORK'>
+                          {t('profile.work')}
+                        </SelectItem>
+                        <SelectItem value='OTHER'>
+                          {t('profile.other')}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="additionalInfo">{t('profile.additionalInfo')}</Label>
+                  <Label htmlFor='additionalInfo'>
+                    {t('profile.additionalInfo')}
+                  </Label>
                   <Textarea
-                    id="additionalInfo"
+                    id='additionalInfo'
                     value={newAddress.additionalInfo}
-                    onChange={(e) => setNewAddress(prev => ({ ...prev, additionalInfo: e.target.value }))}
+                    onChange={e =>
+                      setNewAddress(prev => ({
+                        ...prev,
+                        additionalInfo: e.target.value,
+                      }))
+                    }
                     placeholder={t('profile.additionalInfoPlaceholder')}
                     rows={2}
                   />
                 </div>
 
-                <Button onClick={handleAddressAdd} className="w-full md:w-auto">
+                <Button onClick={handleAddressAdd} className='w-full md:w-auto'>
                   {t('profile.addAddress')}
                 </Button>
               </CardContent>
@@ -720,151 +897,259 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
           <Card>
             <CardHeader>
               <CardTitle>{t('profile.notificationSettings')}</CardTitle>
-              <CardDescription>{t('profile.notificationSettingsDesc')}</CardDescription>
+              <CardDescription>
+                {t('profile.notificationSettingsDesc')}
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">{t('profile.communicationChannels')}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="email-notif">{t('profile.emailNotifications')}</Label>
+            <CardContent className='space-y-6'>
+              <div className='space-y-4'>
+                <h3 className='text-lg font-medium'>
+                  {t('profile.communicationChannels')}
+                </h3>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                  <div className='flex items-center justify-between'>
+                    <Label htmlFor='email-notif'>
+                      {t('profile.emailNotifications')}
+                    </Label>
                     <Switch
-                      id="email-notif"
+                      id='email-notif'
                       checked={notificationPrefs.email}
-                      onCheckedChange={(checked) => setNotificationPrefs(prev => ({ ...prev, email: checked }))}
+                      onCheckedChange={checked =>
+                        setNotificationPrefs(prev => ({
+                          ...prev,
+                          email: checked,
+                        }))
+                      }
                     />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="sms-notif">{t('profile.smsNotifications')}</Label>
+                  <div className='flex items-center justify-between'>
+                    <Label htmlFor='sms-notif'>
+                      {t('profile.smsNotifications')}
+                    </Label>
                     <Switch
-                      id="sms-notif"
+                      id='sms-notif'
                       checked={notificationPrefs.sms}
-                      onCheckedChange={(checked) => setNotificationPrefs(prev => ({ ...prev, sms: checked }))}
+                      onCheckedChange={checked =>
+                        setNotificationPrefs(prev => ({
+                          ...prev,
+                          sms: checked,
+                        }))
+                      }
                     />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="push-notif">{t('profile.pushNotifications')}</Label>
+                  <div className='flex items-center justify-between'>
+                    <Label htmlFor='push-notif'>
+                      {t('profile.pushNotifications')}
+                    </Label>
                     <Switch
-                      id="push-notif"
+                      id='push-notif'
                       checked={notificationPrefs.push}
-                      onCheckedChange={(checked) => setNotificationPrefs(prev => ({ ...prev, push: checked }))}
+                      onCheckedChange={checked =>
+                        setNotificationPrefs(prev => ({
+                          ...prev,
+                          push: checked,
+                        }))
+                      }
                     />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="inapp-notif">{t('profile.inAppNotifications')}</Label>
+                  <div className='flex items-center justify-between'>
+                    <Label htmlFor='inapp-notif'>
+                      {t('profile.inAppNotifications')}
+                    </Label>
                     <Switch
-                      id="inapp-notif"
+                      id='inapp-notif'
                       checked={notificationPrefs.inApp}
-                      onCheckedChange={(checked) => setNotificationPrefs(prev => ({ ...prev, inApp: checked }))}
+                      onCheckedChange={checked =>
+                        setNotificationPrefs(prev => ({
+                          ...prev,
+                          inApp: checked,
+                        }))
+                      }
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">{t('profile.notificationTypes')}</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
+              <div className='space-y-4'>
+                <h3 className='text-lg font-medium'>
+                  {t('profile.notificationTypes')}
+                </h3>
+                <div className='space-y-3'>
+                  <div className='flex items-center justify-between'>
                     <div>
-                      <Label htmlFor="order-updates">{t('profile.orderUpdates')}</Label>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{t('profile.orderUpdatesDesc')}</p>
+                      <Label htmlFor='order-updates'>
+                        {t('profile.orderUpdates')}
+                      </Label>
+                      <p className='text-sm text-gray-600 dark:text-gray-400'>
+                        {t('profile.orderUpdatesDesc')}
+                      </p>
                     </div>
                     <Switch
-                      id="order-updates"
+                      id='order-updates'
                       checked={notificationPrefs.orderUpdates}
-                      onCheckedChange={(checked) => setNotificationPrefs(prev => ({ ...prev, orderUpdates: checked }))}
+                      onCheckedChange={checked =>
+                        setNotificationPrefs(prev => ({
+                          ...prev,
+                          orderUpdates: checked,
+                        }))
+                      }
                     />
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className='flex items-center justify-between'>
                     <div>
-                      <Label htmlFor="game-updates">{t('profile.gameUpdates')}</Label>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{t('profile.gameUpdatesDesc')}</p>
+                      <Label htmlFor='game-updates'>
+                        {t('profile.gameUpdates')}
+                      </Label>
+                      <p className='text-sm text-gray-600 dark:text-gray-400'>
+                        {t('profile.gameUpdatesDesc')}
+                      </p>
                     </div>
                     <Switch
-                      id="game-updates"
+                      id='game-updates'
                       checked={notificationPrefs.gameUpdates}
-                      onCheckedChange={(checked) => setNotificationPrefs(prev => ({ ...prev, gameUpdates: checked }))}
+                      onCheckedChange={checked =>
+                        setNotificationPrefs(prev => ({
+                          ...prev,
+                          gameUpdates: checked,
+                        }))
+                      }
                     />
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className='flex items-center justify-between'>
                     <div>
-                      <Label htmlFor="winner-announcements">{t('profile.winnerAnnouncements')}</Label>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{t('profile.winnerAnnouncementsDesc')}</p>
+                      <Label htmlFor='winner-announcements'>
+                        {t('profile.winnerAnnouncements')}
+                      </Label>
+                      <p className='text-sm text-gray-600 dark:text-gray-400'>
+                        {t('profile.winnerAnnouncementsDesc')}
+                      </p>
                     </div>
                     <Switch
-                      id="winner-announcements"
+                      id='winner-announcements'
                       checked={notificationPrefs.winnerAnnouncements}
-                      onCheckedChange={(checked) => setNotificationPrefs(prev => ({ ...prev, winnerAnnouncements: checked }))}
+                      onCheckedChange={checked =>
+                        setNotificationPrefs(prev => ({
+                          ...prev,
+                          winnerAnnouncements: checked,
+                        }))
+                      }
                     />
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className='flex items-center justify-between'>
                     <div>
-                      <Label htmlFor="delivery-updates">{t('profile.deliveryUpdates')}</Label>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{t('profile.deliveryUpdatesDesc')}</p>
+                      <Label htmlFor='delivery-updates'>
+                        {t('profile.deliveryUpdates')}
+                      </Label>
+                      <p className='text-sm text-gray-600 dark:text-gray-400'>
+                        {t('profile.deliveryUpdatesDesc')}
+                      </p>
                     </div>
                     <Switch
-                      id="delivery-updates"
+                      id='delivery-updates'
                       checked={notificationPrefs.deliveryUpdates}
-                      onCheckedChange={(checked) => setNotificationPrefs(prev => ({ ...prev, deliveryUpdates: checked }))}
+                      onCheckedChange={checked =>
+                        setNotificationPrefs(prev => ({
+                          ...prev,
+                          deliveryUpdates: checked,
+                        }))
+                      }
                     />
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className='flex items-center justify-between'>
                     <div>
-                      <Label htmlFor="payment-notifications">{t('profile.paymentNotifications')}</Label>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{t('profile.paymentNotificationsDesc')}</p>
+                      <Label htmlFor='payment-notifications'>
+                        {t('profile.paymentNotifications')}
+                      </Label>
+                      <p className='text-sm text-gray-600 dark:text-gray-400'>
+                        {t('profile.paymentNotificationsDesc')}
+                      </p>
                     </div>
                     <Switch
-                      id="payment-notifications"
+                      id='payment-notifications'
                       checked={notificationPrefs.paymentNotifications}
-                      onCheckedChange={(checked) => setNotificationPrefs(prev => ({ ...prev, paymentNotifications: checked }))}
+                      onCheckedChange={checked =>
+                        setNotificationPrefs(prev => ({
+                          ...prev,
+                          paymentNotifications: checked,
+                        }))
+                      }
                     />
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className='flex items-center justify-between'>
                     <div>
-                      <Label htmlFor="security-alerts">{t('profile.securityAlerts')}</Label>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{t('profile.securityAlertsDesc')}</p>
+                      <Label htmlFor='security-alerts'>
+                        {t('profile.securityAlerts')}
+                      </Label>
+                      <p className='text-sm text-gray-600 dark:text-gray-400'>
+                        {t('profile.securityAlertsDesc')}
+                      </p>
                     </div>
                     <Switch
-                      id="security-alerts"
+                      id='security-alerts'
                       checked={notificationPrefs.securityAlerts}
-                      onCheckedChange={(checked) => setNotificationPrefs(prev => ({ ...prev, securityAlerts: checked }))}
+                      onCheckedChange={checked =>
+                        setNotificationPrefs(prev => ({
+                          ...prev,
+                          securityAlerts: checked,
+                        }))
+                      }
                     />
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className='flex items-center justify-between'>
                     <div>
-                      <Label htmlFor="marketing">{t('profile.marketingNotifications')}</Label>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{t('profile.marketingNotificationsDesc')}</p>
+                      <Label htmlFor='marketing'>
+                        {t('profile.marketingNotifications')}
+                      </Label>
+                      <p className='text-sm text-gray-600 dark:text-gray-400'>
+                        {t('profile.marketingNotificationsDesc')}
+                      </p>
                     </div>
                     <Switch
-                      id="marketing"
+                      id='marketing'
                       checked={notificationPrefs.marketing}
-                      onCheckedChange={(checked) => setNotificationPrefs(prev => ({ ...prev, marketing: checked }))}
+                      onCheckedChange={checked =>
+                        setNotificationPrefs(prev => ({
+                          ...prev,
+                          marketing: checked,
+                        }))
+                      }
                     />
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className='flex items-center justify-between'>
                     <div>
-                      <Label htmlFor="weekly-digest">{t('profile.weeklyDigest')}</Label>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{t('profile.weeklyDigestDesc')}</p>
+                      <Label htmlFor='weekly-digest'>
+                        {t('profile.weeklyDigest')}
+                      </Label>
+                      <p className='text-sm text-gray-600 dark:text-gray-400'>
+                        {t('profile.weeklyDigestDesc')}
+                      </p>
                     </div>
                     <Switch
-                      id="weekly-digest"
+                      id='weekly-digest'
                       checked={notificationPrefs.weeklyDigest}
-                      onCheckedChange={(checked) => setNotificationPrefs(prev => ({ ...prev, weeklyDigest: checked }))}
+                      onCheckedChange={checked =>
+                        setNotificationPrefs(prev => ({
+                          ...prev,
+                          weeklyDigest: checked,
+                        }))
+                      }
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-end">
+              <div className='flex justify-end'>
                 <Button onClick={handleNotificationSave} disabled={loading}>
-                  {loading ? t('common.saving') : t('profile.saveNotifications')}
+                  {loading
+                    ? t('common.saving')
+                    : t('profile.saveNotifications')}
                 </Button>
               </div>
             </CardContent>
@@ -876,100 +1161,128 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
           <Card>
             <CardHeader>
               <CardTitle>{t('profile.securitySettings')}</CardTitle>
-              <CardDescription>{t('profile.securitySettingsDesc')}</CardDescription>
+              <CardDescription>
+                {t('profile.securitySettingsDesc')}
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">{t('profile.accountSecurity')}</h3>
-                
-                <div className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium">{t('profile.emailVerification')}</span>
-                    <Badge variant={user.emailVerified ? 'default' : 'secondary'} 
-                           className={user.emailVerified ? 'bg-green-500' : ''}>
-                      {user.emailVerified ? t('profile.verified') : t('profile.notVerified')}
+            <CardContent className='space-y-6'>
+              <div className='space-y-4'>
+                <h3 className='text-lg font-medium'>
+                  {t('profile.accountSecurity')}
+                </h3>
+
+                <div className='border rounded-lg p-4'>
+                  <div className='flex items-center justify-between mb-2'>
+                    <span className='font-medium'>
+                      {t('profile.emailVerification')}
+                    </span>
+                    <Badge
+                      variant={user.emailVerified ? 'default' : 'secondary'}
+                      className={user.emailVerified ? 'bg-green-500' : ''}
+                    >
+                      {user.emailVerified
+                        ? t('profile.verified')
+                        : t('profile.notVerified')}
                     </Badge>
                   </div>
                   {!user.emailVerified && (
-                    <Button variant="outline" size="sm">
+                    <Button variant='outline' size='sm'>
                       {t('profile.verifyEmail')}
                     </Button>
                   )}
                 </div>
 
-                <div className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium">{t('profile.phoneVerification')}</span>
-                    <Badge variant={user.phoneVerified ? 'default' : 'secondary'}
-                           className={user.phoneVerified ? 'bg-green-500' : ''}>
-                      {user.phoneVerified ? t('profile.verified') : t('profile.notVerified')}
+                <div className='border rounded-lg p-4'>
+                  <div className='flex items-center justify-between mb-2'>
+                    <span className='font-medium'>
+                      {t('profile.phoneVerification')}
+                    </span>
+                    <Badge
+                      variant={user.phoneVerified ? 'default' : 'secondary'}
+                      className={user.phoneVerified ? 'bg-green-500' : ''}
+                    >
+                      {user.phoneVerified
+                        ? t('profile.verified')
+                        : t('profile.notVerified')}
                     </Badge>
                   </div>
                   {!user.phoneVerified && (
-                    <Button variant="outline" size="sm">
+                    <Button variant='outline' size='sm'>
                       {t('profile.verifyPhone')}
                     </Button>
                   )}
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">{t('profile.changePassword')}</h3>
-                <div className="space-y-4">
+              <div className='space-y-4'>
+                <h3 className='text-lg font-medium'>
+                  {t('profile.changePassword')}
+                </h3>
+                <div className='space-y-4'>
                   <div>
-                    <Label htmlFor="currentPassword">{t('profile.currentPassword')}</Label>
-                    <div className="relative">
+                    <Label htmlFor='currentPassword'>
+                      {t('profile.currentPassword')}
+                    </Label>
+                    <div className='relative'>
                       <Input
-                        id="currentPassword"
+                        id='currentPassword'
                         type={showPassword ? 'text' : 'password'}
                         placeholder={t('profile.enterCurrentPassword')}
                       />
                       <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-2 top-1/2 -translate-y-1/2"
+                        type='button'
+                        variant='ghost'
+                        size='sm'
+                        className='absolute right-2 top-1/2 -translate-y-1/2'
                         onClick={() => setShowPassword(!showPassword)}
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showPassword ? (
+                          <EyeOff className='h-4 w-4' />
+                        ) : (
+                          <Eye className='h-4 w-4' />
+                        )}
                       </Button>
                     </div>
                   </div>
-                  
+
                   <div>
-                    <Label htmlFor="newPassword">{t('profile.newPassword')}</Label>
+                    <Label htmlFor='newPassword'>
+                      {t('profile.newPassword')}
+                    </Label>
                     <Input
-                      id="newPassword"
+                      id='newPassword'
                       type={showPassword ? 'text' : 'password'}
                       placeholder={t('profile.enterNewPassword')}
                     />
                   </div>
-                  
+
                   <div>
-                    <Label htmlFor="confirmPassword">{t('profile.confirmPassword')}</Label>
+                    <Label htmlFor='confirmPassword'>
+                      {t('profile.confirmPassword')}
+                    </Label>
                     <Input
-                      id="confirmPassword"
+                      id='confirmPassword'
                       type={showPassword ? 'text' : 'password'}
                       placeholder={t('profile.confirmNewPassword')}
                     />
                   </div>
-                  
-                  <Button>
-                    {t('profile.updatePassword')}
-                  </Button>
+
+                  <Button>{t('profile.updatePassword')}</Button>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-red-600 dark:text-red-400">{t('profile.dangerZone')}</h3>
-                <div className="border border-red-200 dark:border-red-800 rounded-lg p-4">
-                  <h4 className="font-medium text-red-600 dark:text-red-400 mb-2">
+              <div className='space-y-4'>
+                <h3 className='text-lg font-medium text-red-600 dark:text-red-400'>
+                  {t('profile.dangerZone')}
+                </h3>
+                <div className='border border-red-200 dark:border-red-800 rounded-lg p-4'>
+                  <h4 className='font-medium text-red-600 dark:text-red-400 mb-2'>
                     {t('profile.deleteAccount')}
                   </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  <p className='text-sm text-gray-600 dark:text-gray-400 mb-4'>
                     {t('profile.deleteAccountWarning')}
                   </p>
-                  <Button variant="destructive">
+                  <Button variant='destructive'>
                     {t('profile.deleteMyAccount')}
                   </Button>
                 </div>
@@ -984,11 +1297,11 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="-mb-px flex space-x-8 overflow-x-auto">
-          {tabs.map((tab) => {
+      <div className='border-b border-gray-200 dark:border-gray-700'>
+        <nav className='-mb-px flex space-x-8 overflow-x-auto'>
+          {tabs.map(tab => {
             const Icon = tab.icon;
             return (
               <button
@@ -1000,7 +1313,7 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                 }`}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className='h-5 w-5' />
                 <span>{tab.label}</span>
               </button>
             );
@@ -1009,9 +1322,7 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
       </div>
 
       {/* Tab Content */}
-      <div className="mt-6">
-        {renderTabContent()}
-      </div>
+      <div className='mt-6'>{renderTabContent()}</div>
     </div>
   );
 };

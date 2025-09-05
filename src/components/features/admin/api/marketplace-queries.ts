@@ -4,7 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 const isDev = process.env.NODE_ENV === 'development';
 
 // Simulate API delays for realistic UX
-const simulateDelay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
+const simulateDelay = (ms: number = 500) =>
+  new Promise(resolve => setTimeout(resolve, ms));
 
 // Marketplace Analytics Types
 export interface MarketplaceStats {
@@ -82,7 +83,7 @@ const generateMockShopPerformance = (): ShopPerformanceData[] => [
     conversionRate: 3.2,
   },
   {
-    shopId: '2', 
+    shopId: '2',
     shopName: 'Fashion Hub Cameroon',
     revenue: 9870,
     orders: 76,
@@ -192,12 +193,12 @@ const generateMockProductPerformance = (): ProductPerformanceData[] => [
 const generateMockMarketplaceTrends = (): MarketplaceTrends[] => {
   const trends: MarketplaceTrends[] = [];
   const now = new Date();
-  
+
   // Generate last 30 days of data
   for (let i = 29; i >= 0; i--) {
     const date = new Date(now);
     date.setDate(date.getDate() - i);
-    
+
     trends.push({
       period: date.toISOString().split('T')[0],
       orders: Math.floor(Math.random() * 50) + 20,
@@ -207,7 +208,7 @@ const generateMockMarketplaceTrends = (): MarketplaceTrends[] => {
       activeUsers: Math.floor(Math.random() * 200) + 100,
     });
   }
-  
+
   return trends;
 };
 
@@ -217,18 +218,18 @@ export const useMarketplaceStats = () => {
     queryKey: ['admin', 'marketplace', 'stats'],
     queryFn: async (): Promise<MarketplaceStats> => {
       await simulateDelay();
-      
+
       if (isDev) {
         return generateMockMarketplaceStats();
       }
-      
+
       // Production API call
       const response = await fetch('/api/admin/marketplace/stats');
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch marketplace stats');
       }
-      
+
       return response.json();
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -241,18 +242,20 @@ export const useTopShopsPerformance = (limit: number = 10) => {
     queryKey: ['admin', 'marketplace', 'shops', 'performance', limit],
     queryFn: async (): Promise<ShopPerformanceData[]> => {
       await simulateDelay();
-      
+
       if (isDev) {
         return generateMockShopPerformance().slice(0, limit);
       }
-      
+
       // Production API call
-      const response = await fetch(`/api/admin/marketplace/shops/performance?limit=${limit}`);
-      
+      const response = await fetch(
+        `/api/admin/marketplace/shops/performance?limit=${limit}`
+      );
+
       if (!response.ok) {
         throw new Error('Failed to fetch shop performance data');
       }
-      
+
       return response.json();
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -265,18 +268,20 @@ export const useTopProductsPerformance = (limit: number = 10) => {
     queryKey: ['admin', 'marketplace', 'products', 'performance', limit],
     queryFn: async (): Promise<ProductPerformanceData[]> => {
       await simulateDelay();
-      
+
       if (isDev) {
         return generateMockProductPerformance().slice(0, limit);
       }
-      
+
       // Production API call
-      const response = await fetch(`/api/admin/marketplace/products/performance?limit=${limit}`);
-      
+      const response = await fetch(
+        `/api/admin/marketplace/products/performance?limit=${limit}`
+      );
+
       if (!response.ok) {
         throw new Error('Failed to fetch product performance data');
       }
-      
+
       return response.json();
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -289,18 +294,20 @@ export const useMarketplaceTrends = (days: number = 30) => {
     queryKey: ['admin', 'marketplace', 'trends', days],
     queryFn: async (): Promise<MarketplaceTrends[]> => {
       await simulateDelay();
-      
+
       if (isDev) {
         return generateMockMarketplaceTrends().slice(-days);
       }
-      
+
       // Production API call
-      const response = await fetch(`/api/admin/marketplace/trends?days=${days}`);
-      
+      const response = await fetch(
+        `/api/admin/marketplace/trends?days=${days}`
+      );
+
       if (!response.ok) {
         throw new Error('Failed to fetch marketplace trends');
       }
-      
+
       return response.json();
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
@@ -314,22 +321,21 @@ export const useProducts = () => {
     queryKey: ['admin', 'products'],
     queryFn: async (): Promise<MarketplaceTrends[]> => {
       await simulateDelay();
-      
+
       if (isDev) {
-        return generateMockMarketplaceTrends().slice(-days); 
+        return generateMockMarketplaceTrends();
       }
-      
+
       // Production API call
-      const response = await fetch(`/api/admin/marketplace/trends?days=${days}`);
-      
+      const response = await fetch(`/api/admin/marketplace/trends`);
+
       if (!response.ok) {
         throw new Error('Failed to fetch marketplace trends');
       }
-      
+
       return response.json();
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
   });
 };
-

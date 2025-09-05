@@ -7,13 +7,9 @@ import {
   getMockCategories,
   getMockFeaturedGames,
   getMockGames,
-  QUERY_KEYS
+  QUERY_KEYS,
 } from './data';
-import {
-  GamesQueryParams,
-  GamesResponse,
-  GameStats
-} from './types';
+import { GamesQueryParams, GamesResponse, GameStats } from './types';
 
 // Games Query Hook
 export const useGames = (params: GamesQueryParams = {}) => {
@@ -24,16 +20,16 @@ export const useGames = (params: GamesQueryParams = {}) => {
       if (process.env.NODE_ENV === 'development') {
         const games = getMockGames(params);
         const allGames = getMockGames(); // Get total count
-        
+
         return {
           data: games,
           total: allGames.length,
           page: params.page || 1,
           limit: params.limit || 12,
-          hasMore: games.length === (params.limit || 12)
+          hasMore: games.length === (params.limit || 12),
         };
       }
-      
+
       // Production: Real Firebase query
       // TODO: Implement real Firebase queries when ready
       const mockGames = getMockGames(params);
@@ -42,14 +38,14 @@ export const useGames = (params: GamesQueryParams = {}) => {
         total: mockGames.length,
         page: params.page || 1,
         limit: params.limit || 12,
-        hasMore: false
+        hasMore: false,
       };
     },
     staleTime: GAMES_CACHE_TIME,
     gcTime: GAMES_CACHE_TIME * 2,
     refetchOnWindowFocus: false,
     retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 };
 
@@ -62,7 +58,7 @@ export const useCategories = () => {
       if (process.env.NODE_ENV === 'development') {
         return getMockCategories();
       }
-      
+
       // Production: Real Firebase query
       // TODO: Implement real Firebase queries when ready
       return getMockCategories();
@@ -88,7 +84,7 @@ export const useFeaturedGames = () => {
       if (process.env.NODE_ENV === 'development') {
         return getMockFeaturedGames();
       }
-      
+
       // Production: Real Firebase query
       // TODO: Implement real Firebase queries when ready
       return getMockFeaturedGames();
@@ -107,12 +103,18 @@ export const useGameStats = () => {
     queryFn: async (): Promise<GameStats> => {
       const games = getMockGames();
       const activeGames = games.filter(g => g.status === 'ACTIVE');
-      
+
       return {
         totalGames: games.length,
         activeGames: activeGames.length,
-        totalParticipants: games.reduce((sum, game) => sum + game.currentParticipants, 0),
-        totalPrizeValue: games.reduce((sum, game) => sum + game.totalPrizePool, 0)
+        totalParticipants: games.reduce(
+          (sum, game) => sum + game.currentParticipants,
+          0
+        ),
+        totalPrizeValue: games.reduce(
+          (sum, game) => sum + game.totalPrizePool,
+          0
+        ),
       };
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -125,7 +127,7 @@ export const useGameStats = () => {
 export const useCategoriesWithCounts = () => {
   const { data: gamesResponse } = useGames();
   const games = gamesResponse?.data || [];
-  
+
   return useQuery({
     queryKey: ['categories-with-counts', games.length],
     queryFn: async () => {
@@ -143,7 +145,7 @@ export const useSearchGames = (searchTerm: string, enabled: boolean = true) => {
     queryKey: ['search-games', searchTerm],
     queryFn: async (): Promise<LotteryGame[]> => {
       if (!searchTerm.trim()) return [];
-      
+
       return getMockGames({ search: searchTerm, limit: 20 });
     },
     enabled: enabled && searchTerm.length > 2,

@@ -42,31 +42,39 @@ export async function GET(request: NextRequest) {
 
     // Calculate statistics
     const totalScans = scanEvents.length;
-    const validatedScans = scanEvents.filter(event => 
-      event.result === 'VALIDATED' || event.result === 'VALID'
+    const validatedScans = scanEvents.filter(
+      event => event.result === 'VALIDATED' || event.result === 'VALID'
     ).length;
-    const invalidScans = scanEvents.filter(event => 
-      event.result === 'INVALID' || event.result === 'EXPIRED'
+    const invalidScans = scanEvents.filter(
+      event => event.result === 'INVALID' || event.result === 'EXPIRED'
     ).length;
 
     // Detect suspicious activity (multiple failed scans from same IP or user)
-    const ipScanCounts = scanEvents.reduce((acc, event) => {
-      if (event.result === 'INVALID' && event.ip) {
-        acc[event.ip] = (acc[event.ip] || 0) + 1;
-      }
-      return acc;
-    }, {} as Record<string, number>);
+    const ipScanCounts = scanEvents.reduce(
+      (acc, event) => {
+        if (event.result === 'INVALID' && event.ip) {
+          acc[event.ip] = (acc[event.ip] || 0) + 1;
+        }
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
-    const suspiciousActivity = Object.values(ipScanCounts).filter(count => count > 5).length;
+    const suspiciousActivity = Object.values(ipScanCounts).filter(
+      count => count > 5
+    ).length;
 
     // Get top vendors by scan count
     const vendorScanCounts = scanEvents
       .filter(event => event.scannedBy === 'vendor' && event.vendorId)
-      .reduce((acc, event) => {
-        const vendorId = event.vendorId!;
-        acc[vendorId] = (acc[vendorId] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      .reduce(
+        (acc, event) => {
+          const vendorId = event.vendorId!;
+          acc[vendorId] = (acc[vendorId] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
 
     // Fetch vendor details for top vendors
     const topVendorIds = Object.entries(vendorScanCounts)
@@ -75,15 +83,20 @@ export async function GET(request: NextRequest) {
       .map(([vendorId]) => vendorId);
 
     const topVendors = await Promise.all(
-      topVendorIds.map(async (vendorId) => {
+      topVendorIds.map(async vendorId => {
         try {
-          const vendorDoc = await adminFirestore.collection('users').doc(vendorId).get();
+          const vendorDoc = await adminFirestore
+            .collection('users')
+            .doc(vendorId)
+            .get();
           const vendorData = vendorDoc.data();
-          
+
           return {
             vendorId,
-            vendorName: vendorData 
-              ? `${vendorData.firstName} ${vendorData.lastName}`.trim() || vendorData.companyName || 'Unknown Vendor'
+            vendorName: vendorData
+              ? `${vendorData.firstName} ${vendorData.lastName}`.trim() ||
+                vendorData.companyName ||
+                'Unknown Vendor'
               : 'Unknown Vendor',
             scanCount: vendorScanCounts[vendorId],
           };
@@ -109,11 +122,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(stats);
   } catch (error) {
     console.error('Error fetching scan event stats:', error);
-    
+
     if (error instanceof Error && error.message.includes('required')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

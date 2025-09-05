@@ -10,7 +10,7 @@ interface PreloadManagerProps {
 
 const PreloadManager = ({
   criticalResources = [],
-  prefetchRoutes = ['/shops', '/products', '/profile']
+  prefetchRoutes = ['/shops', '/products', '/profile'],
 }: PreloadManagerProps) => {
   const router = useRouter();
   const hasPreloaded = useRef(false);
@@ -26,7 +26,7 @@ const PreloadManager = ({
     }
 
     const preloadCriticalResources = () => {
-      criticalResources.forEach((resource) => {
+      criticalResources.forEach(resource => {
         const link = document.createElement('link');
         link.rel = 'preload';
         link.href = resource;
@@ -48,13 +48,13 @@ const PreloadManager = ({
     const prefetchPages = () => {
       if ('requestIdleCallback' in window) {
         (window as any).requestIdleCallback(() => {
-          prefetchRoutes.forEach((route) => {
+          prefetchRoutes.forEach(route => {
             router.prefetch(route);
           });
         });
       } else {
         setTimeout(() => {
-          prefetchRoutes.forEach((route) => {
+          prefetchRoutes.forEach(route => {
             router.prefetch(route);
           });
         }, 2000);
@@ -67,10 +67,10 @@ const PreloadManager = ({
         'fonts.googleapis.com',
         'fonts.gstatic.com',
         'firebaseapp.com',
-        'googleapis.com'
+        'googleapis.com',
       ];
 
-      externalDomains.forEach((domain) => {
+      externalDomains.forEach(domain => {
         const link = document.createElement('link');
         link.rel = 'dns-prefetch';
         link.href = `//${domain}`;
@@ -80,10 +80,10 @@ const PreloadManager = ({
       // Preconnect to critical origins
       const preconnectDomains = [
         'https://fonts.googleapis.com',
-        'https://fonts.gstatic.com'
+        'https://fonts.gstatic.com',
       ];
 
-      preconnectDomains.forEach((domain) => {
+      preconnectDomains.forEach(domain => {
         const link = document.createElement('link');
         link.rel = 'preconnect';
         link.href = domain;

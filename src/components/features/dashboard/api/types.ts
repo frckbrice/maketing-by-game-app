@@ -22,13 +22,18 @@ export interface DashboardStats {
   recentActivity: DashboardActivity[];
   topGames: TopGame[];
   userMetrics: UserMetrics;
-  revenueMetrics: RevenueMetrics;
+  revenueMetrics: DashboardRevenueMetrics;
 }
 
 // Dashboard Activity Types
 export interface DashboardActivity {
   id: ID;
-  type: 'GAME_CREATED' | 'GAME_JOINED' | 'PAYMENT_RECEIVED' | 'USER_REGISTERED' | 'VENDOR_APPROVED';
+  type:
+    | 'GAME_CREATED'
+    | 'GAME_JOINED'
+    | 'PAYMENT_RECEIVED'
+    | 'USER_REGISTERED'
+    | 'VENDOR_APPROVED';
   title: string;
   description: string;
   userId?: ID;
@@ -87,7 +92,7 @@ export interface UserSegment {
 }
 
 // Revenue Metrics Types
-export interface RevenueMetrics {
+export interface DashboardRevenueMetrics {
   totalRevenue: number;
   monthlyRevenue: number;
   revenueGrowth: number;

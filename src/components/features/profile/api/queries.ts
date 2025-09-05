@@ -1,7 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
-import { collection, doc, getDoc, getDocs, where, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import { Order, Address, UserNotificationPreferences, User } from '@/types';
+import { Address, Order, User, UserNotificationPreferences } from '@/types';
+import { useQuery } from '@tanstack/react-query';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  where,
+} from 'firebase/firestore';
 
 // Get user orders
 export const useUserOrders = (userId: string, enabled = true) => {
@@ -22,7 +31,7 @@ export const useUserOrders = (userId: string, enabled = true) => {
         const querySnapshot = await getDocs(q);
         const orders: Order[] = [];
 
-        querySnapshot.forEach((doc) => {
+        querySnapshot.forEach(doc => {
           const data = doc.data();
           orders.push({
             id: doc.id,
@@ -43,17 +52,20 @@ export const useUserOrders = (userId: string, enabled = true) => {
             status: 'DELIVERED' as const,
             items: [
               {
+                id: 'item-1',
                 productId: 'prod1',
                 productName: 'Wireless Headphones',
                 productImage: '/images/headphones.jpg',
                 quantity: 1,
-                price: 99.99
-              }
+                price: 99.99,
+                totalPrice: 99.99,
+              },
             ],
             subtotal: 99.99,
             deliveryFee: 5.99,
-            tax: 8.40,
+            tax: 8.4,
             total: 114.38,
+            totalAmount: 114.38,
             currency: 'USD',
             deliveryMethod: {
               id: 'home',
@@ -63,13 +75,28 @@ export const useUserOrders = (userId: string, enabled = true) => {
               currency: 'USD',
               estimatedDays: 3,
               isAvailable: true,
-              type: 'HOME_DELIVERY'
+              type: 'HOME_DELIVERY',
+            },
+            shippingAddress: {
+              id: 'shipping-profile-1',
+              userId: 'user-1',
+              type: 'HOME' as const,
+              isDefault: true,
+              fullName: 'John Doe',
+              phoneNumber: '+237123456789',
+              streetAddress: '123 Main Street',
+              city: 'Douala',
+              state: 'Littoral',
+              postalCode: '00237',
+              country: 'Cameroon',
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
             },
             paymentMethod: 'MOBILE_MONEY' as const,
             paymentStatus: 'COMPLETED' as const,
             createdAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
             updatedAt: Date.now(),
-            orderNumber: 'ORD-001'
+            orderNumber: 'ORD-001',
           },
           {
             id: '2',
@@ -79,17 +106,20 @@ export const useUserOrders = (userId: string, enabled = true) => {
             status: 'SHIPPED' as const,
             items: [
               {
+                id: 'item-2',
                 productId: 'prod2',
                 productName: 'Cotton T-Shirt',
                 productImage: '/images/tshirt.jpg',
                 quantity: 2,
-                price: 24.99
-              }
+                price: 24.99,
+                totalPrice: 49.98,
+              },
             ],
             subtotal: 49.98,
             deliveryFee: 5.99,
-            tax: 4.20,
+            tax: 4.2,
             total: 60.17,
+            totalAmount: 60.17,
             currency: 'USD',
             deliveryMethod: {
               id: 'home',
@@ -99,14 +129,29 @@ export const useUserOrders = (userId: string, enabled = true) => {
               currency: 'USD',
               estimatedDays: 3,
               isAvailable: true,
-              type: 'HOME_DELIVERY'
+              type: 'HOME_DELIVERY',
+            },
+            shippingAddress: {
+              id: 'shipping-profile-2',
+              userId: 'user-1',
+              type: 'WORK' as const,
+              isDefault: false,
+              fullName: 'John Doe',
+              phoneNumber: '+237123456789',
+              streetAddress: '456 Fashion Avenue',
+              city: 'Yaoundé',
+              state: 'Centre',
+              postalCode: '00237',
+              country: 'Cameroon',
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
             },
             paymentMethod: 'MOBILE_MONEY' as const,
             paymentStatus: 'COMPLETED' as const,
             createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
             updatedAt: Date.now(),
-            orderNumber: 'ORD-002'
-          }
+            orderNumber: 'ORD-002',
+          },
         ];
       }
     },
@@ -134,7 +179,7 @@ export const useUserAddresses = (userId: string, enabled = true) => {
         const querySnapshot = await getDocs(q);
         const addresses: Address[] = [];
 
-        querySnapshot.forEach((doc) => {
+        querySnapshot.forEach(doc => {
           const data = doc.data();
           addresses.push({
             id: doc.id,
@@ -161,7 +206,7 @@ export const useUserAddresses = (userId: string, enabled = true) => {
             country: 'Cameroon',
             additionalInfo: 'Near the big blue gate',
             createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-            updatedAt: Date.now()
+            updatedAt: Date.now(),
           },
           {
             id: '2',
@@ -176,8 +221,8 @@ export const useUserAddresses = (userId: string, enabled = true) => {
             postalCode: '54321',
             country: 'Cameroon',
             createdAt: Date.now() - 15 * 24 * 60 * 60 * 1000,
-            updatedAt: Date.now()
-          }
+            updatedAt: Date.now(),
+          },
         ];
       }
     },
@@ -188,7 +233,10 @@ export const useUserAddresses = (userId: string, enabled = true) => {
 };
 
 // Get user notification preferences
-export const useUserNotificationPreferences = (userId: string, enabled = true) => {
+export const useUserNotificationPreferences = (
+  userId: string,
+  enabled = true
+) => {
   return useQuery({
     queryKey: ['user-notification-preferences', userId],
     queryFn: async (): Promise<UserNotificationPreferences> => {
@@ -202,7 +250,10 @@ export const useUserNotificationPreferences = (userId: string, enabled = true) =
 
         if (userDoc.exists()) {
           const userData = userDoc.data() as User;
-          return userData.notificationPreferences || getDefaultNotificationPreferences();
+          return (
+            userData.notificationPreferences ||
+            getDefaultNotificationPreferences()
+          );
         }
 
         return getDefaultNotificationPreferences();
@@ -265,7 +316,7 @@ function getDefaultNotificationPreferences(): UserNotificationPreferences {
     newMessages: true,
     priceDrops: false,
     restockAlerts: false,
-    deliveryUpdates: true
+    deliveryUpdates: true,
   };
 }
 
@@ -286,14 +337,17 @@ export const useUserOrderStats = (userId: string, enabled = true) => {
         let completedOrders = 0;
         let pendingOrders = 0;
 
-        querySnapshot.forEach((doc) => {
+        querySnapshot.forEach(doc => {
           const order = doc.data() as Order;
           totalOrders++;
           totalSpent += order.total;
 
           if (order.status === 'DELIVERED') {
             completedOrders++;
-          } else if (order.status === 'PENDING' || order.status === 'PROCESSING') {
+          } else if (
+            order.status === 'PENDING' ||
+            order.status === 'PROCESSING'
+          ) {
             pendingOrders++;
           }
         });
@@ -303,7 +357,7 @@ export const useUserOrderStats = (userId: string, enabled = true) => {
           totalSpent,
           completedOrders,
           pendingOrders,
-          averageOrderValue: totalOrders > 0 ? totalSpent / totalOrders : 0
+          averageOrderValue: totalOrders > 0 ? totalSpent / totalOrders : 0,
         };
       } catch (error) {
         console.error('Error fetching user order stats:', error);
@@ -313,7 +367,7 @@ export const useUserOrderStats = (userId: string, enabled = true) => {
           totalSpent: 487.23,
           completedOrders: 3,
           pendingOrders: 1,
-          averageOrderValue: 97.45
+          averageOrderValue: 97.45,
         };
       }
     },

@@ -30,17 +30,17 @@ export async function GET(request: NextRequest) {
     if (status !== 'all') {
       query = query.where('result', '==', status) as any;
     }
-    
+
     if (device !== 'all') {
       query = query.where('device', '==', device) as any;
     }
-    
+
     if (scannedBy !== 'all') {
       query = query.where('scannedBy', '==', scannedBy) as any;
     }
 
     const snapshot = await query.limit(100).get();
-    
+
     let scanEvents: ScanEvent[] = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
@@ -49,22 +49,23 @@ export async function GET(request: NextRequest) {
     // Apply search filter (client-side due to Firestore limitations)
     if (search) {
       const searchLower = search.toLowerCase();
-      scanEvents = scanEvents.filter(event => 
-        event.ticketId.toLowerCase().includes(searchLower) ||
-        event.vendorId?.toLowerCase().includes(searchLower) ||
-        event.userId?.toLowerCase().includes(searchLower) ||
-        event.ip?.toLowerCase().includes(searchLower)
+      scanEvents = scanEvents.filter(
+        event =>
+          event.ticketId.toLowerCase().includes(searchLower) ||
+          event.vendorId?.toLowerCase().includes(searchLower) ||
+          event.userId?.toLowerCase().includes(searchLower) ||
+          event.ip?.toLowerCase().includes(searchLower)
       );
     }
 
     return NextResponse.json(scanEvents);
   } catch (error) {
     console.error('Error fetching scan events:', error);
-    
+
     if (error instanceof Error && error.message.includes('required')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

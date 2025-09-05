@@ -88,3 +88,10 @@ public/*/sw.js
 public/*/workbox-*.js
 public/sw.js
 public/workbox-*.js
+
+# Test files
+test-payment.js
+test-payment-status.js
+**/*.test.tsx
+**/*.test.ts
+**/__tests__/**

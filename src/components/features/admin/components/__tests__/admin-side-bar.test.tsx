@@ -44,7 +44,7 @@ describe('AdminSidebar', () => {
     });
 
     render(<AdminSidebar />);
-    
+
     // Main navigation items
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Games')).toBeInTheDocument();
@@ -73,7 +73,7 @@ describe('AdminSidebar', () => {
     });
 
     render(<AdminSidebar />);
-    
+
     // Games sub-items should be visible by default
     expect(screen.getByText('All Games')).toBeInTheDocument();
     expect(screen.getByText('Create Game')).toBeInTheDocument();
@@ -98,7 +98,7 @@ describe('AdminSidebar', () => {
     });
 
     render(<AdminSidebar />);
-    
+
     // Users sub-items should be visible by default
     expect(screen.getByText('All Users')).toBeInTheDocument();
     expect(screen.getByText('Vendors')).toBeInTheDocument();
@@ -123,7 +123,7 @@ describe('AdminSidebar', () => {
     });
 
     render(<AdminSidebar />);
-    
+
     // Analytics sub-items should be visible by default (Games and Users are expanded by default)
     expect(screen.getByText('All Games')).toBeInTheDocument();
     expect(screen.getByText('Create Game')).toBeInTheDocument();
@@ -152,17 +152,19 @@ describe('AdminSidebar', () => {
     });
 
     render(<AdminSidebar />);
-    
+
     const logoutButton = screen.getByText('Logout');
     expect(logoutButton).toBeInTheDocument();
-    
+
     await userEvent.click(logoutButton);
     expect(mockLogout).toHaveBeenCalledTimes(1);
   });
 
   it('applies correct active state styling for current path', () => {
     // Mock the current pathname
-    jest.spyOn(require('next/navigation'), 'usePathname').mockReturnValue('/admin/games');
+    jest
+      .spyOn(require('next/navigation'), 'usePathname')
+      .mockReturnValue('/admin/games');
 
     mockUseAuth.mockReturnValue({
       user: defaultUser,
@@ -239,7 +241,7 @@ describe('AdminSidebar', () => {
       deleteAccount: jest.fn(),
     });
 
-    const { container } = render(<AdminSidebar className="custom-class" />);
+    const { container } = render(<AdminSidebar className='custom-class' />);
 
     const sidebar = container.querySelector('aside');
     expect(sidebar).toHaveClass('custom-class');
@@ -326,11 +328,11 @@ describe('AdminSidebar', () => {
     });
 
     render(<AdminSidebar />);
-    
+
     // Should still render navigation items
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Games')).toBeInTheDocument();
-    
+
     // But user info should not be displayed
     expect(screen.queryByText('Admin User')).not.toBeInTheDocument();
     expect(screen.queryByText('admin@example.com')).not.toBeInTheDocument();
@@ -354,7 +356,7 @@ describe('AdminSidebar', () => {
     });
 
     render(<AdminSidebar />);
-    
+
     // Check that all navigation items have icons
     const navigationItems = [
       'Dashboard',
@@ -363,9 +365,9 @@ describe('AdminSidebar', () => {
       'Vendor Applications',
       'Analytics',
       'Reports',
-      'Settings'
+      'Settings',
     ];
-    
+
     navigationItems.forEach(item => {
       const navItem = screen.getByText(item);
       expect(navItem).toBeInTheDocument();

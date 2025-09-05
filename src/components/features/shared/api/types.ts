@@ -50,7 +50,17 @@ export interface ApiSuccess<T> {
 export interface FormField {
   name: string;
   label: string;
-  type: 'text' | 'email' | 'password' | 'number' | 'select' | 'textarea' | 'checkbox' | 'radio' | 'file' | 'date';
+  type:
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'number'
+    | 'select'
+    | 'textarea'
+    | 'checkbox'
+    | 'radio'
+    | 'file'
+    | 'date';
   required: boolean;
   placeholder?: string;
   options?: Array<{ value: string; label: string }>;
@@ -87,7 +97,7 @@ export interface ModalProps {
 }
 
 // Common Notification Types
-export interface Notification {
+export interface SharedNotification {
   id: ID;
   type: 'SUCCESS' | 'ERROR' | 'WARNING' | 'INFO';
   title: string;
@@ -102,7 +112,7 @@ export interface Notification {
 }
 
 export interface NotificationState {
-  notifications: Notification[];
+  notifications: SharedNotification[];
   maxNotifications: number;
 }
 
@@ -189,7 +199,7 @@ export interface AnalyticsChart {
 }
 
 // Common Settings Types
-export interface AppSettings {
+export interface SharedAppSettings {
   id: ID;
   category: string;
   key: string;
@@ -256,7 +266,15 @@ export interface CacheStats {
 // Common Validation Types
 export interface ValidationRule {
   field: string;
-  rule: 'required' | 'email' | 'minLength' | 'maxLength' | 'pattern' | 'min' | 'max' | 'custom';
+  rule:
+    | 'required'
+    | 'email'
+    | 'minLength'
+    | 'maxLength'
+    | 'pattern'
+    | 'min'
+    | 'max'
+    | 'custom';
   value?: any;
   message: string;
 }

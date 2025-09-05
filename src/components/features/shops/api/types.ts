@@ -32,7 +32,7 @@ export interface Shop {
 }
 
 // Product type is now unified in the main types file
-export { Product } from '../../../../types';
+export type { Product } from '../../../../types';
 
 // Shop API Response Types
 export interface ShopsResponse {
@@ -44,7 +44,7 @@ export interface ShopsResponse {
 }
 
 export interface ProductsResponse {
-  data: Product[];
+  data: import('../../../../types').Product[];
   total: number;
   page: number;
   limit: number;
@@ -95,7 +95,7 @@ export interface ProductShare {
 }
 
 // Shop Performance Types
-export interface ShopPerformanceData {
+export interface ShopsPerformanceData {
   shopId: string;
   shopName: string;
   revenue: number;
@@ -146,4 +146,19 @@ export interface ShopAnalytics {
     followers: number;
     revenue: number;
   }>;
+}
+
+// Review Types
+export interface Review {
+  id: ID;
+  userId: ID;
+  userName: string;
+  userAvatar: string;
+  rating: number;
+  comment: string;
+  createdAt: number;
+  updatedAt: number;
+  isVerified: boolean;
+  likes: number;
+  productId: ID;
 }

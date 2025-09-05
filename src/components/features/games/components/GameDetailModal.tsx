@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
-import { currencyService } from '@/lib/api/currencyService';
+import { formatCurrency } from '@/lib/utils/currency';
 import type { LotteryGame } from '@/types';
 import { Clock, ExternalLink, Users, X, ZoomIn, ZoomOut } from 'lucide-react';
 import Image from 'next/image';
@@ -107,7 +107,7 @@ export function GameDetailModal({
   if (!game || !isOpen) return null;
 
   const mainImage = game.images?.[0]?.url;
-  const isSponsored = Boolean(game.sponsor?.companyWebsite);
+  const isSponsored = false; // Sponsor functionality not implemented yet
 
   // Ensure game has required properties with fallbacks
   const safeCategory = game.category || {
@@ -252,10 +252,7 @@ export function GameDetailModal({
                   {t('games.gameCard.ticketPrice')}
                 </div>
                 <div className='text-xl font-bold text-gray-900 dark:text-white'>
-                  {currencyService.formatCurrency(
-                    game.ticketPrice,
-                    game.currency
-                  )}
+                  {formatCurrency(game.ticketPrice, game.currency)}
                 </div>
               </div>
 
@@ -302,7 +299,7 @@ export function GameDetailModal({
             </div>
 
             {/* Sponsor Information */}
-            {isSponsored && game.sponsor && (
+            {isSponsored && (
               <div className='mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800'>
                 <div className='flex items-center justify-between'>
                   <div>
@@ -310,27 +307,23 @@ export function GameDetailModal({
                       {t('games.gameCard.sponsoredBy')}
                     </div>
                     <div className='text-lg font-semibold text-blue-900 dark:text-blue-100'>
-                      {game.sponsor.companyName}
+                      {'Sponsor Company'}
                     </div>
-                    {game.sponsor.description && (
-                      <p className='text-sm text-blue-700 dark:text-blue-300 mt-2'>
-                        {game.sponsor.description}
-                      </p>
-                    )}
+                    <p className='text-sm text-blue-700 dark:text-blue-300 mt-2'>
+                      {'Sponsor description placeholder'}
+                    </p>
                   </div>
-                  {game.sponsor.companyWebsite && (
-                    <Button
-                      onClick={() =>
-                        window.open(game.sponsor?.companyWebsite, '_blank')
-                      }
-                      variant='outline'
-                      size='sm'
-                      className='border-blue-300 text-blue-600 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/30'
-                    >
-                      <ExternalLink className='w-4 h-4 mr-2' />
-                      {t('games.gameCard.visitWebsite')}
-                    </Button>
-                  )}
+                  <Button
+                    onClick={() =>
+                      window.open('https://example.com', '_blank')
+                    }
+                    variant='outline'
+                    size='sm'
+                    className='border-blue-300 text-blue-600 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/30'
+                  >
+                    <ExternalLink className='w-4 h-4 mr-2' />
+                    {t('games.gameCard.visitWebsite')}
+                  </Button>
                 </div>
               </div>
             )}

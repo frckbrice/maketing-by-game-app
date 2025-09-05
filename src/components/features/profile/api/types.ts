@@ -204,7 +204,11 @@ export interface ProfileVerification {
 export interface ProfileActivity {
   id: ID;
   userId: ID;
-  type: 'PROFILE_UPDATE' | 'PREFERENCE_CHANGE' | 'PRIVACY_CHANGE' | 'AVATAR_UPLOAD';
+  type:
+    | 'PROFILE_UPDATE'
+    | 'PREFERENCE_CHANGE'
+    | 'PRIVACY_CHANGE'
+    | 'AVATAR_UPLOAD';
   description: string;
   metadata?: Record<string, any>;
   timestamp: Timestamp;

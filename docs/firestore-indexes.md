@@ -5,6 +5,7 @@ The following composite indexes are required for the application to work properl
 ## Games Collection Indexes
 
 ### Index 1: Games by Status and Creation Date
+
 - **Collection:** `games`
 - **Fields:**
   - `status` (Ascending)
@@ -12,11 +13,13 @@ The following composite indexes are required for the application to work properl
   - `__name__` (Descending)
 
 **Firebase Console URL:**
+
 ```
 https://console.firebase.google.com/v1/r/project/lottery-app-91c88/firestore/indexes?create_composite=Ck9wcm9qZWN0cy9sb3R0ZXJ5LWFwcC05MWM4OC9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvZ2FtZXMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaDQoJY3JlYXRlZEF0EAIaDAoIX19uYW1lX18QAg
 ```
 
 **CLI Command:**
+
 ```bash
 firebase firestore:indexes --add-collection games --add-field status --add-field createdAt:desc
 ```
@@ -24,6 +27,7 @@ firebase firestore:indexes --add-collection games --add-field status --add-field
 ## Vendor Applications Collection Indexes
 
 ### Index 2: Vendor Applications by User ID and Submitted Date
+
 - **Collection:** `vendorApplications`
 - **Fields:**
   - `userId` (Ascending)
@@ -31,11 +35,13 @@ firebase firestore:indexes --add-collection games --add-field status --add-field
   - `__name__` (Descending)
 
 **Firebase Console URL:**
+
 ```
 https://console.firebase.google.com/v1/r/project/lottery-app-91c88/firestore/indexes?create_composite=Clxwcm9qZWN0cy9sb3R0ZXJ5LWFwcC05MWM4OC9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvdmVuZG9yQXBwbGljYXRpb25zL2luZGV4ZXMvXxABGgoKBnVzZXJJZBABGg8KC3N1Ym1pdHRlZEF0EAIaDAoIX19uYW1lX18QAg
 ```
 
 **CLI Command:**
+
 ```bash
 firebase firestore:indexes --add-collection vendorApplications --add-field userId --add-field submittedAt:desc
 ```
@@ -43,12 +49,14 @@ firebase firestore:indexes --add-collection vendorApplications --add-field userI
 ## How to Create Indexes
 
 ### Method 1: Firebase Console (Recommended)
+
 1. Click on the URLs provided above
 2. Review the index configuration
 3. Click "Create Index"
 4. Wait for index creation to complete (usually takes a few minutes)
 
 ### Method 2: Firebase CLI
+
 ```bash
 # Install Firebase CLI if not already installed
 npm install -g firebase-tools
@@ -61,6 +69,7 @@ firebase deploy --only firestore:indexes
 ```
 
 ### Method 3: firestore.indexes.json File
+
 Create a `firestore.indexes.json` file in your project root:
 
 ```json
@@ -82,7 +91,7 @@ Create a `firestore.indexes.json` file in your project root:
     },
     {
       "collectionGroup": "vendorApplications",
-      "queryScope": "COLLECTION", 
+      "queryScope": "COLLECTION",
       "fields": [
         {
           "fieldPath": "userId",
@@ -100,6 +109,7 @@ Create a `firestore.indexes.json` file in your project root:
 ```
 
 Then run:
+
 ```bash
 firebase deploy --only firestore:indexes
 ```
@@ -107,6 +117,7 @@ firebase deploy --only firestore:indexes
 ## Additional Recommended Indexes
 
 ### Games Collection
+
 ```json
 {
   "collectionGroup": "games",
@@ -118,7 +129,7 @@ firebase deploy --only firestore:indexes
   ]
 },
 {
-  "collectionGroup": "games", 
+  "collectionGroup": "games",
   "queryScope": "COLLECTION",
   "fields": [
     {"fieldPath": "featured", "order": "ASCENDING"},
@@ -128,13 +139,14 @@ firebase deploy --only firestore:indexes
 ```
 
 ### Users Collection
+
 ```json
 {
   "collectionGroup": "users",
-  "queryScope": "COLLECTION", 
+  "queryScope": "COLLECTION",
   "fields": [
-    {"fieldPath": "role", "order": "ASCENDING"},
-    {"fieldPath": "createdAt", "order": "DESCENDING"}
+    { "fieldPath": "role", "order": "ASCENDING" },
+    { "fieldPath": "createdAt", "order": "DESCENDING" }
   ]
 }
 ```

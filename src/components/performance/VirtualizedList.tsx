@@ -24,7 +24,10 @@ function VirtualizedList<T>({
   const visibleCount = Math.ceil(containerHeight / itemHeight);
 
   const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan);
-  const endIndex = Math.min(items.length - 1, startIndex + visibleCount + 2 * overscan);
+  const endIndex = Math.min(
+    items.length - 1,
+    startIndex + visibleCount + 2 * overscan
+  );
 
   const visibleItems = useMemo(() => {
     const result = [];
@@ -68,4 +71,3 @@ function VirtualizedList<T>({
 }
 
 export default React.memo(VirtualizedList) as typeof VirtualizedList;
-

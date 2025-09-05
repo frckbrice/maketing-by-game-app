@@ -164,16 +164,16 @@ export const QRGenerator: React.FC<QRGeneratorProps> = ({
 
   if (isGenerating) {
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <Card className='w-full max-w-md mx-auto'>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <QrCode className="w-5 h-5" />
+          <CardTitle className='flex items-center space-x-2'>
+            <QrCode className='w-5 h-5' />
             <span>{t('qr.generatingQR')}</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+        <CardContent className='text-center space-y-4'>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto'></div>
+          <p className='text-sm text-gray-600 dark:text-gray-400'>
             {t('qr.pleaseWait')}
           </p>
         </CardContent>
@@ -183,23 +183,23 @@ export const QRGenerator: React.FC<QRGeneratorProps> = ({
 
   if (error) {
     return (
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader className="flex items-center justify-between">
-          <CardTitle className="flex items-center space-x-2">
-            <QrCode className="w-5 h-5" />
+      <Card className='w-full max-w-md mx-auto'>
+        <CardHeader className='flex items-center justify-between'>
+          <CardTitle className='flex items-center space-x-2'>
+            <QrCode className='w-5 h-5' />
             <span>{t('qr.generator')}</span>
           </CardTitle>
           {onClose && (
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="w-4 h-4" />
+            <Button variant='ghost' size='sm' onClick={onClose}>
+              <X className='w-4 h-4' />
             </Button>
           )}
         </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
-            <p className="text-red-600 dark:text-red-400">{error}</p>
+        <CardContent className='text-center space-y-4'>
+          <div className='bg-red-50 dark:bg-red-900/20 p-4 rounded-lg'>
+            <p className='text-red-600 dark:text-red-400'>{error}</p>
           </div>
-          <Button onClick={generateQRCode} className="w-full">
+          <Button onClick={generateQRCode} className='w-full'>
             {t('common.retry')}
           </Button>
         </CardContent>
@@ -208,117 +208,117 @@ export const QRGenerator: React.FC<QRGeneratorProps> = ({
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="flex items-center justify-between">
-        <CardTitle className="flex items-center space-x-2">
-          <QrCode className="w-5 h-5" />
+    <Card className='w-full max-w-md mx-auto'>
+      <CardHeader className='flex items-center justify-between'>
+        <CardTitle className='flex items-center space-x-2'>
+          <QrCode className='w-5 h-5' />
           <span>{t('qr.ticketQRCode')}</span>
         </CardTitle>
         {onClose && (
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="w-4 h-4" />
+          <Button variant='ghost' size='sm' onClick={onClose}>
+            <X className='w-4 h-4' />
           </Button>
         )}
       </CardHeader>
-      
-      <CardContent className="space-y-4">
+
+      <CardContent className='space-y-4'>
         {/* Ticket Information */}
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg space-y-3">
+        <div className='bg-gray-50 dark:bg-gray-800 p-4 rounded-lg space-y-3'>
           {/* Primary Ticket Number - Most Prominent */}
-          <div className="text-center bg-white dark:bg-gray-700 p-3 rounded-lg border-2 border-orange-500">
-            <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+          <div className='text-center bg-white dark:bg-gray-700 p-3 rounded-lg border-2 border-orange-500'>
+            <div className='text-xs text-gray-600 dark:text-gray-400 mb-1'>
               {t('qr.primaryTicketNumber')}
             </div>
-            <div className="text-2xl font-bold font-mono text-orange-600 dark:text-orange-400">
+            <div className='text-2xl font-bold font-mono text-orange-600 dark:text-orange-400'>
               {ticketNumber || alternativeNumbers?.formatted || 'N/A'}
             </div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className='text-xs text-gray-500 mt-1'>
               {t('qr.easyToRemember')}
             </div>
           </div>
 
           {/* Alternative Numbers */}
           {alternativeNumbers && (
-            <div className="space-y-2">
-              <div className="text-xs font-medium text-gray-600 dark:text-gray-400">
+            <div className='space-y-2'>
+              <div className='text-xs font-medium text-gray-600 dark:text-gray-400'>
                 {t('qr.alternativeNumbers')}:
               </div>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="bg-white dark:bg-gray-700 p-2 rounded text-center">
-                  <div className="text-gray-500">{t('qr.readable')}</div>
-                  <div className="font-mono">{alternativeNumbers.readable}</div>
+              <div className='grid grid-cols-2 gap-2 text-xs'>
+                <div className='bg-white dark:bg-gray-700 p-2 rounded text-center'>
+                  <div className='text-gray-500'>{t('qr.readable')}</div>
+                  <div className='font-mono'>{alternativeNumbers.readable}</div>
                 </div>
-                <div className="bg-white dark:bg-gray-700 p-2 rounded text-center">
-                  <div className="text-gray-500">{t('qr.simple')}</div>
-                  <div className="font-mono">{alternativeNumbers.simple}</div>
+                <div className='bg-white dark:bg-gray-700 p-2 rounded text-center'>
+                  <div className='text-gray-500'>{t('qr.simple')}</div>
+                  <div className='font-mono'>{alternativeNumbers.simple}</div>
                 </div>
               </div>
             </div>
           )}
 
           {/* Game Information */}
-          <div className="border-t pt-3 space-y-1">
-            <div className="text-sm">
-              <span className="font-semibold">{t('qr.game')}:</span>
-              <span className="ml-2">{gameTitle}</span>
+          <div className='border-t pt-3 space-y-1'>
+            <div className='text-sm'>
+              <span className='font-semibold'>{t('qr.game')}:</span>
+              <span className='ml-2'>{gameTitle}</span>
             </div>
-            <div className="text-sm">
-              <span className="font-semibold">{t('qr.vendor')}:</span>
-              <span className="ml-2">{vendorName}</span>
+            <div className='text-sm'>
+              <span className='font-semibold'>{t('qr.vendor')}:</span>
+              <span className='ml-2'>{vendorName}</span>
             </div>
           </div>
         </div>
 
         {/* QR Code Display */}
         {qrCodeUrl && (
-          <div className="text-center">
-            <div className="bg-white p-4 rounded-lg inline-block shadow-sm">
-              <img 
-                src={qrCodeUrl} 
-                alt="QR Code" 
-                className="w-48 h-48 mx-auto"
+          <div className='text-center'>
+            <div className='bg-white p-4 rounded-lg inline-block shadow-sm'>
+              <img
+                src={qrCodeUrl}
+                alt='QR Code'
+                className='w-48 h-48 mx-auto'
               />
             </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className='text-xs text-gray-500 mt-2'>
               {t('qr.scanToValidate')}
             </p>
           </div>
         )}
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className='grid grid-cols-2 gap-2'>
           <Button
             onClick={handleDownload}
-            variant="outline"
-            size="sm"
-            className="flex items-center space-x-1"
+            variant='outline'
+            size='sm'
+            className='flex items-center space-x-1'
           >
-            <Download className="w-4 h-4" />
+            <Download className='w-4 h-4' />
             <span>{t('qr.download')}</span>
           </Button>
 
           <Button
             onClick={handlePrint}
-            variant="outline"
-            size="sm"
-            className="flex items-center space-x-1"
+            variant='outline'
+            size='sm'
+            className='flex items-center space-x-1'
           >
-            <FileText className="w-4 h-4" />
+            <FileText className='w-4 h-4' />
             <span>{t('qr.print')}</span>
           </Button>
         </div>
 
         <Button
           onClick={handleShowData}
-          variant="ghost"
-          size="sm"
-          className="w-full flex items-center justify-center space-x-1"
+          variant='ghost'
+          size='sm'
+          className='w-full flex items-center justify-center space-x-1'
         >
-          <Eye className="w-4 h-4" />
+          <Eye className='w-4 h-4' />
           <span>{t('qr.showData')}</span>
         </Button>
 
-        <div className="text-xs text-gray-500 text-center">
+        <div className='text-xs text-gray-500 text-center'>
           {t('qr.securelyGenerated')}
         </div>
       </CardContent>

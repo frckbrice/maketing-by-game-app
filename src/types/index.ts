@@ -62,6 +62,8 @@ export interface User {
     timezone: string;
     currency: string;
   };
+  followedShops?: string[];
+  likedProducts?: string[];
   notificationSettings?: {
     email: boolean;
     sms: boolean;
@@ -174,6 +176,7 @@ export interface GameImage {
   id: ID;
   url: string;
   alt: string;
+  type?: string;
   order: number;
   isPrimary: boolean;
   createdAt: Timestamp;
@@ -206,11 +209,11 @@ export interface LotteryGame {
   createdBy: ID;
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  sponsor?: {
+  shop?: {
     id: ID;
-    companyName: string;
-    companyWebsite?: string;
-    companyLogo?: string;
+    name: string;
+    website?: string;
+    logo?: string;
     description?: string;
   };
 }
@@ -223,8 +226,8 @@ export interface LotteryTicket {
   vendorId: ID;
   ticketNumber: string; // Primary user-facing number (formatted, e.g., "123-456")
   alternativeNumbers?: {
-    readable: string;  // LT-2024-ABC123
-    simple: string;    // 123456
+    readable: string; // LT-2024-ABC123
+    simple: string; // 123456
     formatted: string; // 123-456
   };
   purchaseDate: Timestamp;
@@ -316,9 +319,6 @@ export interface BusinessDocument {
   verifiedAt?: Timestamp;
 }
 
-// Vendor Application Types - Imported from vendor-application feature
-export type { VendorApplication } from '../components/features/vendor-application/api/types';
-
 // Common Response Types
 export interface ApiResponse<T> {
   success: boolean;
@@ -370,11 +370,13 @@ export interface DeliveryMethod {
 }
 
 export interface OrderItem {
+  id: string;
   productId: string;
   productName: string;
   productImage: string;
   quantity: number;
   price: number;
+  totalPrice: number;
   size?: string;
 }
 
@@ -389,9 +391,11 @@ export interface Order {
   deliveryFee: number;
   tax: number;
   total: number;
+  totalAmount: number;
   currency: string;
   deliveryMethod: DeliveryMethod;
   deliveryAddress?: Address;
+  shippingAddress?: Address;
   paymentMethod: 'MOBILE_MONEY' | 'CREDIT_CARD' | 'PAYPAL';
   paymentStatus: 'PENDING' | 'COMPLETED' | 'FAILED';
   createdAt: number;
@@ -402,14 +406,14 @@ export interface Order {
 }
 
 // Gamification Types
-export type LoyaltyPointTransactionType = 
-  | 'EARNED_GAME_PLAY' 
-  | 'EARNED_REFERRAL' 
-  | 'EARNED_PURCHASE' 
-  | 'EARNED_DAILY_LOGIN' 
+export type LoyaltyPointTransactionType =
+  | 'EARNED_GAME_PLAY'
+  | 'EARNED_REFERRAL'
+  | 'EARNED_PURCHASE'
+  | 'EARNED_DAILY_LOGIN'
   | 'EARNED_STREAK_BONUS'
-  | 'REDEEMED_TICKET' 
-  | 'REDEEMED_DISCOUNT' 
+  | 'REDEEMED_TICKET'
+  | 'REDEEMED_DISCOUNT'
   | 'REDEEMED_PRIZE'
   | 'EXPIRED'
   | 'ADJUSTMENT';
@@ -590,7 +594,12 @@ export interface UserBadge {
 export interface GamificationNotification {
   id: ID;
   userId: ID;
-  type: 'POINTS_EARNED' | 'LEVEL_UP' | 'BADGE_EARNED' | 'STREAK_BONUS' | 'REFERRAL_REWARD';
+  type:
+    | 'POINTS_EARNED'
+    | 'LEVEL_UP'
+    | 'BADGE_EARNED'
+    | 'STREAK_BONUS'
+    | 'REFERRAL_REWARD';
   title: string;
   message: string;
   points?: number;
@@ -612,15 +621,12 @@ export interface Product {
   images: string[];
   category: string;
   tags: string[];
-  shop: {
-    shopId: ID; // this ID is the same with vendor author of this product.
-    shopName: string;
-    shopLogo?: string;
-  };
+  shop: Partial<Shop>;
   rating: number;
-  reviewCount: number;
+  reviewsCount: number;
   likeCount: number;
   shareCount: number;
+  viewsCount?: number; // Track product page views for analytics
   isAvailable: boolean;
   isFeatured: boolean;
   isNew: boolean;
@@ -644,6 +650,7 @@ export interface Payment {
   status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
   method: string;
   transactionId?: string;
+  ticketId?: string;
   description?: string;
   metadata?: Record<string, any>;
   createdAt: Timestamp;
@@ -659,11 +666,158 @@ export interface Winner {
   prize: string;
   prizeValue: number;
   currency: string;
-  status: 'PENDING' | 'CLAIMED' | 'DELIVERED';
+  status: 'PENDING' | 'CLAIMED' | 'DELIVERED' | 'CANCELLED';
+  isClaimed?: boolean;
   claimedAt?: Timestamp;
+  claimMethod?: 'AUTOMATIC' | 'MANUAL';
   deliveredAt?: Timestamp;
+  deliveryMethod?: string;
+  trackingNumber?: string;
+  deliveryNotes?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+}
+
+// Realtime Types
+export interface GameCounter {
+  gameId: string;
+  participants: number;
+  maxParticipants: number;
+  status: 'active' | 'closed' | 'ended';
+  lastUpdate: number;
+  winners?: string[];
+  prizesClaimed?: number;
+  totalPrizeValue?: number;
+}
+
+export interface UserPresence {
+  userId: string;
+  status: 'online' | 'offline' | 'away';
+  lastSeen: number;
+  currentPage?: string;
+  device?: 'web' | 'mobile';
+}
+
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  message: string;
+  timestamp: number;
+  type: 'text' | 'image' | 'file';
+  read: boolean;
+  shopId?: string;
+  status?: 'sending' | 'sent' | 'error';
+}
+
+export interface LiveNotification {
+  id: string;
+  userId: string;
+  type: 'game_update' | 'new_message' | 'winner_announcement' | 'system_alert';
+  title: string;
+  message: string;
+  data?: any;
+  timestamp: number;
+  priority: 'low' | 'medium' | 'high';
+  read: boolean;
+}
+
+// Marketplace Types
+export interface Shop {
+  id: string;
+  name: string;
+  description: string;
+  logoUrl?: string;
+  bannerUrl?: string;
+  status: 'active' | 'inactive' | 'suspended' | 'banned';
+  isVerified?: boolean;
+  rating: number;
+  reviewsCount: number;
+  followersCount: number;
+  productsCount?: number;
+  ordersCount?: number;
+  totalRevenue?: number;
+  averageResponseTime?: string;
+  contactInfo?: {
+    email: string;
+    phone: string;
+    website: string;
+  };
+  categories: string[];
+  tags: string[];
+  ownerId: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface ProductPerformanceData {
+  productId: string;
+  productName: string;
+  shopName: string;
+  sales: number;
+  revenue: number;
+  likes: number;
+  views: number;
+  conversionRate: number;
+  rating: number;
+}
+
+export interface MarketplaceStats {
+  totalShops: number;
+  totalProducts: number;
+  totalOrders: number;
+  totalMarketplaceRevenue: number;
+  totalLikes: number;
+  totalFollows: number;
+  totalReviews: number;
+  averageShopRating: number;
+  activeShops: number;
+  pendingShopApplications: number;
+}
+
+export interface VendorApplication {
+  id: ID;
+  userId: ID;
+  userEmail: string;
+  userName: string;
+  companyName: string;
+  businessRegistrationNumber: string;
+  companyWebsite?: string;
+  contactEmail: string;
+  contactPhone: string;
+  companyLogoUrl?: string;
+  businessCertificateUrl?: string;
+  productCategory: string;
+  description: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'UNDER_REVIEW';
+  rejectionReason?: string;
+  submittedAt: Timestamp;
+  reviewedAt?: Timestamp;
+  reviewedBy?: ID;
+  updatedAt: Timestamp;
+}
+
+export interface MarketplaceTrends {
+  period: string;
+  orders: number;
+  revenue: number;
+  newShops: number;
+  newProducts: number;
+  activeUsers: number;
+}
+
+export interface Review {
+  id: ID;
+  userId: ID;
+  userName: string;
+  userAvatar: string;
+  rating: number;
+  comment: string;
+  createdAt: number;
+  updatedAt: number;
+  isVerified: boolean;
+  likes: number;
+  productId: ID;
 }
 
 // Note: Marketplace types are defined inline to avoid circular imports

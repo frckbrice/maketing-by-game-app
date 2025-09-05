@@ -150,14 +150,18 @@ describe('AdminCategoriesPage', () => {
     });
 
     render(<AdminCategoriesPage />);
-    
+
     expect(screen.getByText('Categories Management')).toBeInTheDocument();
-    expect(screen.getByText('Manage game categories and organization')).toBeInTheDocument();
+    expect(
+      screen.getByText('Manage game categories and organization')
+    ).toBeInTheDocument();
   });
 
   it('renders access denied for non-admin users', async () => {
     const mockRouter = { replace: jest.fn() };
-    jest.spyOn(require('next/navigation'), 'useRouter').mockReturnValue(mockRouter);
+    jest
+      .spyOn(require('next/navigation'), 'useRouter')
+      .mockReturnValue(mockRouter);
 
     mockUseAuth.mockReturnValue({
       user: { ...defaultUser, role: 'USER' },
@@ -208,9 +212,13 @@ describe('AdminCategoriesPage', () => {
       expect(screen.getByText('Home & Garden')).toBeInTheDocument();
 
       // Check descriptions
-      expect(screen.getByText('Electronic devices and gadgets')).toBeInTheDocument();
+      expect(
+        screen.getByText('Electronic devices and gadgets')
+      ).toBeInTheDocument();
       expect(screen.getByText('Clothing and accessories')).toBeInTheDocument();
-      expect(screen.getByText('Home improvement and gardening')).toBeInTheDocument();
+      expect(
+        screen.getByText('Home improvement and gardening')
+      ).toBeInTheDocument();
     });
   });
 
@@ -298,25 +306,39 @@ describe('AdminCategoriesPage', () => {
 
     await waitFor(() => {
       // Look for the Edit2 icon (Edit button)
-      const editButtons = screen.getAllByRole('button').filter(button =>
-        button.querySelector('svg') &&
-        button.querySelector('svg')?.getAttribute('class')?.includes('lucide-edit2')
-      );
+      const editButtons = screen
+        .getAllByRole('button')
+        .filter(
+          button =>
+            button.querySelector('svg') &&
+            button
+              .querySelector('svg')
+              ?.getAttribute('class')
+              ?.includes('lucide-edit2')
+        );
       expect(editButtons.length).toBeGreaterThan(0);
     });
 
     // Find the first edit button (one with Edit2 icon)
-    const editButtons = screen.getAllByRole('button').filter(button =>
-      button.querySelector('svg') &&
-      button.querySelector('svg')?.getAttribute('class')?.includes('lucide-edit2')
-    );
+    const editButtons = screen
+      .getAllByRole('button')
+      .filter(
+        button =>
+          button.querySelector('svg') &&
+          button
+            .querySelector('svg')
+            ?.getAttribute('class')
+            ?.includes('lucide-edit2')
+      );
     const firstEditButton = editButtons[0];
     await userEvent.click(firstEditButton);
 
     // Edit modal should open with pre-filled data
     expect(screen.getByText('Edit Category')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Electronics')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('Electronic devices and gadgets')).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue('Electronic devices and gadgets')
+    ).toBeInTheDocument();
   });
 
   it('handles category deletion correctly', async () => {
@@ -340,23 +362,39 @@ describe('AdminCategoriesPage', () => {
 
     await waitFor(() => {
       // Look for the Trash2 icon (Delete button)
-      const deleteButtons = screen.getAllByRole('button').filter(button =>
-        button.querySelector('svg') &&
-        button.querySelector('svg')?.getAttribute('class')?.includes('lucide-trash2')
-      );
+      const deleteButtons = screen
+        .getAllByRole('button')
+        .filter(
+          button =>
+            button.querySelector('svg') &&
+            button
+              .querySelector('svg')
+              ?.getAttribute('class')
+              ?.includes('lucide-trash2')
+        );
       expect(deleteButtons.length).toBeGreaterThan(0);
     });
 
     // Find the first delete button (one with Trash2 icon)
-    const deleteButtons = screen.getAllByRole('button').filter(button =>
-      button.querySelector('svg') &&
-      button.querySelector('svg')?.getAttribute('class')?.includes('lucide-trash2')
-    );
+    const deleteButtons = screen
+      .getAllByRole('button')
+      .filter(
+        button =>
+          button.querySelector('svg') &&
+          button
+            .querySelector('svg')
+            ?.getAttribute('class')
+            ?.includes('lucide-trash2')
+      );
     const firstDeleteButton = deleteButtons[0];
     await userEvent.click(firstDeleteButton);
 
     // Confirmation dialog should appear
-    expect(screen.getByText('Are you sure you want to delete this category? This action cannot be undone.')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Are you sure you want to delete this category? This action cannot be undone.'
+      )
+    ).toBeInTheDocument();
   });
 
   it('displays category statistics correctly', async () => {
@@ -419,7 +457,9 @@ describe('AdminCategoriesPage', () => {
 
     // Try to submit without filling required fields
     // Find the submit button specifically in the modal by looking for the button with the text
-    const submitButton = screen.getByRole('button', { name: 'Create Category' });
+    const submitButton = screen.getByRole('button', {
+      name: 'Create Category',
+    });
     await userEvent.click(submitButton);
 
     // Since we can't easily test the toast in this environment, just verify the button was clicked
@@ -490,7 +530,9 @@ describe('AdminCategoriesPage', () => {
 
     await waitFor(() => {
       expect(screen.getByText('No categories found')).toBeInTheDocument();
-      expect(screen.getByText('Create your first category to organize games.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Create your first category to organize games.')
+      ).toBeInTheDocument();
     });
   });
 

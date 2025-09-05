@@ -33,6 +33,7 @@ Before deploying, ensure you have:
 ### 1. Local Development Setup
 
 Clone the repository and install dependencies:
+
 ```bash
 git clone <repository-url>
 cd lottery-app
@@ -44,6 +45,7 @@ yarn install
 Create environment files for different environments:
 
 #### `.env.local` (Development)
+
 ```env
 # Firebase Configuration
 NEXT_PUBLIC_FIREBASE_API_KEY=your-dev-api-key
@@ -86,6 +88,7 @@ EXCHANGE_RATE_API_KEY=your-exchange-rate-api-key
 ```
 
 #### `.env.production` (Production)
+
 ```env
 # Firebase Configuration (Production)
 NEXT_PUBLIC_FIREBASE_API_KEY=your-prod-api-key
@@ -142,6 +145,7 @@ firebase init
 ```
 
 Select the following features:
+
 - Firestore
 - Realtime Database
 - Authentication
@@ -161,72 +165,72 @@ service cloud.firestore {
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-    
+
     function hasRole(role) {
-      return isAuthenticated() && 
+      return isAuthenticated() &&
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
     }
-    
+
     function isAdmin() {
       return hasRole('ADMIN');
     }
-    
+
     function isVendor() {
       return hasRole('VENDOR') || isAdmin();
     }
-    
+
     // Users collection
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
       allow write: if isOwner(userId) || isAdmin();
     }
-    
+
     // Categories collection
     match /categories/{categoryId} {
       allow read: if true;
       allow write: if isAdmin();
     }
-    
+
     // Games collection
     match /games/{gameId} {
       allow read: if true;
       allow write: if isVendor();
     }
-    
+
     // Tickets collection
     match /tickets/{ticketId} {
       allow read: if isOwner(resource.data.userId) || isVendor();
       allow write: if isVendor(); // Only vendors can mark tickets as used
     }
-    
+
     // Orders collection
     match /orders/{orderId} {
       allow read: if isOwner(resource.data.userId) || isVendor();
       allow write: if isOwner(resource.data.userId) || isVendor();
     }
-    
+
     // Shops collection
     match /shops/{shopId} {
       allow read: if true;
       allow write: if isOwner(resource.data.ownerId) || isAdmin();
     }
-    
+
     // Products collection
     match /products/{productId} {
       allow read: if true;
       allow write: if isOwner(resource.data.vendorId) || isAdmin();
     }
-    
+
     // Reviews collection
     match /reviews/{reviewId} {
       allow read: if true;
       allow write: if isAuthenticated();
     }
-    
+
     // Scan events (admin only)
     match /scanEvents/{eventId} {
       allow read, write: if isAdmin();
@@ -291,21 +295,21 @@ service firebase.storage {
       allow read: if true;
       allow write: if request.auth != null && request.auth.uid == userId;
     }
-    
+
     // Shop images
     match /shops/{shopId}/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null && 
+      allow write: if request.auth != null &&
                    (get(/databases/$(database)/documents/shops/$(shopId)).data.ownerId == request.auth.uid ||
                     get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN');
     }
-    
+
     // Product images
     match /products/{productId}/{allPaths=**} {
       allow read: if true;
       allow write: if request.auth != null;
     }
-    
+
     // Game images
     match /games/{gameId}/{allPaths=**} {
       allow read: if true;
@@ -480,12 +484,12 @@ const nextConfig = {
         headers: [
           {
             key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains'
-          }
-        ]
-      }
+            value: 'max-age=31536000; includeSubDomains',
+          },
+        ],
+      },
     ];
-  }
+  },
 };
 ```
 
@@ -499,14 +503,14 @@ import { NextResponse } from 'next/server';
 
 export function middleware(request) {
   const response = NextResponse.next();
-  
+
   // Security headers
   response.headers.set('X-DNS-Prefetch-Control', 'on');
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('X-Frame-Options', 'SAMEORIGIN');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
-  
+
   return response;
 }
 ```
@@ -522,11 +526,11 @@ import { NextRequest } from 'next/server';
 
 export async function authenticateUser(request: NextRequest) {
   const token = request.headers.get('authorization')?.replace('Bearer ', '');
-  
+
   if (!token) {
     throw new Error('No token provided');
   }
-  
+
   try {
     const decoded = verify(token, process.env.JWT_SECRET!);
     return decoded;
@@ -583,10 +587,10 @@ export function trackPerformance(name: string, fn: () => Promise<any>) {
     try {
       const result = await fn.apply(this, args);
       const end = performance.now();
-      
+
       // Track performance metric
       console.log(`${name}: ${end - start}ms`);
-      
+
       return result;
     } catch (error) {
       // Track error
@@ -610,21 +614,24 @@ export async function GET() {
   try {
     // Test database connectivity
     await testFirebaseConnection();
-    
+
     return NextResponse.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
       services: {
         firebase: 'connected',
-        database: 'connected'
-      }
+        database: 'connected',
+      },
     });
   } catch (error) {
-    return NextResponse.json({
-      status: 'unhealthy',
-      error: error.message,
-      timestamp: new Date().toISOString()
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        status: 'unhealthy',
+        error: error.message,
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 }
+    );
   }
 }
 ```
@@ -726,13 +733,12 @@ Configure CDN for static assets:
 ```javascript
 // next.config.js
 const nextConfig = {
-  assetPrefix: process.env.NODE_ENV === 'production' 
-    ? 'https://cdn.yourdomain.com' 
-    : '',
+  assetPrefix:
+    process.env.NODE_ENV === 'production' ? 'https://cdn.yourdomain.com' : '',
   images: {
     loader: 'custom',
-    loaderFile: './lib/imageLoader.js'
-  }
+    loaderFile: './lib/imageLoader.js',
+  },
 };
 ```
 
@@ -776,7 +782,7 @@ const testConnection = async () => {
   try {
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    
+
     // Test connection with a simple query
     const testDoc = await getDoc(doc(db, 'test', 'connection'));
     console.log('Firebase connected successfully');
@@ -838,4 +844,4 @@ After successful deployment:
 
 ---
 
-*This deployment guide is maintained and updated with each release. For specific deployment assistance, contact the development team.*
+_This deployment guide is maintained and updated with each release. For specific deployment assistance, contact the development team._

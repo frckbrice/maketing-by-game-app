@@ -12,14 +12,19 @@ interface BundleMetrics {
 
 const BundleAnalyzer = () => {
   useEffect(() => {
-    if (typeof window === 'undefined' || process.env.NODE_ENV !== 'development') {
+    if (
+      typeof window === 'undefined' ||
+      process.env.NODE_ENV !== 'development'
+    ) {
       return;
     }
 
     const analyzeBundle = () => {
       // Analyze loaded scripts
       const scripts = Array.from(document.querySelectorAll('script[src]'));
-      const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
+      const styles = Array.from(
+        document.querySelectorAll('link[rel="stylesheet"]')
+      );
 
       let totalScriptSize = 0;
       let totalStyleSize = 0;
@@ -48,7 +53,8 @@ const BundleAnalyzer = () => {
       if (performance.timing) {
         const timing = performance.timing;
         const loadTime = timing.loadEventEnd - timing.navigationStart;
-        const domReady = timing.domContentLoadedEventEnd - timing.navigationStart;
+        const domReady =
+          timing.domContentLoadedEventEnd - timing.navigationStart;
         const ttfb = timing.responseStart - timing.navigationStart;
 
         console.log(`Load time: ${loadTime}ms`);
@@ -59,8 +65,12 @@ const BundleAnalyzer = () => {
       // Memory usage
       if ('memory' in performance) {
         const memory = (performance as any).memory;
-        console.log(`Memory usage: ${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`);
-        console.log(`Memory limit: ${(memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2)}MB`);
+        console.log(
+          `Memory usage: ${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`
+        );
+        console.log(
+          `Memory limit: ${(memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2)}MB`
+        );
       }
 
       console.groupEnd();

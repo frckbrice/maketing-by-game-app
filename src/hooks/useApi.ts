@@ -2,7 +2,13 @@
 
 import { firestoreService } from '@/lib/firebase/client-services';
 import type { PaginatedResponse } from '@/types';
-import { useMutation, UseMutationOptions, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
+import {
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions,
+} from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 // Generic types
@@ -25,58 +31,60 @@ export const queryKeys = {
   // Categories
   categories: ['categories'] as const,
   category: (id: string) => ['categories', id] as const,
-  
+
   // Games
   games: ['games'] as const,
   game: (id: string) => ['games', id] as const,
-  gamesByCategory: (categoryId: string) => ['games', 'category', categoryId] as const,
-  
+  gamesByCategory: (categoryId: string) =>
+    ['games', 'category', categoryId] as const,
+
   // Users
   users: ['users'] as const,
   user: (id: string) => ['users', id] as const,
   usersByRole: (role: string) => ['users', 'role', role] as const,
-  
+
   // Vendors
   vendors: ['vendors'] as const,
   vendor: (id: string) => ['vendors', id] as const,
   vendorApplications: ['vendor-applications'] as const,
   vendorApplication: (id: string) => ['vendor-applications', id] as const,
-  
+
   // Analytics
   analytics: ['analytics'] as const,
-  analyticsRevenue: (params?: PaginationParams) => ['analytics', 'revenue', params] as const,
-  
+  analyticsRevenue: (params?: PaginationParams) =>
+    ['analytics', 'revenue', params] as const,
+
   // Reports
   reports: ['reports'] as const,
   report: (id: string) => ['reports', id] as const,
-  
+
   // Notifications
   notifications: ['notifications'] as const,
   notification: (id: string) => ['notifications', id] as const,
-  
+
   // Admin
   adminStats: ['admin', 'stats'] as const,
-  
+
   // Products
   products: ['products'] as const,
   product: (id: string) => ['products', id] as const,
-  
+
   // Shops
   shops: ['shops'] as const,
   shop: (id: string) => ['shops', id] as const,
   topShops: (limit: number) => ['shops', 'top', limit] as const,
-  
+
   // Tickets
   tickets: ['tickets'] as const,
   ticket: (id: string) => ['tickets', id] as const,
   userTickets: (userId: string) => ['tickets', 'user', userId] as const,
   gameTickets: (gameId: string) => ['tickets', 'game', gameId] as const,
-  
+
   // Payments
   payments: ['payments'] as const,
   payment: (id: string) => ['payments', id] as const,
   userPayments: (userId: string) => ['payments', 'user', userId] as const,
-  
+
   // Winners
   winners: ['winners'] as const,
   winner: (id: string) => ['winners', id] as const,
@@ -95,8 +103,7 @@ export const useCategories = (options?: UseQueryOptions<any[], ApiError>) => {
         if (firestoreService.getCategories) {
           return await firestoreService.getCategories();
         }
-        
-        
+
         // Development fallback to mock data
         if (process.env.NODE_ENV === 'development') {
           console.warn('Using mock categories data for development');
@@ -108,7 +115,7 @@ export const useCategories = (options?: UseQueryOptions<any[], ApiError>) => {
               icon: '📱',
               color: '#3B82F6',
               isActive: true,
-              sortOrder: 1
+              sortOrder: 1,
             },
             {
               id: 'cat_2',
@@ -117,7 +124,7 @@ export const useCategories = (options?: UseQueryOptions<any[], ApiError>) => {
               icon: '👗',
               color: '#EC4899',
               isActive: true,
-              sortOrder: 2
+              sortOrder: 2,
             },
             {
               id: 'cat_3',
@@ -126,7 +133,7 @@ export const useCategories = (options?: UseQueryOptions<any[], ApiError>) => {
               icon: '🏠',
               color: '#10B981',
               isActive: true,
-              sortOrder: 3
+              sortOrder: 3,
             },
             {
               id: 'cat_4',
@@ -135,11 +142,11 @@ export const useCategories = (options?: UseQueryOptions<any[], ApiError>) => {
               icon: '⚽',
               color: '#F59E0B',
               isActive: true,
-              sortOrder: 4
-            }
+              sortOrder: 4,
+            },
           ];
         }
-        
+
         throw new Error('No categories available');
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -165,7 +172,7 @@ export const useShops = (options?: UseQueryOptions<any[], ApiError>) => {
         if (response.ok) {
           return response.json();
         }
-        
+
         // Development fallback to mock data
         if (process.env.NODE_ENV === 'development') {
           console.warn('Using mock shops data for development');
@@ -176,7 +183,7 @@ export const useShops = (options?: UseQueryOptions<any[], ApiError>) => {
               description: 'Premium electronics and gadgets',
               category: 'Electronics',
               logo: '',
-              ownerId: 'admin_1'
+              ownerId: 'admin_1',
             },
             {
               id: 'shop_2',
@@ -184,11 +191,11 @@ export const useShops = (options?: UseQueryOptions<any[], ApiError>) => {
               description: 'Trendy fashion and accessories',
               category: 'Fashion',
               logo: '',
-              ownerId: 'admin_1'
-            }
+              ownerId: 'admin_1',
+            },
           ];
         }
-        
+
         throw new Error('No shops available');
       } catch (error) {
         console.error('Error fetching shops:', error);
@@ -203,17 +210,15 @@ export const useShops = (options?: UseQueryOptions<any[], ApiError>) => {
   });
 };
 
-export const useTopShops = (limit: number = 6, options?: UseQueryOptions<any[], ApiError>) => {
+export const useTopShops = (
+  limit: number = 6,
+  options?: UseQueryOptions<any[], ApiError>
+) => {
   return useQuery({
     queryKey: queryKeys.topShops(limit),
     queryFn: async () => {
-      try {
-        //TODO: For now, return empty array - will be implemented with shops API
-        return [];
-      } catch (error) {
-        console.error('Error fetching top shops:', error);
-        throw error;
-      }
+      //TODO: For now, return empty array - will be implemented with shops API
+      return [];
     },
     retry: 3,
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
@@ -221,37 +226,132 @@ export const useTopShops = (limit: number = 6, options?: UseQueryOptions<any[], 
   });
 };
 
+// Individual Shop Hook
+export const useShop = (
+  shopId: string,
+  options?: UseQueryOptions<any, ApiError>
+) => {
+  return useQuery({
+    queryKey: queryKeys.shop(shopId),
+    queryFn: async () => {
+      try {
+        // Try to fetch from Firebase first
+        if (firestoreService.getShop) {
+          return await firestoreService.getShop(shopId);
+        }
+
+        // Try API call
+        const response = await fetch(`/api/shops/${shopId}`);
+        if (response.ok) {
+          return await response.json();
+        }
+
+        // Development fallback to mock data
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(`Using mock shop data for shopId: ${shopId}`);
+          const mockShops = {
+            'fashion-hub': {
+              id: 'fashion-hub',
+              name: 'Fashion Hub',
+              description:
+                'Discover the latest fashion trends and styles at Fashion Hub. From casual wear to formal attire, we have everything you need.',
+              bannerUrl: '/images/shops/fashion-hub-banner.jpg',
+              logoUrl: '/images/shops/fashion-hub-logo.jpg',
+              rating: 4.5,
+              reviewsCount: 128,
+              followersCount: 2500,
+              tags: ['fashion', 'clothing', 'style', 'trends'],
+              address: {
+                street: '123 Fashion Street',
+                city: 'New York',
+                state: 'NY',
+                postalCode: '10001',
+                country: 'US',
+              },
+              phone: '+1-555-FASHION',
+              email: 'info@fashionhub.com',
+              openingHours: 'Mo-Su 09:00-21:00',
+              priceRange: '$$',
+            },
+            'tech-store': {
+              id: 'tech-store',
+              name: 'Tech Store',
+              description:
+                'Your one-stop shop for the latest technology and gadgets. From smartphones to laptops, we have the best tech deals.',
+              bannerUrl: '/images/shops/tech-store-banner.jpg',
+              logoUrl: '/images/shops/tech-store-logo.jpg',
+              rating: 4.8,
+              reviewsCount: 256,
+              followersCount: 5000,
+              tags: ['technology', 'gadgets', 'electronics', 'computers'],
+              address: {
+                street: '456 Tech Avenue',
+                city: 'San Francisco',
+                state: 'CA',
+                postalCode: '94102',
+                country: 'US',
+              },
+              phone: '+237695162642',
+              email: 'frckbrice@gmail.com',
+              openingHours: 'Mo-Su 10:00-22:00',
+              priceRange: '$$$',
+            },
+          };
+          return mockShops[shopId as keyof typeof mockShops] || null;
+        }
+
+        throw new Error(`Shop with ID ${shopId} not found`);
+      } catch (error) {
+        console.error(`Error fetching shop ${shopId}:`, error);
+        throw error;
+      }
+    },
+    enabled: !!shopId,
+    retry: 3,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    ...options,
+  });
+};
+
 // Games
-export const useGames = (params?: PaginationParams, options?: UseQueryOptions<PaginatedResponse<any>, ApiError>) => {
+export const useGames = (
+  params?: PaginationParams,
+  options?: UseQueryOptions<PaginatedResponse<any>, ApiError>
+) => {
   return useQuery({
     queryKey: [...queryKeys.games, params],
     queryFn: async () => {
       try {
         const allGames = await firestoreService.getGames();
-      const page = params?.page || 1;
-      const limit = params?.limit || 10;
-      const search = params?.search || '';
-      const status = params?.status || '';
-      
-      // Apply filters
-      let filteredGames = allGames;
-      
-      if (search) {
-        filteredGames = filteredGames.filter((game: any) =>
-          game.title.toLowerCase().includes(search.toLowerCase()) ||
-          game.description.toLowerCase().includes(search.toLowerCase())
-        );
-      }
-      
-      if (status) {
-        filteredGames = filteredGames.filter((game: any) => game.status === status);
-      }
-      
-      // Apply pagination
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-      const paginatedGames = filteredGames.slice(startIndex, endIndex);
-      
+        const page = params?.page || 1;
+        const limit = params?.limit || 10;
+        const search = params?.search || '';
+        const status = params?.status || '';
+
+        // Apply filters
+        let filteredGames = allGames;
+
+        if (search) {
+          filteredGames = filteredGames.filter(
+            (game: any) =>
+              game.title.toLowerCase().includes(search.toLowerCase()) ||
+              game.description.toLowerCase().includes(search.toLowerCase())
+          );
+        }
+
+        if (status) {
+          filteredGames = filteredGames.filter(
+            (game: any) => game.status === status
+          );
+        }
+
+        // Apply pagination
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        const paginatedGames = filteredGames.slice(startIndex, endIndex);
+
         return {
           data: paginatedGames,
           total: filteredGames.length,
@@ -259,7 +359,7 @@ export const useGames = (params?: PaginationParams, options?: UseQueryOptions<Pa
           pageSize: limit,
           totalPages: Math.ceil(filteredGames.length / limit),
           hasNext: endIndex < filteredGames.length,
-          hasPrevious: page > 1
+          hasPrevious: page > 1,
         };
       } catch (error) {
         console.error('Error fetching games:', error);
@@ -271,7 +371,7 @@ export const useGames = (params?: PaginationParams, options?: UseQueryOptions<Pa
           pageSize: params?.limit || 10,
           totalPages: 0,
           hasNext: false,
-          hasPrevious: false
+          hasPrevious: false,
         };
       }
     },
@@ -281,7 +381,10 @@ export const useGames = (params?: PaginationParams, options?: UseQueryOptions<Pa
   });
 };
 
-export const useGame = (id: string, options?: UseQueryOptions<any, ApiError>) => {
+export const useGame = (
+  id: string,
+  options?: UseQueryOptions<any, ApiError>
+) => {
   return useQuery({
     queryKey: queryKeys.game(id),
     queryFn: () => firestoreService.getGame(id),
@@ -299,7 +402,10 @@ export const useUsers = (options?: UseQueryOptions<any[], ApiError>) => {
   });
 };
 
-export const useUser = (id: string, options?: UseQueryOptions<any, ApiError>) => {
+export const useUser = (
+  id: string,
+  options?: UseQueryOptions<any, ApiError>
+) => {
   return useQuery({
     queryKey: queryKeys.user(id),
     queryFn: () => firestoreService.getUser(id),
@@ -308,7 +414,10 @@ export const useUser = (id: string, options?: UseQueryOptions<any, ApiError>) =>
   });
 };
 
-export const useUsersByRole = (role: string, options?: UseQueryOptions<any[], ApiError>) => {
+export const useUsersByRole = (
+  role: string,
+  options?: UseQueryOptions<any[], ApiError>
+) => {
   return useQuery({
     queryKey: queryKeys.usersByRole(role),
     queryFn: () => firestoreService.getUsersByRole(role),
@@ -317,7 +426,9 @@ export const useUsersByRole = (role: string, options?: UseQueryOptions<any[], Ap
   });
 };
 
-export const useVendorApplications = (options?: UseQueryOptions<any[], ApiError>) => {
+export const useVendorApplications = (
+  options?: UseQueryOptions<any[], ApiError>
+) => {
   return useQuery({
     queryKey: queryKeys.vendorApplications,
     queryFn: () => firestoreService.getAllVendorApplications(),
@@ -326,7 +437,10 @@ export const useVendorApplications = (options?: UseQueryOptions<any[], ApiError>
 };
 
 // Winners
-export const useWinners = (gameId?: string, options?: UseQueryOptions<any[], ApiError>) => {
+export const useWinners = (
+  gameId?: string,
+  options?: UseQueryOptions<any[], ApiError>
+) => {
   return useQuery({
     queryKey: gameId ? ['winners', gameId] : ['winners'],
     queryFn: () => firestoreService.getWinners(gameId),
@@ -340,13 +454,14 @@ export const useAdminStats = (options?: UseQueryOptions<any, ApiError>) => {
     queryKey: queryKeys.adminStats,
     queryFn: async () => {
       try {
-        const [games, winners, applications, users, payments] = await Promise.all([
-          firestoreService.getGames(),
-          firestoreService.getWinners(),
-          firestoreService.getAllVendorApplications(),
-          firestoreService.getUsers(),
-          firestoreService.getAllPayments(),
-        ]);
+        const [games, winners, applications, users, payments] =
+          await Promise.all([
+            firestoreService.getGames(),
+            firestoreService.getWinners(),
+            firestoreService.getAllVendorApplications(),
+            firestoreService.getUsers(),
+            firestoreService.getAllPayments(),
+          ]);
 
         const totalRevenue = payments
           .filter(payment => payment.status === 'COMPLETED')
@@ -356,9 +471,12 @@ export const useAdminStats = (options?: UseQueryOptions<any, ApiError>) => {
           totalUsers: users.length || 0,
           totalGames: games.length || 0,
           totalWinners: winners.length || 0,
-          pendingApplications: applications.filter((app: any) => app.status === 'PENDING').length || 0,
+          pendingApplications:
+            applications.filter((app: any) => app.status === 'PENDING')
+              .length || 0,
           totalRevenue,
-          activeGames: games.filter((game: any) => game.status === 'ACTIVE').length || 0,
+          activeGames:
+            games.filter((game: any) => game.status === 'ACTIVE').length || 0,
         };
       } catch (error) {
         console.error('Error fetching admin stats:', error);
@@ -397,16 +515,18 @@ export const useAppSettings = (options?: UseQueryOptions<any, ApiError>) => {
   });
 };
 
-export const useUpdateAppSettings = (options?: UseMutationOptions<any, ApiError, any>) => {
+export const useUpdateAppSettings = (
+  options?: UseMutationOptions<any, ApiError, any>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (settings: any) => firestoreService.updateAppSettings(settings),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings', 'app'] });
       toast.success('Settings updated successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to update settings');
     },
     ...options,
@@ -414,7 +534,9 @@ export const useUpdateAppSettings = (options?: UseMutationOptions<any, ApiError,
 };
 
 // Notifications
-export const useNotifications = (options?: UseQueryOptions<any[], ApiError>) => {
+export const useNotifications = (
+  options?: UseQueryOptions<any[], ApiError>
+) => {
   return useQuery({
     queryKey: ['notifications'],
     queryFn: async () => {
@@ -431,49 +553,56 @@ export const useNotifications = (options?: UseQueryOptions<any[], ApiError>) => 
   });
 };
 
-export const useCreateNotification = (options?: UseMutationOptions<any, ApiError, any>) => {
+export const useCreateNotification = (
+  options?: UseMutationOptions<any, ApiError, any>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (notification: any) => firestoreService.createNotification(notification),
+    mutationFn: (notification: any) =>
+      firestoreService.createNotification(notification),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       toast.success('Notification created successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to create notification');
     },
     ...options,
   });
 };
 
-export const useUpdateNotification = (options?: UseMutationOptions<any, ApiError, { id: string; updates: any }>) => {
+export const useUpdateNotification = (
+  options?: UseMutationOptions<any, ApiError, { id: string; updates: any }>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: any }) => 
+    mutationFn: ({ id, updates }: { id: string; updates: any }) =>
       firestoreService.updateNotification(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       toast.success('Notification updated successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to update notification');
     },
     ...options,
   });
 };
 
-export const useDeleteNotification = (options?: UseMutationOptions<any, ApiError, string>) => {
+export const useDeleteNotification = (
+  options?: UseMutationOptions<any, ApiError, string>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: string) => firestoreService.deleteNotification(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       toast.success('Notification deleted successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to delete notification');
     },
     ...options,
@@ -501,31 +630,40 @@ export interface UpdateCategoryData {
 }
 
 // Category Mutations
-export const useCreateCategory = (options?: UseMutationOptions<any, ApiError, CreateCategoryData>) => {
+export const useCreateCategory = (
+  options?: UseMutationOptions<any, ApiError, CreateCategoryData>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: CreateCategoryData) => firestoreService.createCategory({
-      ...data,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    }),
+    mutationFn: (data: CreateCategoryData) =>
+      firestoreService.createCategory({
+        ...data,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.categories });
       toast.success('Category created successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to create category');
     },
     ...options,
   });
 };
 
-export const useUpdateCategory = (options?: UseMutationOptions<any, ApiError, { id: string; data: UpdateCategoryData }>) => {
+export const useUpdateCategory = (
+  options?: UseMutationOptions<
+    any,
+    ApiError,
+    { id: string; data: UpdateCategoryData }
+  >
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateCategoryData }) => 
+    mutationFn: ({ id, data }: { id: string; data: UpdateCategoryData }) =>
       firestoreService.updateCategory(id, {
         ...data,
         updatedAt: Date.now(),
@@ -534,23 +672,25 @@ export const useUpdateCategory = (options?: UseMutationOptions<any, ApiError, { 
       queryClient.invalidateQueries({ queryKey: queryKeys.categories });
       toast.success('Category updated successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to update category');
     },
     ...options,
   });
 };
 
-export const useDeleteCategory = (options?: UseMutationOptions<any, ApiError, string>) => {
+export const useDeleteCategory = (
+  options?: UseMutationOptions<any, ApiError, string>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: string) => firestoreService.deleteCategory(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.categories });
       toast.success('Category deleted successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to delete category');
     },
     ...options,
@@ -558,32 +698,37 @@ export const useDeleteCategory = (options?: UseMutationOptions<any, ApiError, st
 };
 
 // Game Mutations
-export const useCreateGame = (options?: UseMutationOptions<any, ApiError, any>) => {
+export const useCreateGameAdmin = (
+  options?: UseMutationOptions<any, ApiError, any>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: any) => firestoreService.createGame({
-      ...data,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    }),
+    mutationFn: (data: any) =>
+      firestoreService.createGame({
+        ...data,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
       queryClient.invalidateQueries({ queryKey: queryKeys.adminStats });
       toast.success('Game created successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to create game');
     },
     ...options,
   });
 };
 
-export const useUpdateGame = (options?: UseMutationOptions<any, ApiError, { id: string; data: any }>) => {
+export const useUpdateGame = (
+  options?: UseMutationOptions<any, ApiError, { id: string; data: any }>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => 
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       firestoreService.updateGame(id, {
         ...data,
         updatedAt: Date.now(),
@@ -593,16 +738,18 @@ export const useUpdateGame = (options?: UseMutationOptions<any, ApiError, { id: 
       queryClient.invalidateQueries({ queryKey: queryKeys.game(variables.id) });
       toast.success('Game updated successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to update game');
     },
     ...options,
   });
 };
 
-export const useDeleteGame = (options?: UseMutationOptions<any, ApiError, string>) => {
+export const useDeleteGame = (
+  options?: UseMutationOptions<any, ApiError, string>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: string) => firestoreService.deleteGame(id),
     onSuccess: () => {
@@ -610,44 +757,59 @@ export const useDeleteGame = (options?: UseMutationOptions<any, ApiError, string
       queryClient.invalidateQueries({ queryKey: queryKeys.adminStats });
       toast.success('Game deleted successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to delete game');
     },
     ...options,
   });
 };
 
-// Vendor Application Mutations  
-export const useApproveVendorApplication = (options?: UseMutationOptions<any, ApiError, { id: string; adminId: string }>) => {
+// Vendor Application Mutations
+export const useApproveVendorApplication = (
+  options?: UseMutationOptions<any, ApiError, { id: string; adminId: string }>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, adminId }: { id: string; adminId: string }) => 
+    mutationFn: ({ id, adminId }: { id: string; adminId: string }) =>
       firestoreService.approveVendorApplication(id, adminId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.vendorApplications });
       queryClient.invalidateQueries({ queryKey: queryKeys.adminStats });
       toast.success('Vendor application approved successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to approve vendor application');
     },
     ...options,
   });
 };
 
-export const useRejectVendorApplication = (options?: UseMutationOptions<any, ApiError, { id: string; adminId: string; reason: string }>) => {
+export const useRejectVendorApplication = (
+  options?: UseMutationOptions<
+    any,
+    ApiError,
+    { id: string; adminId: string; reason: string }
+  >
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, adminId, reason }: { id: string; adminId: string; reason: string }) => 
-      firestoreService.rejectVendorApplication(id, adminId, reason),
+    mutationFn: ({
+      id,
+      adminId,
+      reason,
+    }: {
+      id: string;
+      adminId: string;
+      reason: string;
+    }) => firestoreService.rejectVendorApplication(id, adminId, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.vendorApplications });
       queryClient.invalidateQueries({ queryKey: queryKeys.adminStats });
       toast.success('Vendor application rejected');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to reject vendor application');
     },
     ...options,
@@ -655,9 +817,11 @@ export const useRejectVendorApplication = (options?: UseMutationOptions<any, Api
 };
 
 // User Mutations
-export const useCreateUser = (options?: UseMutationOptions<any, ApiError, any>) => {
+export const useCreateUser = (
+  options?: UseMutationOptions<any, ApiError, any>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: any) => firestoreService.createUser(data),
     onSuccess: () => {
@@ -665,34 +829,38 @@ export const useCreateUser = (options?: UseMutationOptions<any, ApiError, any>) 
       queryClient.invalidateQueries({ queryKey: queryKeys.adminStats });
       toast.success('User created successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to create user');
     },
     ...options,
   });
 };
 
-export const useUpdateUser = (options?: UseMutationOptions<any, ApiError, { id: string; data: any }>) => {
+export const useUpdateUser = (
+  options?: UseMutationOptions<any, ApiError, { id: string; data: any }>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => 
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       firestoreService.updateUser(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.users });
       queryClient.invalidateQueries({ queryKey: queryKeys.user(variables.id) });
       toast.success('User updated successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to update user');
     },
     ...options,
   });
 };
 
-export const useDeleteUser = (options?: UseMutationOptions<any, ApiError, string>) => {
+export const useDeleteUser = (
+  options?: UseMutationOptions<any, ApiError, string>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: string) => firestoreService.deleteUser(id),
     onSuccess: () => {
@@ -700,7 +868,7 @@ export const useDeleteUser = (options?: UseMutationOptions<any, ApiError, string
       queryClient.invalidateQueries({ queryKey: queryKeys.adminStats });
       toast.success('User deleted successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to delete user');
     },
     ...options,
@@ -708,16 +876,18 @@ export const useDeleteUser = (options?: UseMutationOptions<any, ApiError, string
 };
 
 // Vendor Application Management
-export const useSubmitVendorApplication = (options?: UseMutationOptions<any, ApiError, any>) => {
+export const useSubmitVendorApplication = (
+  options?: UseMutationOptions<any, ApiError, any>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: any) => firestoreService.submitVendorApplication(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.vendorApplications });
       toast.success('Vendor application submitted successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to submit vendor application');
     },
     ...options,
@@ -725,7 +895,10 @@ export const useSubmitVendorApplication = (options?: UseMutationOptions<any, Api
 };
 
 // Vendor Application Query
-export const useVendorApplication = (userId: string, options?: UseQueryOptions<any, ApiError>) => {
+export const useVendorApplication = (
+  userId: string,
+  options?: UseQueryOptions<any, ApiError>
+) => {
   return useQuery({
     queryKey: queryKeys.vendorApplication(userId),
     queryFn: () => firestoreService.getVendorApplication(userId),
@@ -735,7 +908,10 @@ export const useVendorApplication = (userId: string, options?: UseQueryOptions<a
 };
 
 // Tickets
-export const useTickets = (userId: string, options?: UseQueryOptions<any[], ApiError>) => {
+export const useTickets = (
+  userId: string,
+  options?: UseQueryOptions<any[], ApiError>
+) => {
   return useQuery({
     queryKey: queryKeys.userTickets(userId),
     queryFn: () => firestoreService.getTickets(userId),
@@ -744,34 +920,42 @@ export const useTickets = (userId: string, options?: UseQueryOptions<any[], ApiE
   });
 };
 
-export const useCreateTicket = (options?: UseMutationOptions<any, ApiError, any>) => {
+export const useCreateTicket = (
+  options?: UseMutationOptions<any, ApiError, any>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: any) => firestoreService.createTicket(data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.userTickets(variables.userId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.gameTickets(variables.gameId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.userTickets(variables.userId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.gameTickets(variables.gameId),
+      });
       toast.success('Ticket created successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to create ticket');
     },
     ...options,
   });
 };
 
-export const useUpdateTicket = (options?: UseMutationOptions<any, ApiError, { id: string; data: any }>) => {
+export const useUpdateTicket = (
+  options?: UseMutationOptions<any, ApiError, { id: string; data: any }>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => 
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       firestoreService.updateTicket(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tickets });
       toast.success('Ticket updated successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to update ticket');
     },
     ...options,
@@ -779,7 +963,10 @@ export const useUpdateTicket = (options?: UseMutationOptions<any, ApiError, { id
 };
 
 // Payments
-export const usePayments = (userId: string, options?: UseQueryOptions<any[], ApiError>) => {
+export const usePayments = (
+  userId: string,
+  options?: UseQueryOptions<any[], ApiError>
+) => {
   return useQuery({
     queryKey: queryKeys.userPayments(userId),
     queryFn: () => firestoreService.getPayments(userId),
@@ -788,35 +975,41 @@ export const usePayments = (userId: string, options?: UseQueryOptions<any[], Api
   });
 };
 
-export const useCreatePayment = (options?: UseMutationOptions<any, ApiError, any>) => {
+export const useCreatePayment = (
+  options?: UseMutationOptions<any, ApiError, any>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: any) => firestoreService.createPayment(data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.userPayments(variables.userId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.userPayments(variables.userId),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.adminStats });
       toast.success('Payment processed successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to process payment');
     },
     ...options,
   });
 };
 
-export const useUpdatePayment = (options?: UseMutationOptions<any, ApiError, { id: string; data: any }>) => {
+export const useUpdatePayment = (
+  options?: UseMutationOptions<any, ApiError, { id: string; data: any }>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => 
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       firestoreService.updatePayment(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.payments });
       queryClient.invalidateQueries({ queryKey: queryKeys.adminStats });
       toast.success('Payment updated successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to update payment');
     },
     ...options,
@@ -824,7 +1017,10 @@ export const useUpdatePayment = (options?: UseMutationOptions<any, ApiError, { i
 };
 
 // Winners
-export const useGameWinners = (gameId?: string, options?: UseQueryOptions<any[], ApiError>) => {
+export const useGameWinners = (
+  gameId?: string,
+  options?: UseQueryOptions<any[], ApiError>
+) => {
   return useQuery({
     queryKey: gameId ? queryKeys.gameWinners(gameId) : queryKeys.winners,
     queryFn: () => firestoreService.getWinners(gameId),
@@ -832,27 +1028,33 @@ export const useGameWinners = (gameId?: string, options?: UseQueryOptions<any[],
   });
 };
 
-export const useCreateWinner = (options?: UseMutationOptions<any, ApiError, any>) => {
+export const useCreateWinner = (
+  options?: UseMutationOptions<any, ApiError, any>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: any) => firestoreService.createWinner(data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.winners });
-      queryClient.invalidateQueries({ queryKey: queryKeys.gameWinners(variables.gameId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.gameWinners(variables.gameId),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.adminStats });
       toast.success('Winner created successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to create winner');
     },
     ...options,
   });
 };
 
-export const useCreateShop = (options?: UseMutationOptions<any, ApiError, any>) => {
+export const useCreateShop = (
+  options?: UseMutationOptions<any, ApiError, any>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (data: any) => {
       try {
@@ -860,59 +1062,64 @@ export const useCreateShop = (options?: UseMutationOptions<any, ApiError, any>) 
         const response = await fetch('/api/shops', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+          body: JSON.stringify(data),
         });
-        
+
         if (response.ok) {
           return response.json();
         }
-        
+
         // Development fallback - create mock shop
         if (process.env.NODE_ENV === 'development') {
           console.warn('Using mock shop creation for development');
           const shopId = `shop_${Date.now()}`;
           return { id: shopId, ...data };
         }
-        
+
         throw new Error('Failed to create shop');
       } catch (error) {
         console.error('Shop creation error:', error);
         throw error;
       }
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Invalidate and refetch shops queries
       queryClient.invalidateQueries({ queryKey: queryKeys.shops });
       queryClient.invalidateQueries({ queryKey: queryKeys.topShops(6) });
-      
+
       // Optimistically update the shops list
-      queryClient.setQueryData(queryKeys.shops, (oldData: any[] | undefined) => {
-        if (oldData) {
-          return [...oldData, data];
+      queryClient.setQueryData(
+        queryKeys.shops,
+        (oldData: any[] | undefined) => {
+          if (oldData) {
+            return [...oldData, data];
+          }
+          return [data];
         }
-        return [data];
-      });
-      
+      );
+
       toast.success('Shop created successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to create shop');
     },
     ...options,
   });
 };
 
-export const useUpdateWinner = (options?: UseMutationOptions<any, ApiError, { id: string; data: any }>) => {
+export const useUpdateWinner = (
+  options?: UseMutationOptions<any, ApiError, { id: string; data: any }>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => 
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       firestoreService.updateWinner(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.winners });
       toast.success('Winner updated successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to update winner');
     },
     ...options,
@@ -920,7 +1127,10 @@ export const useUpdateWinner = (options?: UseMutationOptions<any, ApiError, { id
 };
 
 // Additional Admin/Vendor Functionality
-export const useVendors = <T>(params?: PaginationParams, options?: UseQueryOptions<any, ApiError>) => {
+export const useVendors = <T>(
+  params?: PaginationParams,
+  options?: UseQueryOptions<any, ApiError>
+) => {
   return useQuery<T[], ApiError>({
     queryKey: [...queryKeys.vendors, params],
     queryFn: () => firestoreService.getUsersByRole('VENDOR') as Promise<T[]>,
@@ -928,19 +1138,23 @@ export const useVendors = <T>(params?: PaginationParams, options?: UseQueryOptio
   });
 };
 
-export const useUpdateUserStatus = (options?: UseMutationOptions<any, ApiError, { userId: string; status: any }>) => {
+export const useUpdateUserStatus = (
+  options?: UseMutationOptions<any, ApiError, { userId: string; status: any }>
+) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ userId, status }: { userId: string; status: any }) => 
+    mutationFn: ({ userId, status }: { userId: string; status: any }) =>
       firestoreService.updateUser(userId, { status }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.users });
-      queryClient.invalidateQueries({ queryKey: queryKeys.user(variables.userId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.user(variables.userId),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.vendors });
       toast.success('User status updated successfully');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || 'Failed to update user status');
     },
     ...options,
@@ -948,7 +1162,10 @@ export const useUpdateUserStatus = (options?: UseMutationOptions<any, ApiError, 
 };
 
 // Vendor-specific hooks
-export const useVendorStats = (vendorId: string, options?: UseQueryOptions<any, ApiError>) => {
+export const useVendorStats = (
+  vendorId: string,
+  options?: UseQueryOptions<any, ApiError>
+) => {
   return useQuery({
     queryKey: ['vendor', 'stats', vendorId],
     queryFn: async () => {
@@ -961,34 +1178,50 @@ export const useVendorStats = (vendorId: string, options?: UseQueryOptions<any, 
         ]);
 
         // Filter data for this vendor
-        const vendorGames = games.filter((game: any) => game.createdBy === vendorId);
+        const vendorGames = games.filter(
+          (game: any) => game.createdBy === vendorId
+        );
         const vendorGameIds = vendorGames.map((game: any) => game.id);
-        const vendorTickets = tickets.filter((ticket: any) => vendorGameIds.includes(ticket.gameId));
-        const vendorPayments = payments.filter((payment: any) => 
+        const vendorTickets = tickets.filter((ticket: any) =>
+          vendorGameIds.includes(ticket.gameId)
+        );
+        const vendorPayments = payments.filter((payment: any) =>
           vendorTickets.some((ticket: any) => ticket.id === payment.ticketId)
         );
 
         // Calculate real statistics
         const totalGames = vendorGames.length;
-        const activeGames = vendorGames.filter((game: any) => game.status === 'ACTIVE').length;
+        const activeGames = vendorGames.filter(
+          (game: any) => game.status === 'ACTIVE'
+        ).length;
         const totalRevenue = vendorPayments
           .filter((payment: any) => payment.status === 'COMPLETED')
           .reduce((sum: number, payment: any) => sum + payment.amount, 0);
-        
+
         // Calculate monthly revenue (last 30 days)
-        const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+        const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
         const monthlyRevenue = vendorPayments
-          .filter((payment: any) => payment.status === 'COMPLETED' && payment.createdAt > thirtyDaysAgo)
+          .filter(
+            (payment: any) =>
+              payment.status === 'COMPLETED' &&
+              payment.createdAt > thirtyDaysAgo
+          )
           .reduce((sum: number, payment: any) => sum + payment.amount, 0);
 
         const totalParticipants = vendorTickets.length;
-        const averageParticipation = totalGames > 0 ? Math.round(totalParticipants / totalGames) : 0;
-        
+        const averageParticipation =
+          totalGames > 0 ? Math.round(totalParticipants / totalGames) : 0;
+
         // Calculate conversion rate (tickets bought / unique users who viewed games)
-        const conversionRate = totalParticipants > 0 ? Math.round((totalParticipants / (totalParticipants * 1.2)) * 100) : 0;
-        
+        const conversionRate =
+          totalParticipants > 0
+            ? Math.round((totalParticipants / (totalParticipants * 1.2)) * 100)
+            : 0;
+
         // Pending approvals (games in DRAFT status)
-        const pendingApprovals = vendorGames.filter((game: any) => game.status === 'DRAFT').length;
+        const pendingApprovals = vendorGames.filter(
+          (game: any) => game.status === 'DRAFT'
+        ).length;
 
         return {
           totalGames,
@@ -1022,7 +1255,11 @@ export const useVendorStats = (vendorId: string, options?: UseQueryOptions<any, 
   });
 };
 
-export const useVendorGames = (vendorId: string, params?: any, options?: UseQueryOptions<any, ApiError>) => {
+export const useVendorGames = (
+  vendorId: string,
+  params?: any,
+  options?: UseQueryOptions<any, ApiError>
+) => {
   return useQuery({
     queryKey: ['vendor', 'games', vendorId, params],
     queryFn: async () => {
@@ -1035,7 +1272,10 @@ export const useVendorGames = (vendorId: string, params?: any, options?: UseQuer
   });
 };
 
-export const useVendorRevenueChart = (vendorId: string, options?: UseQueryOptions<any, ApiError>) => {
+export const useVendorRevenueChart = (
+  vendorId: string,
+  options?: UseQueryOptions<any, ApiError>
+) => {
   return useQuery({
     queryKey: ['vendor', 'revenue-chart', vendorId],
     queryFn: async () => {
@@ -1048,26 +1288,56 @@ export const useVendorRevenueChart = (vendorId: string, options?: UseQueryOption
         ]);
 
         // Filter data for this vendor
-        const vendorGames = games.filter((game: any) => game.createdBy === vendorId);
+        const vendorGames = games.filter(
+          (game: any) => game.createdBy === vendorId
+        );
         const vendorGameIds = vendorGames.map((game: any) => game.id);
-        const vendorTickets = tickets.filter((ticket: any) => vendorGameIds.includes(ticket.gameId));
-        const vendorPayments = payments.filter((payment: any) => 
-          vendorTickets.some((ticket: any) => ticket.id === payment.ticketId) && 
-          payment.status === 'COMPLETED'
+        const vendorTickets = tickets.filter((ticket: any) =>
+          vendorGameIds.includes(ticket.gameId)
+        );
+        const vendorPayments = payments.filter(
+          (payment: any) =>
+            vendorTickets.some(
+              (ticket: any) => ticket.id === payment.ticketId
+            ) && payment.status === 'COMPLETED'
         );
 
         // Generate chart data for the last 6 months
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
         const currentDate = new Date();
         const chartData = [];
 
         for (let i = 5; i >= 0; i--) {
-          const monthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+          const monthDate = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth() - i,
+            1
+          );
           const monthStart = monthDate.getTime();
-          const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getTime();
-          
+          const monthEnd = new Date(
+            monthDate.getFullYear(),
+            monthDate.getMonth() + 1,
+            0
+          ).getTime();
+
           const monthRevenue = vendorPayments
-            .filter((payment: any) => payment.createdAt >= monthStart && payment.createdAt <= monthEnd)
+            .filter(
+              (payment: any) =>
+                payment.createdAt >= monthStart && payment.createdAt <= monthEnd
+            )
             .reduce((sum: number, payment: any) => sum + payment.amount, 0);
 
           chartData.push({
@@ -1097,7 +1367,10 @@ export const useVendorRevenueChart = (vendorId: string, options?: UseQueryOption
   });
 };
 
-export const useVendorParticipationChart = (vendorId: string, options?: UseQueryOptions<any, ApiError>) => {
+export const useVendorParticipationChart = (
+  vendorId: string,
+  options?: UseQueryOptions<any, ApiError>
+) => {
   return useQuery({
     queryKey: ['vendor', 'participation-chart', vendorId],
     queryFn: async () => {
@@ -1115,7 +1388,10 @@ export const useVendorParticipationChart = (vendorId: string, options?: UseQuery
 };
 
 // User Analytics
-export const useUserAnalytics = (params?: { timeRange?: string; enabled?: boolean }, options?: UseQueryOptions<any, ApiError>) => {
+export const useUserAnalytics = (
+  params?: { timeRange?: string; enabled?: boolean },
+  options?: UseQueryOptions<any, ApiError>
+) => {
   return useQuery({
     queryKey: ['analytics', 'users', params?.timeRange],
     queryFn: async () => {
@@ -1131,33 +1407,43 @@ export const useUserAnalytics = (params?: { timeRange?: string; enabled?: boolea
         let startTime = now;
         switch (params?.timeRange) {
           case '7d':
-            startTime = now - (7 * 24 * 60 * 60 * 1000);
+            startTime = now - 7 * 24 * 60 * 60 * 1000;
             break;
           case '30d':
-            startTime = now - (30 * 24 * 60 * 60 * 1000);
+            startTime = now - 30 * 24 * 60 * 60 * 1000;
             break;
           case '90d':
-            startTime = now - (90 * 24 * 60 * 60 * 1000);
+            startTime = now - 90 * 24 * 60 * 60 * 1000;
             break;
           case '1y':
-            startTime = now - (365 * 24 * 60 * 60 * 1000);
+            startTime = now - 365 * 24 * 60 * 60 * 1000;
             break;
           default:
-            startTime = now - (30 * 24 * 60 * 60 * 1000); // Default to 30 days
+            startTime = now - 30 * 24 * 60 * 60 * 1000; // Default to 30 days
         }
 
         // Filter data by time range
-        const recentUsers = users.filter((user: any) => user.createdAt >= startTime);
-        const recentTickets = tickets.filter((ticket: any) => ticket.createdAt >= startTime);
+        const recentUsers = users.filter(
+          (user: any) => user.createdAt >= startTime
+        );
+        const recentTickets = tickets.filter(
+          (ticket: any) => ticket.createdAt >= startTime
+        );
 
         // Calculate metrics
         const totalUsers = users.length;
-        const activeUsers = users.filter((user: any) => 
-          tickets.some((ticket: any) => ticket.userId === user.id && ticket.createdAt >= startTime)
+        const activeUsers = users.filter((user: any) =>
+          tickets.some(
+            (ticket: any) =>
+              ticket.userId === user.id && ticket.createdAt >= startTime
+          )
         ).length;
         const newUsers = recentUsers.length;
-        const gameParticipants = [...new Set(recentTickets.map((ticket: any) => ticket.userId))].length;
-        const conversionRate = activeUsers > 0 ? (gameParticipants / activeUsers) * 100 : 0;
+        const gameParticipants = [
+          ...new Set(recentTickets.map((ticket: any) => ticket.userId)),
+        ].length;
+        const conversionRate =
+          activeUsers > 0 ? (gameParticipants / activeUsers) * 100 : 0;
 
         // Mock session duration (would need analytics integration for real data)
         const avgSessionDuration = 14.5;
@@ -1167,44 +1453,75 @@ export const useUserAnalytics = (params?: { timeRange?: string; enabled?: boolea
         // Generate behavior data for the last 7 days
         const behaviorData = [];
         for (let i = 6; i >= 0; i--) {
-          const date = new Date(now - (i * 24 * 60 * 60 * 1000));
-          const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-          const dayEnd = dayStart + (24 * 60 * 60 * 1000);
+          const date = new Date(now - i * 24 * 60 * 60 * 1000);
+          const dayStart = new Date(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate()
+          ).getTime();
+          const dayEnd = dayStart + 24 * 60 * 60 * 1000;
 
-          const dayNewUsers = users.filter((user: any) => 
-            user.createdAt >= dayStart && user.createdAt < dayEnd
+          const dayNewUsers = users.filter(
+            (user: any) => user.createdAt >= dayStart && user.createdAt < dayEnd
           ).length;
 
-          const dayActiveUsers = users.filter((user: any) => 
-            tickets.some((ticket: any) => 
-              ticket.userId === user.id && 
-              ticket.createdAt >= dayStart && 
-              ticket.createdAt < dayEnd
+          const dayActiveUsers = users.filter((user: any) =>
+            tickets.some(
+              (ticket: any) =>
+                ticket.userId === user.id &&
+                ticket.createdAt >= dayStart &&
+                ticket.createdAt < dayEnd
             )
           ).length;
 
-          const dayParticipants = [...new Set(
-            tickets
-              .filter((ticket: any) => ticket.createdAt >= dayStart && ticket.createdAt < dayEnd)
-              .map((ticket: any) => ticket.userId)
-          )].length;
+          const dayParticipants = [
+            ...new Set(
+              tickets
+                .filter(
+                  (ticket: any) =>
+                    ticket.createdAt >= dayStart && ticket.createdAt < dayEnd
+                )
+                .map((ticket: any) => ticket.userId)
+            ),
+          ].length;
 
           behaviorData.push({
             date: date.toISOString().split('T')[0],
             newUsers: dayNewUsers,
             activeUsers: dayActiveUsers,
             gameParticipants: dayParticipants,
-            conversionRate: dayActiveUsers > 0 ? (dayParticipants / dayActiveUsers) * 100 : 0,
+            conversionRate:
+              dayActiveUsers > 0 ? (dayParticipants / dayActiveUsers) * 100 : 0,
             avgSessionDuration: 12 + Math.random() * 8, // Mock session duration
           });
         }
 
         // User segments
         const segments = [
-          { name: 'High Value Players', count: Math.floor(totalUsers * 0.176), percentage: 17.6, color: '#10B981' },
-          { name: 'Regular Players', count: Math.floor(totalUsers * 0.384), percentage: 38.4, color: '#3B82F6' },
-          { name: 'Casual Players', count: Math.floor(totalUsers * 0.300), percentage: 30.0, color: '#F59E0B' },
-          { name: 'New Users', count: Math.floor(totalUsers * 0.140), percentage: 14.0, color: '#EF4444' },
+          {
+            name: 'High Value Players',
+            count: Math.floor(totalUsers * 0.176),
+            percentage: 17.6,
+            color: '#10B981',
+          },
+          {
+            name: 'Regular Players',
+            count: Math.floor(totalUsers * 0.384),
+            percentage: 38.4,
+            color: '#3B82F6',
+          },
+          {
+            name: 'Casual Players',
+            count: Math.floor(totalUsers * 0.3),
+            percentage: 30.0,
+            color: '#F59E0B',
+          },
+          {
+            name: 'New Users',
+            count: Math.floor(totalUsers * 0.14),
+            percentage: 14.0,
+            color: '#EF4444',
+          },
         ];
 
         return {
@@ -1234,7 +1551,10 @@ export const useUserAnalytics = (params?: { timeRange?: string; enabled?: boolea
 };
 
 // User Profile hooks
-export const useUserTickets = (userId: string, options?: UseQueryOptions<any[], ApiError>) => {
+export const useUserTickets = (
+  userId: string,
+  options?: UseQueryOptions<any[], ApiError>
+) => {
   return useQuery({
     queryKey: queryKeys.userTickets(userId),
     queryFn: () => firestoreService.getTickets(userId),
@@ -1243,14 +1563,17 @@ export const useUserTickets = (userId: string, options?: UseQueryOptions<any[], 
   });
 };
 
-export const useUserGames = (userId: string, options?: UseQueryOptions<any[], ApiError>) => {
+export const useUserGames = (
+  userId: string,
+  options?: UseQueryOptions<any[], ApiError>
+) => {
   const { data: tickets = [] } = useUserTickets(userId);
-  
+
   return useQuery({
     queryKey: ['user', 'games', userId],
     queryFn: async () => {
       if (!tickets.length) return [];
-      
+
       // Get unique games from tickets
       const gameIds = [...new Set(tickets.map((ticket: any) => ticket.gameId))];
       const games = await Promise.all(
@@ -1273,7 +1596,7 @@ export const useProducts = (options?: UseQueryOptions<any[], ApiError>) => {
         if (firestoreService.getProducts) {
           return await firestoreService.getProducts();
         }
-        
+
         // Development fallback to mock data
         if (process.env.NODE_ENV === 'development') {
           return [
@@ -1337,7 +1660,7 @@ export const useProducts = (options?: UseQueryOptions<any[], ApiError>) => {
             },
           ];
         }
-        
+
         throw new Error('Products service not available');
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -1346,6 +1669,98 @@ export const useProducts = (options?: UseQueryOptions<any[], ApiError>) => {
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
+    ...options,
+  });
+};
+
+// Individual Product Hook
+export const useProduct = (
+  productId: string,
+  options?: UseQueryOptions<any, ApiError>
+) => {
+  return useQuery({
+    queryKey: queryKeys.product(productId),
+    queryFn: async () => {
+      try {
+        // Try to fetch from Firebase first
+        if (firestoreService.getProduct) {
+          return await firestoreService.getProduct(productId);
+        }
+
+        // Try API call
+        const response = await fetch(`/api/products/${productId}`);
+        if (response.ok) {
+          return await response.json();
+        }
+
+        // Development fallback to mock data
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(`Using mock product data for productId: ${productId}`);
+          const mockProducts = {
+            'product-1': {
+              id: 'product-1',
+              name: 'Premium Wireless Headphones',
+              description:
+                'High-quality wireless headphones with noise cancellation and 30-hour battery life. Perfect for music lovers and professionals.',
+              price: 299.99,
+              currency: 'USD',
+              originalPrice: 399.99,
+              images: [
+                { url: '/images/products/headphones-1.jpg' },
+                { url: '/images/products/headphones-2.jpg' },
+                { url: '/images/products/headphones-3.jpg' },
+              ],
+              thumbnailUrl: '/images/products/headphones-thumb.jpg',
+              rating: 4.7,
+              reviewsCount: 156,
+              stock: 25,
+              brand: 'AudioTech',
+              category: 'Electronics',
+              tags: ['headphones', 'wireless', 'noise-cancellation', 'audio'],
+              shop: {
+                id: 'tech-store',
+                name: 'Tech Store',
+              },
+            },
+            'product-2': {
+              id: 'product-2',
+              name: 'Designer T-Shirt',
+              description:
+                'Comfortable and stylish designer t-shirt made from 100% organic cotton. Available in multiple colors and sizes.',
+              price: 49.99,
+              currency: 'USD',
+              originalPrice: 69.99,
+              images: [
+                { url: '/images/products/tshirt-1.jpg' },
+                { url: '/images/products/tshirt-2.jpg' },
+              ],
+              thumbnailUrl: '/images/products/tshirt-thumb.jpg',
+              rating: 4.3,
+              reviewsCount: 89,
+              stock: 50,
+              brand: 'FashionHub',
+              category: 'Clothing',
+              tags: ['t-shirt', 'clothing', 'designer', 'cotton'],
+              shop: {
+                id: 'fashion-hub',
+                name: 'Fashion Hub',
+              },
+            },
+          };
+          return mockProducts[productId as keyof typeof mockProducts] || null;
+        }
+
+        throw new Error(`Product with ID ${productId} not found`);
+      } catch (error) {
+        console.error(`Error fetching product ${productId}:`, error);
+        throw error;
+      }
+    },
+    enabled: !!productId,
+    retry: 3,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
     ...options,
   });
 };

@@ -45,7 +45,12 @@ export interface VendorApplicationWithDetails extends VendorApplication {
 export interface ApplicationDocument {
   id: ID;
   applicationId: ID;
-  type: 'BUSINESS_LICENSE' | 'TAX_CERTIFICATE' | 'ID_DOCUMENT' | 'BANK_STATEMENT' | 'OTHER';
+  type:
+    | 'BUSINESS_LICENSE'
+    | 'TAX_CERTIFICATE'
+    | 'ID_DOCUMENT'
+    | 'BANK_STATEMENT'
+    | 'OTHER';
   name: string;
   url: string;
   fileSize: number;
@@ -125,7 +130,12 @@ export interface VendorApplicationCreateRequest {
 }
 
 export interface ApplicationDocumentUpload {
-  type: 'BUSINESS_LICENSE' | 'TAX_CERTIFICATE' | 'ID_DOCUMENT' | 'BANK_STATEMENT' | 'OTHER';
+  type:
+    | 'BUSINESS_LICENSE'
+    | 'TAX_CERTIFICATE'
+    | 'ID_DOCUMENT'
+    | 'BANK_STATEMENT'
+    | 'OTHER';
   file: File;
   name: string;
 }
@@ -223,7 +233,12 @@ export interface ApplicationNotification {
   id: ID;
   applicationId: ID;
   userId: ID;
-  type: 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'DOCUMENT_REQUESTED';
+  type:
+    | 'SUBMITTED'
+    | 'UNDER_REVIEW'
+    | 'APPROVED'
+    | 'REJECTED'
+    | 'DOCUMENT_REQUESTED';
   title: string;
   message: string;
   isRead: boolean;

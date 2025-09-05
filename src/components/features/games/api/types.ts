@@ -85,4 +85,3 @@ export interface GameCardData {
 }
 
 // Vendor Application interface is imported from vendor-application feature
-

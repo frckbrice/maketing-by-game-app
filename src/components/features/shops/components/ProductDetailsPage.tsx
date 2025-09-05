@@ -1,7 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
-import { currencyService } from '@/lib/api/currencyService';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { mocksReviews } from '@/lib/constants/mockData';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import OptimizedImage from '../../../performance/OptimizedImage';
 
@@ -37,9 +38,12 @@ import {
   Shield,
   ShoppingCart,
   Star,
+  Store,
   ThumbsUp,
+  TrendingUp,
   Truck,
-  Users
+  Users,
+  Zap,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -48,9 +52,15 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 // Import API hooks
+import { formatCurrency } from '../../../../lib/utils/currency';
 import { ProductCard } from '../../games/components/ProductCard';
-import { useBuyNow, useLikeProduct, usePlayGame, useShareProduct } from '../../shops/api/mutations';
-import { useProduct, useProducts } from '../../shops/api/queries';
+import {
+  useBuyNow,
+  useLikeProduct,
+  usePlayGame,
+  useShareProduct,
+} from '../../shops/api/mutations';
+import { useProduct, useShopsProducts } from '../../shops/api/queries';
 
 interface ProductDetailsPageProps {
   productId: string;
@@ -60,16 +70,23 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'description' | 'specifications' | 'reviews'>('description');
+  const [activeTab, setActiveTab] = useState<
+    'description' | 'specifications' | 'reviews'
+  >('description');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
+  const mockReviews: Review[] = mocksReviews(productId);
 
   // API hooks
-  const { data: product, isLoading: productLoading, error: productError } = useProduct(productId);
-  const { data: relatedProducts = [] } = useProducts({
+  const {
+    data: product,
+    isLoading: productLoading,
+    error: productError,
+  } = useProduct(productId);
+  const { data: relatedProducts = [] } = useShopsProducts({
     category: product?.category,
-    limit: 8
+    limit: 8,
   });
 
   // Mutations
@@ -82,34 +99,6 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
   const isLiked = false; // TODO: Get from user preferences
   const sizes = ['S', 'M', 'L', 'XL']; // TODO: Get from product data
 
-  const mockReviews: Review[] = [
-    {
-      id: 'review-1',
-      userId: 'user-1',
-      userName: 'John Doe',
-      userAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=40&q=80',
-      rating: 5,
-      comment: 'Excellent product! Exactly as described and fast delivery.',
-      createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
-      updatedAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
-      isVerified: true,
-      likes: 15,
-      productId: productId
-    },
-    {
-      id: 'review-2',
-      userId: 'user-2',
-      userName: 'Marie Dubois',
-      userAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?auto=format&fit=crop&w=40&q=80',
-      rating: 4,
-      comment: 'Good quality product. Would recommend to others.',
-      createdAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-      updatedAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
-      isVerified: true,
-      likes: 8,
-      productId: productId
-    }
-  ];
 
   const handlePreviousImage = useCallback(() => {
     if (!product) return;
@@ -144,10 +133,16 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
     try {
       if (navigator.share && navigator.canShare?.(shareData)) {
         await navigator.share(shareData);
-        shareProductMutation.mutate({ productId: product.id, method: 'native' });
+        shareProductMutation.mutate({
+          productId: product.id,
+          method: 'native',
+        });
       } else {
         await navigator.clipboard.writeText(url);
-        shareProductMutation.mutate({ productId: product.id, method: 'clipboard' });
+        shareProductMutation.mutate({
+          productId: product.id,
+          method: 'clipboard',
+        });
         toast.success(t('common.linkCopied'));
       }
     } catch (error) {
@@ -171,14 +166,16 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
 
   if (productError) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">{t('error.productNotFound')}</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+      <div className='min-h-screen flex items-center justify-center'>
+        <div className='text-center'>
+          <h2 className='text-2xl font-bold text-red-600 mb-4'>
+            {t('error.productNotFound')}
+          </h2>
+          <p className='text-gray-600 dark:text-gray-400 mb-6'>
             {t('error.productNotFoundDescription')}
           </p>
           <Button onClick={() => router.back()}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className='w-4 h-4 mr-2' />
             {t('common.goBack')}
           </Button>
         </div>
@@ -188,14 +185,14 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
 
   if (productLoading || !product) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="animate-pulse max-w-7xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div className="h-96 bg-gray-300 dark:bg-gray-700 rounded-xl" />
-            <div className="space-y-4">
-              <div className="h-8 bg-gray-300 dark:bg-gray-700 rounded w-3/4" />
-              <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-1/2" />
-              <div className="h-20 bg-gray-300 dark:bg-gray-700 rounded" />
+      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+        <div className='animate-pulse max-w-7xl mx-auto px-4 py-8'>
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8'>
+            <div className='h-96 bg-gray-300 dark:bg-gray-700 rounded-xl' />
+            <div className='space-y-4'>
+              <div className='h-8 bg-gray-300 dark:bg-gray-700 rounded w-3/4' />
+              <div className='h-6 bg-gray-300 dark:bg-gray-700 rounded w-1/2' />
+              <div className='h-20 bg-gray-300 dark:bg-gray-700 rounded' />
             </div>
           </div>
         </div>
@@ -203,60 +200,61 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
     );
   }
 
-  const hasDiscount = product.originalPrice && product.originalPrice > product.price;
+  const hasDiscount =
+    product.originalPrice && product.originalPrice > product.price;
   const discountPercentage = hasDiscount
-    ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
+    ? Math.round(
+      ((product.originalPrice! - product.price) / product.originalPrice!) *
+      100
+    )
     : 0;
 
-  const filteredRelatedProducts = relatedProducts.filter(p => p.id !== product.id).slice(0, 4);
-  const averageRating = mockReviews.reduce((acc, review) => acc + review.rating, 0) / mockReviews.length;
+  const filteredRelatedProducts = relatedProducts
+    .filter(p => p.id !== product.id)
+    .slice(0, 4);
+  const averageRating =
+    mockReviews.reduce((acc: number, review: Review) => acc + review.rating, 0) /
+    mockReviews.length;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+      <div className='sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700'>
+        <div className='max-w-7xl mx-auto px-4 py-3 flex items-center justify-between'>
+          <Button variant='ghost' size='sm' onClick={() => router.back()}>
+            <ArrowLeft className='w-4 h-4 mr-2' />
             {t('common.back')}
           </Button>
 
-          <div className="flex items-center gap-2">
+          <div className='flex items-center gap-2'>
+            <ThemeToggle />
             <Button
-              variant="ghost"
-              size="sm"
+              variant='ghost'
+              size='sm'
               onClick={handleLike}
               className={isLiked ? 'text-red-500' : ''}
             >
               <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleShare}
-            >
-              <Share2 className="w-4 h-4" />
+            <Button variant='ghost' size='sm' onClick={handleShare}>
+              <Share2 className='w-4 h-4' />
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className='max-w-7xl mx-auto px-4 py-8'>
         {/* Product Details */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16'>
           {/* Images */}
-          <div className="space-y-4">
+          <div className='space-y-4'>
             {/* Main Image */}
-            <div className="relative aspect-square bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+            <div className='relative aspect-square bg-white dark:bg-gray-800 rounded-2xl overflow-hidden'>
               <OptimizedImage
                 src={product.images[currentImageIndex] || product.images[0]}
                 alt={product.name}
                 fill
-                className="object-cover"
+                className='object-cover'
                 priority
               />
 
@@ -265,33 +263,33 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                 <>
                   <button
                     onClick={handlePreviousImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-800 transition-all"
+                    className='absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-800 transition-all'
                   >
-                    <ChevronLeft className="w-5 h-5" />
+                    <ChevronLeft className='w-5 h-5' />
                   </button>
                   <button
                     onClick={handleNextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-800 transition-all"
+                    className='absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-800 transition-all'
                   >
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight className='w-5 h-5' />
                   </button>
                 </>
               )}
 
               {/* Badges */}
-              <div className="absolute top-4 left-4 flex flex-col gap-2">
+              <div className='absolute top-4 left-4 flex flex-col gap-2'>
                 {product.isNew && (
-                  <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className='bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full'>
                     {t('marketplace.new')}
                   </span>
                 )}
                 {hasDiscount && (
-                  <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className='bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full'>
                     -{discountPercentage}%
                   </span>
                 )}
                 {product.isFeatured && (
-                  <span className="bg-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-full">
+                  <span className='bg-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-full'>
                     {t('marketplace.featured')}
                   </span>
                 )}
@@ -300,7 +298,7 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
 
             {/* Thumbnail Images */}
             {product.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-3">
+              <div className='grid grid-cols-4 gap-3'>
                 {product.images.map((image, index) => (
                   <button
                     key={index}
@@ -315,7 +313,7 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                       alt={`${product.name} ${index + 1}`}
                       width={100}
                       height={100}
-                      className="w-full h-full object-cover"
+                      className='w-full h-full object-cover'
                     />
                   </button>
                 ))}
@@ -324,21 +322,27 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
           </div>
 
           {/* Product Info */}
-          <div className="space-y-6">
+          <div className='space-y-6'>
             {/* Title and Rating */}
             <div>
-              <Link
-                href={`/shops/${product.shop.shopId}`}
-                className="text-sm text-orange-600 dark:text-orange-400 hover:underline mb-2 block"
-              >
-                {t('marketplace.visitShop')}
-              </Link>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              {product.shop ? (
+                <Link
+                  href={`/shops/${product.shop.id}`}
+                  className='text-sm text-orange-600 dark:text-orange-400 hover:underline mb-2 block'
+                >
+                  {t('marketplace.visitShop')} - {product.shop.name}
+                </Link>
+              ) : (
+                <div className='text-sm text-gray-500 dark:text-gray-400 mb-2'>
+                  {t('marketplace.shopInformationUnavailable')}
+                </div>
+              )}
+              <h1 className='text-3xl font-bold text-gray-900 dark:text-white mb-4'>
                 {product.name}
               </h1>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center">
+              <div className='flex items-center gap-4 mb-4'>
+                <div className='flex items-center gap-2'>
+                  <div className='flex items-center'>
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
@@ -349,32 +353,43 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                       />
                     ))}
                   </div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {averageRating.toFixed(1)} ({mockReviews.length} {t('common.reviews')})
+                  <span className='text-sm text-gray-600 dark:text-gray-400'>
+                    {averageRating.toFixed(1)} ({mockReviews.length}{' '}
+                    {t('common.reviews')})
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                  <Eye className="w-4 h-4" />
-                  {product.reviewCount} {t('marketplace.reviews')}
+                <div className='flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400'>
+                  <Eye className='w-4 h-4' />
+                  {product.reviewsCount} {t('marketplace.reviews')}
                 </div>
               </div>
             </div>
 
             {/* Price */}
-            <div className="flex items-center gap-3">
+            <div className='flex items-center gap-3'>
               {hasDiscount && (
-                <span className="text-lg text-gray-500 dark:text-gray-400 line-through">
-                  {currencyService.formatCurrency(product.originalPrice!, product.currency)}
+                <span className='text-lg text-gray-500 dark:text-gray-400 line-through'>
+                  {formatCurrency(
+                    product.originalPrice!,
+                    product.currency
+                  )}
                 </span>
               )}
-              <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                {currencyService.formatCurrency(product.price, product.currency)}
+              <span className='text-3xl font-bold text-gray-900 dark:text-white'>
+                {formatCurrency(
+                  product.price,
+                  product.currency
+                )}
               </span>
               {product.isLotteryEnabled && product.lotteryPrice && (
-                <div className="ml-4 flex items-center text-orange-600 dark:text-orange-400">
-                  <Play className="w-4 h-4 mr-1" />
-                  <span className="text-sm">
-                    {t('marketplace.playFor')} {currencyService.formatCurrency(product.lotteryPrice, product.currency)}
+                <div className='ml-4 flex items-center text-orange-600 dark:text-orange-400'>
+                  <Play className='w-4 h-4 mr-1' />
+                  <span className='text-sm'>
+                    {t('marketplace.playFor')}{' '}
+                    {formatCurrency(
+                      product.lotteryPrice,
+                      product.currency
+                    )}
                   </span>
                 </div>
               )}
@@ -383,11 +398,11 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
             {/* Size Selection */}
             {sizes.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-3'>
                   {t('product.selectSize')}
                 </h3>
-                <div className="flex gap-3">
-                  {sizes.map((size) => (
+                <div className='flex gap-3'>
+                  {sizes.map(size => (
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
@@ -405,115 +420,139 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
 
             {/* Quantity */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-3'>
                 {t('product.quantity')}
               </h3>
-              <div className="flex items-center gap-3">
+              <div className='flex items-center gap-3'>
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className='w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700'
                 >
-                  <Minus className="w-4 h-4" />
+                  <Minus className='w-4 h-4' />
                 </button>
-                <span className="w-16 text-center text-lg font-semibold text-gray-900 dark:text-white">
+                <span className='w-16 text-center text-lg font-semibold text-gray-900 dark:text-white'>
                   {quantity}
                 </span>
                 <button
-                  onClick={() => setQuantity(Math.min(product.stockQuantity || 0, quantity + 1))}
-                  className="w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() =>
+                    setQuantity(
+                      Math.min(product.stockQuantity || 0, quantity + 1)
+                    )
+                  }
+                  className='w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700'
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className='w-4 h-4' />
                 </button>
               </div>
             </div>
 
             {/* Stock Status */}
-            <div className="flex items-center gap-2">
+            <div className='flex items-center gap-2'>
               {product.stockQuantity && product.stockQuantity > 10 ? (
-                <CheckCircle className="w-5 h-5 text-green-500" />
+                <CheckCircle className='w-5 h-5 text-green-500' />
               ) : product.stockQuantity && product.stockQuantity > 0 ? (
-                <CheckCircle className="w-5 h-5 text-yellow-500" />
+                  <CheckCircle className='w-5 h-5 text-yellow-500' />
               ) : (
-                <CheckCircle className="w-5 h-5 text-red-500" />
+                    <CheckCircle className='w-5 h-5 text-red-500' />
               )}
-              <span className={`text-sm font-medium ${product.stockQuantity && product.stockQuantity > 10
-                ? 'text-green-600 dark:text-green-400'
-                : product.stockQuantity && product.stockQuantity > 0
-                  ? 'text-yellow-600 dark:text-yellow-400'
-                  : 'text-red-600 dark:text-red-400'
-                }`}>
+              <span
+                className={`text-sm font-medium ${product.stockQuantity && product.stockQuantity > 10
+                  ? 'text-green-600 dark:text-green-400'
+                  : product.stockQuantity && product.stockQuantity > 0
+                    ? 'text-yellow-600 dark:text-yellow-400'
+                    : 'text-red-600 dark:text-red-400'
+                  }`}
+              >
                 {product.stockQuantity && product.stockQuantity > 10
                   ? t('product.inStock')
                   : product.stockQuantity && product.stockQuantity > 0
                     ? t('product.lowStock', { count: product.stockQuantity })
-                    : t('product.outOfStock')
-                }
+                    : t('product.outOfStock')}
               </span>
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-3">
+            <div className='space-y-3'>
               {product.isLotteryEnabled && (
                 <Button
                   onClick={handlePlayGame}
                   disabled={product.status === 'OUT_OF_STOCK'}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 text-lg"
+                  className='w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 text-lg'
                 >
-                  <Play className="w-5 h-5 mr-2" />
-                  {product.status === 'OUT_OF_STOCK' ? t('marketplace.outOfStock') : t('marketplace.playNow')}
+                  <Play className='w-5 h-5 mr-2' />
+                  {product.status === 'OUT_OF_STOCK'
+                    ? t('marketplace.outOfStock')
+                    : t('marketplace.playNow')}
                 </Button>
               )}
 
               <Button
                 onClick={handleBuyNow}
-                disabled={product.status === 'OUT_OF_STOCK' || (sizes.length > 0 && !selectedSize)}
-                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold py-4 text-lg"
+                disabled={
+                  product.status === 'OUT_OF_STOCK' ||
+                  (sizes.length > 0 && !selectedSize)
+                }
+                className='w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold py-4 text-lg'
               >
-                <ShoppingCart className="w-5 h-5 mr-2" />
-                {product.status === 'OUT_OF_STOCK' ? t('marketplace.outOfStock') : t('marketplace.buyNow')}
+                <ShoppingCart className='w-5 h-5 mr-2' />
+                {product.status === 'OUT_OF_STOCK'
+                  ? t('marketplace.outOfStock')
+                  : t('marketplace.buyNow')}
               </Button>
 
-              <Button
-                variant="outline"
-                onClick={() => router.push(`/shops/${product.shop.shopId}/chat`)}
-                className="w-full"
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                {t('marketplace.chatWithShop')}
-              </Button>
+              {product.shop && (
+                <Button
+                  variant='outline'
+                  onClick={() =>
+                    router.push(`/shops/${product.shop.id}/chat`)
+                  }
+                  className='w-full'
+                >
+                  <MessageCircle className='w-4 h-4 mr-2' />
+                  {t('marketplace.chatWithShop')}
+                </Button>
+              )}
             </div>
 
             {/* Features */}
-            <div className="grid grid-cols-2 gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-3 text-sm">
-                <Truck className="w-5 h-5 text-green-500" />
-                <span className="text-gray-700 dark:text-gray-300">{t('product.freeShipping')}</span>
+            <div className='grid grid-cols-2 gap-4 pt-6 border-t border-gray-200 dark:border-gray-700'>
+              <div className='flex items-center gap-3 text-sm'>
+                <Truck className='w-5 h-5 text-green-500' />
+                <span className='text-gray-700 dark:text-gray-300'>
+                  {t('product.freeShipping')}
+                </span>
               </div>
-              <div className="flex items-center gap-3 text-sm">
-                <Shield className="w-5 h-5 text-blue-500" />
-                <span className="text-gray-700 dark:text-gray-300">{t('product.securePayment')}</span>
+              <div className='flex items-center gap-3 text-sm'>
+                <Shield className='w-5 h-5 text-blue-500' />
+                <span className='text-gray-700 dark:text-gray-300'>
+                  {t('product.securePayment')}
+                </span>
               </div>
-              <div className="flex items-center gap-3 text-sm">
-                <RotateCcw className="w-5 h-5 text-purple-500" />
-                <span className="text-gray-700 dark:text-gray-300">{t('product.easyReturns')}</span>
+              <div className='flex items-center gap-3 text-sm'>
+                <RotateCcw className='w-5 h-5 text-purple-500' />
+                <span className='text-gray-700 dark:text-gray-300'>
+                  {t('product.easyReturns')}
+                </span>
               </div>
-              <div className="flex items-center gap-3 text-sm">
-                <Users className="w-5 h-5 text-orange-500" />
-                <span className="text-gray-700 dark:text-gray-300">{product.playedCount} {t('product.played')}</span>
+              <div className='flex items-center gap-3 text-sm'>
+                <Users className='w-5 h-5 text-orange-500' />
+                <span className='text-gray-700 dark:text-gray-300'>
+                  {product.playedCount} {t('product.played')}
+                </span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="mb-16">
-          <div className="border-b border-gray-200 dark:border-gray-700 mb-8">
-            <nav className="flex space-x-8" aria-label="Tabs">
+        <div className='mb-16'>
+          <div className='border-b border-gray-200 dark:border-gray-700 mb-8'>
+            <nav className='flex space-x-8' aria-label='Tabs'>
               {[
                 { id: 'description', name: t('product.description') },
                 { id: 'specifications', name: t('product.specifications') },
-                { id: 'reviews', name: t('product.reviews') }
-              ].map((tab) => (
+                { id: 'reviews', name: t('product.reviews') },
+              ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
@@ -524,7 +563,7 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                 >
                   {tab.name}
                   {tab.id === 'reviews' && (
-                    <span className="ml-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 py-1 px-2 rounded-full text-xs">
+                    <span className='ml-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 py-1 px-2 rounded-full text-xs'>
                       {mockReviews.length}
                     </span>
                   )}
@@ -534,21 +573,24 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
           </div>
 
           {/* Tab Content */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8">
+          <div className='bg-white dark:bg-gray-800 rounded-2xl p-8'>
             {activeTab === 'description' && (
-              <div className="prose dark:prose-invert max-w-none">
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
+              <div className='prose dark:prose-invert max-w-none'>
+                <p className='text-gray-700 dark:text-gray-300 leading-relaxed mb-6'>
                   {product.description}
                 </p>
                 {product.features && (
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                    <h3 className='text-xl font-semibold text-gray-900 dark:text-white mb-4'>
                       {t('product.keyFeatures')}
                     </h3>
-                    <ul className="space-y-2">
+                    <ul className='space-y-2'>
                       {product.features.map((feature, index) => (
-                        <li key={index} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                          <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                        <li
+                          key={index}
+                          className='flex items-center gap-3 text-gray-700 dark:text-gray-300'
+                        >
+                          <CheckCircle className='w-5 h-5 text-green-500 flex-shrink-0' />
                           {feature}
                         </li>
                       ))}
@@ -560,20 +602,29 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
 
             {activeTab === 'specifications' && (
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+                <h3 className='text-xl font-semibold text-gray-900 dark:text-white mb-6'>
                   {t('product.technicalSpecifications')}
                 </h3>
                 {product.specifications ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {Object.entries(product.specifications).map(([key, value]) => (
-                      <div key={key} className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
-                        <span className="font-medium text-gray-900 dark:text-white">{key}</span>
-                        <span className="text-gray-600 dark:text-gray-400">{value}</span>
-                      </div>
-                    ))}
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                    {Object.entries(product.specifications).map(
+                      ([key, value]) => (
+                        <div
+                          key={key}
+                          className='flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0'
+                        >
+                          <span className='font-medium text-gray-900 dark:text-white'>
+                            {key}
+                          </span>
+                          <span className='text-gray-600 dark:text-gray-400'>
+                            {value}
+                          </span>
+                        </div>
+                      )
+                    )}
                   </div>
                 ) : (
-                  <p className="text-gray-500 dark:text-gray-400">
+                    <p className='text-gray-500 dark:text-gray-400'>
                     {t('product.noSpecificationsAvailable')}
                   </p>
                 )}
@@ -582,23 +633,23 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
 
             {activeTab === 'reviews' && (
               <div>
-                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                <div className='flex items-center justify-between mb-8'>
+                  <h3 className='text-xl font-semibold text-gray-900 dark:text-white'>
                     {t('product.customerReviews')}
                   </h3>
-                  <Button variant="outline" size="sm">
+                  <Button variant='outline' size='sm'>
                     {t('product.writeReview')}
                   </Button>
                 </div>
 
                 {/* Reviews Summary */}
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6 mb-8">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="text-4xl font-bold text-gray-900 dark:text-white">
+                <div className='bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6 mb-8'>
+                  <div className='flex items-center gap-4 mb-4'>
+                    <div className='text-4xl font-bold text-gray-900 dark:text-white'>
                       {averageRating.toFixed(1)}
                     </div>
                     <div>
-                      <div className="flex items-center mb-2">
+                      <div className='flex items-center mb-2'>
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
@@ -609,7 +660,7 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                           />
                         ))}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className='text-sm text-gray-600 dark:text-gray-400'>
                         {mockReviews.length} {t('common.reviews')}
                       </div>
                     </div>
@@ -617,29 +668,32 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                 </div>
 
                 {/* Reviews List */}
-                <div className="space-y-6">
-                  {mockReviews.map((review) => (
-                    <div key={review.id} className="border-b border-gray-200 dark:border-gray-700 pb-6 last:border-b-0">
-                      <div className="flex items-start gap-4">
+                <div className='space-y-6'>
+                  {mockReviews.map(review => (
+                    <div
+                      key={review.id}
+                      className='border-b border-gray-200 dark:border-gray-700 pb-6 last:border-b-0'
+                    >
+                      <div className='flex items-start gap-4'>
                         <OptimizedImage
                           src={review.userAvatar}
                           alt={review.userName}
                           width={48}
                           height={48}
-                          className="rounded-full"
+                          className='rounded-full'
                         />
 
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h4 className="font-semibold text-gray-900 dark:text-white">
+                        <div className='flex-1'>
+                          <div className='flex items-center gap-3 mb-2'>
+                            <h4 className='font-semibold text-gray-900 dark:text-white'>
                               {review.userName}
                             </h4>
                             {review.isVerified && (
-                              <span className="bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 text-xs px-2 py-1 rounded-full">
+                              <span className='bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 text-xs px-2 py-1 rounded-full'>
                                 {t('product.verifiedPurchase')}
                               </span>
                             )}
-                            <div className="flex items-center">
+                            <div className='flex items-center'>
                               {[...Array(5)].map((_, i) => (
                                 <Star
                                   key={i}
@@ -652,21 +706,21 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                             </div>
                           </div>
 
-                          <p className="text-gray-700 dark:text-gray-300 mb-3">
+                          <p className='text-gray-700 dark:text-gray-300 mb-3'>
                             {review.comment}
                           </p>
 
-                          <div className="flex items-center justify-between">
-                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                          <div className='flex items-center justify-between'>
+                            <div className='text-sm text-gray-500 dark:text-gray-400'>
                               {new Date(review.createdAt).toLocaleDateString()}
                             </div>
-                            <div className="flex items-center gap-4">
-                              <button className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                                <ThumbsUp className="w-4 h-4" />
+                            <div className='flex items-center gap-4'>
+                              <button className='flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'>
+                                <ThumbsUp className='w-4 h-4' />
                                 {review.likes}
                               </button>
-                              <button className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                                <Flag className="w-4 h-4" />
+                              <button className='flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'>
+                                <Flag className='w-4 h-4' />
                                 {t('product.report')}
                               </button>
                             </div>
@@ -684,35 +738,124 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
         {/* Related Products */}
         {filteredRelatedProducts.length > 0 && (
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
+            <h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-8'>
               {t('product.relatedProducts')}
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
               {filteredRelatedProducts.map(relatedProduct => (
                 <ProductCard
                   key={relatedProduct.id}
                   product={relatedProduct}
-                  onLikeProduct={async (productId) => {
+                  onLikeProduct={async productId => {
                     likeProductMutation.mutate({ productId, action: 'like' });
                   }}
-                  onPlayGame={(productId) => {
+                  onPlayGame={productId => {
                     playGameMutation.mutate({ productId });
                   }}
-                  onBuyNow={(productId) => {
+                  onBuyNow={productId => {
                     buyNowMutation.mutate({ productId });
                   }}
-                  onShare={(productId) => {
-                    shareProductMutation.mutate({ productId, method: 'native' });
+                  onShare={async productId => {
+                    shareProductMutation.mutate({
+                      productId,
+                      method: 'native',
+                    });
                   }}
                   likedProducts={new Set()}
                   followedShops={new Set()}
                   showBuyNow={true}
-                  className="h-full"
+                  className='h-full'
                 />
               ))}
             </div>
           </div>
         )}
+
+        {/* Vendor Banner */}
+        <div className='mt-16'>
+          <div className='bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-3xl p-8 text-white relative overflow-hidden'>
+            {/* Background Pattern */}
+            <div className='absolute inset-0 opacity-10'>
+              <div className='absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-16 translate-x-16'></div>
+              <div className='absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-12 -translate-x-12'></div>
+              <div className='absolute top-1/2 left-1/2 w-16 h-16 bg-white rounded-full -translate-x-8 -translate-y-8'></div>
+            </div>
+
+            <div className='relative z-10'>
+              <div className='flex flex-col lg:flex-row items-center justify-between gap-8'>
+                <div className='flex-1 text-center lg:text-left'>
+                  <div className='flex items-center justify-center lg:justify-start gap-3 mb-4'>
+                    <div className='bg-white/20 backdrop-blur-sm rounded-full p-3'>
+                      <Store className='w-8 h-8 text-white' />
+                    </div>
+                    <div>
+                      <h3 className='text-2xl font-bold mb-2'>
+                        {t('vendor.becomeAVendor')}
+                      </h3>
+                      <p className='text-blue-100 text-lg'>
+                        {t('vendor.bannerDescription')}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6'>
+                    <div className='bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center'>
+                      <div className='bg-white/20 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3'>
+                        <TrendingUp className='w-6 h-6 text-white' />
+                      </div>
+                      <h4 className='font-semibold mb-1'>
+                        {t('vendor.benefit1.title')}
+                      </h4>
+                      <p className='text-blue-100 text-sm'>
+                        {t('vendor.benefit1.description')}
+                      </p>
+                    </div>
+
+                    <div className='bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center'>
+                      <div className='bg-white/20 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3'>
+                        <Users className='w-6 h-6 text-white' />
+                      </div>
+                      <h4 className='font-semibold mb-1'>
+                        {t('vendor.benefit2.title')}
+                      </h4>
+                      <p className='text-blue-100 text-sm'>
+                        {t('vendor.benefit2.description')}
+                      </p>
+                    </div>
+
+                    <div className='bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center'>
+                      <div className='bg-white/20 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3'>
+                        <Zap className='w-6 h-6 text-white' />
+                      </div>
+                      <h4 className='font-semibold mb-1'>
+                        {t('vendor.benefit3.title')}
+                      </h4>
+                      <p className='text-blue-100 text-sm'>
+                        {t('vendor.benefit3.description')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className='flex flex-col items-center gap-4'>
+                  <div className='bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center'>
+                    <div className='text-3xl font-bold mb-2'>50,000+</div>
+                    <div className='text-blue-100'>
+                      {t('vendor.activeUsers')}
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={() => router.push('/vendor/apply')}
+                    className='bg-white text-blue-600 hover:bg-blue-50 font-semibold px-8 py-4 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105'
+                  >
+                    {t('vendor.getStarted')}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

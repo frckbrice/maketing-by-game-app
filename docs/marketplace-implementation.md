@@ -7,6 +7,7 @@ This document outlines the implementation of comprehensive marketplace features 
 ## Features Implemented
 
 ### 1. Rotating Vendor Banner
+
 - **Location**: Hero section of Game Page
 - **Component**: `VendorBanner.tsx`
 - **Features**:
@@ -17,6 +18,7 @@ This document outlines the implementation of comprehensive marketplace features 
   - Pause on hover functionality
 
 ### 2. Top Shops Section
+
 - **Component**: `TopShops.tsx`
 - **Features**:
   - Horizontally scrollable shop cards
@@ -26,6 +28,7 @@ This document outlines the implementation of comprehensive marketplace features 
   - Loading states and skeleton UI
 
 ### 3. Featured Products
+
 - **Component**: `FeaturedProducts.tsx`
 - **Features**:
   - Horizontally scrollable product cards
@@ -35,6 +38,7 @@ This document outlines the implementation of comprehensive marketplace features 
   - "See All" navigation to full product listing
 
 ### 4. Personalized Recommendations
+
 - **Component**: `PersonalizedRecommendations.tsx`
 - **Features**:
   - AI-driven product recommendations based on user activity
@@ -46,6 +50,7 @@ This document outlines the implementation of comprehensive marketplace features 
 ## API Architecture
 
 ### Data Layer
+
 - **Location**: `src/components/features/shops/api/`
 - **Files**:
   - `data.ts` - Mock data for development
@@ -53,6 +58,7 @@ This document outlines the implementation of comprehensive marketplace features 
   - `mutations.ts` - React Query hooks for data mutations
 
 ### Query Implementation
+
 ```typescript
 // Example: useTopShops hook with caching
 export const useTopShops = (limit: number = 6) => {
@@ -69,6 +75,7 @@ export const useTopShops = (limit: number = 6) => {
 ```
 
 ### Mutation Implementation
+
 ```typescript
 // Example: useFollowShop with optimistic updates
 export const useFollowShop = () => {
@@ -78,7 +85,7 @@ export const useFollowShop = () => {
     mutationFn: async ({ shopId, action }) => {
       // API call or mock implementation
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Invalidate related queries for real-time updates
       queryClient.invalidateQueries({ queryKey: ['shop', data.shopId] });
       queryClient.invalidateQueries({ queryKey: ['shops'] });
@@ -91,11 +98,13 @@ export const useFollowShop = () => {
 ## Caching Strategy
 
 ### Development vs Production
+
 - **Development**: Uses mock data with simulated API delays for realistic UX
 - **Production**: Switches to actual API calls seamlessly
 - **Environment Detection**: `process.env.NODE_ENV === 'development'`
 
 ### Cache Configuration
+
 - **Shops**: 5-10 minute stale time
 - **Products**: 5-15 minute stale time based on feature
 - **User Preferences**: Real-time updates with optimistic mutations
@@ -103,7 +112,9 @@ export const useFollowShop = () => {
 ## Component Architecture
 
 ### Props Pattern
+
 All marketplace components follow a consistent props pattern:
+
 ```typescript
 interface ComponentProps {
   data: DataType[];
@@ -115,6 +126,7 @@ interface ComponentProps {
 ```
 
 ### Performance Optimizations
+
 1. **React.memo**: All components are memoized to prevent unnecessary re-renders
 2. **useCallback**: Event handlers are memoized with proper dependencies
 3. **Lazy Loading**: Components load data on-demand
@@ -123,16 +135,19 @@ interface ComponentProps {
 ## Social Features
 
 ### Follow System
+
 - Users can follow shops to receive updates
 - Real-time follower counts
 - Optimistic UI updates for immediate feedback
 
 ### Like System
+
 - Product liking with immediate visual feedback
 - Like counts contribute to recommendation algorithm
 - Social proof displays (e.g., "234 people liked this")
 
 ### Share Functionality
+
 - Native sharing API with clipboard fallback
 - Deep linking to specific products
 - Analytics tracking for share events
@@ -140,12 +155,14 @@ interface ComponentProps {
 ## Mobile-First Design
 
 ### Responsive Features
+
 - Horizontal scrolling optimized for touch devices
 - Touch-friendly button sizes (minimum 44px)
 - Optimized images with Next.js Image component
 - Progressive enhancement for larger screens
 
 ### Performance Considerations
+
 - Virtualized scrolling for long lists
 - Image lazy loading with skeleton placeholders
 - Debounced search inputs
@@ -154,11 +171,13 @@ interface ComponentProps {
 ## Error Handling
 
 ### Loading States
+
 - Skeleton UI components during data fetching
 - Progressive loading with staggered content appearance
 - Graceful fallbacks for failed requests
 
 ### Error Boundaries
+
 - Comprehensive error handling with user-friendly messages
 - Automatic retry mechanisms for transient failures
 - Fallback to cached data when available
@@ -166,17 +185,19 @@ interface ComponentProps {
 ## Translation Support
 
 ### Internationalization
+
 - Full support for English and French
 - Key structure: `marketplace.featureName.actionName`
 - Context-aware translations for better UX
 - Pluralization support for dynamic content
 
 ### Example Keys
+
 ```json
 {
   "marketplace": {
     "topShops": "Top Shops",
-    "featuredProducts": "Featured Products", 
+    "featuredProducts": "Featured Products",
     "productsYouMightLike": "Products You Might Like",
     "personalizedRecommendations": "Curated just for you based on your preferences"
   }
@@ -186,6 +207,7 @@ interface ComponentProps {
 ## Future Enhancements
 
 ### Planned Features
+
 1. Real-time chat with shop owners
 2. Advanced filtering and sorting options
 3. Wishlist functionality
@@ -193,6 +215,7 @@ interface ComponentProps {
 5. Advanced recommendation algorithms
 
 ### Performance Improvements
+
 1. Implement virtual scrolling for large datasets
 2. Add service worker for offline functionality
 3. Implement background sync for mutations
@@ -201,16 +224,19 @@ interface ComponentProps {
 ## Testing Strategy
 
 ### Unit Tests
+
 - Component rendering with different props
 - Hook behavior with mock data
 - Mutation success/failure scenarios
 
 ### Integration Tests
+
 - API integration with proper error handling
 - User interaction flows
 - Performance benchmarks
 
 ### E2E Tests
+
 - Complete user journeys
 - Cross-device compatibility
 - Accessibility compliance
@@ -218,12 +244,14 @@ interface ComponentProps {
 ## Deployment Considerations
 
 ### Environment Variables
+
 ```env
 NEXT_PUBLIC_API_URL=https://api.lotteryapp.com
 NEXT_PUBLIC_ENABLE_ANALYTICS=true
 ```
 
 ### Production Optimizations
+
 - API rate limiting implementation
 - CDN configuration for static assets
 - Database query optimization

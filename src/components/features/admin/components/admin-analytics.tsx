@@ -47,16 +47,18 @@ import { COLORS } from '../api/data';
 import { AnalyticsData } from '../api/type';
 import { useAnalyticsData } from '../api/queries';
 
-
-
 export function AdminAnalyticsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [timeRange, setTimeRange] = useState('7d');
   const [refreshing, setRefreshing] = useState(false);
-  
+
   // Use the admin analytics hook with time range parameter
-  const { data: analyticsData, isLoading: analyticsLoading, refetch } = useAnalyticsData(timeRange);
+  const {
+    data: analyticsData,
+    isLoading: analyticsLoading,
+    refetch,
+  } = useAnalyticsData(timeRange);
 
   const handleRefresh = useCallback(async () => {
     try {

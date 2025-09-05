@@ -6,7 +6,8 @@ import type { VendorApplication, VendorApplicationWithDetails } from './types';
 export const vendorApplicationQueryKeys = {
   all: ['vendor-applications'] as const,
   application: (id: string) => ['vendor-applications', id] as const,
-  userApplication: (userId: string) => ['vendor-applications', 'user', userId] as const,
+  userApplication: (userId: string) =>
+    ['vendor-applications', 'user', userId] as const,
   pending: ['vendor-applications', 'pending'] as const,
   approved: ['vendor-applications', 'approved'] as const,
   rejected: ['vendor-applications', 'rejected'] as const,
@@ -14,14 +15,14 @@ export const vendorApplicationQueryKeys = {
 
 // Get all vendor applications
 export const useVendorApplications = (status?: string) => {
-  const queryKey = status 
-    ? status === 'pending' 
+  const queryKey = status
+    ? status === 'pending'
       ? vendorApplicationQueryKeys.pending
       : status === 'approved'
-      ? vendorApplicationQueryKeys.approved
-      : status === 'rejected'
-      ? vendorApplicationQueryKeys.rejected
-      : vendorApplicationQueryKeys.all
+        ? vendorApplicationQueryKeys.approved
+        : status === 'rejected'
+          ? vendorApplicationQueryKeys.rejected
+          : vendorApplicationQueryKeys.all
     : vendorApplicationQueryKeys.all;
 
   return useQuery({
@@ -30,7 +31,9 @@ export const useVendorApplications = (status?: string) => {
       try {
         const applications = await firestoreService.getAllVendorApplications();
         if (status) {
-          return applications.filter(app => app.status === status.toUpperCase());
+          return applications.filter(
+            app => app.status === status.toUpperCase()
+          );
         }
         return applications;
       } catch (error) {
@@ -50,11 +53,19 @@ export const useVendorApplication = (id: string) => {
     queryKey: vendorApplicationQueryKeys.application(id),
     queryFn: async (): Promise<VendorApplicationWithDetails | null> => {
       if (!id) return null;
-      
+
       try {
         const applications = await firestoreService.getAllVendorApplications();
         const application = applications.find(app => app.id === id);
-        return application ? { ...application, user: {}, reviewer: undefined, documents: [], notes: [] } : null;
+        return application
+          ? {
+              ...application,
+              user: {},
+              reviewer: undefined,
+              documents: [],
+              notes: [],
+            }
+          : null;
       } catch (error) {
         console.error('Error fetching vendor application:', error);
         return null;
@@ -72,7 +83,7 @@ export const useUserVendorApplication = (userId: string) => {
     queryKey: vendorApplicationQueryKeys.userApplication(userId),
     queryFn: async (): Promise<VendorApplication | null> => {
       if (!userId) return null;
-      
+
       try {
         return await firestoreService.getVendorApplication(userId);
       } catch (error) {

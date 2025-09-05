@@ -1,10 +1,10 @@
-import { 
-  UserLoyaltyProfile, 
-  UserReferralProfile, 
+import {
+  UserLoyaltyProfile,
+  UserReferralProfile,
   DailyStreak,
   UserBadge,
   GamificationNotification,
-  LoyaltyPointTransaction 
+  LoyaltyPointTransaction,
 } from '@/types';
 
 export interface GamificationResponse<T> {
@@ -14,11 +14,13 @@ export interface GamificationResponse<T> {
   message?: string;
 }
 
-export interface LoyaltyProfileResponse extends GamificationResponse<UserLoyaltyProfile> {
+export interface LoyaltyProfileResponse
+  extends GamificationResponse<UserLoyaltyProfile> {
   profile?: UserLoyaltyProfile;
 }
 
-export interface ReferralProfileResponse extends GamificationResponse<UserReferralProfile> {
+export interface ReferralProfileResponse
+  extends GamificationResponse<UserReferralProfile> {
   profile?: UserReferralProfile;
 }
 
@@ -40,12 +42,14 @@ export interface UserBadgeWithDetails extends UserBadge {
   };
 }
 
-export interface BadgesResponse extends GamificationResponse<UserBadgeWithDetails[]> {
+export interface BadgesResponse
+  extends GamificationResponse<UserBadgeWithDetails[]> {
   badges?: UserBadgeWithDetails[];
   newBadges?: UserBadgeWithDetails[];
 }
 
-export interface NotificationsResponse extends GamificationResponse<GamificationNotification[]> {
+export interface NotificationsResponse
+  extends GamificationResponse<GamificationNotification[]> {
   notifications?: GamificationNotification[];
 }
 

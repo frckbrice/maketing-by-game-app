@@ -203,12 +203,12 @@ export class NotificationService {
     notification: NotificationData
   ): Promise<void> {
     try {
-          // Call the comprehensive notification API
+      // Call the comprehensive notification API
       const response = await fetch('/api/admin/send-notification', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('auth_token') : ''}`,
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('auth_token') : ''}`,
         },
         body: JSON.stringify({
           notificationId: `fcm_${Date.now()}`,
@@ -216,7 +216,7 @@ export class NotificationService {
           message: notification.message,
           targetAudience: 'CUSTOM',
           recipients: [notification.userId],
-        })
+        }),
       });
 
       if (response.ok) {
@@ -356,7 +356,11 @@ export class NotificationService {
   }
 
   // Game-related notifications
-  async sendGameStartNotification(userId: string, gameId: string, gameName: string): Promise<void> {
+  async sendGameStartNotification(
+    userId: string,
+    gameId: string,
+    gameName: string
+  ): Promise<void> {
     const notification: NotificationData = {
       userId,
       title: '🎮 Game Started!',
@@ -379,7 +383,12 @@ export class NotificationService {
     ]);
   }
 
-  async sendGameWinnerNotification(userId: string, gameId: string, prize: string, prizeValue: number): Promise<void> {
+  async sendGameWinnerNotification(
+    userId: string,
+    gameId: string,
+    prize: string,
+    prizeValue: number
+  ): Promise<void> {
     const notification: NotificationData = {
       userId,
       title: '🎉 Congratulations! You Won!',
@@ -411,7 +420,12 @@ export class NotificationService {
     ]);
   }
 
-  async sendGameEndingNotification(userId: string, gameId: string, gameName: string, timeLeft: string): Promise<void> {
+  async sendGameEndingNotification(
+    userId: string,
+    gameId: string,
+    gameName: string,
+    timeLeft: string
+  ): Promise<void> {
     const notification: NotificationData = {
       userId,
       title: '⏰ Last Chance!',
@@ -435,7 +449,11 @@ export class NotificationService {
   }
 
   // Gamification notifications
-  async sendLevelUpNotification(userId: string, newLevel: number, levelName: string): Promise<void> {
+  async sendLevelUpNotification(
+    userId: string,
+    newLevel: number,
+    levelName: string
+  ): Promise<void> {
     const notification: NotificationData = {
       userId,
       title: '📈 Level Up!',
@@ -458,7 +476,11 @@ export class NotificationService {
     ]);
   }
 
-  async sendBadgeEarnedNotification(userId: string, badgeName: string, badgeDescription: string): Promise<void> {
+  async sendBadgeEarnedNotification(
+    userId: string,
+    badgeName: string,
+    badgeDescription: string
+  ): Promise<void> {
     const notification: NotificationData = {
       userId,
       title: '🏆 Badge Earned!',
@@ -481,7 +503,11 @@ export class NotificationService {
     ]);
   }
 
-  async sendReferralRewardNotification(userId: string, points: number, referralCode: string): Promise<void> {
+  async sendReferralRewardNotification(
+    userId: string,
+    points: number,
+    referralCode: string
+  ): Promise<void> {
     const notification: NotificationData = {
       userId,
       title: '🎁 Referral Reward!',
@@ -504,7 +530,11 @@ export class NotificationService {
     ]);
   }
 
-  async sendStreakBonusNotification(userId: string, streakDays: number, pointsEarned: number): Promise<void> {
+  async sendStreakBonusNotification(
+    userId: string,
+    streakDays: number,
+    pointsEarned: number
+  ): Promise<void> {
     const notification: NotificationData = {
       userId,
       title: '🔥 Streak Bonus!',
@@ -528,7 +558,11 @@ export class NotificationService {
   }
 
   // Order and marketplace notifications
-  async sendOrderConfirmationNotification(userId: string, orderId: string, orderTotal: number): Promise<void> {
+  async sendOrderConfirmationNotification(
+    userId: string,
+    orderId: string,
+    orderTotal: number
+  ): Promise<void> {
     const notification: NotificationData = {
       userId,
       title: '📦 Order Confirmed!',
@@ -551,13 +585,19 @@ export class NotificationService {
     ]);
   }
 
-  async sendOrderStatusUpdateNotification(userId: string, orderId: string, status: string, message: string): Promise<void> {
-    const statusEmoji = {
-      processing: '⚡',
-      shipped: '🚚',
-      delivered: '📦',
-      cancelled: '❌',
-    }[status] || '📋';
+  async sendOrderStatusUpdateNotification(
+    userId: string,
+    orderId: string,
+    status: string,
+    message: string
+  ): Promise<void> {
+    const statusEmoji =
+      {
+        processing: '⚡',
+        shipped: '🚚',
+        delivered: '📦',
+        cancelled: '❌',
+      }[status] || '📋';
 
     const notification: NotificationData = {
       userId,
@@ -582,11 +622,15 @@ export class NotificationService {
   }
 
   // Chat notifications
-  async sendNewMessageNotification(receiverId: string, senderName: string, shopName?: string): Promise<void> {
+  async sendNewMessageNotification(
+    receiverId: string,
+    senderName: string,
+    shopName?: string
+  ): Promise<void> {
     const notification: NotificationData = {
       userId: receiverId,
       title: '💬 New Message',
-      message: shopName 
+      message: shopName
         ? `${senderName} from ${shopName} sent you a message`
         : `${senderName} sent you a message`,
       type: 'info',
@@ -608,7 +652,11 @@ export class NotificationService {
   }
 
   // System maintenance notifications
-  async sendMaintenanceNotification(userId: string, startTime: string, duration: string): Promise<void> {
+  async sendMaintenanceNotification(
+    userId: string,
+    startTime: string,
+    duration: string
+  ): Promise<void> {
     const notification: NotificationData = {
       userId,
       title: '🔧 Scheduled Maintenance',
@@ -632,11 +680,14 @@ export class NotificationService {
   }
 
   // Bulk notification sending
-  async sendBulkNotification(userIds: string[], notification: Omit<NotificationData, 'userId'>): Promise<void> {
-    const promises = userIds.map(userId => 
+  async sendBulkNotification(
+    userIds: string[],
+    notification: Omit<NotificationData, 'userId'>
+  ): Promise<void> {
+    const promises = userIds.map(userId =>
       this.sendPushNotification({ ...notification, userId })
     );
-    
+
     await Promise.allSettled(promises);
   }
 
@@ -644,14 +695,16 @@ export class NotificationService {
   async getUserNotificationPreferences(userId: string): Promise<any> {
     try {
       const user = await firestoreService.getUser(userId);
-      return user?.notificationPreferences || {
-        push: true,
-        email: true,
-        sms: false,
-        gameUpdates: true,
-        marketing: true,
-        orderUpdates: true,
-      };
+      return (
+        user?.notificationPreferences || {
+          push: true,
+          email: true,
+          sms: false,
+          gameUpdates: true,
+          marketing: true,
+          orderUpdates: true,
+        }
+      );
     } catch (error) {
       console.error('Error getting notification preferences:', error);
       return {
@@ -665,10 +718,13 @@ export class NotificationService {
     }
   }
 
-  async updateUserNotificationPreferences(userId: string, preferences: any): Promise<void> {
+  async updateUserNotificationPreferences(
+    userId: string,
+    preferences: any
+  ): Promise<void> {
     try {
       await firestoreService.updateUser(userId, {
-        notificationPreferences: preferences
+        notificationPreferences: preferences,
       });
     } catch (error) {
       console.error('Error updating notification preferences:', error);

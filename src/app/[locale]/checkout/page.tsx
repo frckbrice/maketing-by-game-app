@@ -70,8 +70,8 @@ export default function Checkout() {
 
   if (!checkoutData) {
     return (
-      <div className="min-h-screen bg-gray-900 pt-20 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-400"></div>
+      <div className='min-h-screen bg-gray-900 pt-20 flex items-center justify-center'>
+        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-orange-400'></div>
       </div>
     );
   }

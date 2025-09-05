@@ -1,9 +1,25 @@
 import { ID, Timestamp } from '@/types';
 
 // Payment Types
-export type PaymentStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'REFUNDED';
-export type PaymentProvider = 'CREDIT_CARD' | 'DEBIT_CARD' | 'BANK_TRANSFER' | 'DIGITAL_WALLET' | 'MOBILE_MONEY' | 'CRYPTO';
-export type PaymentMethodType = 'CARD' | 'BANK_ACCOUNT' | 'WALLET' | 'CRYPTO_ADDRESS';
+export type PaymentStatus =
+  | 'PENDING'
+  | 'PROCESSING'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED'
+  | 'REFUNDED';
+export type PaymentProvider =
+  | 'CREDIT_CARD'
+  | 'DEBIT_CARD'
+  | 'BANK_TRANSFER'
+  | 'DIGITAL_WALLET'
+  | 'MOBILE_MONEY'
+  | 'CRYPTO';
+export type PaymentMethodType =
+  | 'CARD'
+  | 'BANK_ACCOUNT'
+  | 'WALLET'
+  | 'CRYPTO_ADDRESS';
 
 export interface PaymentMethod {
   id: ID;

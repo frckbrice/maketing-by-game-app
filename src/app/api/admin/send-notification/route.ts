@@ -1,4 +1,12 @@
-import { collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth } from '../../../../lib/firebase/admin';
 import { db } from '../../../../lib/firebase/config';
@@ -19,12 +27,15 @@ export async function POST(req: NextRequest) {
     // Verify Firebase authentication
     const authHeader = req.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Missing authorization token' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'Missing authorization token' },
+        { status: 401 }
+      );
     }
 
     const token = authHeader.split('Bearer ')[1];
     let decodedToken;
-    
+
     try {
       decodedToken = await adminAuth.verifyIdToken(token);
     } catch (error) {
@@ -39,36 +50,57 @@ export async function POST(req: NextRequest) {
 
     const userData = userDoc.data();
     if (userData?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Forbidden: Admin access required' },
+        { status: 403 }
+      );
     }
 
-    const { notificationId, title, message, targetAudience, recipients }: NotificationRequest = await req.json();
+    const {
+      notificationId,
+      title,
+      message,
+      targetAudience,
+      recipients,
+    }: NotificationRequest = await req.json();
 
     // Validate required fields
     if (!notificationId || !title || !message) {
-      return NextResponse.json({ 
-        error: 'Missing required fields',
-        required: ['notificationId', 'title', 'message'],
-        received: { notificationId, title, message }
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Missing required fields',
+          required: ['notificationId', 'title', 'message'],
+          received: { notificationId, title, message },
+        },
+        { status: 400 }
+      );
     }
 
     // Validate target audience
     const validAudiences = ['ALL', 'USERS', 'VENDORS', 'ADMINS', 'CUSTOM'];
     if (!validAudiences.includes(targetAudience)) {
-      return NextResponse.json({ 
-        error: 'Invalid target audience',
-        validAudiences,
-        received: targetAudience
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Invalid target audience',
+          validAudiences,
+          received: targetAudience,
+        },
+        { status: 400 }
+      );
     }
 
     // Validate custom recipients if targetAudience is CUSTOM
-    if (targetAudience === 'CUSTOM' && (!recipients || recipients.length === 0)) {
-      return NextResponse.json({ 
-        error: 'Custom target audience requires recipients array',
-        received: { targetAudience, recipients }
-      }, { status: 400 });
+    if (
+      targetAudience === 'CUSTOM' &&
+      (!recipients || recipients.length === 0)
+    ) {
+      return NextResponse.json(
+        {
+          error: 'Custom target audience requires recipients array',
+          received: { targetAudience, recipients },
+        },
+        { status: 400 }
+      );
     }
 
     let targetUsers: string[] = [];
@@ -112,7 +144,10 @@ export async function POST(req: NextRequest) {
         break;
 
       default:
-        return NextResponse.json({ error: 'Invalid target audience' }, { status: 400 });
+        return NextResponse.json(
+          { error: 'Invalid target audience' },
+          { status: 400 }
+        );
     }
 
     let sentCount = 0;
@@ -122,23 +157,30 @@ export async function POST(req: NextRequest) {
     // Send notifications in batches with rate limiting
     const batchSize = 100;
     const rateLimitDelay = 1000; // 1 second between batches
-    
-    console.log(`🚀 Starting notification delivery to ${targetUsers.length} users in batches of ${batchSize}`);
-    
+
+    console.log(
+      `🚀 Starting notification delivery to ${targetUsers.length} users in batches of ${batchSize}`
+    );
+
     for (let i = 0; i < targetUsers.length; i += batchSize) {
       const batch = targetUsers.slice(i, i + batchSize);
       const batchNumber = Math.floor(i / batchSize) + 1;
       const totalBatches = Math.ceil(targetUsers.length / batchSize);
-      
-      console.log(`📦 Processing batch ${batchNumber}/${totalBatches} with ${batch.length} users`);
-      
+
+      console.log(
+        `📦 Processing batch ${batchNumber}/${totalBatches} with ${batch.length} users`
+      );
+
       // Get FCM tokens for batch users
       const tokens: string[] = [];
-      const userPromises = batch.map(async (userId) => {
+      const userPromises = batch.map(async userId => {
         try {
           const userDoc = await getDoc(doc(db, 'users', userId));
           const userData = userDoc.data();
-          if (userData?.fcmToken && userData.enablePushNotifications !== false) {
+          if (
+            userData?.fcmToken &&
+            userData.enablePushNotifications !== false
+          ) {
             return userData.fcmToken;
           }
         } catch (error) {
@@ -147,7 +189,9 @@ export async function POST(req: NextRequest) {
         return null;
       });
 
-      const batchTokens = (await Promise.all(userPromises)).filter(Boolean) as string[];
+      const batchTokens = (await Promise.all(userPromises)).filter(
+        Boolean
+      ) as string[];
       tokens.push(...batchTokens);
 
       if (tokens.length > 0) {
@@ -155,9 +199,9 @@ export async function POST(req: NextRequest) {
           // Send FCM notification using Firebase Admin SDK
           try {
             const messaging = getMessaging();
-            
+
             // Send to each token individually for better error handling
-            const sendPromises = tokens.map(async (token) => {
+            const sendPromises = tokens.map(async token => {
               try {
                 await messaging.send({
                   token,
@@ -201,9 +245,9 @@ export async function POST(req: NextRequest) {
             });
 
             const results = await Promise.all(sendPromises);
-            
+
             // Count successes and failures
-            results.forEach((result) => {
+            results.forEach(result => {
               if (result.success) {
                 sentCount++;
               } else {
@@ -244,14 +288,15 @@ export async function POST(req: NextRequest) {
       totalRecipients,
       sentCount,
       failedCount,
-      deliveryRate: totalRecipients > 0 ? (sentCount / totalRecipients) * 100 : 0,
+      deliveryRate:
+        totalRecipients > 0 ? (sentCount / totalRecipients) * 100 : 0,
       lastDeliveryAttempt: new Date(),
       failedTokens: failedTokens.length > 0 ? failedTokens : undefined,
     });
 
     // Create in-app notifications for all target users
     try {
-      const inAppPromises = targetUsers.map(userId => 
+      const inAppPromises = targetUsers.map(userId =>
         createInAppNotification({
           userId,
           title,
@@ -260,7 +305,9 @@ export async function POST(req: NextRequest) {
         })
       );
       await Promise.all(inAppPromises);
-      console.log(`✅ Created in-app notifications for ${targetUsers.length} users`);
+      console.log(
+        `✅ Created in-app notifications for ${targetUsers.length} users`
+      );
     } catch (inAppError) {
       console.error('In-app notification creation failed:', inAppError);
     }
@@ -278,15 +325,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const deliveryRate = totalRecipients > 0 ? (sentCount / totalRecipients) * 100 : 0;
-    
+    const deliveryRate =
+      totalRecipients > 0 ? (sentCount / totalRecipients) * 100 : 0;
+
     console.log(`✅ Notification delivery completed!`, {
       notificationId,
       totalRecipients,
       sentCount,
       failedCount,
       deliveryRate: `${deliveryRate.toFixed(2)}%`,
-      failedTokens: failedTokens.length
+      failedTokens: failedTokens.length,
     });
 
     return NextResponse.json({
@@ -301,7 +349,6 @@ export async function POST(req: NextRequest) {
       },
       message: `Successfully delivered notifications to ${sentCount} out of ${totalRecipients} recipients (${deliveryRate.toFixed(2)}% success rate)`,
     });
-
   } catch (error) {
     console.error('Notification sending error:', error);
     return NextResponse.json(
@@ -324,7 +371,7 @@ async function sendEmailNotification({
   try {
     // Get user emails
     const userEmails: string[] = [];
-    const emailPromises = targetUsers.map(async (userId) => {
+    const emailPromises = targetUsers.map(async userId => {
       try {
         const userDoc = await getDoc(doc(db, 'users', userId));
         const userData = userDoc.data();
@@ -337,38 +384,63 @@ async function sendEmailNotification({
       return null;
     });
 
-    const emails = (await Promise.all(emailPromises)).filter(Boolean) as string[];
+    const emails = (await Promise.all(emailPromises)).filter(
+      Boolean
+    ) as string[];
     userEmails.push(...emails);
 
     if (userEmails.length > 0) {
       // In production, integrate with your email service (Nodemailer, SendGrid, etc.)
       if (process.env.NODE_ENV === 'development') {
-        console.log(`📧 Mock Email: Sending to ${userEmails.length} recipients`, {
-          title,
-          message,
-          emails: userEmails.slice(0, 3), // Show first 3 emails only
-        });
+        console.log(
+          `📧 Mock Email: Sending to ${userEmails.length} recipients`,
+          {
+            title,
+            message,
+            emails: userEmails.slice(0, 3), // Show first 3 emails only
+          }
+        );
       } else {
         // Production email implementation
         try {
-          console.log(`📧 Production Email: Attempting to send to ${userEmails.length} recipients`);
-          
+          console.log(
+            `📧 Production Email: Attempting to send to ${userEmails.length} recipients`
+          );
+
           // Try SendGrid first
           try {
             await sendEmailWithSendGrid(title, message, userEmails);
-            console.log(`✅ SendGrid: Successfully sent emails to ${userEmails.length} recipients`);
+            console.log(
+              `✅ SendGrid: Successfully sent emails to ${userEmails.length} recipients`
+            );
           } catch (sendGridError) {
-            const sendGridMessage = sendGridError instanceof Error ? sendGridError.message : String(sendGridError);
-            console.warn('⚠️ SendGrid failed, falling back to Nodemailer:', sendGridError);
-            
+            const sendGridMessage =
+              sendGridError instanceof Error
+                ? sendGridError.message
+                : String(sendGridError);
+            console.warn(
+              '⚠️ SendGrid failed, falling back to Nodemailer:',
+              sendGridError
+            );
+
             // Fallback to Nodemailer
             try {
               await sendEmailWithNodemailer(title, message, userEmails);
-              console.log(`✅ Nodemailer: Successfully sent emails to ${userEmails.length} recipients`);
+              console.log(
+                `✅ Nodemailer: Successfully sent emails to ${userEmails.length} recipients`
+              );
             } catch (nodemailerError) {
-              const nodemailerMessage = nodemailerError instanceof Error ? nodemailerError.message : String(nodemailerError);
-              console.error('❌ Both SendGrid and Nodemailer failed:', nodemailerError);
-              throw new Error(`Email delivery failed: SendGrid error: ${sendGridMessage}, Nodemailer error: ${nodemailerMessage}`);
+              const nodemailerMessage =
+                nodemailerError instanceof Error
+                  ? nodemailerError.message
+                  : String(nodemailerError);
+              console.error(
+                '❌ Both SendGrid and Nodemailer failed:',
+                nodemailerError
+              );
+              throw new Error(
+                `Email delivery failed: SendGrid error: ${sendGridMessage}, Nodemailer error: ${nodemailerMessage}`
+              );
             }
           }
         } catch (emailError) {
@@ -398,14 +470,16 @@ async function createInAppNotification({
   try {
     // Create individual user notification record
     await updateDoc(doc(db, 'users', userId), {
-      notifications: [{
-        id: notificationId,
-        title,
-        message,
-        read: false,
-        createdAt: new Date(),
-        type: 'admin_announcement',
-      }],
+      notifications: [
+        {
+          id: notificationId,
+          title,
+          message,
+          read: false,
+          createdAt: new Date(),
+          type: 'admin_announcement',
+        },
+      ],
     });
   } catch (error) {
     console.error(`Failed to create in-app notification for ${userId}:`, error);
@@ -430,18 +504,23 @@ async function sendEmailWithSendGrid(
     try {
       sgMail = await import('@sendgrid/mail');
     } catch (importError) {
-      throw new Error('SendGrid package not installed. Run: yarn add @sendgrid/mail');
+      throw new Error(
+        'SendGrid package not installed. Run: yarn add @sendgrid/mail'
+      );
     }
-    
+
     sgMail.default.setApiKey(process.env.SENDGRID_API_KEY);
 
     // SendGrid has a limit of 1000 recipients per request
     const batchSize = 1000;
-    const fromEmail = process.env.SENDGRID_FROM_EMAIL || process.env.SMTP_FROM || 'notifications@yourapp.com';
-    
+    const fromEmail =
+      process.env.SENDGRID_FROM_EMAIL ||
+      process.env.SMTP_FROM ||
+      'notifications@yourapp.com';
+
     for (let i = 0; i < userEmails.length; i += batchSize) {
       const batch = userEmails.slice(i, i + batchSize);
-      
+
       await sgMail.default.send({
         to: batch,
         from: fromEmail,
@@ -452,7 +531,7 @@ async function sendEmailWithSendGrid(
         // Use 'to' field for single recipient
         ...(batch.length === 1 && { to: batch[0] }),
       });
-      
+
       // Add delay between batches to avoid rate limiting
       if (i + batchSize < userEmails.length) {
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -477,18 +556,22 @@ async function sendEmailWithNodemailer(
     }
 
     // Dynamic import to use existing email service
-    const { emailService } = await import('../../../../lib/services/emailService');
-    
-    console.log(`📧 Using existing email service to send to ${userEmails.length} recipients`);
-    
+    const { emailService } = await import(
+      '../../../../lib/services/emailService'
+    );
+
+    console.log(
+      `📧 Using existing email service to send to ${userEmails.length} recipients`
+    );
+
     // Send emails in batches using existing service
     const batchSize = 50; // Batch size for email service
-    
+
     for (let i = 0; i < userEmails.length; i += batchSize) {
       const batch = userEmails.slice(i, i + batchSize);
-      
+
       // Send to each recipient individually
-      const sendPromises = batch.map(async (email) => {
+      const sendPromises = batch.map(async email => {
         try {
           const success = await emailService.sendNotificationEmail(
             email,
@@ -504,15 +587,19 @@ async function sendEmailWithNodemailer(
       });
 
       const results = await Promise.allSettled(sendPromises);
-      
+
       // Log results
-      const successful = results.filter(r => r.status === 'fulfilled' && r.value?.success).length;
+      const successful = results.filter(
+        r => r.status === 'fulfilled' && r.value?.success
+      ).length;
       const failed = results.length - successful;
-      
+
       if (failed > 0) {
-        console.warn(`⚠️ Email batch ${Math.floor(i / batchSize) + 1}: ${successful} successful, ${failed} failed`);
+        console.warn(
+          `⚠️ Email batch ${Math.floor(i / batchSize) + 1}: ${successful} successful, ${failed} failed`
+        );
       }
-      
+
       // Add delay between batches
       if (i + batchSize < userEmails.length) {
         await new Promise(resolve => setTimeout(resolve, 1000));

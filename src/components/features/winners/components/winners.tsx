@@ -32,7 +32,7 @@ export function WinnersPage() {
     data: winnersResponse,
     isLoading: loading,
     error,
-    refetch
+    refetch,
   } = useWinners(selectedPeriod, currentPage);
 
   const winners = winnersResponse?.data || [];
@@ -75,8 +75,6 @@ export function WinnersPage() {
     { id: 'weekly', name: t('winners.periods.thisWeek'), icon: Star },
     { id: 'daily', name: t('winners.periods.today'), icon: Medal },
   ];
-
-
 
   return (
     <>
@@ -185,7 +183,9 @@ export function WinnersPage() {
           {error && (
             <div className='text-center py-12'>
               <div className='bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 max-w-md mx-auto'>
-                <p className='text-red-600 dark:text-red-400 mb-4'>{error.message}</p>
+                <p className='text-red-600 dark:text-red-400 mb-4'>
+                  {error.message}
+                </p>
                 <button
                   onClick={() => refetch()}
                   className='bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors'
@@ -305,8 +305,7 @@ export function WinnersPage() {
                   </button>
 
                   <span className='px-4 py-2 text-gray-600 dark:text-gray-400'>
-                    Page {currentPage} of{' '}
-                    {Math.ceil(totalWinners / 3)}
+                    Page {currentPage} of {Math.ceil(totalWinners / 3)}
                   </span>
 
                   <button

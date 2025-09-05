@@ -206,7 +206,7 @@ export const FEATURE_FLAGS = {
 // =============================================================================
 
 export const API_CONFIG = {
-  baseUrl: 'http://localhost:3000/api',
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
   timeout: 10000,
   retries: 3,
   rateLimit: {
@@ -644,3 +644,15 @@ export const PRIZES = [
 // =============================================================================
 
 export * from './mockData';
+
+// script to get the app url based on environment
+export const app_url = () => {
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.NEXT_PUBLIC_APP_URL!;
+  }
+  return process.env.NEXT_PUBLIC_LOCAL_APP_URL || 'http://localhost:3000';
+};
+export const APP_URL = app_url();
+
+export const EXCHANGE_RATE_API_KEY = process.env.EXCHANGE_RATE_API_KEY || '';
+export const FIXER_API_KEY = process.env.FIXER_API_KEY || '';

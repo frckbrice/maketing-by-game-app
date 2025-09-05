@@ -36,7 +36,7 @@ export function VendorGames() {
   const { t, i18n } = useTranslation();
   const locale = i18n.language || 'en';
   const { user } = useAuth();
-  
+
   // State variables
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -44,15 +44,23 @@ export function VendorGames() {
   const pageSize = 12;
 
   // TanStack Query hook
-  const { data: gamesData = [], isLoading: loading, refetch } = useVendorGames(user?.id || '', { page: currentPage, limit: pageSize, status: statusFilter });
-  const games = { 
-    data: gamesData, 
+  const {
+    data: gamesData = [],
+    isLoading: loading,
+    refetch,
+  } = useVendorGames(user?.id || '', {
+    page: currentPage,
+    limit: pageSize,
+    status: statusFilter,
+  });
+  const games = {
+    data: gamesData,
     total: gamesData.length,
     page: currentPage,
     pageSize,
     totalPages: Math.ceil(gamesData.length / pageSize),
     hasNext: currentPage * pageSize < gamesData.length,
-    hasPrevious: currentPage > 1
+    hasPrevious: currentPage > 1,
   };
 
   const handleSearch = () => {
@@ -62,16 +70,42 @@ export function VendorGames() {
 
   const getStatusBadge = (status: string) => {
     const badges = {
-      ACTIVE: <Badge className='bg-green-500 text-white'>{t('vendor.status.active')}</Badge>,
-      PENDING: (
-        <Badge className='bg-yellow-500 text-white'>{t('vendor.status.pending')}</Badge>
+      ACTIVE: (
+        <Badge className='bg-green-500 text-white'>
+          {t('vendor.status.active')}
+        </Badge>
       ),
-      DRAWING: <Badge className='bg-blue-500 text-white'>{t('vendor.status.drawing')}</Badge>,
-      CLOSED: <Badge className='bg-gray-500 text-white'>{t('vendor.status.closed')}</Badge>,
-      DRAFT: <Badge className='bg-gray-400 text-white'>{t('vendor.status.draft')}</Badge>,
-      REJECTED: <Badge className='bg-red-500 text-white'>{t('vendor.status.rejected')}</Badge>,
+      PENDING: (
+        <Badge className='bg-yellow-500 text-white'>
+          {t('vendor.status.pending')}
+        </Badge>
+      ),
+      DRAWING: (
+        <Badge className='bg-blue-500 text-white'>
+          {t('vendor.status.drawing')}
+        </Badge>
+      ),
+      CLOSED: (
+        <Badge className='bg-gray-500 text-white'>
+          {t('vendor.status.closed')}
+        </Badge>
+      ),
+      DRAFT: (
+        <Badge className='bg-gray-400 text-white'>
+          {t('vendor.status.draft')}
+        </Badge>
+      ),
+      REJECTED: (
+        <Badge className='bg-red-500 text-white'>
+          {t('vendor.status.rejected')}
+        </Badge>
+      ),
     };
-    return badges[status as keyof typeof badges] || <Badge>{t('common.unknown')}</Badge>;
+    return (
+      badges[status as keyof typeof badges] || (
+        <Badge>{t('common.unknown')}</Badge>
+      )
+    );
   };
 
   const getTimeRemaining = (endDate: number) => {
@@ -152,11 +186,21 @@ export function VendorGames() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value=''>{t('vendor.allStatus')}</SelectItem>
-                  <SelectItem value='ACTIVE'>{t('vendor.status.active')}</SelectItem>
-                  <SelectItem value='PENDING'>{t('vendor.status.pending')}</SelectItem>
-                  <SelectItem value='DRAWING'>{t('vendor.status.drawing')}</SelectItem>
-                  <SelectItem value='CLOSED'>{t('vendor.status.closed')}</SelectItem>
-                  <SelectItem value='DRAFT'>{t('vendor.status.draft')}</SelectItem>
+                  <SelectItem value='ACTIVE'>
+                    {t('vendor.status.active')}
+                  </SelectItem>
+                  <SelectItem value='PENDING'>
+                    {t('vendor.status.pending')}
+                  </SelectItem>
+                  <SelectItem value='DRAWING'>
+                    {t('vendor.status.drawing')}
+                  </SelectItem>
+                  <SelectItem value='CLOSED'>
+                    {t('vendor.status.closed')}
+                  </SelectItem>
+                  <SelectItem value='DRAFT'>
+                    {t('vendor.status.draft')}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -254,9 +298,7 @@ export function VendorGames() {
                         className='flex-1'
                         asChild
                       >
-                        <Link
-                          href={`/vendor-dashboard/games/${game.id}/edit`}
-                        >
+                        <Link href={`/vendor-dashboard/games/${game.id}/edit`}>
                           <Edit className='w-4 h-4 mr-1' />
                           {t('common.edit')}
                         </Link>
@@ -272,7 +314,9 @@ export function VendorGames() {
         <Card className='p-12 text-center'>
           <GamepadIcon className='w-16 h-16 text-gray-400 mx-auto mb-4' />
           <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-2'>
-            {searchTerm || statusFilter ? t('vendor.noGamesFound') : t('vendor.noGamesYet')}
+            {searchTerm || statusFilter
+              ? t('vendor.noGamesFound')
+              : t('vendor.noGamesYet')}
           </h3>
           <p className='text-gray-600 dark:text-gray-400 mb-6'>
             {searchTerm || statusFilter
@@ -294,9 +338,10 @@ export function VendorGames() {
       {games && games.totalPages > 1 && (
         <div className='flex items-center justify-between'>
           <div className='text-sm text-gray-500 dark:text-gray-400'>
-            {t('common.showing')} {(games.page - 1) * games.pageSize + 1} {t('common.to')}{' '}
-            {Math.min(games.page * games.pageSize, games.total)} {t('common.of')}{' '}
-            {games.total} {t('vendor.games')}
+            {t('common.showing')} {(games.page - 1) * games.pageSize + 1}{' '}
+            {t('common.to')}{' '}
+            {Math.min(games.page * games.pageSize, games.total)}{' '}
+            {t('common.of')} {games.total} {t('vendor.games')}
           </div>
           <div className='flex items-center space-x-2'>
             <Button
@@ -308,7 +353,8 @@ export function VendorGames() {
               <ChevronLeft className='w-4 h-4' />
             </Button>
             <span className='text-sm font-medium'>
-              {t('common.page')} {games.page} {t('common.of')} {games.totalPages}
+              {t('common.page')} {games.page} {t('common.of')}{' '}
+              {games.totalPages}
             </span>
             <Button
               variant='outline'

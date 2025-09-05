@@ -78,8 +78,16 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
   ];
 
   const trustBadges = [
-    { icon: Shield, text: t('footer.sslSecured'), description: t('footer.bankLevelEncryption') },
-    { icon: Award, text: t('footer.licensed'), description: t('footer.fullyRegulatedPlatform') },
+    {
+      icon: Shield,
+      text: t('footer.sslSecured'),
+      description: t('footer.bankLevelEncryption'),
+    },
+    {
+      icon: Award,
+      text: t('footer.licensed'),
+      description: t('footer.fullyRegulatedPlatform'),
+    },
     {
       icon: Clock,
       text: t('footer.support24_7'),
@@ -121,7 +129,7 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
                 isDark ? 'text-gray-400' : 'text-gray-600'
               }`}
             >
-{t('footer.companyDescription')}
+              {t('footer.companyDescription')}
             </p>
 
             {/* Contact Info */}
@@ -343,7 +351,7 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
                 isDark ? 'text-gray-400' : 'text-gray-600'
               }`}
             >
-{t('footer.newsletterDescription')}
+              {t('footer.newsletterDescription')}
             </p>
             <div className='flex gap-2'>
               <input
@@ -356,7 +364,7 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
                 } focus:outline-none focus:ring-2 focus:ring-orange-500/20`}
               />
               <button className='px-6 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 transform hover:scale-105'>
-{t('footer.subscribe')}
+                {t('footer.subscribe')}
               </button>
             </div>
           </div>
@@ -375,7 +383,8 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
           <div
             className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}
           >
-            © {currentYear} {t('common.appName')}. {t('footer.allRightsReserved')} | {t('footer.licensedPlatform')}
+            © {currentYear} {t('common.appName')}.{' '}
+            {t('footer.allRightsReserved')} | {t('footer.licensedPlatform')}
           </div>
 
           <div className='flex items-center space-x-6'>
@@ -384,7 +393,7 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
                 isDark ? 'text-gray-500' : 'text-gray-500'
               }`}
             >
-{t('footer.playResponsibly')}
+              {t('footer.playResponsibly')}
             </div>
             <div className='flex items-center space-x-4'>
               <img
@@ -422,7 +431,7 @@ export const Footer = ({ isDark }: { isDark: boolean }) => {
               href='#responsible-gaming'
               className='underline hover:text-orange-500 transition-colors'
             >
-{t('footer.getHelp')}
+              {t('footer.getHelp')}
             </a>
             <span>|</span>
             <a

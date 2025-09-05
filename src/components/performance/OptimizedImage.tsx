@@ -56,19 +56,22 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
     onLoad?.();
   }, [onLoad]);
 
-  const handleError = useCallback((error: any) => {
-    setHasError(true);
-    if (imageSrc !== fallbackSrc) {
-      setImageSrc(fallbackSrc);
-      setHasError(false); // Reset error state for fallback
-    }
-    onError?.(error);
-  }, [imageSrc, fallbackSrc, onError]);
+  const handleError = useCallback(
+    (error: any) => {
+      setHasError(true);
+      if (imageSrc !== fallbackSrc) {
+        setImageSrc(fallbackSrc);
+        setHasError(false); // Reset error state for fallback
+      }
+      onError?.(error);
+    },
+    [imageSrc, fallbackSrc, onError]
+  );
 
   // Generate blur data URL if not provided
   const getBlurDataURL = (src: string) => {
     if (blurDataURL) return blurDataURL;
-    
+
     // Create a simple base64 blur placeholder
     return 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx4f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8A0XqoC4HYuxlVmN5cWAjIWC+lsn1pQJgFhJ3r4IvG7YUE8vvn6WBJGCV9MCHdyDzgHnv1rUZQV+XhO4VbZsGXZJJIHGYvS8vGTnvPW9SPJyxNE8YzKjHmHf8AFOiDcH+KVt3oEPBfM9OQhFdAOqAqzOhJ7R+w+VZPyGsW9P6fKzA=';
   };
@@ -94,16 +97,16 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
     >
       {/* Loading skeleton */}
       {!isLoaded && !hasError && (
-        <div 
-          className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse"
+        <div
+          className='absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse'
           style={{ zIndex: 1 }}
         />
       )}
 
       {/* Error fallback */}
       {hasError && imageSrc === fallbackSrc && (
-        <div className="absolute inset-0 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-          <div className="text-2xl opacity-50">🖼️</div>
+        <div className='absolute inset-0 bg-gray-100 dark:bg-gray-800 flex items-center justify-center'>
+          <div className='text-2xl opacity-50'>🖼️</div>
         </div>
       )}
 
@@ -120,7 +123,9 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
           priority={priority}
           quality={quality}
           placeholder={placeholder}
-          blurDataURL={placeholder === 'blur' ? getBlurDataURL(imageSrc) : undefined}
+          blurDataURL={
+            placeholder === 'blur' ? getBlurDataURL(imageSrc) : undefined
+          }
           className={`transition-opacity duration-300 ${
             isLoaded ? 'opacity-100' : 'opacity-0'
           }`}
@@ -128,7 +133,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
           onLoad={handleLoad}
           onError={handleError}
           // Performance optimizations
-          decoding="async"
+          decoding='async'
           loading={priority ? 'eager' : 'lazy'}
         />
       )}

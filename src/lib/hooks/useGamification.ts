@@ -21,68 +21,70 @@ export const useGamification = (options: UseGamificationOptions = {}) => {
   }, [user?.id, enableAutoStreak]);
 
   // Award points for game play
-  const awardGamePlayPoints = useCallback(async (
-    gameId: string, 
-    isWin: boolean = false
-  ) => {
-    if (!user?.id) return;
+  const awardGamePlayPoints = useCallback(
+    async (gameId: string, isWin: boolean = false) => {
+      if (!user?.id) return;
 
-    try {
-      const basePoints = isWin ? 50 : 25; // Winners get more points
-      await gamificationService.awardPoints(
-        user.id,
-        basePoints,
-        'EARNED_GAME_PLAY',
-        `Game played: ${isWin ? 'Won' : 'Played'}`,
-        gameId,
-        'GAME'
-      );
-
-      // Update referral progress
-      const loyaltyProfile = await gamificationService.getUserLoyaltyProfile(user.id);
-      if (loyaltyProfile) {
-        await gamificationService.updateReferralProgress(
-          user.id, 
-          loyaltyProfile.lifetimeGamesPlayed + 1
+      try {
+        const basePoints = isWin ? 50 : 25; // Winners get more points
+        await gamificationService.awardPoints(
+          user.id,
+          basePoints,
+          'EARNED_GAME_PLAY',
+          `Game played: ${isWin ? 'Won' : 'Played'}`,
+          gameId,
+          'GAME'
         );
-      }
 
-      // Check for new badges after game play
-      if (enableAutoBadgeCheck && !checkBadges.isPending) {
-        checkBadges.mutate();
+        // Update referral progress
+        const loyaltyProfile = await gamificationService.getUserLoyaltyProfile(
+          user.id
+        );
+        if (loyaltyProfile) {
+          await gamificationService.updateReferralProgress(
+            user.id,
+            loyaltyProfile.lifetimeGamesPlayed + 1
+          );
+        }
+
+        // Check for new badges after game play
+        if (enableAutoBadgeCheck && !checkBadges.isPending) {
+          checkBadges.mutate();
+        }
+      } catch (error) {
+        console.error('Error awarding game play points:', error);
       }
-    } catch (error) {
-      console.error('Error awarding game play points:', error);
-    }
-  }, [user?.id, enableAutoBadgeCheck, checkBadges]);
+    },
+    [user?.id, enableAutoBadgeCheck, checkBadges]
+  );
 
   // Award points for purchases/orders
-  const awardPurchasePoints = useCallback(async (
-    orderId: string,
-    amount: number
-  ) => {
-    if (!user?.id) return;
+  const awardPurchasePoints = useCallback(
+    async (orderId: string, amount: number) => {
+      if (!user?.id) return;
 
-    try {
-      // 1 point per dollar spent
-      const points = Math.floor(amount);
-      await gamificationService.awardPoints(
-        user.id,
-        points,
-        'EARNED_PURCHASE',
-        `Purchase reward: $${amount}`,
-        orderId,
-        'ORDER'
-      );
+      try {
+        // 1 point per dollar spent
+        const points = Math.floor(amount);
+        await gamificationService.awardPoints(
+          user.id,
+          points,
+          'EARNED_PURCHASE',
+          `Purchase reward: $${amount}`,
+          orderId,
+          'ORDER'
+        );
 
-      // Check for new badges after purchase
-      if (enableAutoBadgeCheck && !checkBadges.isPending) {
-        checkBadges.mutate();
+        // Check for new badges after purchase
+        if (enableAutoBadgeCheck && !checkBadges.isPending) {
+          checkBadges.mutate();
+        }
+      } catch (error) {
+        console.error('Error awarding purchase points:', error);
       }
-    } catch (error) {
-      console.error('Error awarding purchase points:', error);
-    }
-  }, [user?.id, enableAutoBadgeCheck, checkBadges]);
+    },
+    [user?.id, enableAutoBadgeCheck, checkBadges]
+  );
 
   // Manual badge check trigger
   const triggerBadgeCheck = useCallback(() => {

@@ -5,20 +5,25 @@ import { gamificationService } from '@/lib/services/gamificationService';
 export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth(request);
-    
-    const loyaltyProfile = await gamificationService.getUserLoyaltyProfile(user.id);
-    
+
+    const loyaltyProfile = await gamificationService.getUserLoyaltyProfile(
+      user.id
+    );
+
     return NextResponse.json({
       success: true,
       profile: loyaltyProfile,
     });
   } catch (error) {
     console.error('Error fetching loyalty profile:', error);
-    
-    if (error instanceof Error && error.message.includes('Authentication required')) {
+
+    if (
+      error instanceof Error &&
+      error.message.includes('Authentication required')
+    ) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -33,10 +38,7 @@ export async function POST(request: NextRequest) {
     const { action, points, description, referenceId, referenceType } = body;
 
     if (action !== 'award_points') {
-      return NextResponse.json(
-        { error: 'Invalid action' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
 
     // Only allow admins to manually award points
@@ -54,7 +56,9 @@ export async function POST(request: NextRequest) {
     );
 
     if (success) {
-      const updatedProfile = await gamificationService.getUserLoyaltyProfile(user.id);
+      const updatedProfile = await gamificationService.getUserLoyaltyProfile(
+        user.id
+      );
       return NextResponse.json({
         success: true,
         profile: updatedProfile,

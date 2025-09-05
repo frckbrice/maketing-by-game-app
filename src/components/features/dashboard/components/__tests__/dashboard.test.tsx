@@ -7,184 +7,193 @@ import { DashboardPage } from '../dashboard';
 
 // Mock external dependencies
 jest.mock('@/lib/contexts/AuthContext', () => ({
-    useAuth: jest.fn(),
+  useAuth: jest.fn(),
 }));
 
 jest.mock('next-themes', () => ({
-    useTheme: jest.fn(),
+  useTheme: jest.fn(),
 }));
 
 jest.mock('next/navigation', () => ({
-    useRouter: jest.fn(),
+  useRouter: jest.fn(),
 }));
 
 jest.mock('react-i18next', () => ({
-    useTranslation: jest.fn(),
+  useTranslation: jest.fn(),
 }));
 
 jest.mock('@/components/home/components/DesktopHeader', () => ({
-    DesktopHeader: ({ isDark, onThemeToggle }: { isDark: boolean; onThemeToggle: () => void }) => (
-        <header data-testid="desktop-header" className={isDark ? 'dark' : 'light'}>
-            <button onClick={onThemeToggle} data-testid="theme-toggle">
-                Toggle Theme
-            </button>
-        </header>
-    ),
+  DesktopHeader: ({
+    isDark,
+    onThemeToggle,
+  }: {
+    isDark: boolean;
+    onThemeToggle: () => void;
+  }) => (
+    <header data-testid='desktop-header' className={isDark ? 'dark' : 'light'}>
+      <button onClick={onThemeToggle} data-testid='theme-toggle'>
+        Toggle Theme
+      </button>
+    </header>
+  ),
 }));
 
 jest.mock('@/components/home/components/MobileNavigation', () => ({
-    MobileNavigation: ({
-        isDark,
-        mobileMenuOpen,
-        setMobileMenuOpen,
-        onThemeToggle
-    }: {
-        isDark: boolean;
-        mobileMenuOpen: boolean;
-        setMobileMenuOpen: (open: boolean) => void;
-        onThemeToggle: () => void;
-    }) => (
-        <nav data-testid="mobile-nav" className={isDark ? 'dark' : 'light'}>
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} data-testid="mobile-menu-toggle">
-                {mobileMenuOpen ? 'Close' : 'Open'} Menu
-            </button>
-            <button onClick={onThemeToggle} data-testid="mobile-theme-toggle">
-                Toggle Theme
-            </button>
-        </nav>
-    ),
+  MobileNavigation: ({
+    isDark,
+    mobileMenuOpen,
+    setMobileMenuOpen,
+    onThemeToggle,
+  }: {
+    isDark: boolean;
+    mobileMenuOpen: boolean;
+    setMobileMenuOpen: (open: boolean) => void;
+    onThemeToggle: () => void;
+  }) => (
+    <nav data-testid='mobile-nav' className={isDark ? 'dark' : 'light'}>
+      <button
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        data-testid='mobile-menu-toggle'
+      >
+        {mobileMenuOpen ? 'Close' : 'Open'} Menu
+      </button>
+      <button onClick={onThemeToggle} data-testid='mobile-theme-toggle'>
+        Toggle Theme
+      </button>
+    </nav>
+  ),
 }));
 
 // Mock data
 const mockUser = {
-    id: 'user1',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    role: 'VENDOR',
+  id: 'user1',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john.doe@example.com',
+  role: 'VENDOR',
 };
 
 const mockTranslation = {
-    t: (key: string) => {
-        const translations: { [key: string]: string } = {
-            'common.redirecting': 'Redirecting...',
-            'common.loading': 'Loading...',
-            'common.goHome': 'Go Home',
-            'common.name': 'Name',
-            'common.email': 'Email',
-            'common.role': 'Role',
-            'dashboard.welcome': 'Welcome',
-            'dashboard.vendorWelcome': 'Welcome to your vendor dashboard',
-            'dashboard.adminWelcome': 'Welcome to your admin dashboard',
-            'dashboard.accessDenied': 'Access Denied',
-            'dashboard.pleaseLogin': 'Please log in to access the dashboard',
-            'dashboard.profile': 'Profile',
-            'dashboard.quickActions': 'Quick Actions',
-            'dashboard.createGame': 'Create Game',
-            'dashboard.manageGames': 'Manage Games',
-            'dashboard.adminPanel': 'Admin Panel',
-            'dashboard.manageUsers': 'Manage Users',
-            'dashboard.noActionsAvailable': 'No actions available for your role',
-            'dashboard.stats': 'Statistics',
-            'dashboard.gamesCreated': 'Games Created',
-            'dashboard.gamesPlayed': 'Games Played',
-            'dashboard.totalRevenue': 'Total Revenue',
-            'dashboard.wins': 'Wins',
-            'dashboard.activeGames': 'Active Games',
-            'dashboard.totalWinnings': 'Total Winnings',
-        };
-        return translations[key] || key;
-    },
+  t: (key: string) => {
+    const translations: { [key: string]: string } = {
+      'common.redirecting': 'Redirecting...',
+      'common.loading': 'Loading...',
+      'common.goHome': 'Go Home',
+      'common.name': 'Name',
+      'common.email': 'Email',
+      'common.role': 'Role',
+      'dashboard.welcome': 'Welcome',
+      'dashboard.vendorWelcome': 'Welcome to your vendor dashboard',
+      'dashboard.adminWelcome': 'Welcome to your admin dashboard',
+      'dashboard.accessDenied': 'Access Denied',
+      'dashboard.pleaseLogin': 'Please log in to access the dashboard',
+      'dashboard.profile': 'Profile',
+      'dashboard.quickActions': 'Quick Actions',
+      'dashboard.createGame': 'Create Game',
+      'dashboard.manageGames': 'Manage Games',
+      'dashboard.adminPanel': 'Admin Panel',
+      'dashboard.manageUsers': 'Manage Users',
+      'dashboard.noActionsAvailable': 'No actions available for your role',
+      'dashboard.stats': 'Statistics',
+      'dashboard.gamesCreated': 'Games Created',
+      'dashboard.gamesPlayed': 'Games Played',
+      'dashboard.totalRevenue': 'Total Revenue',
+      'dashboard.wins': 'Wins',
+      'dashboard.activeGames': 'Active Games',
+      'dashboard.totalWinnings': 'Total Winnings',
+    };
+    return translations[key] || key;
+  },
 };
 
 describe('DashboardPage', () => {
-    const mockSetTheme = jest.fn();
-    const mockPush = jest.fn();
-    const mockReplace = jest.fn();
+  const mockSetTheme = jest.fn();
+  const mockPush = jest.fn();
+  const mockReplace = jest.fn();
 
-    beforeEach(() => {
-        jest.clearAllMocks();
+  beforeEach(() => {
+    jest.clearAllMocks();
 
-        (useAuth as jest.Mock).mockReturnValue({
-            user: mockUser,
-            loading: false,
-        });
-
-        (useTheme as jest.Mock).mockReturnValue({
-            theme: 'light',
-            setTheme: mockSetTheme,
-        });
-
-        (useRouter as jest.Mock).mockReturnValue({
-            push: mockPush,
-            replace: mockReplace,
-        });
-
-        (useTranslation as jest.Mock).mockReturnValue(mockTranslation);
+    (useAuth as jest.Mock).mockReturnValue({
+      user: mockUser,
+      loading: false,
     });
 
-    afterEach(() => {
-        jest.restoreAllMocks();
+    (useTheme as jest.Mock).mockReturnValue({
+      theme: 'light',
+      setTheme: mockSetTheme,
     });
 
-    // Note: Content rendering tests are skipped due to complex redirect logic
-    // The component immediately redirects users based on their role, making content testing challenging
-
-    it('shows loading state while authenticating', async () => {
-        (useAuth as jest.Mock).mockReturnValue({
-            user: null,
-            loading: true,
-        });
-
-        render(<DashboardPage />);
-
-        await waitFor(() => {
-            expect(screen.getByText('Loading...')).toBeInTheDocument();
-        });
+    (useRouter as jest.Mock).mockReturnValue({
+      push: mockPush,
+      replace: mockReplace,
     });
 
-    // Note: Additional content rendering tests are skipped due to complex redirect logic
-    // The component immediately redirects users based on their role, making content testing challenging
+    (useTranslation as jest.Mock).mockReturnValue(mockTranslation);
+  });
 
-    it('redirects USER role to games page', async () => {
-        const userRole = { ...mockUser, role: 'USER' };
-        (useAuth as jest.Mock).mockReturnValue({
-            user: userRole,
-            loading: false,
-        });
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
 
-        // Mock router.replace to prevent actual navigation
-        mockReplace.mockImplementation(() => { });
+  // Note: Content rendering tests are skipped due to complex redirect logic
+  // The component immediately redirects users based on their role, making content testing challenging
 
-        render(<DashboardPage />);
-
-        // The component should redirect USER role to /games
-        expect(mockReplace).toHaveBeenCalledWith('/games');
+  it('shows loading state while authenticating', async () => {
+    (useAuth as jest.Mock).mockReturnValue({
+      user: null,
+      loading: true,
     });
 
-    it('redirects ADMIN role to admin page', async () => {
-        const adminUser = { ...mockUser, role: 'ADMIN' };
-        (useAuth as jest.Mock).mockReturnValue({
-            user: adminUser,
-            loading: false,
-        });
+    render(<DashboardPage />);
 
-        // Mock router.replace to prevent actual navigation
-        mockReplace.mockImplementation(() => { });
+    await waitFor(() => {
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+    });
+  });
 
-        render(<DashboardPage />);
+  // Note: Additional content rendering tests are skipped due to complex redirect logic
+  // The component immediately redirects users based on their role, making content testing challenging
 
-        // The component should redirect ADMIN role to /admin
-        expect(mockReplace).toHaveBeenCalledWith('/admin');
+  it('redirects USER role to games page', async () => {
+    const userRole = { ...mockUser, role: 'USER' };
+    (useAuth as jest.Mock).mockReturnValue({
+      user: userRole,
+      loading: false,
     });
 
-    it('redirects VENDOR role to vendor dashboard', async () => {
-        // Mock router.replace to prevent actual navigation
-        mockReplace.mockImplementation(() => { });
+    // Mock router.replace to prevent actual navigation
+    mockReplace.mockImplementation(() => {});
 
-        render(<DashboardPage />);
+    render(<DashboardPage />);
 
-        // The component should redirect VENDOR role to /vendor-dashboard
-        expect(mockReplace).toHaveBeenCalledWith('/vendor-dashboard');
+    // The component should redirect USER role to /games
+    expect(mockReplace).toHaveBeenCalledWith('/games');
+  });
+
+  it('redirects ADMIN role to admin page', async () => {
+    const adminUser = { ...mockUser, role: 'ADMIN' };
+    (useAuth as jest.Mock).mockReturnValue({
+      user: adminUser,
+      loading: false,
     });
+
+    // Mock router.replace to prevent actual navigation
+    mockReplace.mockImplementation(() => {});
+
+    render(<DashboardPage />);
+
+    // The component should redirect ADMIN role to /admin
+    expect(mockReplace).toHaveBeenCalledWith('/admin');
+  });
+
+  it('redirects VENDOR role to vendor dashboard', async () => {
+    // Mock router.replace to prevent actual navigation
+    mockReplace.mockImplementation(() => {});
+
+    render(<DashboardPage />);
+
+    // The component should redirect VENDOR role to /vendor-dashboard
+    expect(mockReplace).toHaveBeenCalledWith('/vendor-dashboard');
+  });
 });

@@ -180,3 +180,87 @@ export interface VendorSettings {
   };
   updatedAt: Timestamp;
 }
+
+// Game Creation and Management Types
+export interface GameFormData {
+  title: string;
+  description: string;
+  categoryId: string;
+  ticketPrice: number;
+  currency: string;
+  maxParticipants: number;
+  images: string[];
+  prizes: Prize[];
+  rules: string[];
+  startDate: number;
+  endDate: number;
+  drawDate: number;
+  videoUrl?: string;
+  type: 'daily' | 'weekly' | 'special';
+}
+
+export interface Prize {
+  name: string;
+  description: string;
+  value: number;
+  imageUrl?: string;
+}
+
+// Vendor Statistics Types
+export interface VendorStats {
+  totalGames: number;
+  activeGames: number;
+  totalRevenue: number;
+  monthlyRevenue: number;
+  totalParticipants: number;
+  averageParticipation: number;
+  conversionRate: number;
+  pendingApprovals: number;
+}
+
+// Vendor Games Query Parameters
+export interface VendorGamesParams {
+  page?: number;
+  limit?: number;
+  status?: 'DRAFT' | 'PENDING' | 'ACTIVE' | 'CLOSED';
+  search?: string;
+}
+
+// Revenue Chart Data
+export interface RevenueChartData {
+  date: string;
+  revenue: number;
+}
+
+// Participation Chart Data
+export interface ParticipationChartData {
+  name: string;
+  value: number;
+}
+
+// Vendor Analytics Response
+export interface VendorAnalyticsResponse {
+  period: string;
+  stats: VendorStats;
+  revenueChart: RevenueChartData[];
+  participationChart: ParticipationChartData[];
+  updatedAt: number;
+}
+
+// Vendor Game Limits
+export interface VendorGameLimits {
+  currentGames: number;
+  maxGames: number;
+  canCreateMore: boolean;
+  remaining: number;
+}
+
+// Vendor Dashboard Data
+export interface VendorDashboardData {
+  stats: VendorStats;
+  recentGames: VendorGame[];
+  analytics: VendorAnalyticsResponse;
+  isLoading: boolean;
+  error: Error | null;
+  refetch: () => void;
+}

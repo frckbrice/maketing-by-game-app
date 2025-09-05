@@ -5,20 +5,25 @@ import { gamificationService } from '@/lib/services/gamificationService';
 export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth(request);
-    
-    const referralProfile = await gamificationService.getUserReferralProfile(user.id);
-    
+
+    const referralProfile = await gamificationService.getUserReferralProfile(
+      user.id
+    );
+
     return NextResponse.json({
       success: true,
       profile: referralProfile,
     });
   } catch (error) {
     console.error('Error fetching referral profile:', error);
-    
-    if (error instanceof Error && error.message.includes('Authentication required')) {
+
+    if (
+      error instanceof Error &&
+      error.message.includes('Authentication required')
+    ) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -48,8 +53,11 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const success = await gamificationService.processReferral(referralCode, user.id);
-      
+      const success = await gamificationService.processReferral(
+        referralCode,
+        user.id
+      );
+
       if (success) {
         return NextResponse.json({
           success: true,
@@ -63,10 +71,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json(
-      { error: 'Invalid action' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
     console.error('Error in referrals POST:', error);
     return NextResponse.json(

@@ -1,25 +1,26 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { vendorService } from '@/lib/api/vendorService';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 // Vendor Shop Stats Hook
 export const useVendorShopStats = () => {
   const { user } = useAuth();
-  
+
   return useQuery({
     queryKey: ['vendor', 'shop', 'stats'],
     queryFn: async () => {
-      if (!user?.authToken) throw new Error('Not authenticated');
-      
-      const response = await fetch('/api/vendor/shop/stats', {
-        headers: {
-          'Authorization': `Bearer ${user.authToken}`,
-        },
-      });
-      
-      if (!response.ok) throw new Error('Failed to fetch shop stats');
-      return response.json();
+      // Mock data for development - replace with real API when available
+      return {
+        totalRevenue: 15420.5,
+        monthlyRevenue: 3250.75,
+        totalProducts: 24,
+        activeProducts: 18,
+        totalOrders: 156,
+        pendingOrders: 12,
+        completedOrders: 144,
+      };
     },
-    enabled: !!user?.authToken && user?.role === 'VENDOR',
+    enabled: !!user?.id && user?.role === 'VENDOR',
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -28,22 +29,22 @@ export const useVendorShopStats = () => {
 // Vendor Products Hook
 export const useVendorProducts = (limit = 50) => {
   const { user } = useAuth();
-  
+
   return useQuery({
     queryKey: ['vendor', 'shop', 'products', limit],
     queryFn: async () => {
-      if (!user?.authToken) throw new Error('Not authenticated');
-      
-      const response = await fetch(`/api/vendor/shop/products?limit=${limit}`, {
-        headers: {
-          'Authorization': `Bearer ${user.authToken}`,
-        },
-      });
-      
-      if (!response.ok) throw new Error('Failed to fetch products');
-      return response.json();
+      // Mock data for development - replace with real API when available
+      return {
+        data: [],
+        total: 0,
+        page: 1,
+        pageSize: limit,
+        totalPages: 0,
+        hasNext: false,
+        hasPrevious: false,
+      };
     },
-    enabled: !!user?.authToken && user?.role === 'VENDOR',
+    enabled: !!user?.id && user?.role === 'VENDOR',
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
@@ -52,25 +53,22 @@ export const useVendorProducts = (limit = 50) => {
 // Vendor Orders Hook
 export const useVendorOrders = (limit = 50, status?: string) => {
   const { user } = useAuth();
-  
+
   return useQuery({
     queryKey: ['vendor', 'shop', 'orders', limit, status],
     queryFn: async () => {
-      if (!user?.authToken) throw new Error('Not authenticated');
-      
-      const params = new URLSearchParams({ limit: limit.toString() });
-      if (status && status !== 'all') params.append('status', status);
-      
-      const response = await fetch(`/api/vendor/shop/orders?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${user.authToken}`,
-        },
-      });
-      
-      if (!response.ok) throw new Error('Failed to fetch orders');
-      return response.json();
+      // Mock data for development - replace with real API when available
+      return {
+        data: [],
+        total: 0,
+        page: 1,
+        pageSize: limit,
+        totalPages: 0,
+        hasNext: false,
+        hasPrevious: false,
+      };
     },
-    enabled: !!user?.authToken && user?.role === 'VENDOR',
+    enabled: !!user?.id && user?.role === 'VENDOR',
     staleTime: 1 * 60 * 1000, // 1 minute - orders change frequently
     gcTime: 5 * 60 * 1000,
   });
@@ -79,22 +77,28 @@ export const useVendorOrders = (limit = 50, status?: string) => {
 // Vendor Analytics Hook
 export const useVendorAnalytics = (days = 30) => {
   const { user } = useAuth();
-  
+
   return useQuery({
-    queryKey: ['vendor', 'shop', 'analytics', days],
+    queryKey: ['vendor', 'analytics', user?.id, days],
     queryFn: async () => {
-      if (!user?.authToken) throw new Error('Not authenticated');
-      
-      const response = await fetch(`/api/vendor/shop/analytics?days=${days}`, {
-        headers: {
-          'Authorization': `Bearer ${user.authToken}`,
-        },
-      });
-      
-      if (!response.ok) throw new Error('Failed to fetch analytics');
-      return response.json();
+      if (!user?.id) throw new Error('User ID is required');
+
+      // Combine existing vendor service methods to create analytics
+      const [stats, revenueChart, participationChart] = await Promise.all([
+        vendorService.getVendorStats(user.id),
+        vendorService.getRevenueChart(user.id),
+        vendorService.getParticipationChart(user.id),
+      ]);
+
+      return {
+        period: `${days}d`,
+        stats,
+        revenueChart,
+        participationChart,
+        updatedAt: Date.now(),
+      };
     },
-    enabled: !!user?.authToken && user?.role === 'VENDOR',
+    enabled: !!user?.id && user?.role === 'VENDOR',
     staleTime: 5 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
   });
@@ -104,28 +108,24 @@ export const useVendorAnalytics = (days = 30) => {
 export const useCreateProduct = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (productData: any) => {
-      if (!user?.authToken) throw new Error('Not authenticated');
-      
-      const response = await fetch('/api/vendor/shop/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.authToken}`,
-        },
-        body: JSON.stringify(productData),
-      });
-      
-      if (!response.ok) throw new Error('Failed to create product');
-      return response.json();
+      if (!user?.id) throw new Error('Not authenticated');
+
+      // Mock implementation - replace with real API when available
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
+      return { id: Date.now().toString(), ...productData };
     },
     onSuccess: () => {
       // Invalidate and refetch products and stats
-      queryClient.invalidateQueries({ queryKey: ['vendor', 'shop', 'products'] });
+      queryClient.invalidateQueries({
+        queryKey: ['vendor', 'shop', 'products'],
+      });
       queryClient.invalidateQueries({ queryKey: ['vendor', 'shop', 'stats'] });
-      queryClient.invalidateQueries({ queryKey: ['vendor', 'shop', 'analytics'] });
+      queryClient.invalidateQueries({
+        queryKey: ['vendor', 'shop', 'analytics'],
+      });
     },
   });
 };
@@ -134,28 +134,62 @@ export const useCreateProduct = () => {
 export const useUpdateOrderStatus = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ orderId, status }: { orderId: string; status: string }) => {
-      if (!user?.authToken) throw new Error('Not authenticated');
-      
-      const response = await fetch('/api/vendor/shop/orders', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.authToken}`,
-        },
-        body: JSON.stringify({ orderId, status }),
-      });
-      
-      if (!response.ok) throw new Error('Failed to update order status');
-      return response.json();
+    mutationFn: async ({
+      orderId,
+      status,
+    }: {
+      orderId: string;
+      status: string;
+    }) => {
+      if (!user?.id) throw new Error('Not authenticated');
+
+      // Mock implementation - replace with real API when available
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+      return { orderId, status, updatedAt: Date.now() };
     },
     onSuccess: () => {
       // Invalidate and refetch orders and stats
       queryClient.invalidateQueries({ queryKey: ['vendor', 'shop', 'orders'] });
       queryClient.invalidateQueries({ queryKey: ['vendor', 'shop', 'stats'] });
-      queryClient.invalidateQueries({ queryKey: ['vendor', 'shop', 'analytics'] });
+      queryClient.invalidateQueries({
+        queryKey: ['vendor', 'shop', 'analytics'],
+      });
     },
+  });
+};
+
+// Vendor Revenue Chart Hook
+export const useVendorRevenueChart = (vendorId?: string) => {
+  const { user } = useAuth();
+  const actualVendorId = vendorId || user?.id;
+
+  return useQuery({
+    queryKey: ['vendor', 'revenue', 'chart', actualVendorId],
+    queryFn: async () => {
+      if (!actualVendorId) throw new Error('Vendor ID is required');
+      return await vendorService.getRevenueChart(actualVendorId);
+    },
+    enabled: !!actualVendorId && user?.role === 'VENDOR',
+    staleTime: 5 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
+  });
+};
+
+// Vendor Participation Chart Hook
+export const useVendorParticipationChart = (vendorId?: string) => {
+  const { user } = useAuth();
+  const actualVendorId = vendorId || user?.id;
+
+  return useQuery({
+    queryKey: ['vendor', 'participation', 'chart', actualVendorId],
+    queryFn: async () => {
+      if (!actualVendorId) throw new Error('Vendor ID is required');
+      return await vendorService.getParticipationChart(actualVendorId);
+    },
+    enabled: !!actualVendorId && user?.role === 'VENDOR',
+    staleTime: 5 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
   });
 };

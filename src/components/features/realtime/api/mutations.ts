@@ -5,7 +5,8 @@ import type { LiveNotification } from './types';
 // Query keys for realtime
 export const realtimeQueryKeys = {
   all: ['realtime'] as const,
-  notifications: (userId: string) => ['realtime', 'notifications', userId] as const,
+  notifications: (userId: string) =>
+    ['realtime', 'notifications', userId] as const,
   connection: (userId: string) => ['realtime', 'connection', userId] as const,
   settings: (userId: string) => ['realtime', 'settings', userId] as const,
 };
@@ -13,7 +14,7 @@ export const realtimeQueryKeys = {
 // Mark notification as read mutation
 export const useMarkNotificationAsRead = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (notificationId: string) => {
       try {
@@ -24,11 +25,13 @@ export const useMarkNotificationAsRead = () => {
         throw error;
       }
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Invalidate notifications queries
-      queryClient.invalidateQueries({ queryKey: ['realtime', 'notifications'] });
+      queryClient.invalidateQueries({
+        queryKey: ['realtime', 'notifications'],
+      });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error in mark notification as read mutation:', error);
     },
   });
@@ -37,7 +40,7 @@ export const useMarkNotificationAsRead = () => {
 // Mark all notifications as read mutation
 export const useMarkAllNotificationsAsRead = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (notificationIds: string[]) => {
       try {
@@ -50,11 +53,13 @@ export const useMarkAllNotificationsAsRead = () => {
         throw error;
       }
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Invalidate notifications queries
-      queryClient.invalidateQueries({ queryKey: ['realtime', 'notifications'] });
+      queryClient.invalidateQueries({
+        queryKey: ['realtime', 'notifications'],
+      });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error in mark all notifications as read mutation:', error);
     },
   });
@@ -63,7 +68,7 @@ export const useMarkAllNotificationsAsRead = () => {
 // Delete notification mutation
 export const useDeleteNotification = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (notificationId: string) => {
       try {
@@ -76,11 +81,13 @@ export const useDeleteNotification = () => {
         throw error;
       }
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Invalidate notifications queries
-      queryClient.invalidateQueries({ queryKey: ['realtime', 'notifications'] });
+      queryClient.invalidateQueries({
+        queryKey: ['realtime', 'notifications'],
+      });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error in delete notification mutation:', error);
     },
   });
@@ -89,7 +96,7 @@ export const useDeleteNotification = () => {
 // Update notification settings mutation
 export const useUpdateNotificationSettings = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (settings: {
       userId: string;
@@ -116,11 +123,13 @@ export const useUpdateNotificationSettings = () => {
         throw error;
       }
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Invalidate settings queries
-      queryClient.invalidateQueries({ queryKey: ['realtime', 'settings', data.settings.userId] });
+      queryClient.invalidateQueries({
+        queryKey: ['realtime', 'settings', data.settings.userId],
+      });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error in update notification settings mutation:', error);
     },
   });
@@ -129,7 +138,7 @@ export const useUpdateNotificationSettings = () => {
 // Send realtime event mutation
 export const useSendRealtimeEvent = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (event: {
       type: string;
@@ -146,11 +155,11 @@ export const useSendRealtimeEvent = () => {
         throw error;
       }
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Invalidate relevant queries based on event type
       queryClient.invalidateQueries({ queryKey: ['realtime'] });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error in send realtime event mutation:', error);
     },
   });
@@ -159,7 +168,7 @@ export const useSendRealtimeEvent = () => {
 // Connect to realtime service mutation
 export const useConnectToRealtime = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (userId: string) => {
       try {
@@ -172,11 +181,13 @@ export const useConnectToRealtime = () => {
         throw error;
       }
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Invalidate connection queries
-      queryClient.invalidateQueries({ queryKey: ['realtime', 'connection', data.userId] });
+      queryClient.invalidateQueries({
+        queryKey: ['realtime', 'connection', data.userId],
+      });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error in connect to realtime mutation:', error);
     },
   });
@@ -185,7 +196,7 @@ export const useConnectToRealtime = () => {
 // Disconnect from realtime service mutation
 export const useDisconnectFromRealtime = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (userId: string) => {
       try {
@@ -198,11 +209,13 @@ export const useDisconnectFromRealtime = () => {
         throw error;
       }
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Invalidate connection queries
-      queryClient.invalidateQueries({ queryKey: ['realtime', 'connection', data.userId] });
+      queryClient.invalidateQueries({
+        queryKey: ['realtime', 'connection', data.userId],
+      });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error in disconnect from realtime mutation:', error);
     },
   });

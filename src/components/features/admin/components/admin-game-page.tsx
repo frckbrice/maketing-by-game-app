@@ -59,21 +59,25 @@ export function AdminGamesPage() {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
   const router = useRouter();
-  
+
   // State variables
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL_STATUS');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
-  
+
   // TanStack Query hooks
-  const { data: games, isLoading: gamesLoading, refetch: fetchGames } = useGames({
+  const {
+    data: games,
+    isLoading: gamesLoading,
+    refetch: fetchGames,
+  } = useGames({
     page: currentPage,
     limit: pageSize,
     search: searchTerm,
-    status: statusFilter === 'ALL_STATUS' ? '' : statusFilter
+    status: statusFilter === 'ALL_STATUS' ? '' : statusFilter,
   });
-  
+
   // Provide default values for games data
   const gamesData = games || {
     data: [],
@@ -82,9 +86,9 @@ export function AdminGamesPage() {
     pageSize: 10,
     totalPages: 1,
     hasNext: false,
-    hasPrevious: false
+    hasPrevious: false,
   };
-  
+
   const updateGameMutation = useUpdateGame();
   const deleteGameMutation = useDeleteGame();
   const [selectedGame, setSelectedGame] = useState<LotteryGame | null>(null);
@@ -94,7 +98,6 @@ export function AdminGamesPage() {
     'DRAFT' | 'ACTIVE' | 'DRAWING' | 'CLOSED'
   >('ACTIVE');
   const [processing, setProcessing] = useState(false);
-
 
   useEffect(() => {
     if (!loading && (!user || user.role !== 'ADMIN')) {
@@ -199,7 +202,11 @@ export function AdminGamesPage() {
             </div>
 
             <div className='flex items-center space-x-2'>
-              <Button onClick={() => void fetchGames()} variant='outline' size='sm'>
+              <Button
+                onClick={() => void fetchGames()}
+                variant='outline'
+                size='sm'
+              >
                 <RefreshCw className='w-4 h-4 mr-2' />
                 {t('common.refresh')}
               </Button>
@@ -425,7 +432,7 @@ export function AdminGamesPage() {
                 <Button asChild>
                   <Link href='/admin/create-game'>
                     <Plus className='w-4 h-4 mr-2' />
-                        {t('admin.createGame')}
+                    {t('admin.createGame')}
                   </Link>
                 </Button>
               </div>

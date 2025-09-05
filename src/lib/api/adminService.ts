@@ -80,7 +80,7 @@ class AdminService {
         id: doc.id,
         ...doc.data(),
       })) as User[];
-      
+
       const games = gamesSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),

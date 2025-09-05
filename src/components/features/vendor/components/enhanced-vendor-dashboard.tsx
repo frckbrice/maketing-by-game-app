@@ -1,62 +1,52 @@
 'use client';
 
-import React, { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useVendorGames, useVendorStats } from '@/hooks/useApi';
+import {
+  useVendorAnalytics,
+  useVendorOrders,
+  useVendorParticipationChart,
+  useVendorProducts,
+  useVendorRevenueChart,
+  useVendorShopStats,
+} from '@/hooks/useVendorApi';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { useTranslation } from 'react-i18next';
-import Link from 'next/link';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  Area,
-  AreaChart,
-} from 'recharts';
-import {
-  Calendar,
+  Activity,
+  Award,
+  BarChart3,
   DollarSign,
   Eye,
   GamepadIcon,
-  Plus,
-  TrendingUp,
-  Users,
-  Activity,
-  Award,
-  Clock,
-  Settings,
-  ShoppingBag,
-  Package,
-  ShoppingCart,
   Heart,
+  Package,
+  Plus,
+  ShoppingBag,
+  ShoppingCart,
   Star,
   Store,
-  TrendingDown,
-  BarChart3,
+  TrendingUp,
+  Users,
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Link from 'next/link';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  useVendorShopStats,
-  useVendorProducts,
-  useVendorOrders,
-  useVendorAnalytics,
-} from '@/hooks/useVendorApi';
-import {
-  useVendorStats,
-  useVendorGames,
-  useVendorRevenueChart,
-  useVendorParticipationChart,
-} from '@/hooks/useApi';
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 const COLORS = ['#FF5722', '#FF9800', '#FFC107', '#4CAF50', '#2196F3'];
 
@@ -70,22 +60,36 @@ export const EnhancedVendorDashboard: React.FC = () => {
   const { data: shopStats, isLoading: shopStatsLoading } = useVendorShopStats();
   const { data: products, isLoading: productsLoading } = useVendorProducts(10);
   const { data: orders, isLoading: ordersLoading } = useVendorOrders(10);
-  const { data: analytics, isLoading: analyticsLoading } = useVendorAnalytics(analyticsPeriod);
+  const { data: analytics, isLoading: analyticsLoading } =
+    useVendorAnalytics(30);
 
   // Games/Lottery data (existing functionality)
-  const { data: gameStats, isLoading: gameStatsLoading } = useVendorStats();
-  const { data: games, isLoading: gamesLoading } = useVendorGames();
-  const { data: revenueData, isLoading: revenueLoading } = useVendorRevenueChart();
-  const { data: participationData, isLoading: participationLoading } = useVendorParticipationChart();
+  const { data: gameStats, isLoading: gameStatsLoading } = useVendorStats(
+    user?.id || ''
+  );
+  const { data: games, isLoading: gamesLoading } = useVendorGames(
+    user?.id || ''
+  );
+  const { data: revenueData, isLoading: revenueLoading } =
+    useVendorRevenueChart(user?.id);
+  const { data: participationData, isLoading: participationLoading } =
+    useVendorParticipationChart(user?.id);
 
-  const isLoading = shopStatsLoading || gameStatsLoading;
+  const isLoading =
+    shopStatsLoading ||
+    gameStatsLoading ||
+    revenueLoading ||
+    participationLoading;
 
   if (isLoading) {
     return (
       <div className='space-y-6 px-4'>
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
           {[...Array(8)].map((_, i) => (
-            <div key={i} className='h-32 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse' />
+            <div
+              key={i}
+              className='h-32 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse'
+            />
           ))}
         </div>
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
@@ -97,8 +101,11 @@ export const EnhancedVendorDashboard: React.FC = () => {
   }
 
   // Combine revenue from shop and games
-  const totalRevenue = (shopStats?.totalRevenue || 0) + (gameStats?.totalRevenue || 0);
-  const monthlyRevenue = (shopStats?.monthlyRevenue || 0) + (gameStats?.monthlyRevenue || 0);
+  const totalRevenue =
+    ((shopStats as any)?.totalRevenue || 0) + (gameStats?.totalRevenue || 0);
+  const monthlyRevenue =
+    ((shopStats as any)?.monthlyRevenue || 0) +
+    (gameStats?.monthlyRevenue || 0);
 
   return (
     <div className='space-y-4 sm:space-y-6 px-3 sm:px-4 lg:px-0'>
@@ -109,9 +116,12 @@ export const EnhancedVendorDashboard: React.FC = () => {
             {t('vendor.welcomeMessage')}, {user?.firstName}!
           </h1>
           <p className='text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1'>
-            {shopStats?.shopName && (
+            {(shopStats as any)?.shopName && (
               <>
-                {t('vendor.shopName')}: <span className='font-medium text-orange-600 dark:text-orange-400'>{shopStats.shopName}</span>
+                {t('vendor.shopName')}:{' '}
+                <span className='font-medium text-orange-600 dark:text-orange-400'>
+                  {(shopStats as any).shopName}
+                </span>
               </>
             )}
           </p>
@@ -123,7 +133,11 @@ export const EnhancedVendorDashboard: React.FC = () => {
               {t('vendor.createGame')}
             </Link>
           </Button>
-          <Button asChild variant='outline' className='w-full sm:w-auto text-sm sm:text-base'>
+          <Button
+            asChild
+            variant='outline'
+            className='w-full sm:w-auto text-sm sm:text-base'
+          >
             <Link href='/vendor-dashboard/create-product'>
               <Plus className='w-4 h-4 mr-2' />
               {t('vendor.addProduct')}
@@ -187,10 +201,12 @@ export const EnhancedVendorDashboard: React.FC = () => {
                       {t('vendor.totalItems')}
                     </p>
                     <p className='text-lg sm:text-2xl font-bold text-gray-900 dark:text-white'>
-                      {(shopStats?.totalProducts || 0) + (gameStats?.totalGames || 0)}
+                      {((shopStats as any)?.totalProducts || 0) +
+                        (gameStats?.totalGames || 0)}
                     </p>
                     <p className='text-xs text-gray-500'>
-                      {shopStats?.totalProducts || 0} products • {gameStats?.totalGames || 0} games
+                      {(shopStats as any)?.totalProducts || 0} products •{' '}
+                      {gameStats?.totalGames || 0} games
                     </p>
                   </div>
                   <Package className='w-6 h-6 sm:w-8 sm:h-8 text-purple-500' />
@@ -207,7 +223,7 @@ export const EnhancedVendorDashboard: React.FC = () => {
                       {t('vendor.totalOrders')}
                     </p>
                     <p className='text-lg sm:text-2xl font-bold text-gray-900 dark:text-white'>
-                      {shopStats?.totalOrders || 0}
+                      {(shopStats as any)?.totalOrders || 0}
                     </p>
                   </div>
                   <ShoppingCart className='w-6 h-6 sm:w-8 sm:h-8 text-orange-500' />
@@ -225,7 +241,7 @@ export const EnhancedVendorDashboard: React.FC = () => {
                     </p>
                     <div className='flex items-center space-x-1'>
                       <p className='text-lg sm:text-2xl font-bold text-gray-900 dark:text-white'>
-                        {shopStats?.shopRating?.toFixed(1) || '0.0'}
+                        {(shopStats as any)?.shopRating?.toFixed(1) || '0.0'}
                       </p>
                       <Star className='w-4 h-4 text-yellow-500 fill-current' />
                     </div>
@@ -244,7 +260,7 @@ export const EnhancedVendorDashboard: React.FC = () => {
                       {t('vendor.followers')}
                     </p>
                     <p className='text-lg sm:text-2xl font-bold text-gray-900 dark:text-white'>
-                      {shopStats?.followersCount || 0}
+                      {(shopStats as any)?.followersCount || 0}
                     </p>
                   </div>
                   <Users className='w-6 h-6 sm:w-8 sm:h-8 text-blue-500' />
@@ -261,7 +277,7 @@ export const EnhancedVendorDashboard: React.FC = () => {
                       {t('vendor.totalViews')}
                     </p>
                     <p className='text-lg sm:text-2xl font-bold text-gray-900 dark:text-white'>
-                      {shopStats?.totalViews?.toLocaleString() || 0}
+                      {(shopStats as any)?.totalViews?.toLocaleString() || 0}
                     </p>
                   </div>
                   <Eye className='w-6 h-6 sm:w-8 sm:h-8 text-gray-500' />
@@ -278,7 +294,7 @@ export const EnhancedVendorDashboard: React.FC = () => {
                       {t('vendor.conversionRate')}
                     </p>
                     <p className='text-lg sm:text-2xl font-bold text-gray-900 dark:text-white'>
-                      {shopStats?.conversionRate?.toFixed(1) || '0.0'}%
+                      {(shopStats as any)?.conversionRate?.toFixed(1) || '0.0'}%
                     </p>
                   </div>
                   <Activity className='w-6 h-6 sm:w-8 sm:h-8 text-green-500' />
@@ -290,7 +306,7 @@ export const EnhancedVendorDashboard: React.FC = () => {
           {/* Charts Row */}
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
             {/* Revenue Chart */}
-            {analytics && analytics.analytics && (
+            {analytics && (
               <Card>
                 <CardHeader>
                   <CardTitle className='flex items-center'>
@@ -300,7 +316,7 @@ export const EnhancedVendorDashboard: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width='100%' height={300}>
-                    <AreaChart data={analytics.analytics}>
+                    <AreaChart data={analytics.revenueChart || []}>
                       <CartesianGrid strokeDasharray='3 3' />
                       <XAxis dataKey='date' />
                       <YAxis />
@@ -319,7 +335,7 @@ export const EnhancedVendorDashboard: React.FC = () => {
             )}
 
             {/* Orders Chart */}
-            {analytics && analytics.analytics && (
+            {analytics && (
               <Card>
                 <CardHeader>
                   <CardTitle className='flex items-center'>
@@ -329,7 +345,7 @@ export const EnhancedVendorDashboard: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width='100%' height={300}>
-                    <LineChart data={analytics.analytics}>
+                    <LineChart data={analytics.participationChart || []}>
                       <CartesianGrid strokeDasharray='3 3' />
                       <XAxis dataKey='date' />
                       <YAxis />
@@ -360,7 +376,7 @@ export const EnhancedVendorDashboard: React.FC = () => {
                       {t('vendor.shopRevenue')}
                     </p>
                     <p className='text-2xl font-bold text-gray-900 dark:text-white'>
-                      ${shopStats?.totalRevenue?.toLocaleString() || 0}
+                      ${(shopStats as any)?.totalRevenue?.toLocaleString() || 0}
                     </p>
                   </div>
                   <Store className='w-8 h-8 text-green-500' />
@@ -376,7 +392,7 @@ export const EnhancedVendorDashboard: React.FC = () => {
                       {t('vendor.activeProducts')}
                     </p>
                     <p className='text-2xl font-bold text-gray-900 dark:text-white'>
-                      {shopStats?.activeProducts || 0}
+                      {(shopStats as any)?.activeProducts || 0}
                     </p>
                   </div>
                   <Package className='w-8 h-8 text-blue-500' />
@@ -392,7 +408,7 @@ export const EnhancedVendorDashboard: React.FC = () => {
                       {t('vendor.totalLikes')}
                     </p>
                     <p className='text-2xl font-bold text-gray-900 dark:text-white'>
-                      {shopStats?.totalLikes || 0}
+                      {(shopStats as any)?.totalLikes || 0}
                     </p>
                   </div>
                   <Heart className='w-8 h-8 text-red-500' />
@@ -408,7 +424,7 @@ export const EnhancedVendorDashboard: React.FC = () => {
                       {t('vendor.monthlyOrders')}
                     </p>
                     <p className='text-2xl font-bold text-gray-900 dark:text-white'>
-                      {shopStats?.monthlyOrders || 0}
+                      {(shopStats as any)?.monthlyOrders || 0}
                     </p>
                   </div>
                   <ShoppingBag className='w-8 h-8 text-purple-500' />
@@ -418,28 +434,36 @@ export const EnhancedVendorDashboard: React.FC = () => {
           </div>
 
           {/* Recent Orders */}
-          {orders && orders.length > 0 && (
+          {orders && orders.data && orders.data.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>{t('vendor.recentOrders')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className='space-y-4'>
-                  {orders.slice(0, 5).map((order: any) => (
+                  {orders.data.slice(0, 5).map((order: any) => (
                     <div
                       key={order.id}
                       className='flex items-center justify-between p-4 border rounded-lg'
                     >
                       <div>
-                        <p className='font-medium'>#{order.orderNumber || order.id.slice(0, 8)}</p>
+                        <p className='font-medium'>
+                          #{order.orderNumber || order.id.slice(0, 8)}
+                        </p>
                         <p className='text-sm text-gray-500'>
                           {new Date(order.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                       <div className='text-right'>
-                        <p className='font-medium'>${order.total?.toLocaleString()}</p>
+                        <p className='font-medium'>
+                          ${order.total?.toLocaleString()}
+                        </p>
                         <Badge
-                          variant={order.status === 'delivered' ? 'default' : 'secondary'}
+                          variant={
+                            order.status === 'delivered'
+                              ? 'default'
+                              : 'secondary'
+                          }
                         >
                           {order.status}
                         </Badge>
@@ -531,7 +555,7 @@ export const EnhancedVendorDashboard: React.FC = () => {
                 <ResponsiveContainer width='100%' height={300}>
                   <BarChart data={revenueData}>
                     <CartesianGrid strokeDasharray='3 3' />
-                    <XAxis dataKey='month' />
+                    <XAxis dataKey='date' />
                     <YAxis />
                     <Tooltip />
                     <Bar dataKey='revenue' fill='#FF5722' />

@@ -82,14 +82,18 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     expect(screen.getByText('Analytics Dashboard')).toBeInTheDocument();
-    expect(screen.getByText('Comprehensive insights into platform performance')).toBeInTheDocument();
+    expect(
+      screen.getByText('Comprehensive insights into platform performance')
+    ).toBeInTheDocument();
   });
 
   it('renders access denied for non-admin users', async () => {
     const mockRouter = { replace: jest.fn() };
-    jest.spyOn(require('next/navigation'), 'useRouter').mockReturnValue(mockRouter);
+    jest
+      .spyOn(require('next/navigation'), 'useRouter')
+      .mockReturnValue(mockRouter);
 
     mockUseAuth.mockReturnValue({
       user: { ...defaultUser, role: 'USER' },
@@ -108,7 +112,7 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     await waitFor(() => {
       expect(mockRouter.replace).toHaveBeenCalledWith('/en/auth/login');
     });
@@ -132,10 +136,12 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Analytics Dashboard')).toBeInTheDocument();
-      expect(screen.getByText('Comprehensive insights into platform performance')).toBeInTheDocument();
+      expect(
+        screen.getByText('Comprehensive insights into platform performance')
+      ).toBeInTheDocument();
     });
   });
 
@@ -157,7 +163,7 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     await waitFor(() => {
       // Check user growth section
       expect(screen.getByText('User Growth')).toBeInTheDocument();
@@ -185,7 +191,7 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     await waitFor(() => {
       // Check game performance section
       expect(screen.getByText('Game Performance')).toBeInTheDocument();
@@ -214,7 +220,7 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     await waitFor(() => {
       // Check revenue section
       expect(screen.getByText('Revenue Metrics')).toBeInTheDocument();
@@ -243,7 +249,7 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     await waitFor(() => {
       // Check engagement section
       expect(screen.getByText('Engagement Metrics')).toBeInTheDocument();
@@ -272,14 +278,14 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     const timeRangeSelect = screen.getByLabelText('Time Range');
     expect(timeRangeSelect).toBeInTheDocument();
-    
+
     // Change time range
     await userEvent.selectOptions(timeRangeSelect, '30d');
     expect(timeRangeSelect).toHaveValue('30d');
-    
+
     // Check that all time range options are available
     expect(timeRangeSelect).toHaveValue('30d');
   });
@@ -302,12 +308,12 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     const exportButton = screen.getByText('Export Data');
     expect(exportButton).toBeInTheDocument();
-    
+
     await userEvent.click(exportButton);
-    
+
     // Should trigger export functionality
     expect(exportButton).toBeInTheDocument();
   });
@@ -330,7 +336,7 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     await waitFor(() => {
       // Check that chart placeholders are displayed
       expect(screen.getByText('User Growth Chart')).toBeInTheDocument();
@@ -358,13 +364,13 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     await waitFor(() => {
       // Check chart type selection buttons
       const lineChartButtons = screen.getAllByText('Line');
       const barChartButtons = screen.getAllByText('Bar');
       const pieChartButtons = screen.getAllByText('Pie');
-      
+
       expect(lineChartButtons.length).toBeGreaterThan(0);
       expect(barChartButtons.length).toBeGreaterThan(0);
       expect(pieChartButtons.length).toBeGreaterThan(0);
@@ -389,14 +395,19 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     await waitFor(() => {
       // Check that metric cards have proper styling
       const metricCards = screen.getAllByTestId('metric-card');
       expect(metricCards.length).toBeGreaterThan(0);
-      
+
       metricCards.forEach(card => {
-        expect(card).toHaveClass('bg-white', 'dark:bg-gray-800', 'rounded-lg', 'shadow-md');
+        expect(card).toHaveClass(
+          'bg-white',
+          'dark:bg-gray-800',
+          'rounded-lg',
+          'shadow-md'
+        );
       });
     });
   });
@@ -419,7 +430,7 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     await waitFor(() => {
       // Check that loading states are handled properly
       const loadingSpinners = screen.queryAllByRole('status');
@@ -445,12 +456,12 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     await waitFor(() => {
       // Check that trend indicators are displayed
       const trendUpIcons = screen.getAllByTestId('trend-up');
       const trendDownIcons = screen.getAllByTestId('trend-down');
-      
+
       expect(trendUpIcons.length).toBeGreaterThan(0);
       expect(trendDownIcons.length).toBeGreaterThan(0);
     });
@@ -474,11 +485,16 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     await waitFor(() => {
       // Check that responsive classes are applied
       const container = screen.getByTestId('analytics-container');
-      expect(container).toHaveClass('grid', 'grid-cols-1', 'md:grid-cols-2', 'lg:grid-cols-4');
+      expect(container).toHaveClass(
+        'grid',
+        'grid-cols-1',
+        'md:grid-cols-2',
+        'lg:grid-cols-4'
+      );
     });
   });
 
@@ -500,11 +516,13 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     await waitFor(() => {
       // Check summary statistics
       expect(screen.getByText('Platform Overview')).toBeInTheDocument();
-      expect(screen.getByText('Key Performance Indicators')).toBeInTheDocument();
+      expect(
+        screen.getByText('Key Performance Indicators')
+      ).toBeInTheDocument();
     });
   });
 
@@ -526,12 +544,12 @@ describe('AdminAnalyticsPage', () => {
     });
 
     render(<AdminAnalyticsPage />);
-    
+
     const refreshButton = screen.getByText('Refresh Data');
     expect(refreshButton).toBeInTheDocument();
-    
+
     await userEvent.click(refreshButton);
-    
+
     // Should trigger data refresh
     expect(refreshButton).toBeInTheDocument();
   });

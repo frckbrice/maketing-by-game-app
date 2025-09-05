@@ -38,20 +38,24 @@ function MemoizedList<T>({
   }, [data, keyExtractor, renderItem]);
 
   // Handle infinite scroll
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    if (!onEndReached) return;
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      if (!onEndReached) return;
 
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
+      const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+      const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
 
-    if (scrollPercentage >= onEndReachedThreshold) {
-      onEndReached();
-    }
-  }, [onEndReached, onEndReachedThreshold]);
+      if (scrollPercentage >= onEndReachedThreshold) {
+        onEndReached();
+      }
+    },
+    [onEndReached, onEndReachedThreshold]
+  );
 
   // Simple virtualization for very large lists
+  const [scrollTop, setScrollTop] = React.useState(0);
+
   if (enableVirtualization && data.length > 100) {
-    const [scrollTop, setScrollTop] = React.useState(0);
     const visibleStart = Math.floor(scrollTop / itemHeight);
     const visibleEnd = Math.min(
       data.length - 1,
@@ -65,7 +69,7 @@ function MemoizedList<T>({
         ref={parentRef}
         className={`overflow-auto ${className}`}
         style={{ height: containerHeight }}
-        onScroll={(e) => {
+        onScroll={e => {
           setScrollTop(e.currentTarget.scrollTop);
           handleScroll(e);
         }}
@@ -92,11 +96,8 @@ function MemoizedList<T>({
 
   // Regular rendering for smaller lists
   return (
-    <div
-      className={`${className}`}
-      onScroll={handleScroll}
-    >
-      {memoizedItems.map((item) => (
+    <div className={`${className}`} onScroll={handleScroll}>
+      {memoizedItems.map(item => (
         <MemoizedItem key={item.key} content={item.content} />
       ))}
     </div>
@@ -110,7 +111,9 @@ const MemoizedItem = React.memo<{ content: React.ReactNode }>(
   (prevProps, nextProps) => {
     // Use JSON.stringify for simple comparison
     //TODO if needed: In production, you might want a more sophisticated comparison
-    return JSON.stringify(prevProps.content) === JSON.stringify(nextProps.content);
+    return (
+      JSON.stringify(prevProps.content) === JSON.stringify(nextProps.content)
+    );
   }
 );
 

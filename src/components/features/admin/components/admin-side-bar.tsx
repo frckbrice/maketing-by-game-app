@@ -3,22 +3,12 @@
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import {
-  Home,
-  LogOut,
-  Menu,
-  Shield,
-  X
-} from 'lucide-react';
+import { Home, LogOut, Menu, Shield, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { DEFAULT_NAV_ITEMS } from '../api/data';
 import { AdminSidebarProps } from '../api/type';
-
-
-
-
 
 export function AdminSidebar({ className }: AdminSidebarProps) {
   const pathname = usePathname();

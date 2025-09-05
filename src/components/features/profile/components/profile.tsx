@@ -21,7 +21,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useUserGames, useUserTickets, useVendorApplication } from '@/hooks/useApi';
+import {
+  useUserGames,
+  useUserTickets,
+  useVendorApplication,
+} from '@/hooks/useApi';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { Address, User, UserNotificationPreferences } from '@/types';
 import {
@@ -39,7 +43,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { useAddAddress, useUpdateNotificationPreferences, useUpdateUserProfile } from '../api/mutations';
+import {
+  useAddAddress,
+  useUpdateNotificationPreferences,
+  useUpdateUserProfile,
+} from '../api/mutations';
 import { useUserAddresses, useUserOrders } from '../api/queries';
 
 export const ProfilePage = () => {
@@ -50,7 +58,9 @@ export const ProfilePage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
   // TanStack Query hooks
-  const { data: userTickets = [], isLoading: ticketsLoading } = useUserTickets(user?.id || '');
+  const { data: userTickets = [], isLoading: ticketsLoading } = useUserTickets(
+    user?.id || ''
+  );
   const { data: userGames = [] } = useUserGames(user?.id || '');
   const { data: vendorApplication } = useVendorApplication(user?.id || '');
 
@@ -78,7 +88,6 @@ export const ProfilePage = () => {
       router.push('/');
     }
   }, [user, loading, router, redirecting]);
-
 
   // Show vendor application status notifications
   useEffect(() => {
@@ -173,16 +182,18 @@ export const ProfilePage = () => {
 
     await updateProfileMutation.mutateAsync({
       userId: user.id,
-      profileData
+      profileData,
     });
   };
 
-  const handleNotificationUpdate = async (preferences: UserNotificationPreferences) => {
+  const handleNotificationUpdate = async (
+    preferences: UserNotificationPreferences
+  ) => {
     if (!user) return;
 
     await updateNotificationsMutation.mutateAsync({
       userId: user.id,
-      preferences
+      preferences,
     });
   };
 
@@ -209,8 +220,7 @@ export const ProfilePage = () => {
           onThemeToggle={() => setTheme(isDark ? 'light' : 'dark')}
         />
 
-        <div
-          className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
           {/* Back Button and Vendor Application */}
           <div className='mb-6 flex justify-between items-center'>
             <Button
@@ -220,7 +230,6 @@ export const ProfilePage = () => {
             >
               <ArrowLeft className='h-4 w-4' />
               <span>{t('common.back')}</span>
-
             </Button>
 
             {/* Vendor Application Button - Only show for USER role */}

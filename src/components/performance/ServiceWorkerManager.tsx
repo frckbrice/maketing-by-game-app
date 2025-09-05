@@ -10,7 +10,7 @@ interface ServiceWorkerManagerProps {
 
 const ServiceWorkerManager = ({
   enableNotifications = true,
-  onUpdate
+  onUpdate,
 }: ServiceWorkerManagerProps) => {
   useEffect(() => {
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
@@ -29,15 +29,21 @@ const ServiceWorkerManager = ({
           if (!newWorker) return;
 
           newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            if (
+              newWorker.state === 'installed' &&
+              navigator.serviceWorker.controller
+            ) {
               if (enableNotifications) {
-                toast.info('App update available. Refresh to use the latest version.', {
-                  action: {
-                    label: 'Refresh',
-                    onClick: () => window.location.reload(),
-                  },
-                  duration: 10000,
-                });
+                toast.info(
+                  'App update available. Refresh to use the latest version.',
+                  {
+                    action: {
+                      label: 'Refresh',
+                      onClick: () => window.location.reload(),
+                    },
+                    duration: 10000,
+                  }
+                );
               }
               onUpdate?.(registration);
             }
@@ -92,7 +98,10 @@ const ServiceWorkerManager = ({
     window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handleBeforeInstallPrompt
+      );
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, [enableNotifications]);

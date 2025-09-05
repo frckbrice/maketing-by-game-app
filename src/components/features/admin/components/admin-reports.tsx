@@ -41,7 +41,7 @@ import {
   RefreshCw,
   Search,
   TrendingUp,
-  Users
+  Users,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -85,7 +85,8 @@ const REPORT_TEMPLATES: ReportTemplate[] = [
   {
     id: 'financial-summary',
     name: 'Financial Summary',
-    description: 'Complete financial overview including revenue, transactions, and trends',
+    description:
+      'Complete financial overview including revenue, transactions, and trends',
     type: 'FINANCIAL',
     icon: <BarChart3 className='w-5 h-5 text-green-500' />,
     parameters: [
@@ -118,7 +119,8 @@ const REPORT_TEMPLATES: ReportTemplate[] = [
   {
     id: 'user-activity',
     name: 'User Activity Report',
-    description: 'User engagement metrics, registrations, and activity patterns',
+    description:
+      'User engagement metrics, registrations, and activity patterns',
     type: 'USERS',
     icon: <Users className='w-5 h-5 text-blue-500' />,
     parameters: [
@@ -152,7 +154,8 @@ const REPORT_TEMPLATES: ReportTemplate[] = [
   {
     id: 'game-performance',
     name: 'Game Performance',
-    description: 'Game statistics, popularity metrics, and performance analysis',
+    description:
+      'Game statistics, popularity metrics, and performance analysis',
     type: 'GAMES',
     icon: <Gamepad2 className='w-5 h-5 text-purple-500' />,
     parameters: [
@@ -213,7 +216,13 @@ const REPORT_TEMPLATES: ReportTemplate[] = [
 ];
 
 type StatusFilter = 'all' | 'PENDING' | 'GENERATING' | 'COMPLETED' | 'FAILED';
-type TypeFilter = 'all' | 'FINANCIAL' | 'USERS' | 'GAMES' | 'VENDORS' | 'CUSTOM';
+type TypeFilter =
+  | 'all'
+  | 'FINANCIAL'
+  | 'USERS'
+  | 'GAMES'
+  | 'VENDORS'
+  | 'CUSTOM';
 
 export function AdminReportsPage() {
   const { t } = useTranslation();
@@ -226,11 +235,19 @@ export function AdminReportsPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<ReportTemplate | null>(null);
-  const [reportParameters, setReportParameters] = useState<Record<string, any>>({});
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<ReportTemplate | null>(null);
+  const [reportParameters, setReportParameters] = useState<Record<string, any>>(
+    {}
+  );
 
   // Fetch reports with TanStack Query
-  const { data: reports = [], isLoading, error, refetch } = useQuery({
+  const {
+    data: reports = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['admin-reports'],
     queryFn: async () => {
       try {
@@ -276,11 +293,11 @@ export function AdminReportsPage() {
           ];
           return mockReports;
         }
-        
+
         // TODO: Implement real Firebase reports collection
         // const reportsSnapshot = await firestoreService.getReports();
         // return reportsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Report[];
-        
+
         return [];
       } catch (error) {
         console.error('Error fetching reports:', error);
@@ -295,7 +312,9 @@ export function AdminReportsPage() {
 
   // Create report mutation
   const createReportMutation = useMutation({
-    mutationFn: async (reportData: Omit<Report, 'id' | 'createdAt' | 'status'>) => {
+    mutationFn: async (
+      reportData: Omit<Report, 'id' | 'createdAt' | 'status'>
+    ) => {
       try {
         // TODO: Implement real Firebase report creation
         const newReport: Report = {
@@ -304,43 +323,52 @@ export function AdminReportsPage() {
           status: 'PENDING',
           createdAt: Date.now(),
         };
-        
+
         // Add to Firebase
         // await firestoreService.createReport(newReport);
-        
+
         return newReport;
       } catch (error) {
         console.error('Error creating report:', error);
         throw error;
       }
     },
-    onSuccess: (newReport) => {
-      queryClient.setQueryData(['admin-reports'], (old: Report[] = []) => [newReport, ...old]);
+    onSuccess: newReport => {
+      queryClient.setQueryData(['admin-reports'], (old: Report[] = []) => [
+        newReport,
+        ...old,
+      ]);
       toast.success(t('admin.reports.createSuccess'));
       setShowCreateModal(false);
       setSelectedTemplate(null);
       setReportParameters({});
-      
+
       //TODO: Simulate report generation with optimistic updates
       setTimeout(() => {
         queryClient.setQueryData(['admin-reports'], (old: Report[] = []) =>
-          old.map(r => r.id === newReport.id ? { ...r, status: 'GENERATING' as const } : r)
+          old.map(r =>
+            r.id === newReport.id ? { ...r, status: 'GENERATING' as const } : r
+          )
         );
-        
+
         setTimeout(() => {
           queryClient.setQueryData(['admin-reports'], (old: Report[] = []) =>
-            old.map(r => r.id === newReport.id ? {
-              ...r,
-              status: 'COMPLETED' as const,
-              completedAt: Date.now(),
-              downloadUrl: `/api/reports/${newReport.id}/download`,
-              fileSize: Math.floor(Math.random() * 5000000) + 1000000,
-            } : r)
+            old.map(r =>
+              r.id === newReport.id
+                ? {
+                    ...r,
+                    status: 'COMPLETED' as const,
+                    completedAt: Date.now(),
+                    downloadUrl: `/api/reports/${newReport.id}/download`,
+                    fileSize: Math.floor(Math.random() * 5000000) + 1000000,
+                  }
+                : r
+            )
           );
         }, 5000);
       }, 2000);
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error creating report:', error);
       toast.error(t('admin.reports.createError'));
     },
@@ -400,15 +428,16 @@ export function AdminReportsPage() {
       };
 
       const dataStr = JSON.stringify(mockData, null, 2);
-      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-      
+      const dataUri =
+        'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
       const exportFileDefaultName = `${report.name.toLowerCase().replace(/\s+/g, '-')}.json`;
-      
+
       const linkElement = document.createElement('a');
       linkElement.setAttribute('href', dataUri);
       linkElement.setAttribute('download', exportFileDefaultName);
       linkElement.click();
-      
+
       toast.success(t('admin.reports.downloadStarted'));
     } catch (error) {
       console.error('Error downloading report:', error);
@@ -417,7 +446,10 @@ export function AdminReportsPage() {
   };
 
   const getStatusBadge = (status: Report['status']) => {
-    const variants: Record<Report['status'], 'default' | 'secondary' | 'destructive' | 'outline'> = {
+    const variants: Record<
+      Report['status'],
+      'default' | 'secondary' | 'destructive' | 'outline'
+    > = {
       PENDING: 'secondary',
       GENERATING: 'outline',
       COMPLETED: 'default',
@@ -457,15 +489,17 @@ export function AdminReportsPage() {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     if (bytes === 0) return '0 Bytes';
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
   const filteredReports = reports.filter(report => {
-    const matchesSearch = report.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         report.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || report.status === statusFilter;
+    const matchesSearch =
+      report.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      statusFilter === 'all' || report.status === statusFilter;
     const matchesType = typeFilter === 'all' || report.type === typeFilter;
-    
+
     return matchesSearch && matchesStatus && matchesType;
   });
 
@@ -477,7 +511,10 @@ export function AdminReportsPage() {
             <div className='h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3'></div>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
               {[...Array(4)].map((_, i) => (
-                <div key={i} className='h-32 bg-gray-200 dark:bg-gray-700 rounded-lg'></div>
+                <div
+                  key={i}
+                  className='h-32 bg-gray-200 dark:bg-gray-700 rounded-lg'
+                ></div>
               ))}
             </div>
             <div className='h-96 bg-gray-200 dark:bg-gray-700 rounded-lg'></div>
@@ -498,7 +535,10 @@ export function AdminReportsPage() {
                 {t('admin.reports.title', 'Reports & Analytics')}
               </h1>
               <p className='text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-1'>
-                {t('admin.reports.subtitle', 'Generate and download comprehensive reports')}
+                {t(
+                  'admin.reports.subtitle',
+                  'Generate and download comprehensive reports'
+                )}
               </p>
             </div>
             <Button
@@ -554,37 +594,66 @@ export function AdminReportsPage() {
               <div className='relative'>
                 <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4' />
                 <Input
-                  placeholder={t('admin.reports.searchPlaceholder', 'Search reports...')}
+                  placeholder={t(
+                    'admin.reports.searchPlaceholder',
+                    'Search reports...'
+                  )}
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className='pl-10'
                 />
               </div>
             </div>
             <div className='flex flex-wrap gap-2'>
-              <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
+              <Select
+                value={statusFilter}
+                onValueChange={(value: StatusFilter) => setStatusFilter(value)}
+              >
                 <SelectTrigger className='w-[140px]'>
                   <Filter className='w-4 h-4 mr-2' />
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='all'>{t('admin.reports.allStatuses', 'All Status')}</SelectItem>
-                  <SelectItem value='PENDING'>{t('admin.reports.pending', 'Pending')}</SelectItem>
-                  <SelectItem value='GENERATING'>{t('admin.reports.generating', 'Generating')}</SelectItem>
-                  <SelectItem value='COMPLETED'>{t('admin.reports.completed', 'Completed')}</SelectItem>
-                  <SelectItem value='FAILED'>{t('admin.reports.failed', 'Failed')}</SelectItem>
+                  <SelectItem value='all'>
+                    {t('admin.reports.allStatuses', 'All Status')}
+                  </SelectItem>
+                  <SelectItem value='PENDING'>
+                    {t('admin.reports.pending', 'Pending')}
+                  </SelectItem>
+                  <SelectItem value='GENERATING'>
+                    {t('admin.reports.generating', 'Generating')}
+                  </SelectItem>
+                  <SelectItem value='COMPLETED'>
+                    {t('admin.reports.completed', 'Completed')}
+                  </SelectItem>
+                  <SelectItem value='FAILED'>
+                    {t('admin.reports.failed', 'Failed')}
+                  </SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={typeFilter} onValueChange={(value: TypeFilter) => setTypeFilter(value)}>
+              <Select
+                value={typeFilter}
+                onValueChange={(value: TypeFilter) => setTypeFilter(value)}
+              >
                 <SelectTrigger className='w-[140px]'>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='all'>{t('admin.reports.allTypes', 'All Types')}</SelectItem>
-                  <SelectItem value='FINANCIAL'>{t('admin.reports.financial', 'Financial')}</SelectItem>
-                  <SelectItem value='USERS'>{t('admin.reports.users', 'Users')}</SelectItem>
-                  <SelectItem value='GAMES'>{t('admin.reports.games', 'Games')}</SelectItem>
-                  <SelectItem value='VENDORS'>{t('admin.reports.vendors', 'Vendors')}</SelectItem>
+                  <SelectItem value='all'>
+                    {t('admin.reports.allTypes', 'All Types')}
+                  </SelectItem>
+                  <SelectItem value='FINANCIAL'>
+                    {t('admin.reports.financial', 'Financial')}
+                  </SelectItem>
+                  <SelectItem value='USERS'>
+                    {t('admin.reports.users', 'Users')}
+                  </SelectItem>
+                  <SelectItem value='GAMES'>
+                    {t('admin.reports.games', 'Games')}
+                  </SelectItem>
+                  <SelectItem value='VENDORS'>
+                    {t('admin.reports.vendors', 'Vendors')}
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <Button
@@ -593,7 +662,9 @@ export function AdminReportsPage() {
                 onClick={() => refetch()}
                 disabled={isLoading}
               >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`}
+                />
               </Button>
             </div>
           </div>
@@ -617,21 +688,29 @@ export function AdminReportsPage() {
                       <TableRow>
                         <TableHead>{t('admin.reports.name', 'Name')}</TableHead>
                         <TableHead>{t('admin.reports.type', 'Type')}</TableHead>
-                        <TableHead>{t('admin.reports.status', 'Status')}</TableHead>
-                        <TableHead>{t('admin.reports.created', 'Created')}</TableHead>
+                        <TableHead>
+                          {t('admin.reports.status', 'Status')}
+                        </TableHead>
+                        <TableHead>
+                          {t('admin.reports.created', 'Created')}
+                        </TableHead>
                         <TableHead>{t('admin.reports.size', 'Size')}</TableHead>
-                        <TableHead className='w-[100px]'>{t('common.actions')}</TableHead>
+                        <TableHead className='w-[100px]'>
+                          {t('common.actions')}
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredReports.map((report) => (
+                      {filteredReports.map(report => (
                         <TableRow key={report.id}>
                           <TableCell>
                             <div>
                               <p className='font-medium text-gray-900 dark:text-white'>
                                 {report.name}
                               </p>
-                              <p className='text-sm text-gray-500'>{report.description}</p>
+                              <p className='text-sm text-gray-500'>
+                                {report.description}
+                              </p>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -640,37 +719,41 @@ export function AdminReportsPage() {
                               <span className='text-sm'>{report.type}</span>
                             </div>
                           </TableCell>
-                          <TableCell>
-                            {getStatusBadge(report.status)}
-                          </TableCell>
+                          <TableCell>{getStatusBadge(report.status)}</TableCell>
                           <TableCell>
                             <div className='text-sm'>
-                              <div>{new Date(report.createdAt).toLocaleDateString()}</div>
+                              <div>
+                                {new Date(
+                                  report.createdAt
+                                ).toLocaleDateString()}
+                              </div>
                               <div className='text-gray-500'>
-                                {new Date(report.createdAt).toLocaleTimeString()}
+                                {new Date(
+                                  report.createdAt
+                                ).toLocaleTimeString()}
                               </div>
                             </div>
                           </TableCell>
                           <TableCell>
                             <span className='text-sm text-gray-600'>
-                              {report.fileSize ? formatFileSize(report.fileSize) : '-'}
+                              {report.fileSize
+                                ? formatFileSize(report.fileSize)
+                                : '-'}
                             </span>
                           </TableCell>
                           <TableCell>
                             <div className='flex items-center space-x-2'>
-                              {report.status === 'COMPLETED' && report.downloadUrl && (
-                                <Button
-                                  variant='outline'
-                                  size='sm'
-                                  onClick={() => handleDownload(report.id)}
-                                >
-                                  <Download className='w-4 h-4' />
-                                </Button>
-                              )}
-                              <Button
-                                variant='outline'
-                                size='sm'
-                              >
+                              {report.status === 'COMPLETED' &&
+                                report.downloadUrl && (
+                                  <Button
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={() => handleDownload(report.id)}
+                                  >
+                                    <Download className='w-4 h-4' />
+                                  </Button>
+                                )}
+                              <Button variant='outline' size='sm'>
                                 <MoreHorizontal className='w-4 h-4' />
                               </Button>
                             </div>
@@ -683,7 +766,7 @@ export function AdminReportsPage() {
 
                 {/* Mobile Cards */}
                 <div className='md:hidden space-y-4'>
-                  {filteredReports.map((report) => (
+                  {filteredReports.map(report => (
                     <Card key={report.id} className='p-4'>
                       <div className='flex items-start justify-between mb-3'>
                         <div className='flex items-center space-x-3'>
@@ -692,20 +775,28 @@ export function AdminReportsPage() {
                             <h3 className='font-medium text-gray-900 dark:text-white'>
                               {report.name}
                             </h3>
-                            <p className='text-sm text-gray-500'>{report.description}</p>
+                            <p className='text-sm text-gray-500'>
+                              {report.description}
+                            </p>
                           </div>
                         </div>
                         {getStatusBadge(report.status)}
                       </div>
-                      
+
                       <div className='space-y-2 text-sm'>
                         <div className='flex items-center justify-between'>
-                          <span className='text-gray-500'>{t('admin.reports.created', 'Created')}:</span>
-                          <span>{new Date(report.createdAt).toLocaleDateString()}</span>
+                          <span className='text-gray-500'>
+                            {t('admin.reports.created', 'Created')}:
+                          </span>
+                          <span>
+                            {new Date(report.createdAt).toLocaleDateString()}
+                          </span>
                         </div>
                         {report.fileSize && (
                           <div className='flex items-center justify-between'>
-                            <span className='text-gray-500'>{t('admin.reports.size', 'Size')}:</span>
+                            <span className='text-gray-500'>
+                              {t('admin.reports.size', 'Size')}:
+                            </span>
                             <span>{formatFileSize(report.fileSize)}</span>
                           </div>
                         )}
@@ -736,8 +827,14 @@ export function AdminReportsPage() {
                 </h3>
                 <p className='text-gray-500 dark:text-gray-400 mb-4'>
                   {searchTerm || statusFilter !== 'all' || typeFilter !== 'all'
-                    ? t('admin.reports.tryDifferentFilter', 'Try adjusting your search or filters')
-                    : t('admin.reports.getStarted', 'Get started by creating your first report')}
+                    ? t(
+                        'admin.reports.tryDifferentFilter',
+                        'Try adjusting your search or filters'
+                      )
+                    : t(
+                        'admin.reports.getStarted',
+                        'Get started by creating your first report'
+                      )}
                 </p>
                 <Button onClick={() => setShowCreateModal(true)}>
                   <Plus className='w-4 h-4 mr-2' />
@@ -753,17 +850,24 @@ export function AdminReportsPage() {
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
         <DialogContent className='max-w-3xl max-h-[80vh] overflow-y-auto'>
           <DialogHeader>
-            <DialogTitle>{t('admin.reports.createReport', 'Create Report')}</DialogTitle>
+            <DialogTitle>
+              {t('admin.reports.createReport', 'Create Report')}
+            </DialogTitle>
             <DialogDescription>
-              {t('admin.reports.selectTemplate', 'Select a report template and configure parameters')}
+              {t(
+                'admin.reports.selectTemplate',
+                'Select a report template and configure parameters'
+              )}
             </DialogDescription>
           </DialogHeader>
-          
+
           {!selectedTemplate ? (
             <div className='space-y-4'>
-              <h3 className='text-lg font-medium'>{t('admin.reports.selectReportType', 'Select Report Type')}</h3>
+              <h3 className='text-lg font-medium'>
+                {t('admin.reports.selectReportType', 'Select Report Type')}
+              </h3>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                {REPORT_TEMPLATES.map((template) => (
+                {REPORT_TEMPLATES.map(template => (
                   <Card
                     key={template.id}
                     className='p-4 cursor-pointer hover:shadow-md transition-shadow border-2 border-transparent hover:border-orange-500'
@@ -805,8 +909,12 @@ export function AdminReportsPage() {
                 <div className='flex items-center space-x-3'>
                   {selectedTemplate.icon}
                   <div>
-                    <h3 className='text-lg font-medium'>{selectedTemplate.name}</h3>
-                    <p className='text-sm text-gray-500'>{selectedTemplate.description}</p>
+                    <h3 className='text-lg font-medium'>
+                      {selectedTemplate.name}
+                    </h3>
+                    <p className='text-sm text-gray-500'>
+                      {selectedTemplate.description}
+                    </p>
                   </div>
                 </div>
                 <Button
@@ -822,62 +930,81 @@ export function AdminReportsPage() {
               </div>
 
               <div className='space-y-4'>
-                <h4 className='font-medium'>{t('admin.reports.configureParameters', 'Configure Parameters')}</h4>
-                {selectedTemplate.parameters.map((param) => (
+                <h4 className='font-medium'>
+                  {t(
+                    'admin.reports.configureParameters',
+                    'Configure Parameters'
+                  )}
+                </h4>
+                {selectedTemplate.parameters.map(param => (
                   <div key={param.name} className='space-y-2'>
                     <Label htmlFor={param.name}>
                       {param.label}
-                      {param.required && <span className='text-red-500 ml-1'>*</span>}
+                      {param.required && (
+                        <span className='text-red-500 ml-1'>*</span>
+                      )}
                     </Label>
-                    
+
                     {param.type === 'text' && (
                       <Input
                         id={param.name}
                         value={reportParameters[param.name] || ''}
-                        onChange={(e) => setReportParameters(prev => ({
-                          ...prev,
-                          [param.name]: e.target.value
-                        }))}
+                        onChange={e =>
+                          setReportParameters(prev => ({
+                            ...prev,
+                            [param.name]: e.target.value,
+                          }))
+                        }
                       />
                     )}
-                    
+
                     {param.type === 'number' && (
                       <Input
                         id={param.name}
                         type='number'
                         value={reportParameters[param.name] || ''}
-                        onChange={(e) => setReportParameters(prev => ({
-                          ...prev,
-                          [param.name]: parseFloat(e.target.value) || 0
-                        }))}
+                        onChange={e =>
+                          setReportParameters(prev => ({
+                            ...prev,
+                            [param.name]: parseFloat(e.target.value) || 0,
+                          }))
+                        }
                       />
                     )}
-                    
+
                     {param.type === 'date' && (
                       <Input
                         id={param.name}
                         type='date'
                         value={reportParameters[param.name] || ''}
-                        onChange={(e) => setReportParameters(prev => ({
-                          ...prev,
-                          [param.name]: e.target.value
-                        }))}
+                        onChange={e =>
+                          setReportParameters(prev => ({
+                            ...prev,
+                            [param.name]: e.target.value,
+                          }))
+                        }
                       />
                     )}
-                    
+
                     {param.type === 'select' && param.options && (
                       <Select
-                        value={reportParameters[param.name] || param.defaultValue || ''}
-                        onValueChange={(value) => setReportParameters(prev => ({
-                          ...prev,
-                          [param.name]: value
-                        }))}
+                        value={
+                          reportParameters[param.name] ||
+                          param.defaultValue ||
+                          ''
+                        }
+                        onValueChange={value =>
+                          setReportParameters(prev => ({
+                            ...prev,
+                            [param.name]: value,
+                          }))
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue placeholder={`Select ${param.label}`} />
                         </SelectTrigger>
                         <SelectContent>
-                          {param.options.map((option) => (
+                          {param.options.map(option => (
                             <SelectItem key={option.value} value={option.value}>
                               {option.label}
                             </SelectItem>
@@ -909,7 +1036,7 @@ export function AdminReportsPage() {
               >
                 {createReportMutation.isPending ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
                     {t('admin.reports.generating', 'Generating...')}
                   </>
                 ) : (

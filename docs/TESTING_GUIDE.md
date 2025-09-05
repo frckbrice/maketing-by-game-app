@@ -36,6 +36,7 @@ This comprehensive testing guide covers all testing strategies, methodologies, a
 ```
 
 ### Test Types Distribution
+
 - **Unit Tests**: 70% - Fast, isolated, focused on single functions/components
 - **Integration Tests**: 20% - Test component interactions and API integration
 - **End-to-End Tests**: 10% - Test complete user workflows
@@ -45,6 +46,7 @@ This comprehensive testing guide covers all testing strategies, methodologies, a
 ### Setup and Configuration
 
 **Jest Configuration** (`jest.config.js`):
+
 ```javascript
 const nextJest = require('next/jest');
 
@@ -82,6 +84,7 @@ module.exports = createJestConfig(customJestConfig);
 ```
 
 **Test Setup** (`jest.setup.js`):
+
 ```javascript
 import '@testing-library/jest-dom';
 import 'jest-canvas-mock';
@@ -106,7 +109,7 @@ jest.mock('next/router', () => ({
 // Mock i18next
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key) => key,
+    t: key => key,
     i18n: {
       language: 'en',
       changeLanguage: jest.fn(),
@@ -132,6 +135,7 @@ global.IntersectionObserver = jest.fn().mockImplementation(() => ({
 ### Component Testing Examples
 
 #### React Component Testing
+
 ```typescript
 // src/components/ui/__tests__/Button.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -146,7 +150,7 @@ describe('Button Component', () => {
   it('handles click events', () => {
     const handleClick = jest.fn();
     render(<Button onClick={handleClick}>Click me</Button>);
-    
+
     fireEvent.click(screen.getByRole('button'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
@@ -169,6 +173,7 @@ describe('Button Component', () => {
 ```
 
 #### Hook Testing
+
 ```typescript
 // src/hooks/__tests__/useGameCounter.test.tsx
 import { renderHook, waitFor } from '@testing-library/react';
@@ -178,7 +183,9 @@ import { realtimeService } from '@/lib/services/realtimeService';
 jest.mock('@/lib/services/realtimeService');
 
 describe('useGameCounter Hook', () => {
-  const mockRealtimeService = realtimeService as jest.Mocked<typeof realtimeService>;
+  const mockRealtimeService = realtimeService as jest.Mocked<
+    typeof realtimeService
+  >;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -186,9 +193,9 @@ describe('useGameCounter Hook', () => {
 
   it('initializes with loading state', () => {
     mockRealtimeService.getGameCounter.mockResolvedValue(null);
-    
+
     const { result } = renderHook(() => useGameCounter('game123'));
-    
+
     expect(result.current.loading).toBe(true);
     expect(result.current.counter).toBeNull();
     expect(result.current.error).toBeNull();
@@ -202,11 +209,11 @@ describe('useGameCounter Hook', () => {
       status: 'active',
       lastUpdate: Date.now(),
     };
-    
+
     mockRealtimeService.getGameCounter.mockResolvedValue(mockCounter);
-    
+
     const { result } = renderHook(() => useGameCounter('game123'));
-    
+
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
       expect(result.current.counter).toEqual(mockCounter);
@@ -221,26 +228,30 @@ describe('useGameCounter Hook', () => {
       status: 'active',
       lastUpdate: Date.now(),
     };
-    
+
     mockRealtimeService.getGameCounter.mockResolvedValue(mockCounter);
     mockRealtimeService.updateGameCounter.mockResolvedValue();
-    
+
     const { result } = renderHook(() => useGameCounter('game123'));
-    
+
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
-    
+
     await result.current.incrementParticipants();
-    
-    expect(mockRealtimeService.updateGameCounter).toHaveBeenCalledWith('game123', {
-      participants: 51,
-    });
+
+    expect(mockRealtimeService.updateGameCounter).toHaveBeenCalledWith(
+      'game123',
+      {
+        participants: 51,
+      }
+    );
   });
 });
 ```
 
 #### Service Testing
+
 ```typescript
 // src/lib/services/__tests__/notificationService.test.ts
 import { notificationService } from '@/lib/services/notificationService';
@@ -249,7 +260,9 @@ import { firestoreService } from '@/lib/firebase/services';
 jest.mock('@/lib/firebase/services');
 
 describe('NotificationService', () => {
-  const mockFirestoreService = firestoreService as jest.Mocked<typeof firestoreService>;
+  const mockFirestoreService = firestoreService as jest.Mocked<
+    typeof firestoreService
+  >;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -262,16 +275,16 @@ describe('NotificationService', () => {
         fcmToken: 'fcm-token-123',
         notificationPreferences: { gameUpdates: true },
       };
-      
+
       mockFirestoreService.getUser.mockResolvedValue(mockUser);
-      
+
       await notificationService.sendGameWinnerNotification({
         userId: 'user123',
         gameName: 'Win iPhone 15',
         prize: 'iPhone 15 Pro',
         prizeValue: 1299,
       });
-      
+
       expect(mockFirestoreService.getUser).toHaveBeenCalledWith('user123');
     });
 
@@ -281,16 +294,16 @@ describe('NotificationService', () => {
         fcmToken: 'fcm-token-123',
         notificationPreferences: { gameUpdates: false },
       };
-      
+
       mockFirestoreService.getUser.mockResolvedValue(mockUser);
-      
+
       const result = await notificationService.sendGameWinnerNotification({
         userId: 'user123',
         gameName: 'Win iPhone 15',
         prize: 'iPhone 15 Pro',
         prizeValue: 1299,
       });
-      
+
       expect(result.skipped).toBe(true);
       expect(result.reason).toBe('User has disabled game update notifications');
     });
@@ -299,9 +312,14 @@ describe('NotificationService', () => {
 ```
 
 ### Utility Function Testing
+
 ```typescript
 // src/lib/utils/__tests__/validation.test.ts
-import { validateEmail, validatePhone, validatePassword } from '@/lib/utils/validation';
+import {
+  validateEmail,
+  validatePhone,
+  validatePassword,
+} from '@/lib/utils/validation';
 
 describe('Validation Utils', () => {
   describe('validateEmail', () => {
@@ -346,6 +364,7 @@ describe('Validation Utils', () => {
 ## Integration Testing
 
 ### API Integration Testing
+
 ```typescript
 // src/__tests__/api/games.integration.test.ts
 import { createMocks } from 'node-mocks-http';
@@ -374,7 +393,7 @@ describe('/api/games Integration', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      
+
       const data = JSON.parse(res._getData());
       expect(data.success).toBe(true);
       expect(data.data.games).toBeInstanceOf(Array);
@@ -394,7 +413,7 @@ describe('/api/games Integration', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
-      
+
       const data = JSON.parse(res._getData());
       expect(data.data.games).toEqual(
         expect.arrayContaining([
@@ -413,7 +432,7 @@ describe('/api/games Integration', () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(401);
-      
+
       const data = JSON.parse(res._getData());
       expect(data.success).toBe(false);
       expect(data.error.code).toBe('AUTH_REQUIRED');
@@ -423,10 +442,14 @@ describe('/api/games Integration', () => {
 ```
 
 ### Firebase Integration Testing
+
 ```typescript
 // src/lib/firebase/__tests__/services.integration.test.ts
 import { firestoreService } from '@/lib/firebase/services';
-import { initializeTestFirebase, cleanupTestFirebase } from '@/lib/test-utils/firebase';
+import {
+  initializeTestFirebase,
+  cleanupTestFirebase,
+} from '@/lib/test-utils/firebase';
 
 describe('Firebase Services Integration', () => {
   beforeAll(async () => {
@@ -505,6 +528,7 @@ describe('Firebase Services Integration', () => {
 ## End-to-End Testing
 
 ### Playwright Configuration
+
 ```typescript
 // playwright.config.ts
 import { defineConfig, devices } from '@playwright/test';
@@ -515,10 +539,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: [
-    ['html'],
-    ['json', { outputFile: 'test-results/results.json' }],
-  ],
+  reporter: [['html'], ['json', { outputFile: 'test-results/results.json' }]],
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
@@ -555,6 +576,7 @@ export default defineConfig({
 ```
 
 ### E2E Test Examples
+
 ```typescript
 // e2e/game-flow.spec.ts
 import { test, expect } from '@playwright/test';
@@ -615,7 +637,7 @@ test.describe('Game Purchase Flow', () => {
 
     await page.goto('/profile');
     await page.click('[data-testid="tickets-tab"]');
-    
+
     const firstTicket = page.getByTestId('ticket-item').first();
     await firstTicket.click();
 
@@ -628,9 +650,11 @@ test.describe('Game Purchase Flow', () => {
 
     // Mock successful scan result
     await page.evaluate(() => {
-      window.dispatchEvent(new CustomEvent('qr-scan-result', {
-        detail: { result: 'VALID', ticket: { id: 'test-ticket' } }
-      }));
+      window.dispatchEvent(
+        new CustomEvent('qr-scan-result', {
+          detail: { result: 'VALID', ticket: { id: 'test-ticket' } },
+        })
+      );
     });
 
     await expect(page.getByTestId('scan-result-valid')).toBeVisible();
@@ -639,6 +663,7 @@ test.describe('Game Purchase Flow', () => {
 ```
 
 ### Cross-browser Testing
+
 ```typescript
 // e2e/cross-browser.spec.ts
 import { test, expect, devices } from '@playwright/test';
@@ -646,36 +671,36 @@ import { test, expect, devices } from '@playwright/test';
 const browsers = ['chromium', 'firefox', 'webkit'];
 const mobileDevices = ['iPhone 12', 'Pixel 5', 'Galaxy S21'];
 
-browsers.forEach((browserName) => {
+browsers.forEach(browserName => {
   test.describe(`${browserName} Browser Tests`, () => {
     test(`navigation works in ${browserName}`, async ({ page }) => {
       await page.goto('/');
-      
+
       // Test main navigation
       await page.click('[data-testid="games-nav"]');
       await expect(page).toHaveURL('/games');
-      
+
       await page.click('[data-testid="profile-nav"]');
       await expect(page).toHaveURL('/profile');
     });
   });
 });
 
-mobileDevices.forEach((device) => {
+mobileDevices.forEach(device => {
   test.describe(`Mobile Device: ${device}`, () => {
     test.use(devices[device]);
-    
+
     test(`responsive design works on ${device}`, async ({ page }) => {
       await page.goto('/');
-      
+
       // Test mobile menu
       await page.click('[data-testid="mobile-menu-button"]');
       await expect(page.getByTestId('mobile-nav')).toBeVisible();
-      
+
       // Test swipe gestures on games carousel
       const carousel = page.getByTestId('games-carousel');
       await carousel.swipeLeft();
-      
+
       // Test touch interactions
       await page.tap('[data-testid="game-card"]');
       await expect(page.getByTestId('game-detail')).toBeVisible();
@@ -687,6 +712,7 @@ mobileDevices.forEach((device) => {
 ## Performance Testing
 
 ### Lighthouse Testing
+
 ```javascript
 // scripts/lighthouse-test.js
 const lighthouse = require('lighthouse');
@@ -695,11 +721,11 @@ const fs = require('fs');
 
 async function runLighthouse(url) {
   const chrome = await chromeLauncher.launch({ chromeFlags: ['--headless'] });
-  const options = { 
-    logLevel: 'info', 
+  const options = {
+    logLevel: 'info',
     output: 'json',
     onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
-    port: chrome.port 
+    port: chrome.port,
   };
 
   const runnerResult = await lighthouse(url, options);
@@ -740,6 +766,7 @@ Promise.all(pages.map(runLighthouse))
 ```
 
 ### Load Testing
+
 ```javascript
 // scripts/load-test.js
 import http from 'k6/http';
@@ -754,11 +781,11 @@ export let options = {
     { duration: '5m', target: 100 }, // Stay at 100 users
     { duration: '2m', target: 200 }, // Ramp up to 200 users
     { duration: '5m', target: 200 }, // Stay at 200 users
-    { duration: '2m', target: 0 },   // Ramp down
+    { duration: '2m', target: 0 }, // Ramp down
   ],
   thresholds: {
     http_req_duration: ['p(95)<500'], // 95% of requests under 500ms
-    http_req_failed: ['rate<0.1'],    // Error rate under 10%
+    http_req_failed: ['rate<0.1'], // Error rate under 10%
   },
 };
 
@@ -768,8 +795,8 @@ export default function () {
   // Test homepage
   let response = http.get(`${BASE_URL}/`);
   check(response, {
-    'homepage loads': (r) => r.status === 200,
-    'homepage loads in time': (r) => r.timings.duration < 1000,
+    'homepage loads': r => r.status === 200,
+    'homepage loads in time': r => r.timings.duration < 1000,
   });
   errorRate.add(response.status !== 200);
 
@@ -780,8 +807,8 @@ export default function () {
     headers: { Authorization: 'Bearer test-token' },
   });
   check(response, {
-    'games API responds': (r) => r.status === 200,
-    'games API responds quickly': (r) => r.timings.duration < 500,
+    'games API responds': r => r.status === 200,
+    'games API responds quickly': r => r.timings.duration < 500,
   });
   errorRate.add(response.status !== 200);
 
@@ -792,6 +819,7 @@ export default function () {
 ## Security Testing
 
 ### Security Test Suite
+
 ```typescript
 // src/__tests__/security/api-security.test.ts
 import { testApiEndpoint } from '@/lib/test-utils/security';
@@ -835,7 +863,9 @@ describe('API Security Tests', () => {
     });
 
     it('prevents vendors from accessing other vendors data', async () => {
-      const vendorToken = await generateTestToken('VENDOR', { vendorId: 'vendor1' });
+      const vendorToken = await generateTestToken('VENDOR', {
+        vendorId: 'vendor1',
+      });
       const response = await testApiEndpoint('GET', '/api/vendor/shop/vendor2');
 
       expect(response.status).toBe(403);
@@ -857,7 +887,7 @@ describe('API Security Tests', () => {
     it('sanitizes user input', async () => {
       const userToken = await generateTestToken('USER');
       const maliciousInput = '<script>alert("xss")</script>';
-      
+
       const response = await testApiEndpoint('PUT', '/api/users/profile', {
         headers: { Authorization: `Bearer ${userToken}` },
         body: { firstName: maliciousInput },
@@ -871,15 +901,17 @@ describe('API Security Tests', () => {
 
   describe('Rate Limiting', () => {
     it('enforces rate limits on sensitive endpoints', async () => {
-      const requests = Array(101).fill(null).map(() => 
-        testApiEndpoint('POST', '/api/auth/login', {
-          body: { email: 'test@example.com', password: 'password' },
-        })
-      );
+      const requests = Array(101)
+        .fill(null)
+        .map(() =>
+          testApiEndpoint('POST', '/api/auth/login', {
+            body: { email: 'test@example.com', password: 'password' },
+          })
+        );
 
       const responses = await Promise.all(requests);
       const rateLimitedResponses = responses.filter(r => r.status === 429);
-      
+
       expect(rateLimitedResponses.length).toBeGreaterThan(0);
     });
   });
@@ -887,6 +919,7 @@ describe('API Security Tests', () => {
 ```
 
 ### SQL Injection Testing
+
 ```typescript
 // src/__tests__/security/injection.test.ts
 describe('Injection Prevention', () => {
@@ -894,13 +927,16 @@ describe('Injection Prevention', () => {
     const maliciousQueries = [
       "'; DROP TABLE users; --",
       "' OR '1'='1",
-      "{ $ne: null }",
+      '{ $ne: null }',
       "'; return { password: 1 }; var foo = '",
     ];
 
     for (const query of maliciousQueries) {
-      const response = await testApiEndpoint('GET', `/api/games?search=${encodeURIComponent(query)}`);
-      
+      const response = await testApiEndpoint(
+        'GET',
+        `/api/games?search=${encodeURIComponent(query)}`
+      );
+
       // Should either return empty results or validation error, not crash
       expect([200, 400]).toContain(response.status);
       if (response.status === 200) {
@@ -937,6 +973,7 @@ describe('Injection Prevention', () => {
 ## Accessibility Testing
 
 ### Automated Accessibility Testing
+
 ```typescript
 // src/__tests__/accessibility/a11y.test.tsx
 import { render } from '@testing-library/react';
@@ -1003,6 +1040,7 @@ describe('Accessibility Tests', () => {
 ```
 
 ### Keyboard Navigation Testing
+
 ```typescript
 // e2e/accessibility/keyboard-navigation.spec.ts
 import { test, expect } from '@playwright/test';
@@ -1028,7 +1066,7 @@ test.describe('Keyboard Navigation', () => {
     // Use arrow keys to navigate between games
     await page.keyboard.press('ArrowRight');
     await page.keyboard.press('ArrowRight');
-    
+
     // Select game with Enter
     await page.keyboard.press('Enter');
     await expect(page.getByTestId('game-detail')).toBeVisible();
@@ -1036,26 +1074,26 @@ test.describe('Keyboard Navigation', () => {
 
   test('focus indicators are visible', async ({ page }) => {
     await page.goto('/');
-    
+
     // Check focus indicators on interactive elements
     await page.keyboard.press('Tab');
     const focusedElement = await page.locator(':focus');
-    
+
     // Verify focus indicator styles
-    const focusStyles = await focusedElement.evaluate(el => 
-      getComputedStyle(el).outline
+    const focusStyles = await focusedElement.evaluate(
+      el => getComputedStyle(el).outline
     );
-    
+
     expect(focusStyles).not.toBe('none');
   });
 
   test('skip links work correctly', async ({ page }) => {
     await page.goto('/');
-    
+
     // Press Tab to focus skip link
     await page.keyboard.press('Tab');
     await expect(page.getByTestId('skip-to-main')).toBeFocused();
-    
+
     // Activate skip link
     await page.keyboard.press('Enter');
     await expect(page.getByTestId('main-content')).toBeFocused();
@@ -1066,6 +1104,7 @@ test.describe('Keyboard Navigation', () => {
 ## Mobile Testing
 
 ### Mobile-Specific Tests
+
 ```typescript
 // e2e/mobile/mobile-interactions.spec.ts
 import { test, expect, devices } from '@playwright/test';
@@ -1078,16 +1117,19 @@ test.describe('Mobile Interactions', () => {
 
     // Test swipe gestures on carousel
     const carousel = page.getByTestId('games-carousel');
-    
+
     // Get initial position
-    const initialCard = await carousel.locator('.game-card').first().textContent();
-    
+    const initialCard = await carousel
+      .locator('.game-card')
+      .first()
+      .textContent();
+
     // Swipe left
     await carousel.swipeLeft();
-    
+
     // Wait for animation
     await page.waitForTimeout(500);
-    
+
     // Check if content changed
     const newCard = await carousel.locator('.game-card').first().textContent();
     expect(newCard).not.toBe(initialCard);
@@ -1095,28 +1137,28 @@ test.describe('Mobile Interactions', () => {
 
   test('pull-to-refresh works', async ({ page }) => {
     await page.goto('/games');
-    
+
     // Simulate pull-to-refresh gesture
     await page.mouse.move(200, 100);
     await page.mouse.down();
     await page.mouse.move(200, 300);
     await page.mouse.up();
-    
+
     // Check for refresh indicator
     await expect(page.getByTestId('refresh-indicator')).toBeVisible();
   });
 
   test('mobile menu works correctly', async ({ page }) => {
     await page.goto('/');
-    
+
     // Open mobile menu
     await page.getByTestId('mobile-menu-button').tap();
     await expect(page.getByTestId('mobile-nav')).toBeVisible();
-    
+
     // Navigate using mobile menu
     await page.getByTestId('mobile-games-link').tap();
     await expect(page).toHaveURL('/games');
-    
+
     // Menu should close after navigation
     await expect(page.getByTestId('mobile-nav')).not.toBeVisible();
   });
@@ -1125,14 +1167,14 @@ test.describe('Mobile Interactions', () => {
     // Test portrait orientation
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
-    
+
     const portraitLayout = await page.getByTestId('main-layout').screenshot();
-    
+
     // Test landscape orientation
     await page.setViewportSize({ width: 812, height: 375 });
-    
+
     const landscapeLayout = await page.getByTestId('main-layout').screenshot();
-    
+
     // Layouts should be different
     expect(portraitLayout).not.toEqual(landscapeLayout);
   });
@@ -1142,6 +1184,7 @@ test.describe('Mobile Interactions', () => {
 ## API Testing
 
 ### API Test Suite
+
 ```typescript
 // src/__tests__/api/api-endpoints.test.ts
 import { testApiEndpoints } from '@/lib/test-utils/api-testing';
@@ -1174,7 +1217,7 @@ describe('API Endpoints', () => {
       endpoint: '/api/tickets/scan',
       method: 'POST',
       requiresAuth: true,
-      payload: { 
+      payload: {
         ticketId: 'test-ticket',
         signature: 'test-signature',
         scannedBy: 'player',
@@ -1184,31 +1227,43 @@ describe('API Endpoints', () => {
     },
   ];
 
-  testCases.forEach(({ endpoint, method, requiresAuth, payload, expectedStatus, expectedFields }) => {
-    it(`${method} ${endpoint} works correctly`, async () => {
-      const headers = requiresAuth ? 
-        { Authorization: 'Bearer test-token' } : 
-        {};
+  testCases.forEach(
+    ({
+      endpoint,
+      method,
+      requiresAuth,
+      payload,
+      expectedStatus,
+      expectedFields,
+    }) => {
+      it(`${method} ${endpoint} works correctly`, async () => {
+        const headers = requiresAuth
+          ? { Authorization: 'Bearer test-token' }
+          : {};
 
-      const response = await testApiEndpoints(method, endpoint, {
-        headers,
-        body: payload,
-      });
-
-      expect(response.status).toBe(expectedStatus);
-      
-      if (expectedFields) {
-        expectedFields.forEach(field => {
-          expect(response.body.data).toHaveProperty(field);
+        const response = await testApiEndpoints(method, endpoint, {
+          headers,
+          body: payload,
         });
-      }
-    });
-  });
+
+        expect(response.status).toBe(expectedStatus);
+
+        if (expectedFields) {
+          expectedFields.forEach(field => {
+            expect(response.body.data).toHaveProperty(field);
+          });
+        }
+      });
+    }
+  );
 
   describe('Error Handling', () => {
     it('returns proper error format', async () => {
-      const response = await testApiEndpoints('GET', '/api/nonexistent-endpoint');
-      
+      const response = await testApiEndpoints(
+        'GET',
+        '/api/nonexistent-endpoint'
+      );
+
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('error');
@@ -1217,10 +1272,16 @@ describe('API Endpoints', () => {
     });
 
     it('handles validation errors', async () => {
-      const response = await testApiEndpoints('POST', '/api/games/participate', {
-        headers: { Authorization: 'Bearer test-token' },
-        body: { /* missing required fields */ },
-      });
+      const response = await testApiEndpoints(
+        'POST',
+        '/api/games/participate',
+        {
+          headers: { Authorization: 'Bearer test-token' },
+          body: {
+            /* missing required fields */
+          },
+        }
+      );
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
@@ -1232,6 +1293,7 @@ describe('API Endpoints', () => {
 ## Test Coverage
 
 ### Coverage Configuration
+
 ```javascript
 // jest.config.js - Coverage settings
 module.exports = {
@@ -1269,6 +1331,7 @@ module.exports = {
 ```
 
 ### Coverage Reporting
+
 ```bash
 # Generate coverage report
 yarn test --coverage
@@ -1283,15 +1346,16 @@ bash <(curl -s https://codecov.io/bash)
 ## Continuous Integration
 
 ### GitHub Actions Workflow
+
 ```yaml
 # .github/workflows/test.yml
 name: Test Suite
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
@@ -1302,95 +1366,96 @@ jobs:
         node-version: [18.x, 20.x]
 
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'yarn'
+      - uses: actions/checkout@v3
 
-    - name: Install dependencies
-      run: yarn install --frozen-lockfile
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-    - name: Run type checking
-      run: yarn type-check
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-    - name: Run linting
-      run: yarn lint
+      - name: Run type checking
+        run: yarn type-check
 
-    - name: Run unit tests
-      run: yarn test --coverage
-      env:
-        CI: true
+      - name: Run linting
+        run: yarn lint
 
-    - name: Run build
-      run: yarn build
+      - name: Run unit tests
+        run: yarn test --coverage
+        env:
+          CI: true
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      - name: Run build
+        run: yarn build
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
 
   e2e:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Use Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18.x
-        cache: 'yarn'
+      - uses: actions/checkout@v3
 
-    - name: Install dependencies
-      run: yarn install --frozen-lockfile
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
 
-    - name: Install Playwright
-      run: npx playwright install --with-deps
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-    - name: Run E2E tests
-      run: yarn test:e2e
+      - name: Install Playwright
+        run: npx playwright install --with-deps
 
-    - uses: actions/upload-artifact@v3
-      if: always()
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      - name: Run E2E tests
+        run: yarn test:e2e
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
 
   lighthouse:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Use Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18.x
-        cache: 'yarn'
+      - uses: actions/checkout@v3
 
-    - name: Install dependencies
-      run: yarn install --frozen-lockfile
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
 
-    - name: Build application
-      run: yarn build
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-    - name: Start application
-      run: yarn start &
-      
-    - name: Wait for server
-      run: npx wait-on http://localhost:3000
+      - name: Build application
+        run: yarn build
 
-    - name: Run Lighthouse
-      run: node scripts/lighthouse-test.js
+      - name: Start application
+        run: yarn start &
 
-    - name: Upload Lighthouse results
-      uses: actions/upload-artifact@v3
-      with:
-        name: lighthouse-results
-        path: lighthouse-results/
+      - name: Wait for server
+        run: npx wait-on http://localhost:3000
+
+      - name: Run Lighthouse
+        run: node scripts/lighthouse-test.js
+
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-results
+          path: lighthouse-results/
 ```
 
 ### Test Scripts
+
 ```json
 // package.json
 {
@@ -1411,6 +1476,7 @@ jobs:
 ## Best Practices
 
 ### Test Organization
+
 1. **Follow AAA Pattern**: Arrange, Act, Assert
 2. **Use Descriptive Names**: Test names should describe what is being tested
 3. **Keep Tests Independent**: Each test should be able to run in isolation
@@ -1418,18 +1484,21 @@ jobs:
 5. **Test Edge Cases**: Include tests for error conditions and edge cases
 
 ### Performance Testing
+
 1. **Set Performance Budgets**: Define acceptable performance thresholds
 2. **Test on Real Devices**: Use real mobile devices for testing
 3. **Monitor Core Web Vitals**: Track LCP, FID, and CLS metrics
 4. **Load Test Critical Paths**: Focus on user-critical workflows
 
 ### Security Testing
+
 1. **Test Authentication**: Verify proper authentication and authorization
 2. **Validate Input**: Test input validation and sanitization
 3. **Check Rate Limiting**: Ensure rate limiting is working
 4. **Test File Uploads**: Validate file upload security
 
 ### Accessibility Testing
+
 1. **Use Automated Tools**: Integrate axe-core for automated testing
 2. **Test Keyboard Navigation**: Ensure all functionality is keyboard accessible
 3. **Check Screen Readers**: Test with actual screen reader software
@@ -1437,4 +1506,4 @@ jobs:
 
 ---
 
-*This testing guide is continuously updated to reflect best practices and new testing methodologies. Regular updates ensure comprehensive coverage of all application features.*
+_This testing guide is continuously updated to reflect best practices and new testing methodologies. Regular updates ensure comprehensive coverage of all application features._

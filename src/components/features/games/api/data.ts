@@ -33,57 +33,62 @@ export const getMockGames = (params?: {
   featured?: boolean;
 }): LotteryGame[] => {
   let games = [...MOCK_GAMES];
-  
+
   // Apply search filter
   if (params?.search) {
     const searchTerm = params.search.toLowerCase();
-    games = games.filter(game => 
-      game.title.toLowerCase().includes(searchTerm) ||
-      game.description.toLowerCase().includes(searchTerm)
+    games = games.filter(
+      game =>
+        game.title.toLowerCase().includes(searchTerm) ||
+        game.description.toLowerCase().includes(searchTerm)
     );
   }
-  
+
   // Apply category filter
   if (params?.category && params.category !== 'all') {
     games = games.filter(game => game.categoryId === params.category);
   }
-  
+
   // Apply featured filter
   if (params?.featured) {
-    games = games.filter(game => 
-      game.status === 'ACTIVE' && 
-      (game.currentParticipants >= (game.maxParticipants * 0.7))
+    games = games.filter(
+      game =>
+        game.status === 'ACTIVE' &&
+        game.currentParticipants >= game.maxParticipants * 0.7
     );
   }
-  
+
   // Apply pagination
   const page = params?.page || 1;
   const limit = params?.limit || GAMES_PER_PAGE;
   const startIndex = (page - 1) * limit;
   const endIndex = startIndex + limit;
-  
+
   return games.slice(startIndex, endIndex);
 };
 
 export const getMockFeaturedGames = (): LotteryGame[] => {
-  return getMockGames({ 
-    featured: true, 
-    limit: FEATURED_GAMES_LIMIT 
+  return getMockGames({
+    featured: true,
+    limit: FEATURED_GAMES_LIMIT,
   });
 };
 
 // Game categories with game counts
-export const getCategoriesWithCounts = (games: LotteryGame[]): Array<GameCategory & { gameCount: number }> => {
+export const getCategoriesWithCounts = (
+  games: LotteryGame[]
+): Array<GameCategory & { gameCount: number }> => {
   const categories = getMockCategories();
-  
+
   return categories.map(category => {
-    const gameCount = category.id === 'all' 
-      ? games.length 
-      : games.filter(game => game.categoryId === category.id).length;
-    
+    const gameCount =
+      category.id === 'all'
+        ? games.length
+        : games.filter(game => game.categoryId === category.id).length;
+
     return {
       ...category,
-      gameCount
+      gameCount,
     };
   });
 };
@@ -102,10 +107,10 @@ export const createGameCardData = (game: LotteryGame) => ({
   category: {
     name: game.category?.name || 'General',
     color: game.category?.color || '#6366f1',
-    icon: game.category?.icon || '🎮'
+    icon: game.category?.icon || '🎮',
   },
-  featured: game.currentParticipants >= (game.maxParticipants * 0.7),
-  status: game.status
+  featured: game.currentParticipants >= game.maxParticipants * 0.7,
+  status: game.status,
 });
 
 // Query keys for React Query

@@ -1,4 +1,4 @@
-import type { GameCategory, LotteryGame } from '@/types';
+import type { GameCategory, LotteryGame, Product, Review, Shop } from '@/types';
 
 // =============================================================================
 // MOCK CATEGORIES
@@ -82,10 +82,18 @@ export const MOCK_GAMES: LotteryGame[] = [
         id: '1',
         url: '/en/images/iphone15promax.webp',
         alt: 'iPhone 15 Pro Max 256GB',
-        type: 'thumbnail',
         order: 1,
+        isPrimary: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
       },
     ],
+    shop: {
+      id: 'admin',
+      name: 'Tech Hub',
+      website: '',
+      logo: '/fr/icons/lottery_logo.jpeg',
+    },
     startDate: Date.now(),
     endDate: Date.now() + 5 * 24 * 60 * 60 * 1000,
     drawDate: Date.now() + 5 * 24 * 60 * 60 * 1000,
@@ -102,7 +110,7 @@ export const MOCK_GAMES: LotteryGame[] = [
     type: 'weekly',
     categoryId: 'fashion',
     category: MOCK_CATEGORIES[1],
-    ticketPrice: 15,
+    ticketPrice: 50,
     currency: 'USD',
     maxParticipants: 300,
     currentParticipants: 189,
@@ -116,10 +124,18 @@ export const MOCK_GAMES: LotteryGame[] = [
         id: '1',
         url: '/en/images/nikeairretro.webp',
         alt: 'Nike Air Jordan 1 Retro High',
-        type: 'thumbnail',
         order: 1,
+        isPrimary: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
       },
     ],
+    shop: {
+      id: 'admin',
+      name: 'Tech Hub',
+      website: '',
+      logo: '/fr/icons/lottery_logo.jpeg',
+    },
     startDate: Date.now(),
     endDate: Date.now() + 10 * 24 * 60 * 60 * 1000,
     drawDate: Date.now() + 10 * 24 * 60 * 60 * 1000,
@@ -136,7 +152,7 @@ export const MOCK_GAMES: LotteryGame[] = [
     type: 'weekly',
     categoryId: 'home',
     category: MOCK_CATEGORIES[2],
-    ticketPrice: 20,
+    ticketPrice: 50,
     currency: 'USD',
     maxParticipants: 250,
     totalTickets: 300,
@@ -150,10 +166,18 @@ export const MOCK_GAMES: LotteryGame[] = [
         id: '1',
         url: '/en/images/kitchenretromixer.webp',
         alt: 'KitchenAid Stand Mixer',
-        type: 'thumbnail',
         order: 1,
+        isPrimary: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
       },
     ],
+    shop: {
+      id: 'admin',
+      name: 'Tech Hub',
+      website: '',
+      logo: '/fr/icons/lottery_logo.jpeg',
+    },
     startDate: Date.now(),
     endDate: Date.now() + 12 * 24 * 60 * 60 * 1000,
     drawDate: Date.now() + 12 * 24 * 60 * 60 * 1000,
@@ -186,8 +210,17 @@ export const MOCK_GAMES: LotteryGame[] = [
         alt: 'MacBook Pro M3 14"',
         type: 'thumbnail',
         order: 1,
+        isPrimary: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
       },
     ],
+    shop: {
+      id: 'admin',
+      name: 'Tech Hub',
+      website: '',
+      logo: '/fr/icons/lottery_logo.jpeg',
+    },
     startDate: Date.now(),
     endDate: Date.now() + 20 * 24 * 60 * 60 * 1000,
     drawDate: Date.now() + 20 * 24 * 60 * 60 * 1000,
@@ -218,8 +251,17 @@ export const MOCK_GAMES: LotteryGame[] = [
         alt: 'Samsung 65" QLED 4K TV',
         type: 'thumbnail',
         order: 1,
+        isPrimary: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
       },
     ],
+    shop: {
+      id: 'admin',
+      name: 'Tech Hub',
+      website: '',
+      logo: '/fr/icons/lottery_logo.jpeg',
+    },
     startDate: Date.now(),
     totalTickets: 300,
     totalTicketsSold: 189,
@@ -255,8 +297,17 @@ export const MOCK_GAMES: LotteryGame[] = [
         alt: 'Dyson V15 Detect Absolute Cordless Vacuum',
         type: 'thumbnail',
         order: 1,
+        isPrimary: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
       },
     ],
+    shop: {
+      id: 'admin',
+      name: 'Tech Hub',
+      website: '',
+      logo: '/fr/icons/lottery_logo.jpeg',
+    },
     startDate: Date.now(),
     endDate: Date.now() + 14 * 24 * 60 * 60 * 1000,
     drawDate: Date.now() + 14 * 24 * 60 * 60 * 1000,
@@ -291,8 +342,17 @@ export const MOCK_GAMES: LotteryGame[] = [
         alt: 'Premium Gaming Headset',
         type: 'thumbnail',
         order: 1,
+        isPrimary: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
       },
     ],
+    shop: {
+      id: 'vendor-123',
+      name: 'Tech Hub',
+      website: 'https://www.logitech.com',
+      logo: '/en/images/headset.jpg',
+    },
     startDate: Date.now(),
     endDate: Date.now() + 15 * 24 * 60 * 60 * 1000,
     drawDate: Date.now() + 15 * 24 * 60 * 60 * 1000,
@@ -449,3 +509,272 @@ export const HOME_STATS = [
   { number: '$10M+', labelKey: 'home.hero.stats.prizeValue' },
   { number: '99.8%', labelKey: 'home.hero.stats.deliveryRate' },
 ];
+
+
+// reviews 
+
+export const mocksReviews = (productId: string): Review[] => ([
+  {
+    id: 'review-1',
+    userId: 'user-1',
+    userName: 'John Doe',
+    userAvatar:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=40&q=80',
+    rating: 5,
+    comment: 'Excellent product! Exactly as described and fast delivery.',
+    createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
+    updatedAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
+    isVerified: true,
+    likes: 15,
+    productId: productId,
+  },
+  {
+    id: 'review-2',
+    userId: 'user-2',
+    userName: 'Marie Dubois',
+    userAvatar:
+      'https://images.unsplash.com/photo-1494790108755-2616b612b786?auto=format&fit=crop&w=40&q=80',
+    rating: 4,
+    comment: 'Good quality product. Would recommend to others.',
+    createdAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
+    updatedAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
+    isVerified: true,
+    likes: 8,
+    productId: productId,
+  },
+]);
+
+// =============================================================================
+// MOCK SHOPS
+// =============================================================================
+
+export const MOCK_SHOPS: Shop[] = [
+  {
+    id: 'tech-store',
+    name: 'Tech Store',
+    description: 'Your one-stop shop for the latest technology and gadgets',
+    logoUrl: '/en/images/tech-store-logo.png',
+    bannerUrl: '/en/images/tech-store-banner.jpg',
+    status: 'active',
+    isVerified: true,
+    rating: 4.7,
+    reviewsCount: 156,
+    followersCount: 1250,
+    categories: ['electronics', 'computers', 'phones'],
+    tags: ['technology', 'electronics', 'gadgets'],
+    ownerId: 'owner-tech-store',
+    contactInfo: {
+      email: 'contact@techstore.example.com',
+      phone: '+1-555-0123',
+      website: 'https://techstore.example.com',
+    },
+    createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
+    updatedAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
+  },
+  {
+    id: 'fashion-hub',
+    name: 'Fashion Hub',
+    description: 'Trendy fashion and lifestyle products for the modern consumer',
+    logoUrl: '/en/images/fashion-hub-logo.png',
+    bannerUrl: '/en/images/fashion-hub-banner.jpg',
+    status: 'active',
+    isVerified: true,
+    rating: 4.5,
+    reviewsCount: 89,
+    followersCount: 890,
+    categories: ['fashion', 'clothing', 'accessories'],
+    tags: ['fashion', 'clothing', 'style'],
+    ownerId: 'owner-fashion-hub',
+    contactInfo: {
+      email: 'contact@fashionhub.example.com',
+      phone: '+1-555-0124',
+      website: 'https://fashionhub.example.com',
+    },
+    createdAt: Date.now() - 45 * 24 * 60 * 60 * 1000,
+    updatedAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
+  },
+  {
+    id: 'home-essentials',
+    name: 'Home Essentials',
+    description: 'Quality home appliances and decor for every household',
+    logoUrl: '/en/images/home-essentials-logo.png',
+    bannerUrl: '/en/images/home-essentials-banner.jpg',
+    status: 'active',
+    isVerified: false,
+    rating: 4.2,
+    reviewsCount: 67,
+    followersCount: 450,
+    categories: ['home', 'appliances', 'furniture'],
+    tags: ['home', 'appliances', 'furniture'],
+    ownerId: 'owner-home-essentials',
+    contactInfo: {
+      email: 'contact@homeessentials.example.com',
+      phone: '+1-555-0125',
+      website: 'https://homeessentials.example.com',
+    },
+    createdAt: Date.now() - 20 * 24 * 60 * 60 * 1000,
+    updatedAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
+  },
+];
+
+// =============================================================================
+// MOCK PRODUCTS
+// =============================================================================
+
+export const MOCK_PRODUCTS: Product[] = [
+  {
+    id: 'product-1',
+    name: 'Premium Wireless Headphones',
+    description: 'High-quality wireless headphones with noise cancellation and 30-hour battery life. Perfect for music lovers and professionals.',
+    price: 299.99,
+    currency: 'USD',
+    originalPrice: 399.99,
+    discountPercentage: 25,
+    images: [
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbZin3lyFOHfxka8D7wsbypiu2Ke32MEw7CQ&s',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsCpUaRDFn9e90cY7d9PCPX6AE0-Pgb9ZTFw&s',
+    ],
+    category: 'Electronics',
+    tags: ['headphones', 'wireless', 'noise-cancellation', 'audio'],
+    rating: 4.7,
+    likeCount: 45,
+    shareCount: 12,
+    reviewsCount: 12,
+    isAvailable: true,
+    isFeatured: true,
+    isNew: false,
+    stockQuantity: 25,
+    status: 'ACTIVE',
+    isLotteryEnabled: true,
+    lotteryPrice: 5.99,
+    playedCount: 23,
+    shop: {
+      id: 'tech-store',
+      name: 'Tech Store',
+      logoUrl: '/en/images/tech-store-logo.png',
+    },
+    createdAt: Date.now() - 10 * 24 * 60 * 60 * 1000,
+    updatedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
+  },
+  {
+    id: 'product-2',
+    name: 'Designer T-Shirt',
+    description: 'Comfortable and stylish designer t-shirt made from 100% organic cotton. Available in multiple colors and sizes.',
+    price: 49.99,
+    currency: 'USD',
+    originalPrice: 69.99,
+    discountPercentage: 29,
+    images: [
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfLxNof9t4Pg1qknTnz09Y7vtg7EP8Wqn93w&s',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRA24LHIi_SjuzLfsTN22stiVOWiAfrVHkHAg&s',
+    ],
+    category: 'Fashion',
+    tags: ['clothing', 't-shirt', 'designer', 'cotton'],
+    rating: 4.5,
+    reviewsCount: 89,
+    likeCount: 32,
+    shareCount: 8,
+    isAvailable: true,
+    isFeatured: false,
+    isNew: true,
+    stockQuantity: 50,
+    status: 'ACTIVE',
+    isLotteryEnabled: false,
+    playedCount: 0,
+    shop: {
+      id: 'fashion-hub',
+      name: 'Fashion Hub',
+      logoUrl: '/en/images/fashion-hub-logo.png',
+    },
+    createdAt: Date.now() - 15 * 24 * 60 * 60 * 1000,
+    updatedAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
+  },
+  {
+    id: 'product-3',
+    name: 'Sony WH-1000XM4',
+    description: 'Industry-leading noise cancellation, 30-hour battery life, and touch controls. A favorite among audiophiles.',
+    price: 49.99,
+    currency: 'USD',
+    originalPrice: 69.99,
+    discountPercentage: 29,
+    images: [
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbZin3lyFOHfxka8D7wsbypiu2Ke32MEw7CQ&s',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsCpUaRDFn9e90cY7d9PCPX6AE0-Pgb9ZTFw&s',
+    ],
+    category: 'Electronics',
+    tags: ['headphones', 'wireless', 'noise-cancellation', 'audio'],
+    rating: 4.3,
+    reviewsCount: 89,
+    likeCount: 67,
+    shareCount: 15,
+    isAvailable: true,
+    isFeatured: true,
+    isNew: false,
+    stockQuantity: 50,
+    status: 'ACTIVE',
+    isLotteryEnabled: true,
+    lotteryPrice: 3.99,
+    playedCount: 45,
+    shop: {
+      id: 'tech-store',
+      name: 'Tech Store',
+      logoUrl: '/en/images/tech-store-logo.png',
+    },
+    createdAt: Date.now() - 8 * 24 * 60 * 60 * 1000,
+    updatedAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
+  },
+  {
+    id: 'product-4',
+    name: 'MacBook Air M4 15-inch',
+    description: 'Ultra-thin laptop with M3 chip for incredible performance and battery life',
+    price: 49.99,
+    currency: 'USD',
+    originalPrice: 69.99,
+    discountPercentage: 29,
+    images: [
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmV5HPIFJ0YVWKho76OkUYo7A-ABeI0UkfVw&s',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuj0Nb0CesenmpQdwu1QtwYZz4nkhstbW1uQ&s',
+    ],
+    category: 'Computers',
+    tags: ['laptop', 'computer', 'macbook', 'air'],
+    rating: 4.3,
+    reviewsCount: 89,
+    likeCount: 89,
+    shareCount: 22,
+    isAvailable: true,
+    isFeatured: true,
+    isNew: true,
+    stockQuantity: 50,
+    status: 'ACTIVE',
+    isLotteryEnabled: true,
+    lotteryPrice: 7.99,
+    playedCount: 67,
+    shop: {
+      id: 'tech-store',
+      name: 'Tech Store',
+      logoUrl: '/en/images/tech-store-logo.png',
+    },
+    createdAt: Date.now() - 12 * 24 * 60 * 60 * 1000,
+    updatedAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
+  },
+];
+
+// =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
+
+export const getMockShops = (): Shop[] => MOCK_SHOPS;
+
+export const getMockProducts = (): Product[] => MOCK_PRODUCTS;
+
+export const getMockShopById = (shopId: string): Shop | null => {
+  return MOCK_SHOPS.find(shop => shop.id === shopId) || null;
+};
+
+export const getMockProductById = (productId: string): Product | null => {
+  return MOCK_PRODUCTS.find(product => product.id === productId) || null;
+};
+
+export const getMockProductsByShop = (shopId: string): Product[] => {
+  return MOCK_PRODUCTS.filter(product => product.shop?.id === shopId);
+};

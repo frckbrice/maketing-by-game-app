@@ -1,11 +1,20 @@
 // app/[locale]/layout.tsx
-import { QueryProvider } from '@/components/providers/QueryProvider';
-import { ThemeProvider } from '@/lib/themes/theme-provider';
-import { CartProvider } from '@/contexts/CartContext';
+import ErrorBoundary from '@/components/performance/ErrorBoundary';
 import PerformanceMonitor from '@/components/performance/PerformanceMonitor';
 import PreloadManager from '@/components/performance/PreloadManager';
 import ServiceWorkerManager from '@/components/performance/ServiceWorkerManager';
-import ErrorBoundary from '@/components/performance/ErrorBoundary';
+import { QueryProvider } from '@/components/providers/QueryProvider';
+import { ServerStructuredData } from '@/components/seo/ServerStructuredData';
+import { CartProvider } from '@/contexts/CartContext';
+import {
+  defaultSEO,
+  generateMetadata as generateSEOMetadata,
+} from '@/lib/seo/metadata';
+import {
+  generateOrganizationStructuredData,
+  generateWebSiteStructuredData,
+} from '@/lib/seo/structured-data';
+import { ThemeProvider } from '@/lib/themes/theme-provider';
 import { Inter } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { Toaster } from 'sonner';
@@ -17,11 +26,11 @@ import '../globals.css';
 const locales = ['en', 'fr'] as const;
 type Locale = (typeof locales)[number];
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   preload: true,
-  variable: '--font-inter'
+  variable: '--font-inter',
 });
 
 export async function generateStaticParams() {
@@ -34,7 +43,19 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  return { title: 'Lottery App' };
+
+  return generateSEOMetadata({
+    ...defaultSEO,
+    locale,
+    title:
+      locale === 'fr'
+        ? 'Application de Loterie - Gagnez des Prix Incroyables'
+        : 'Lottery App - Win Amazing Prizes',
+    description:
+      locale === 'fr'
+        ? 'Participez à des jeux de loterie passionnants et gagnez des prix incroyables. Rejoignez des milliers de joueurs sur notre plateforme de loterie sécurisée et équitable.'
+        : 'Participate in exciting lottery games and win incredible prizes. Join thousands of players in our secure and fair lottery platform.',
+  });
 }
 
 export default async function RootLayout({
@@ -54,7 +75,9 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
-        <style dangerouslySetInnerHTML={{__html: `
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
           :root{--background:0 0% 100%;--foreground:222.2 84% 4.9%;--card:0 0% 100%;--card-foreground:222.2 84% 4.9%;--primary:222.2 47.4% 11.2%;--primary-foreground:210 40% 98%;--border:214.3 31.8% 91.4%;--radius:0.5rem}
           .dark{--background:222.2 84% 4.9%;--foreground:210 40% 98%;--card:222.2 84% 4.9%;--card-foreground:210 40% 98%;--primary:210 40% 98%;--primary-foreground:222.2 47.4% 11.2%;--border:217.2 32.6% 17.5%}
           *{border:0 solid #e5e7eb;box-sizing:border-box}
@@ -62,7 +85,9 @@ export default async function RootLayout({
           body{background-color:hsl(var(--background));color:hsl(var(--foreground));margin:0}
           .animate-spin{animation:spin 1s linear infinite}
           @keyframes spin{to{transform:rotate(360deg)}}
-        `}} />
+        `,
+          }}
+        />
         <link rel='preconnect' href='https://fonts.googleapis.com' />
         <link
           rel='preconnect'
@@ -105,10 +130,19 @@ export default async function RootLayout({
           href='/icons/favicon-16x16.png'
         />
         <link rel='icon' type='image/svg+xml' href='/icons/icon.svg' />
+        <ServerStructuredData
+          data={[
+            { type: 'WebSite', data: generateWebSiteStructuredData() },
+            {
+              type: 'Organization',
+              data: generateOrganizationStructuredData(),
+            },
+          ]}
+        />
       </head>
       <body className={inter.className}>
         <ServiceWorkerManager />
-        <PreloadManager 
+        <PreloadManager
           prefetchRoutes={['/games', '/shops', '/products', '/profile']}
         />
         <ErrorBoundary>

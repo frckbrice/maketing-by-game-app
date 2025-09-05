@@ -17,7 +17,7 @@ export const useIntersectionObserver = ({
 }: UseIntersectionObserverOptions = {}) => {
   const [entry, setEntry] = useState<IntersectionObserverEntry | null>(null);
   const [isIntersecting, setIsIntersecting] = useState(initialIsIntersecting);
-  const targetRef = useRef<HTMLElement>(null);
+  const targetRef = useRef<HTMLDivElement>(null);
 
   const frozen = entry?.isIntersecting && freezeOnceVisible;
 
@@ -28,13 +28,10 @@ export const useIntersectionObserver = ({
     if (!hasIOSupport || frozen || !node) return;
 
     const observerParams = { threshold, rootMargin };
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setEntry(entry);
-        setIsIntersecting(entry.isIntersecting);
-      },
-      observerParams
-    );
+    const observer = new IntersectionObserver(([entry]) => {
+      setEntry(entry);
+      setIsIntersecting(entry.isIntersecting);
+    }, observerParams);
 
     observer.observe(node);
 
@@ -58,7 +55,9 @@ interface LazyComponentProps {
 
 export const LazyComponent: React.FC<LazyComponentProps> = ({
   children,
-  fallback = <div className="w-full h-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded" />,
+  fallback = (
+    <div className='w-full h-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded' />
+  ),
   rootMargin = '50px',
   threshold = 0.1,
   className = '',

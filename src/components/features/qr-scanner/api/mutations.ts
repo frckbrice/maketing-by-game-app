@@ -1,5 +1,5 @@
+import { useAuth } from '@/lib/contexts/AuthContext';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuthContext } from '@/lib/contexts/AuthContext';
 import type { ScanRequest, ScanResponse } from './types';
 
 // Query keys for QR scanner
@@ -13,19 +13,19 @@ export const qrScannerQueryKeys = {
 // QR Code scan mutation
 export const useScanQRCode = () => {
   const queryClient = useQueryClient();
-  const { currentUser } = useAuthContext();
-  
+  const { user, firebaseUser } = useAuth();
+
   return useMutation({
     mutationFn: async (scanRequest: ScanRequest): Promise<ScanResponse> => {
       try {
         // Get Firebase auth token
-        const token = await currentUser?.getIdToken();
+        const token = await firebaseUser?.getIdToken();
 
         const response = await fetch('/api/tickets/scan', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(scanRequest),
         });
@@ -45,12 +45,14 @@ export const useScanQRCode = () => {
         };
       }
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Invalidate scan history and analytics
-      queryClient.invalidateQueries({ queryKey: qrScannerQueryKeys.scanHistory });
+      queryClient.invalidateQueries({
+        queryKey: qrScannerQueryKeys.scanHistory,
+      });
       queryClient.invalidateQueries({ queryKey: qrScannerQueryKeys.analytics });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error in QR scan mutation:', error);
     },
   });
@@ -59,13 +61,13 @@ export const useScanQRCode = () => {
 // Manual QR code entry mutation
 export const useManualQREntry = () => {
   const queryClient = useQueryClient();
-  const { currentUser } = useAuthContext();
-  
+  const { user, firebaseUser } = useAuth();
+
   return useMutation({
     mutationFn: async (qrData: string): Promise<ScanResponse> => {
       try {
         // Get Firebase auth token
-        const token = await currentUser?.getIdToken();
+        const token = await firebaseUser?.getIdToken();
 
         const scanRequest: ScanRequest = {
           qrData,
@@ -79,7 +81,7 @@ export const useManualQREntry = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(scanRequest),
         });
@@ -99,12 +101,14 @@ export const useManualQREntry = () => {
         };
       }
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Invalidate scan history and analytics
-      queryClient.invalidateQueries({ queryKey: qrScannerQueryKeys.scanHistory });
+      queryClient.invalidateQueries({
+        queryKey: qrScannerQueryKeys.scanHistory,
+      });
       queryClient.invalidateQueries({ queryKey: qrScannerQueryKeys.analytics });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error in manual QR entry mutation:', error);
     },
   });
@@ -113,17 +117,21 @@ export const useManualQREntry = () => {
 // Manual ticket validation mutation (using ticket numbers)
 export const useManualTicketValidation = () => {
   const queryClient = useQueryClient();
-  const { currentUser } = useAuthContext();
-  
+  const { user, firebaseUser } = useAuth();
+
   return useMutation({
-    mutationFn: async ({ ticketNumber, scannerType = 'player', vendorId }: { 
-      ticketNumber: string; 
+    mutationFn: async ({
+      ticketNumber,
+      scannerType = 'player',
+      vendorId,
+    }: {
+      ticketNumber: string;
       scannerType?: 'player' | 'vendor';
       vendorId?: string;
     }): Promise<ScanResponse> => {
       try {
         // Get Firebase auth token
-        const token = await currentUser?.getIdToken();
+        const token = await firebaseUser?.getIdToken();
 
         const validationRequest = {
           ticketNumber,
@@ -137,7 +145,7 @@ export const useManualTicketValidation = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(validationRequest),
         });
@@ -152,17 +160,20 @@ export const useManualTicketValidation = () => {
         console.error('Manual ticket validation failed:', error);
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Ticket validation failed',
+          error:
+            error instanceof Error ? error.message : 'Ticket validation failed',
           message: 'Failed to validate ticket manually',
         };
       }
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Invalidate scan history and analytics
-      queryClient.invalidateQueries({ queryKey: qrScannerQueryKeys.scanHistory });
+      queryClient.invalidateQueries({
+        queryKey: qrScannerQueryKeys.scanHistory,
+      });
       queryClient.invalidateQueries({ queryKey: qrScannerQueryKeys.analytics });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error in manual ticket validation mutation:', error);
     },
   });
@@ -171,19 +182,25 @@ export const useManualTicketValidation = () => {
 // QR code validation mutation
 export const useValidateQRCode = () => {
   const queryClient = useQueryClient();
-  const { currentUser } = useAuthContext();
-  
+  const { user, firebaseUser } = useAuth();
+
   return useMutation({
-    mutationFn: async ({ qrData, validationType }: { qrData: string; validationType: 'TICKET' | 'COUPON' | 'PRODUCT' }): Promise<ScanResponse> => {
+    mutationFn: async ({
+      qrData,
+      validationType,
+    }: {
+      qrData: string;
+      validationType: 'TICKET' | 'COUPON' | 'PRODUCT';
+    }): Promise<ScanResponse> => {
       try {
         // Get Firebase auth token
-        const token = await currentUser?.getIdToken();
+        const token = await firebaseUser?.getIdToken();
 
         const response = await fetch('/api/tickets/validate', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             qrData,
@@ -207,12 +224,14 @@ export const useValidateQRCode = () => {
         };
       }
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Invalidate scan history and analytics
-      queryClient.invalidateQueries({ queryKey: qrScannerQueryKeys.scanHistory });
+      queryClient.invalidateQueries({
+        queryKey: qrScannerQueryKeys.scanHistory,
+      });
       queryClient.invalidateQueries({ queryKey: qrScannerQueryKeys.analytics });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error in QR validation mutation:', error);
     },
   });
@@ -221,26 +240,28 @@ export const useValidateQRCode = () => {
 // QR scanner settings update mutation
 export const useUpdateQRScannerSettings = () => {
   const queryClient = useQueryClient();
-  const { currentUser } = useAuthContext();
-  
+  const { user, firebaseUser } = useAuth();
+
   return useMutation({
-    mutationFn: async (settings: Partial<{
-      enableCamera: boolean;
-      enableFileUpload: boolean;
-      enableManualEntry: boolean;
-      cameraResolution: 'low' | 'medium' | 'high';
-      scanTimeout: number;
-      maxRetries: number;
-    }>) => {
+    mutationFn: async (
+      settings: Partial<{
+        enableCamera: boolean;
+        enableFileUpload: boolean;
+        enableManualEntry: boolean;
+        cameraResolution: 'low' | 'medium' | 'high';
+        scanTimeout: number;
+        maxRetries: number;
+      }>
+    ) => {
       try {
         // Get Firebase auth token
-        const token = await currentUser?.getIdToken();
+        const token = await firebaseUser?.getIdToken();
 
         const response = await fetch('/api/qr-scanner/settings', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(settings),
         });
@@ -260,7 +281,7 @@ export const useUpdateQRScannerSettings = () => {
       // Invalidate settings query
       queryClient.invalidateQueries({ queryKey: qrScannerQueryKeys.settings });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error in QR scanner settings update mutation:', error);
     },
   });
@@ -269,8 +290,8 @@ export const useUpdateQRScannerSettings = () => {
 // QR code generation mutation (for creating QR codes)
 export const useGenerateQRCode = () => {
   const queryClient = useQueryClient();
-  const { currentUser } = useAuthContext();
-  
+  const { user, firebaseUser } = useAuth();
+
   return useMutation({
     mutationFn: async (qrData: {
       type: 'TICKET' | 'COUPON' | 'PRODUCT' | 'GAME';
@@ -280,13 +301,13 @@ export const useGenerateQRCode = () => {
     }) => {
       try {
         // Get Firebase auth token
-        const token = await currentUser?.getIdToken();
+        const token = await firebaseUser?.getIdToken();
 
         const response = await fetch('/api/qr-scanner/generate', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(qrData),
         });
@@ -306,7 +327,7 @@ export const useGenerateQRCode = () => {
       // Invalidate any related queries
       queryClient.invalidateQueries({ queryKey: qrScannerQueryKeys.all });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Error in QR generation mutation:', error);
     },
   });

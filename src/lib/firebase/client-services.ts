@@ -392,10 +392,7 @@ export const firestoreService = {
 
   async getUsers(): Promise<User[]> {
     const querySnapshot = await getDocs(
-      query(
-        collection(db, 'users'),
-        orderBy('createdAt', 'desc')
-      )
+      query(collection(db, 'users'), orderBy('createdAt', 'desc'))
     );
     return mapFirestoreDocs<User>(querySnapshot);
   },
@@ -419,23 +416,21 @@ export const firestoreService = {
   async getCategories(): Promise<GameCategory[]> {
     try {
       const querySnapshot = await getDocs(
-        query(
-          collection(db, 'categories'),
-          orderBy('sortOrder', 'asc')
-        )
+        query(collection(db, 'categories'), orderBy('sortOrder', 'asc'))
       );
       const categories = mapFirestoreDocs<GameCategory>(querySnapshot);
-      
+
       // Get games count for each category
       const gamesSnapshot = await getDocs(collection(db, 'games'));
       const games = mapFirestoreDocs<any>(gamesSnapshot);
-      
+
       // Add games count to each category
       const categoriesWithGamesCount = categories.map(category => ({
         ...category,
-        gamesCount: games.filter(game => game.categoryId === category.id).length
+        gamesCount: games.filter(game => game.categoryId === category.id)
+          .length,
       }));
-      
+
       return categoriesWithGamesCount;
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -513,25 +508,27 @@ export const firestoreService = {
     // First create the document to get Firebase auto-generated ID
     const docRef = doc(collection(db, 'tickets'));
     const firebaseId = docRef.id;
-    
+
     // Import ticket utilities dynamically to avoid circular dependencies
-    const { generateAllTicketNumbers } = await import('@/lib/utils/ticket-utils');
+    const { generateAllTicketNumbers } = await import(
+      '@/lib/utils/ticket-utils'
+    );
     const ticketNumbers = generateAllTicketNumbers(firebaseId);
-    
+
     // Create the ticket with readable numbers using the actual Firebase ID
     const ticketWithNumbers = {
       ...ticket,
       ticketNumber: ticketNumbers.ticketNumber,
       alternativeNumbers: ticketNumbers.alternativeNumbers,
     };
-    
+
     // Now save the document with the generated ID
     await setDoc(docRef, {
       ...ticketWithNumbers,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
-    
+
     return firebaseId;
   },
 
@@ -555,7 +552,7 @@ export const firestoreService = {
   },
 
   async createPayment(payment: Omit<Payment, 'id'>): Promise<string> {
-    return createDocumentWithTimestamp('payments', payment);
+    return createDocumentWithTimestamps('payments', payment);
   },
 
   async updatePayment(
@@ -578,7 +575,7 @@ export const firestoreService = {
   },
 
   async createWinner(winner: Omit<Winner, 'id'>): Promise<string> {
-    return createDocumentWithTimestamp('winners', winner);
+    return createDocumentWithTimestamps('winners', winner);
   },
 
   async updateWinner(winnerId: string, data: Partial<Winner>): Promise<void> {
@@ -603,10 +600,7 @@ export const firestoreService = {
   async getNotifications(): Promise<any[]> {
     try {
       const querySnapshot = await getDocs(
-        query(
-          collection(db, 'notifications'),
-          orderBy('createdAt', 'desc')
-        )
+        query(collection(db, 'notifications'), orderBy('createdAt', 'desc'))
       );
       return mapFirestoreDocs<any>(querySnapshot);
     } catch (error) {
@@ -728,7 +722,7 @@ export const firestoreService = {
           createdAt: Date.now(),
           updatedAt: Date.now(),
         };
-        
+
         // Save default settings to database
         await setDoc(doc(db, 'settings', 'app'), defaultSettings);
         return defaultSettings;
@@ -741,10 +735,14 @@ export const firestoreService = {
 
   async updateAppSettings(settings: any): Promise<void> {
     try {
-      await setDoc(doc(db, 'settings', 'app'), {
-        ...settings,
-        updatedAt: Date.now(),
-      }, { merge: true });
+      await setDoc(
+        doc(db, 'settings', 'app'),
+        {
+          ...settings,
+          updatedAt: Date.now(),
+        },
+        { merge: true }
+      );
     } catch (error) {
       console.error('Error updating app settings:', error);
       throw error;
@@ -755,15 +753,15 @@ export const firestoreService = {
   async getShops(params?: { limit?: number; status?: string }): Promise<any[]> {
     try {
       let q = query(collection(db, 'shops'), orderBy('createdAt', 'desc'));
-      
+
       if (params?.status) {
         q = query(q, where('status', '==', params.status));
       }
-      
+
       if (params?.limit) {
         q = query(q, limit(params.limit));
       }
-      
+
       const querySnapshot = await getDocs(q);
       return mapFirestoreDocs(querySnapshot);
     } catch (error) {
@@ -794,22 +792,26 @@ export const firestoreService = {
     await updateDocumentWithTimestamp('shops', shopId, data);
   },
 
-  async getProducts(params?: { limit?: number; shopId?: string; categoryId?: string }): Promise<any[]> {
+  async getProducts(params?: {
+    limit?: number;
+    shopId?: string;
+    categoryId?: string;
+  }): Promise<any[]> {
     try {
       let q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
-      
+
       if (params?.shopId) {
         q = query(q, where('shopId', '==', params.shopId));
       }
-      
+
       if (params?.categoryId) {
         q = query(q, where('categoryId', '==', params.categoryId));
       }
-      
+
       if (params?.limit) {
         q = query(q, limit(params.limit));
       }
-      
+
       const querySnapshot = await getDocs(q);
       return mapFirestoreDocs(querySnapshot);
     } catch (error) {
@@ -818,22 +820,26 @@ export const firestoreService = {
     }
   },
 
-  async getOrders(params?: { limit?: number; userId?: string; shopId?: string }): Promise<any[]> {
+  async getOrders(params?: {
+    limit?: number;
+    userId?: string;
+    shopId?: string;
+  }): Promise<any[]> {
     try {
       let q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
-      
+
       if (params?.userId) {
         q = query(q, where('userId', '==', params.userId));
       }
-      
+
       if (params?.shopId) {
         q = query(q, where('shopId', '==', params.shopId));
       }
-      
+
       if (params?.limit) {
         q = query(q, limit(params.limit));
       }
-      
+
       const querySnapshot = await getDocs(q);
       return mapFirestoreDocs(querySnapshot);
     } catch (error) {
@@ -851,9 +857,7 @@ export const firestoreService = {
   },
 
   // Vendor application methods (client-safe versions)
-  async submitVendorApplication(
-    application: any
-  ): Promise<string> {
+  async submitVendorApplication(application: any): Promise<string> {
     try {
       const applicationData = {
         ...application,
@@ -872,9 +876,7 @@ export const firestoreService = {
     }
   },
 
-  async getVendorApplication(
-    userId: string
-  ): Promise<any | null> {
+  async getVendorApplication(userId: string): Promise<any | null> {
     try {
       const q = query(
         collection(db, 'vendorApplications'),
@@ -956,15 +958,6 @@ export const firestoreService = {
   },
 
   // Product service
-  async getProducts(): Promise<any[]> {
-    try {
-      const querySnapshot = await getDocs(collection(db, 'products'));
-      return mapFirestoreDocs(querySnapshot);
-    } catch (error) {
-      handleFirestoreError(error, 'getting products');
-      return [];
-    }
-  },
 
   async getProduct(productId: string): Promise<any | null> {
     try {

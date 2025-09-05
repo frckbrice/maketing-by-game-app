@@ -13,9 +13,9 @@ interface TicketQRDisplayProps {
   showActions?: boolean;
 }
 
-export const TicketQRDisplay: React.FC<TicketQRDisplayProps> = ({ 
-  ticket, 
-  showActions = true 
+export const TicketQRDisplay: React.FC<TicketQRDisplayProps> = ({
+  ticket,
+  showActions = true,
 }) => {
   const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -25,21 +25,21 @@ export const TicketQRDisplay: React.FC<TicketQRDisplayProps> = ({
     if (!canvasRef.current) return;
 
     const qrData = generateQRCodeData(ticket.id);
-    
+
     // In a real implementation, use a QR code library like 'qrcode'
     // For now, we'll create a placeholder
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    
+
     if (ctx) {
       // Set canvas size
       canvas.width = 200;
       canvas.height = 200;
-      
+
       // Create a simple QR-like pattern (placeholder)
       ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, 200, 200);
-      
+
       ctx.fillStyle = '#FFFFFF';
       // Draw some QR-like squares
       for (let i = 0; i < 20; i++) {
@@ -49,7 +49,7 @@ export const TicketQRDisplay: React.FC<TicketQRDisplayProps> = ({
           }
         }
       }
-      
+
       // Add positioning squares (corner markers)
       ctx.fillStyle = '#000000';
       // Top-left
@@ -58,7 +58,7 @@ export const TicketQRDisplay: React.FC<TicketQRDisplayProps> = ({
       ctx.fillRect(10, 10, 50, 50);
       ctx.fillStyle = '#000000';
       ctx.fillRect(20, 20, 30, 30);
-      
+
       // Top-right
       ctx.fillStyle = '#000000';
       ctx.fillRect(130, 0, 70, 70);
@@ -66,7 +66,7 @@ export const TicketQRDisplay: React.FC<TicketQRDisplayProps> = ({
       ctx.fillRect(140, 10, 50, 50);
       ctx.fillStyle = '#000000';
       ctx.fillRect(150, 20, 30, 30);
-      
+
       // Bottom-left
       ctx.fillStyle = '#000000';
       ctx.fillRect(0, 130, 70, 70);
@@ -74,7 +74,7 @@ export const TicketQRDisplay: React.FC<TicketQRDisplayProps> = ({
       ctx.fillRect(10, 140, 50, 50);
       ctx.fillStyle = '#000000';
       ctx.fillRect(20, 150, 30, 30);
-      
+
       // In real implementation, you would use:
       // import QRCode from 'qrcode';
       // QRCode.toCanvas(canvas, qrData, { width: 200 });
@@ -84,7 +84,7 @@ export const TicketQRDisplay: React.FC<TicketQRDisplayProps> = ({
   // Download QR code as image
   const downloadQRCode = () => {
     if (!canvasRef.current) return;
-    
+
     const canvas = canvasRef.current;
     const link = document.createElement('a');
     link.download = `ticket-${ticket.ticketNumber}-qr.png`;
@@ -95,16 +95,16 @@ export const TicketQRDisplay: React.FC<TicketQRDisplayProps> = ({
   // Share QR code
   const shareQRCode = async () => {
     if (!canvasRef.current) return;
-    
+
     try {
       const canvas = canvasRef.current;
-      canvas.toBlob(async (blob) => {
+      canvas.toBlob(async blob => {
         if (!blob) return;
-        
+
         const file = new File([blob], `ticket-${ticket.ticketNumber}-qr.png`, {
-          type: 'image/png'
+          type: 'image/png',
         });
-        
+
         if (navigator.share) {
           await navigator.share({
             title: t('tickets.shareTicket'),
@@ -127,10 +127,10 @@ export const TicketQRDisplay: React.FC<TicketQRDisplayProps> = ({
   const printTicket = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow || !canvasRef.current) return;
-    
+
     const canvas = canvasRef.current;
     const qrDataUrl = canvas.toDataURL();
-    
+
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -195,7 +195,7 @@ export const TicketQRDisplay: React.FC<TicketQRDisplayProps> = ({
         </body>
       </html>
     `);
-    
+
     printWindow.document.close();
     printWindow.onload = () => {
       printWindow.print();
@@ -208,49 +208,56 @@ export const TicketQRDisplay: React.FC<TicketQRDisplayProps> = ({
   }, [ticket.id]);
 
   return (
-    <Card className="w-full max-w-sm mx-auto">
+    <Card className='w-full max-w-sm mx-auto'>
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <QrCode className="w-5 h-5" />
+        <CardTitle className='flex items-center space-x-2'>
+          <QrCode className='w-5 h-5' />
           <span>{t('tickets.qrCode')}</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="text-center space-y-4">
+      <CardContent className='text-center space-y-4'>
         {/* QR Code Display */}
-        <div className="flex justify-center">
+        <div className='flex justify-center'>
           <canvas
             ref={canvasRef}
-            className="border rounded-lg shadow-sm"
+            className='border rounded-lg shadow-sm'
             style={{ maxWidth: '200px', maxHeight: '200px' }}
           />
         </div>
-        
+
         {/* Ticket Information */}
-        <div className="text-left space-y-2 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-          <div className="flex justify-between">
-            <span className="font-medium">{t('tickets.ticketNumber')}:</span>
-            <span className="text-orange-600 dark:text-orange-400 font-mono">
+        <div className='text-left space-y-2 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg'>
+          <div className='flex justify-between'>
+            <span className='font-medium'>{t('tickets.ticketNumber')}:</span>
+            <span className='text-orange-600 dark:text-orange-400 font-mono'>
               #{ticket.ticketNumber}
             </span>
           </div>
-          <div className="flex justify-between">
-            <span className="font-medium">{t('tickets.status')}:</span>
-            <span className={`capitalize ${
-              ticket.status === 'valid' ? 'text-green-600' :
-              ticket.status === 'used' ? 'text-gray-600' :
-              ticket.status === 'expired' ? 'text-red-600' :
-              'text-yellow-600'
-            }`}>
+          <div className='flex justify-between'>
+            <span className='font-medium'>{t('tickets.status')}:</span>
+            <span
+              className={`capitalize ${
+                ticket.status === 'valid'
+                  ? 'text-green-600'
+                  : ticket.status === 'used'
+                    ? 'text-gray-600'
+                    : ticket.status === 'expired'
+                      ? 'text-red-600'
+                      : 'text-yellow-600'
+              }`}
+            >
               {t(`tickets.status.${ticket.status}`)}
             </span>
           </div>
-          <div className="flex justify-between">
-            <span className="font-medium">{t('tickets.price')}:</span>
-            <span>{ticket.currency} {ticket.price}</span>
+          <div className='flex justify-between'>
+            <span className='font-medium'>{t('tickets.price')}:</span>
+            <span>
+              {ticket.currency} {ticket.price}
+            </span>
           </div>
           {ticket.expiresAt && (
-            <div className="flex justify-between">
-              <span className="font-medium">{t('tickets.expiresAt')}:</span>
+            <div className='flex justify-between'>
+              <span className='font-medium'>{t('tickets.expiresAt')}:</span>
               <span>{new Date(ticket.expiresAt).toLocaleDateString()}</span>
             </div>
           )}
@@ -258,25 +265,25 @@ export const TicketQRDisplay: React.FC<TicketQRDisplayProps> = ({
 
         {/* Winner/Coupon Information */}
         {ticket.isWinner && ticket.prizeAmount && (
-          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-            <h4 className="font-bold text-green-800 dark:text-green-200 flex items-center">
+          <div className='bg-green-50 dark:bg-green-900/20 p-4 rounded-lg'>
+            <h4 className='font-bold text-green-800 dark:text-green-200 flex items-center'>
               🏆 {t('tickets.congratulations')}
             </h4>
-            <p className="text-green-700 dark:text-green-300">
+            <p className='text-green-700 dark:text-green-300'>
               {t('tickets.prizeWon')}: {ticket.currency} {ticket.prizeAmount}
             </p>
           </div>
         )}
 
         {ticket.coupon && !ticket.coupon.used && (
-          <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg">
-            <h4 className="font-bold text-orange-800 dark:text-orange-200">
+          <div className='bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg'>
+            <h4 className='font-bold text-orange-800 dark:text-orange-200'>
               🎟️ {t('tickets.consolationPrize')}
             </h4>
-            <p className="text-orange-700 dark:text-orange-300">
+            <p className='text-orange-700 dark:text-orange-300'>
               {ticket.coupon.amountOff}% {t('tickets.discount')}
             </p>
-            <p className="text-sm text-orange-600 dark:text-orange-400 font-mono">
+            <p className='text-sm text-orange-600 dark:text-orange-400 font-mono'>
               {t('tickets.code')}: {ticket.coupon.code}
             </p>
           </div>
@@ -284,39 +291,39 @@ export const TicketQRDisplay: React.FC<TicketQRDisplayProps> = ({
 
         {/* Action Buttons */}
         {showActions && (
-          <div className="grid grid-cols-2 gap-2">
+          <div className='grid grid-cols-2 gap-2'>
             <Button
               onClick={downloadQRCode}
-              variant="outline"
-              size="sm"
-              className="flex items-center space-x-1"
+              variant='outline'
+              size='sm'
+              className='flex items-center space-x-1'
             >
-              <Download className="w-4 h-4" />
+              <Download className='w-4 h-4' />
               <span>{t('common.download')}</span>
             </Button>
             <Button
               onClick={shareQRCode}
-              variant="outline"
-              size="sm"
-              className="flex items-center space-x-1"
+              variant='outline'
+              size='sm'
+              className='flex items-center space-x-1'
             >
-              <Share2 className="w-4 h-4" />
+              <Share2 className='w-4 h-4' />
               <span>{t('common.share')}</span>
             </Button>
             <Button
               onClick={printTicket}
-              variant="outline"
-              size="sm"
-              className="col-span-2 flex items-center justify-center space-x-1"
+              variant='outline'
+              size='sm'
+              className='col-span-2 flex items-center justify-center space-x-1'
             >
-              <QrCode className="w-4 h-4" />
+              <QrCode className='w-4 h-4' />
               <span>{t('tickets.printTicket')}</span>
             </Button>
           </div>
         )}
 
         {/* Security Note */}
-        <div className="text-xs text-gray-500 dark:text-gray-400 mt-4 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+        <div className='text-xs text-gray-500 dark:text-gray-400 mt-4 p-2 bg-gray-50 dark:bg-gray-800 rounded'>
           <p>{t('tickets.securityNote')}</p>
         </div>
       </CardContent>

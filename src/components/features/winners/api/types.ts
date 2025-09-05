@@ -15,7 +15,7 @@ export interface Winner {
   prizeImage?: string;
   isClaimed: boolean;
   claimedAt?: Timestamp;
-  claimMethod: 'AUTOMATIC' | 'MANUAL' | 'PENDING';
+  claimMethod?: 'AUTOMATIC' | 'MANUAL';
   status: 'PENDING' | 'CLAIMED' | 'DELIVERED' | 'CANCELLED';
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -188,7 +188,11 @@ export interface WinnerLeaderboardEntry {
 export interface WinnerNotification {
   id: ID;
   winnerId: ID;
-  type: 'WIN_ANNOUNCEMENT' | 'PRIZE_CLAIM' | 'PRIZE_DELIVERY' | 'VERIFICATION_REQUIRED';
+  type:
+    | 'WIN_ANNOUNCEMENT'
+    | 'PRIZE_CLAIM'
+    | 'PRIZE_DELIVERY'
+    | 'VERIFICATION_REQUIRED';
   title: string;
   message: string;
   isRead: boolean;

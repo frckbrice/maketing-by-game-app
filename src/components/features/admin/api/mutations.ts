@@ -1,21 +1,35 @@
 import { db } from '@/lib/firebase/config';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 import { AdminUser, AppSettings, Notification, Role, VendorData } from './type';
 
 // Admin User Mutations
 export const useCreateAdmin = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async (adminData: Omit<AdminUser, 'id' | 'createdAt' | 'lastLogin'>) => {
+    mutationFn: async (
+      adminData: Omit<AdminUser, 'id' | 'createdAt' | 'lastLogin'>
+    ) => {
       try {
         const newAdmin = {
           ...adminData,
           createdAt: new Date(),
           lastLogin: undefined,
         };
-        
+
         const docRef = await addDoc(collection(db, 'admins'), newAdmin);
         return { id: docRef.id, ...newAdmin };
       } catch (error) {
@@ -31,9 +45,12 @@ export const useCreateAdmin = () => {
 
 export const useUpdateAdmin = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ id, ...updateData }: Partial<AdminUser> & { id: string }) => {
+    mutationFn: async ({
+      id,
+      ...updateData
+    }: Partial<AdminUser> & { id: string }) => {
       try {
         await updateDoc(doc(db, 'admins', id), updateData);
         return { id, ...updateData };
@@ -50,7 +67,7 @@ export const useUpdateAdmin = () => {
 
 export const useDeleteAdmin = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (adminId: string) => {
       try {
@@ -70,9 +87,12 @@ export const useDeleteAdmin = () => {
 // Vendor Mutations
 export const useUpdateVendor = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ id, ...updateData }: Partial<VendorData> & { id: string }) => {
+    mutationFn: async ({
+      id,
+      ...updateData
+    }: Partial<VendorData> & { id: string }) => {
       try {
         await updateDoc(doc(db, 'users', id), {
           ...updateData,
@@ -92,7 +112,7 @@ export const useUpdateVendor = () => {
 
 export const useSuspendVendor = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ id, reason }: { id: string; reason?: string }) => {
       try {
@@ -116,7 +136,7 @@ export const useSuspendVendor = () => {
 
 export const useActivateVendor = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (id: string) => {
       try {
@@ -141,9 +161,14 @@ export const useActivateVendor = () => {
 // Notification Mutations
 export const useCreateNotification = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async (notificationData: Omit<Notification, 'id' | 'createdAt' | 'sentAt' | 'readCount' | 'totalRecipients'>) => {
+    mutationFn: async (
+      notificationData: Omit<
+        Notification,
+        'id' | 'createdAt' | 'sentAt' | 'readCount' | 'totalRecipients'
+      >
+    ) => {
       try {
         const newNotification = {
           ...notificationData,
@@ -151,8 +176,11 @@ export const useCreateNotification = () => {
           readCount: 0,
           totalRecipients: 0,
         };
-        
-        const docRef = await addDoc(collection(db, 'notifications'), newNotification);
+
+        const docRef = await addDoc(
+          collection(db, 'notifications'),
+          newNotification
+        );
         return { id: docRef.id, ...newNotification };
       } catch (error) {
         console.error('Error creating notification:', error);
@@ -167,7 +195,7 @@ export const useCreateNotification = () => {
 
 export const useSendNotification = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (notificationId: string) => {
       try {
@@ -175,20 +203,22 @@ export const useSendNotification = () => {
           status: 'SENT',
           sentAt: new Date(),
         });
-        
+
         // Send the notification through all channels
         try {
           // Get the notification data
-          const notificationDoc = await getDoc(doc(db, 'notifications', notificationId));
+          const notificationDoc = await getDoc(
+            doc(db, 'notifications', notificationId)
+          );
           const notification = notificationDoc.data();
-          
+
           if (notification) {
             // Call the comprehensive notification API
             const response = await fetch('/api/admin/send-notification', {
               method: 'POST',
-              headers: { 
+              headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('auth_token') : ''}`,
+                Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('auth_token') : ''}`,
               },
               body: JSON.stringify({
                 notificationId,
@@ -196,17 +226,17 @@ export const useSendNotification = () => {
                 message: notification.message,
                 targetAudience: notification.targetAudience,
                 recipients: notification.recipients,
-              })
+              }),
             });
-            
+
             if (!response.ok) {
               const errorData = await response.json().catch(() => ({}));
               throw new Error(errorData.error || 'Failed to send notification');
             }
-            
+
             const result = await response.json();
             console.log('✅ Notification sent successfully:', result);
-            
+
             // Update notification with final delivery stats
             await updateDoc(doc(db, 'notifications', notificationId), {
               finalDeliveryStats: result.stats,
@@ -215,20 +245,23 @@ export const useSendNotification = () => {
           }
         } catch (sendError) {
           console.error('❌ Failed to send notification:', sendError);
-          
+
           // Update notification status to show sending failed
           await updateDoc(doc(db, 'notifications', notificationId), {
             status: 'FAILED',
-            errorMessage: sendError instanceof Error ? sendError.message : String(sendError),
+            errorMessage:
+              sendError instanceof Error
+                ? sendError.message
+                : String(sendError),
             failedAt: new Date(),
           }).catch(updateError => {
             console.error('Failed to update notification status:', updateError);
           });
-          
+
           // Re-throw error so the UI can show the failure
           throw sendError;
         }
-        
+
         return notificationId;
       } catch (error) {
         console.error('Error sending notification:', error);
@@ -243,7 +276,7 @@ export const useSendNotification = () => {
 
 export const useDeleteNotification = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (notificationId: string) => {
       try {
@@ -263,9 +296,11 @@ export const useDeleteNotification = () => {
 // Role Mutations
 export const useCreateRole = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async (roleData: Omit<Role, 'id' | 'createdAt' | 'updatedAt' | 'userCount'>) => {
+    mutationFn: async (
+      roleData: Omit<Role, 'id' | 'createdAt' | 'updatedAt' | 'userCount'>
+    ) => {
       try {
         const newRole = {
           ...roleData,
@@ -273,7 +308,7 @@ export const useCreateRole = () => {
           updatedAt: Date.now(),
           userCount: 0,
         };
-        
+
         const docRef = await addDoc(collection(db, 'roles'), newRole);
         return { id: docRef.id, ...newRole };
       } catch (error) {
@@ -289,9 +324,12 @@ export const useCreateRole = () => {
 
 export const useUpdateRole = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ id, ...updateData }: Partial<Role> & { id: string }) => {
+    mutationFn: async ({
+      id,
+      ...updateData
+    }: Partial<Role> & { id: string }) => {
       try {
         await updateDoc(doc(db, 'roles', id), {
           ...updateData,
@@ -311,22 +349,24 @@ export const useUpdateRole = () => {
 
 export const useDeleteRole = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (roleId: string) => {
       try {
         // Check if role is in use before deleting
         const usersWithRoleQuery = query(
-          collection(db, 'users'), 
-          where('role', '==', roleId), 
+          collection(db, 'users'),
+          where('role', '==', roleId),
           limit(1)
         );
         const usersWithRole = await getDocs(usersWithRoleQuery);
-        
+
         if (!usersWithRole.empty) {
-          throw new Error('Cannot delete role that is currently assigned to users');
+          throw new Error(
+            'Cannot delete role that is currently assigned to users'
+          );
         }
-        
+
         await deleteDoc(doc(db, 'roles', roleId));
         return roleId;
       } catch (error) {
@@ -343,7 +383,7 @@ export const useDeleteRole = () => {
 // Settings Mutations
 export const useUpdateAppSettings = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (settings: Partial<AppSettings>) => {
       try {
@@ -351,9 +391,11 @@ export const useUpdateAppSettings = () => {
           ...settings,
           updatedAt: Date.now(),
         };
-        
-        await setDoc(doc(db, 'settings', 'app'), updatedSettings, { merge: true });
-        
+
+        await setDoc(doc(db, 'settings', 'app'), updatedSettings, {
+          merge: true,
+        });
+
         return updatedSettings;
       } catch (error) {
         console.error('Error updating app settings:', error);
@@ -367,9 +409,9 @@ export const useUpdateAppSettings = () => {
 };
 
 // Game Mutations
-export const useCreateGame = () => {
+export const useCreateGameAdmin = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (gameData: any) => {
       try {
@@ -379,7 +421,7 @@ export const useCreateGame = () => {
           updatedAt: Date.now(),
           status: 'PENDING', // Admin approval required
         };
-        
+
         const docRef = await addDoc(collection(db, 'games'), newGame);
         return { id: docRef.id, ...newGame };
       } catch (error) {
@@ -396,7 +438,7 @@ export const useCreateGame = () => {
 
 export const useApproveGame = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (gameId: string) => {
       try {
@@ -419,9 +461,15 @@ export const useApproveGame = () => {
 
 export const useRejectGame = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ gameId, reason }: { gameId: string; reason?: string }) => {
+    mutationFn: async ({
+      gameId,
+      reason,
+    }: {
+      gameId: string;
+      reason?: string;
+    }) => {
       try {
         await updateDoc(doc(db, 'games', gameId), {
           status: 'REJECTED',

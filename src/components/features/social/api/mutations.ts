@@ -1,16 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  deleteDoc, 
-  updateDoc, 
+import {
+  collection,
+  doc,
+  addDoc,
+  deleteDoc,
+  updateDoc,
   setDoc,
   query,
   where,
   getDocs,
   serverTimestamp,
-  increment
+  increment,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { toast } from 'sonner';
@@ -25,7 +25,7 @@ import {
   Follow,
   Like,
   ChatMessage,
-  Review
+  Review,
 } from './types';
 
 // Follow System Mutations
@@ -33,16 +33,16 @@ export const useFollow = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      userId, 
-      request 
-    }: { 
-      userId: string; 
-      request: FollowRequest 
+    mutationFn: async ({
+      userId,
+      request,
+    }: {
+      userId: string;
+      request: FollowRequest;
     }): Promise<void> => {
       try {
         const followsRef = collection(db, 'follows');
-        
+
         // Check if already following
         const existingFollowQuery = query(
           followsRef,
@@ -50,9 +50,9 @@ export const useFollow = () => {
           where('followingId', '==', request.targetId),
           where('followingType', '==', request.targetType)
         );
-        
+
         const existingFollowSnapshot = await getDocs(existingFollowQuery);
-        
+
         if (!existingFollowSnapshot.empty) {
           throw new Error('Already following this target');
         }
@@ -62,7 +62,7 @@ export const useFollow = () => {
           followerId: userId,
           followingId: request.targetId,
           followingType: request.targetType,
-          createdAt: Date.now()
+          createdAt: Date.now(),
         };
 
         await addDoc(followsRef, followData);
@@ -78,10 +78,9 @@ export const useFollow = () => {
             actorId: userId,
             actorName: 'User', // This would be populated with actual user name
             isRead: false,
-            createdAt: Date.now()
+            createdAt: Date.now(),
           });
         }
-
       } catch (error) {
         console.error('Error following target:', error);
         throw error;
@@ -89,15 +88,15 @@ export const useFollow = () => {
     },
     onSuccess: (_, { request }) => {
       // Invalidate follow stats
-      queryClient.invalidateQueries({ 
-        queryKey: ['follow-stats', request.targetId, request.targetType] 
+      queryClient.invalidateQueries({
+        queryKey: ['follow-stats', request.targetId, request.targetType],
       });
       toast.success('Successfully followed!');
     },
     onError: (error: Error) => {
       console.error('Follow error:', error);
       toast.error(error.message || 'Failed to follow');
-    }
+    },
   });
 };
 
@@ -105,16 +104,16 @@ export const useUnfollow = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      userId, 
-      request 
-    }: { 
-      userId: string; 
-      request: FollowRequest 
+    mutationFn: async ({
+      userId,
+      request,
+    }: {
+      userId: string;
+      request: FollowRequest;
     }): Promise<void> => {
       try {
         const followsRef = collection(db, 'follows');
-        
+
         // Find existing follow record
         const existingFollowQuery = query(
           followsRef,
@@ -122,9 +121,9 @@ export const useUnfollow = () => {
           where('followingId', '==', request.targetId),
           where('followingType', '==', request.targetType)
         );
-        
+
         const existingFollowSnapshot = await getDocs(existingFollowQuery);
-        
+
         if (existingFollowSnapshot.empty) {
           throw new Error('Not following this target');
         }
@@ -132,7 +131,6 @@ export const useUnfollow = () => {
         // Delete follow record
         const followDoc = existingFollowSnapshot.docs[0];
         await deleteDoc(followDoc.ref);
-
       } catch (error) {
         console.error('Error unfollowing target:', error);
         throw error;
@@ -140,15 +138,15 @@ export const useUnfollow = () => {
     },
     onSuccess: (_, { request }) => {
       // Invalidate follow stats
-      queryClient.invalidateQueries({ 
-        queryKey: ['follow-stats', request.targetId, request.targetType] 
+      queryClient.invalidateQueries({
+        queryKey: ['follow-stats', request.targetId, request.targetType],
       });
       toast.success('Successfully unfollowed!');
     },
     onError: (error: Error) => {
       console.error('Unfollow error:', error);
       toast.error(error.message || 'Failed to unfollow');
-    }
+    },
   });
 };
 
@@ -157,16 +155,16 @@ export const useLike = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      userId, 
-      request 
-    }: { 
-      userId: string; 
-      request: LikeRequest 
+    mutationFn: async ({
+      userId,
+      request,
+    }: {
+      userId: string;
+      request: LikeRequest;
     }): Promise<void> => {
       try {
         const likesRef = collection(db, 'likes');
-        
+
         // Check if already liked
         const existingLikeQuery = query(
           likesRef,
@@ -174,9 +172,9 @@ export const useLike = () => {
           where('targetId', '==', request.targetId),
           where('targetType', '==', request.targetType)
         );
-        
+
         const existingLikeSnapshot = await getDocs(existingLikeQuery);
-        
+
         if (!existingLikeSnapshot.empty) {
           throw new Error('Already liked this target');
         }
@@ -186,7 +184,7 @@ export const useLike = () => {
           userId,
           targetId: request.targetId,
           targetType: request.targetType,
-          createdAt: Date.now()
+          createdAt: Date.now(),
         };
 
         await addDoc(likesRef, likeData);
@@ -195,10 +193,9 @@ export const useLike = () => {
         if (request.targetType === 'PRODUCT') {
           const productRef = doc(db, 'products', request.targetId);
           await updateDoc(productRef, {
-            likeCount: increment(1)
+            likeCount: increment(1),
           });
         }
-
       } catch (error) {
         console.error('Error liking target:', error);
         throw error;
@@ -206,14 +203,14 @@ export const useLike = () => {
     },
     onSuccess: (_, { request }) => {
       // Invalidate like stats
-      queryClient.invalidateQueries({ 
-        queryKey: ['like-stats', request.targetId, request.targetType] 
+      queryClient.invalidateQueries({
+        queryKey: ['like-stats', request.targetId, request.targetType],
       });
     },
     onError: (error: Error) => {
       console.error('Like error:', error);
       toast.error(error.message || 'Failed to like');
-    }
+    },
   });
 };
 
@@ -221,16 +218,16 @@ export const useUnlike = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      userId, 
-      request 
-    }: { 
-      userId: string; 
-      request: LikeRequest 
+    mutationFn: async ({
+      userId,
+      request,
+    }: {
+      userId: string;
+      request: LikeRequest;
     }): Promise<void> => {
       try {
         const likesRef = collection(db, 'likes');
-        
+
         // Find existing like record
         const existingLikeQuery = query(
           likesRef,
@@ -238,9 +235,9 @@ export const useUnlike = () => {
           where('targetId', '==', request.targetId),
           where('targetType', '==', request.targetType)
         );
-        
+
         const existingLikeSnapshot = await getDocs(existingLikeQuery);
-        
+
         if (existingLikeSnapshot.empty) {
           throw new Error('Not liked this target');
         }
@@ -253,10 +250,9 @@ export const useUnlike = () => {
         if (request.targetType === 'PRODUCT') {
           const productRef = doc(db, 'products', request.targetId);
           await updateDoc(productRef, {
-            likeCount: increment(-1)
+            likeCount: increment(-1),
           });
         }
-
       } catch (error) {
         console.error('Error unliking target:', error);
         throw error;
@@ -264,14 +260,14 @@ export const useUnlike = () => {
     },
     onSuccess: (_, { request }) => {
       // Invalidate like stats
-      queryClient.invalidateQueries({ 
-        queryKey: ['like-stats', request.targetId, request.targetType] 
+      queryClient.invalidateQueries({
+        queryKey: ['like-stats', request.targetId, request.targetType],
       });
     },
     onError: (error: Error) => {
       console.error('Unlike error:', error);
       toast.error(error.message || 'Failed to unlike');
-    }
+    },
   });
 };
 
@@ -280,18 +276,18 @@ export const useSendMessage = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      userId, 
+    mutationFn: async ({
+      userId,
       userName,
-      request 
-    }: { 
+      request,
+    }: {
       userId: string;
       userName: string;
-      request: ChatMessageRequest 
+      request: ChatMessageRequest;
     }): Promise<ChatMessage> => {
       try {
         const messagesRef = collection(db, 'chatMessages');
-        
+
         const messageData: Omit<ChatMessage, 'id'> = {
           chatRoomId: request.chatRoomId,
           senderId: userId,
@@ -302,7 +298,7 @@ export const useSendMessage = () => {
           isRead: false,
           readBy: [],
           createdAt: Date.now(),
-          isEdited: false
+          isEdited: false,
         };
 
         const messageDoc = await addDoc(messagesRef, messageData);
@@ -315,30 +311,31 @@ export const useSendMessage = () => {
             message: request.message,
             senderId: userId,
             senderName: userName,
-            createdAt: Date.now()
+            createdAt: Date.now(),
           },
-          updatedAt: Date.now()
+          updatedAt: Date.now(),
         });
 
         return {
           id: messageDoc.id,
-          ...messageData
+          ...messageData,
         };
-
       } catch (error) {
         console.error('Error sending message:', error);
         throw error;
       }
     },
-    onSuccess: (newMessage) => {
+    onSuccess: newMessage => {
       // Invalidate chat queries
       queryClient.invalidateQueries({ queryKey: ['chat-rooms'] });
-      queryClient.invalidateQueries({ queryKey: ['chat-messages', newMessage.chatRoomId] });
+      queryClient.invalidateQueries({
+        queryKey: ['chat-messages', newMessage.chatRoomId],
+      });
     },
     onError: (error: Error) => {
       console.error('Send message error:', error);
       toast.error('Failed to send message');
-    }
+    },
   });
 };
 
@@ -347,16 +344,16 @@ export const useCreateReview = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      userId, 
+    mutationFn: async ({
+      userId,
       userName,
       userAvatar,
-      request 
-    }: { 
+      request,
+    }: {
       userId: string;
       userName: string;
       userAvatar?: string;
-      request: CreateReviewRequest 
+      request: CreateReviewRequest;
     }): Promise<Review> => {
       try {
         // Check if user already reviewed this target
@@ -367,9 +364,9 @@ export const useCreateReview = () => {
           where('targetId', '==', request.targetId),
           where('targetType', '==', request.targetType)
         );
-        
+
         const existingReviewSnapshot = await getDocs(existingReviewQuery);
-        
+
         if (!existingReviewSnapshot.empty) {
           throw new Error('You have already reviewed this item');
         }
@@ -389,7 +386,7 @@ export const useCreateReview = () => {
           helpful: 0,
           notHelpful: 0,
           status: 'PENDING', // Reviews start as pending for moderation
-          createdAt: Date.now()
+          createdAt: Date.now(),
         };
 
         const reviewDoc = await addDoc(reviewsRef, reviewData);
@@ -405,17 +402,16 @@ export const useCreateReview = () => {
           targetType: request.targetType,
           targetName: '', // This would be populated with actual target name
           metadata: {
-            rating: request.rating
+            rating: request.rating,
           },
           isPublic: true,
-          createdAt: Date.now()
+          createdAt: Date.now(),
         });
 
         return {
           id: reviewDoc.id,
-          ...reviewData
+          ...reviewData,
         };
-
       } catch (error) {
         console.error('Error creating review:', error);
         throw error;
@@ -423,14 +419,18 @@ export const useCreateReview = () => {
     },
     onSuccess: (_, { request }) => {
       // Invalidate review queries
-      queryClient.invalidateQueries({ queryKey: ['reviews', request.targetId] });
-      queryClient.invalidateQueries({ queryKey: ['review-stats', request.targetId] });
+      queryClient.invalidateQueries({
+        queryKey: ['reviews', request.targetId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['review-stats', request.targetId],
+      });
       toast.success('Review submitted successfully!');
     },
     onError: (error: Error) => {
       console.error('Create review error:', error);
       toast.error(error.message || 'Failed to submit review');
-    }
+    },
   });
 };
 
@@ -438,18 +438,18 @@ export const useUpdateReview = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      userId, 
-      request 
-    }: { 
+    mutationFn: async ({
+      userId,
+      request,
+    }: {
       userId: string;
-      request: UpdateReviewRequest 
+      request: UpdateReviewRequest;
     }): Promise<void> => {
       try {
         const reviewRef = doc(db, 'reviews', request.reviewId);
-        
+
         const updateData: any = {
-          updatedAt: Date.now()
+          updatedAt: Date.now(),
         };
 
         if (request.rating !== undefined) updateData.rating = request.rating;
@@ -458,7 +458,6 @@ export const useUpdateReview = () => {
         if (request.images !== undefined) updateData.images = request.images;
 
         await updateDoc(reviewRef, updateData);
-
       } catch (error) {
         console.error('Error updating review:', error);
         throw error;
@@ -473,7 +472,7 @@ export const useUpdateReview = () => {
     onError: (error: Error) => {
       console.error('Update review error:', error);
       toast.error('Failed to update review');
-    }
+    },
   });
 };
 
@@ -481,25 +480,25 @@ export const useVoteReview = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      userId, 
-      request 
-    }: { 
+    mutationFn: async ({
+      userId,
+      request,
+    }: {
       userId: string;
-      request: ReviewVoteRequest 
+      request: ReviewVoteRequest;
     }): Promise<void> => {
       try {
         const reviewRef = doc(db, 'reviews', request.reviewId);
-        
+
         // This is a simplified implementation
         // In a real app, you'd track user votes to prevent duplicate voting
-        const incrementField = request.vote === 'HELPFUL' ? 'helpful' : 'notHelpful';
-        
+        const incrementField =
+          request.vote === 'HELPFUL' ? 'helpful' : 'notHelpful';
+
         await updateDoc(reviewRef, {
           [incrementField]: increment(1),
-          updatedAt: Date.now()
+          updatedAt: Date.now(),
         });
-
       } catch (error) {
         console.error('Error voting on review:', error);
         throw error;
@@ -513,7 +512,7 @@ export const useVoteReview = () => {
     onError: (error: Error) => {
       console.error('Vote review error:', error);
       toast.error('Failed to vote on review');
-    }
+    },
   });
 };
 
@@ -522,23 +521,26 @@ export const useMarkNotificationsAsRead = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      userId, 
-      notificationIds 
-    }: { 
+    mutationFn: async ({
+      userId,
+      notificationIds,
+    }: {
       userId: string;
-      notificationIds: string[] 
+      notificationIds: string[];
     }): Promise<void> => {
       try {
         const updatePromises = notificationIds.map(notificationId => {
-          const notificationRef = doc(db, 'socialNotifications', notificationId);
+          const notificationRef = doc(
+            db,
+            'socialNotifications',
+            notificationId
+          );
           return updateDoc(notificationRef, {
-            isRead: true
+            isRead: true,
           });
         });
 
         await Promise.all(updatePromises);
-
       } catch (error) {
         console.error('Error marking notifications as read:', error);
         throw error;
@@ -546,10 +548,12 @@ export const useMarkNotificationsAsRead = () => {
     },
     onSuccess: (_, { userId }) => {
       // Invalidate notifications
-      queryClient.invalidateQueries({ queryKey: ['social-notifications', userId] });
+      queryClient.invalidateQueries({
+        queryKey: ['social-notifications', userId],
+      });
     },
     onError: (error: Error) => {
       console.error('Mark notifications read error:', error);
-    }
+    },
   });
 };

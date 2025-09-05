@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { adminFirestore } from '@/lib/firebase/admin';
 import { requireAuth } from '@/lib/utils/auth-helpers';
-import { validateTicketNumberFormat, normalizeTicketNumber } from '@/lib/utils/ticket-utils';
+import { validateTicketNumberFormat } from '@/lib/utils/ticket-utils';
 import { LotteryTicket, ScanEvent } from '@/types';
+import { NextRequest, NextResponse } from 'next/server';
 
 interface ManualValidationRequest {
   ticketNumber: string;
@@ -16,27 +16,37 @@ export async function POST(request: NextRequest) {
   try {
     // Verify authentication
     const user = await requireAuth(request);
-    const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    const clientIP =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
 
     const body: ManualValidationRequest = await request.json();
     const { ticketNumber, scannedBy, vendorId, device, appVersion } = body;
 
     if (!ticketNumber || typeof ticketNumber !== 'string') {
-      return NextResponse.json({
-        success: false,
-        result: 'INVALID',
-        message: 'Valid ticket number is required'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          result: 'INVALID',
+          message: 'Valid ticket number is required',
+        },
+        { status: 400 }
+      );
     }
 
     // Validate and normalize the ticket number
     const validation = validateTicketNumberFormat(ticketNumber);
     if (!validation.isValid) {
-      return NextResponse.json({
-        success: false,
-        result: 'INVALID',
-        message: 'Invalid ticket number format. Please enter a valid ticket number (e.g., 123-456 or LT-2024-ABC123)'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          result: 'INVALID',
+          message:
+            'Invalid ticket number format. Please enter a valid ticket number (e.g., 123-456 or LT-2024-ABC123)',
+        },
+        { status: 400 }
+      );
     }
 
     const normalizedNumber = validation.normalized;
@@ -45,34 +55,52 @@ export async function POST(request: NextRequest) {
 
     // Search for ticket using multiple strategies based on the input type
     const searchQueries = [];
-    
+
     // Always try the primary ticket number field
     searchQueries.push(
-      adminFirestore.collection('tickets').where('ticketNumber', '==', normalizedNumber).limit(1)
+      adminFirestore
+        .collection('tickets')
+        .where('ticketNumber', '==', normalizedNumber)
+        .limit(1)
     );
 
     // If it's a formatted number, also try without formatting
     if (validation.type === 'formatted' || validation.type === 'simple') {
       const unformatted = normalizedNumber.replace(/[\-\s]/g, '');
       searchQueries.push(
-        adminFirestore.collection('tickets').where('alternativeNumbers.simple', '==', unformatted).limit(1),
-        adminFirestore.collection('tickets').where('alternativeNumbers.formatted', '==', normalizedNumber).limit(1)
+        adminFirestore
+          .collection('tickets')
+          .where('alternativeNumbers.simple', '==', unformatted)
+          .limit(1),
+        adminFirestore
+          .collection('tickets')
+          .where('alternativeNumbers.formatted', '==', normalizedNumber)
+          .limit(1)
       );
     }
 
     // If it's a readable format
     if (validation.type === 'readable') {
       searchQueries.push(
-        adminFirestore.collection('tickets').where('alternativeNumbers.readable', '==', normalizedNumber).limit(1)
+        adminFirestore
+          .collection('tickets')
+          .where('alternativeNumbers.readable', '==', normalizedNumber)
+          .limit(1)
       );
     }
 
     // If it looks like a Firebase ID, search by document ID
     if (validation.type === 'firebase-id') {
       try {
-        const directTicketDoc = await adminFirestore.collection('tickets').doc(normalizedNumber).get();
+        const directTicketDoc = await adminFirestore
+          .collection('tickets')
+          .doc(normalizedNumber)
+          .get();
         if (directTicketDoc.exists) {
-          ticketData = { id: directTicketDoc.id, ...directTicketDoc.data() } as LotteryTicket;
+          ticketData = {
+            id: directTicketDoc.id,
+            ...directTicketDoc.data(),
+          } as LotteryTicket;
         }
       } catch (error) {
         // Continue with other search methods
@@ -86,7 +114,10 @@ export async function POST(request: NextRequest) {
           const snapshot = await query.get();
           if (!snapshot.empty) {
             const ticketDoc = snapshot.docs[0];
-            ticketData = { id: ticketDoc.id, ...ticketDoc.data() } as LotteryTicket;
+            ticketData = {
+              id: ticketDoc.id,
+              ...ticketDoc.data(),
+            } as LotteryTicket;
             break;
           }
         } catch (error) {
@@ -100,22 +131,30 @@ export async function POST(request: NextRequest) {
       // Check ticket status and expiration
       if (ticketData.status === 'used') {
         scanResult = 'ALREADY_USED';
-      } else if (ticketData.status === 'expired' || (ticketData.expiresAt && ticketData.expiresAt < Date.now())) {
+      } else if (
+        ticketData.status === 'expired' ||
+        (ticketData.expiresAt && ticketData.expiresAt < Date.now())
+      ) {
         scanResult = 'EXPIRED';
       } else if (ticketData.status === 'valid') {
         // If scanned by vendor, mark as used
         if (scannedBy === 'vendor') {
           // Verify vendor has permission to scan this ticket
           if (vendorId && ticketData.vendorId !== vendorId) {
-            return NextResponse.json({
-              success: false,
-              result: 'INVALID',
-              message: 'Vendor not authorized to validate this ticket'
-            }, { status: 403 });
+            return NextResponse.json(
+              {
+                success: false,
+                result: 'INVALID',
+                message: 'Vendor not authorized to validate this ticket',
+              },
+              { status: 403 }
+            );
           }
 
           // Mark ticket as used
-          const ticketRef = adminFirestore.collection('tickets').doc(ticketData.id);
+          const ticketRef = adminFirestore
+            .collection('tickets')
+            .doc(ticketData.id);
           await ticketRef.update({
             status: 'used',
             lastScanAt: Date.now(),
@@ -132,7 +171,9 @@ export async function POST(request: NextRequest) {
           scanResult = 'VALIDATED';
         } else {
           // Player checking - just update scan info
-          const ticketRef = adminFirestore.collection('tickets').doc(ticketData.id);
+          const ticketRef = adminFirestore
+            .collection('tickets')
+            .doc(ticketData.id);
           await ticketRef.update({
             lastScanAt: Date.now(),
             lastScanBy: 'player',
@@ -150,7 +191,7 @@ export async function POST(request: NextRequest) {
     const scanEvent: Omit<ScanEvent, 'id'> = {
       ticketId: ticketData?.id || 'unknown',
       scannedBy,
-      vendorId: scannedBy === 'vendor' ? (vendorId || user.id) : undefined,
+      vendorId: scannedBy === 'vendor' ? vendorId || user.id : undefined,
       userId: user.id,
       appVersion,
       device,
@@ -200,7 +241,7 @@ export async function POST(request: NextRequest) {
               prizeAmount: ticketData.prizeAmount,
             },
           };
-        } else {
+        } else if (ticketData) {
           additionalData = {
             ticketDetails: {
               gameId: ticketData.gameId,
@@ -245,22 +286,30 @@ export async function POST(request: NextRequest) {
       inputType: validation.type,
       ...additionalData,
     });
-
   } catch (error) {
     console.error('Error validating ticket manually:', error);
-    
-    if (error instanceof Error && error.message.includes('Authentication required')) {
-      return NextResponse.json({
+
+    if (
+      error instanceof Error &&
+      error.message.includes('Authentication required')
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          result: 'INVALID',
+          message: 'Authentication required',
+        },
+        { status: 401 }
+      );
+    }
+
+    return NextResponse.json(
+      {
         success: false,
         result: 'INVALID',
-        message: 'Authentication required'
-      }, { status: 401 });
-    }
-    
-    return NextResponse.json({
-      success: false,
-      result: 'INVALID',
-      message: 'Internal server error while validating ticket'
-    }, { status: 500 });
+        message: 'Internal server error while validating ticket',
+      },
+      { status: 500 }
+    );
   }
 }

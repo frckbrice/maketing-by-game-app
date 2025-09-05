@@ -2,6 +2,7 @@
   "common": {
     "loading": "Chargement...",
     "error": "Une erreur s'est produite",
+    "errorMessage": "Quelque chose s'est mal passé. Veuillez réessayer.",
     "success": "Succès !",
     "cancel": "Annuler",
     "save": "Enregistrer",
@@ -66,7 +67,8 @@
     "hoursLeft": "{{hours}}h restantes",
     "unknown": "Inconnu",
     "refresh": "Actualiser",
-    "export": "Exporter"
+    "export": "Exporter",
+    "reviews": "Avis"
   },
   "notifications": {
     "title": "Notifications",
@@ -130,7 +132,9 @@
     "dashboard": "Tableau de bord",
     "admin": "Administration",
     "profile": "Profil",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "winners": "Gagnants",
+    "logout": "Se déconnecter"
   },
   "auth": {
     "login": {
@@ -179,6 +183,9 @@
       "emailSent": "Nous avons envoyé un lien de réinitialisation du mot de passe à",
       "emailInstructions": "Cliquez sur le lien dans l'e-mail pour réinitialiser votre mot de passe. Le lien expirera dans 1 heure.",
       "backToLoginButton": "Retour à la connexion"
+    },
+    "errors": {
+      "loginRequired": "Veuillez vous connecter pour continuer"
     }
   },
   "dashboard": {
@@ -198,19 +205,66 @@
     "viewTickets": "Voir les Billets"
   },
   "games": {
-    "title": "Jeux Disponibles",
-    "subtitle": "Découvrez des loteries marketing passionnantes et gagnez des prix incroyables. Rejoignez des jeux avec un suivi des participants en temps réel !",
-    "search": "Rechercher des jeux...",
-    "allCategories": "Toutes les Catégories",
-    "noGames": "Aucun jeu trouvé",
-    "noGamesDescription": "Essayez d'ajuster votre recherche ou vos filtres, ou revenez plus tard pour de nouveaux jeux de loterie !",
-    "joinGame": "Rejoindre le Jeu",
-    "viewDetails": "Voir les Détails",
+    "title": "Jouez et Gagnez des Prix Incroyables",
+    "subtitle": "Choisissez parmi des produits exclusifs quotidiens et rejoignez des milliers de gagnants",
+    "searchPlaceholder": "Rechercher des produits, marques ou catégories...",
+    "noGamesFound": "Aucun jeu trouvé",
+    "tryDifferentSearch": "Essayez d'ajuster votre recherche ou parcourez différentes catégories",
+    "browseAllGames": "Parcourir Tous les Jeux",
+    "loadingGames": "Chargement de jeux incroyables...",
+    "gamesFound": "jeux trouvés",
+    "allGames": "Tous les Jeux",
+    "yourGames": "Jouez à Vos Jeux",
+    "yourGamesDescription": "Jouez à vos jeux préférés et gagnez des prix incroyables",
+    "featuredGames": "Jeux en Vedette",
+    "hotPicks": "Sélections Chaudes",
+    "chooseCategory": "Choisissez Votre Catégorie",
+    "categoryDescription": "Trouvez le produit parfait pour jouer",
+    "specialPromotion": "🎁 Promotion Spéciale",
+    "promotionDescription": "Obtenez 20% de chances en plus avec chaque achat de billet cette semaine !",
+    "weeklyWinners": "🏆 Gagnants Hebdomadaires",
+    "weeklyWinnersDescription": "Rejoignez plus de 50 000 gagnants heureux qui ont trouvé leurs produits de rêve",
+    "quickPlay": "⚡ Jeu Rapide",
+    "quickPlayDescription": "Billets instantanés, chances instantanées - jouez et gagnez en secondes",
+    "stats": {
+      "activeGames": "Jeux Actifs",
+      "happyPlayers": "Joueurs Heureux",
+      "prizeValue": "Valeur des Prix",
+      "liveNow": "En Direct"
+    },
+    "vendor": {
+      "createYourOwn": "Créez Vos Propres Jeux de Loterie",
+      "joinPlatform": "Rejoignez notre plateforme en tant que vendeur et commencez à gagner en créant des jeux de loterie passionnants pour des milliers de joueurs dans le monde entier !",
+      "becomeVendorToday": "Devenez Vendeur Aujourd'hui"
+    },
+    "empty": {
+      "noGamesMatch": "Aucun jeu ne correspond à votre recherche",
+      "noGamesFound": "Aucun jeu trouvé",
+      "tryAdjusting": "Essayez d'ajuster vos termes de recherche ou parcourez différentes catégories pour trouver des prix incroyables.",
+      "noGamesAvailable": "Aucun jeu n'est disponible dans cette catégorie pour le moment. Revenez bientôt pour de nouveaux prix passionnants !",
+      "clearSearch": "Effacer la Recherche"
+    },
+    "vip": {
+      "joinVipClub": "Rejoignez Notre Club VIP",
+      "exclusiveAccess": "Obtenez un accès exclusif aux jeux premium et aux bonus spéciaux !",
+      "joinVip": "Rejoindre VIP"
+    },
+    "categories": {
+      "all": "Toutes les Catégories",
+      "jackpot": "Jackpot",
+      "daily": "Quotidien",
+      "weekly": "Hebdomadaire",
+      "exploreCategories": "Explorer les Catégories",
+      "scrollLeft": "Défiler à gauche",
+      "scrollRight": "Défiler à droite",
+      "game": "jeu",
+      "games": "jeux"
+    },
     "ticketPrice": "Prix du Billet",
     "participants": "Participants",
-    "maxParticipants": "Participants Maximum",
     "endDate": "Date de Fin",
     "progress": "Progression",
+    "joinGame": "Rejoindre le Jeu",
     "status": {
       "draft": "Brouillon",
       "active": "Actif",
@@ -414,38 +468,18 @@
       "last7Days": "7 Derniers Jours",
       "last30Days": "30 Derniers Jours",
       "last90Days": "90 Derniers Jours",
-      "thisYear": "Cette Année"
+      "thisYear": "Cette Année",
+      "new": "Nouveau",
+      "featured": "En Vedette",
+      "playFor": "Jouer pour",
+      "played": "Joué",
+      "playNow": "Jouer Maintenant",
+      "buyNow": "Acheter Maintenant",
+      "addToCart": "Ajouter au Panier",
+      "outOfStock": "En Rupture",
+      "lowStock": "Plus que {{count}}",
+      "playedToday": "{{count}} personnes ont acheté aujourd'hui"
     }
-  },
-  "vendor": {
-    "welcomeMessage": "Bienvenue sur le Tableau de Bord Vendeur",
-    "shopName": "Nom de la Boutique",
-    "overview": "Vue d'Ensemble",
-    "shop": "Boutique",
-    "games": "Jeux",
-    "createGame": "Créer un Jeu",
-    "addProduct": "Ajouter un Produit",
-    "totalRevenue": "Chiffre d'Affaires Total",
-    "monthlyRevenue": "Chiffre d'Affaires Mensuel",
-    "totalItems": "Total des Articles",
-    "totalOrders": "Total des Commandes",
-    "shopRating": "Note de la Boutique",
-    "followers": "Abonnés",
-    "totalViews": "Total des Vues",
-    "conversionRate": "Taux de Conversion",
-    "revenueChart": "Tendance du Chiffre d'Affaires",
-    "ordersChart": "Tendance des Commandes",
-    "shopRevenue": "Chiffre d'Affaires de la Boutique",
-    "activeProducts": "Produits Actifs",
-    "totalLikes": "Total des J'aime",
-    "monthlyOrders": "Commandes Mensuelles",
-    "recentOrders": "Commandes Récentes",
-    "totalGames": "Total des Jeux",
-    "activeGames": "Jeux Actifs",
-    "gameRevenue": "Chiffre d'Affaires des Jeux",
-    "totalParticipants": "Total des Participants",
-    "gameRevenueChart": "Tendance du Chiffre d'Affaires des Jeux",
-    "analytics": "Analytiques"
   },
   "qr": {
     "scanner": "Scanner QR",
@@ -651,7 +685,6 @@
     "previousBanner": "Bannière précédente",
     "nextBanner": "Bannière suivante",
     "goToSlide": "Aller à la diapositive",
-    "topShops": "Top Boutiques",
     "discoverAmazingVendors": "Découvrez d'incroyables vendeurs et leurs produits",
     "viewAll": "Voir Tout",
     "scrollLeft": "Défiler à gauche",
@@ -671,10 +704,79 @@
     "addToCart": "Ajouter au Panier",
     "outOfStock": "En Rupture",
     "lowStock": "Plus que {{count}}",
-    "playedToday": "{{count}} personnes ont joué aujourd'hui",
+    "playedToday": "{{count}} personnes ont acheté aujourd'hui",
     "featuredProducts": "Produits en Vedette",
     "hotPicksHighParticipation": "Sélections populaires avec la plus forte participation",
-    "exploreAllProducts": "Explorer Tous les Produits"
+    "exploreAllProducts": "Explorer Tous les Produits",
+    "shopStats": {
+      "products": "Produits",
+      "followers": "Abonnés",
+      "rating": "Note",
+      "reviews": "Avis"
+    },
+    "shopActions": {
+      "follow": "Suivre",
+      "following": "Suivi",
+      "chat": "Chat",
+      "share": "Partager",
+      "viewShop": "Voir la Boutique"
+    },
+    "shopTabs": {
+      "products": "Produits",
+      "offers": "Offres",
+      "reviews": "Avis"
+    },
+    "shopHeader": {
+      "back": "Retour",
+      "verified": "Boutique Vérifiée",
+      "totalReviews": "avis"
+    },
+    "shopOffers": {
+      "specialOffers": "Offres Spéciales",
+      "validUntil": "Valide jusqu'au",
+      "discount": "Réduction",
+      "promoCode": "Code Promo"
+    },
+    "shopReviews": {
+      "customerReviews": "Avis Clients",
+      "verifiedPurchase": "Achat Vérifié",
+      "helpful": "Utile",
+      "report": "Signaler"
+    },
+    "shopProducts": {
+      "searchProducts": "Rechercher des produits...",
+      "noProductsFound": "Aucun produit trouvé",
+      "noProductsMatchSearch": "Aucun produit ne correspond à votre recherche",
+      "shopHasNoProducts": "Cette boutique n'a pas encore de produits",
+      "viewMode": {
+        "grid": "Vue Grille",
+        "list": "Vue Liste"
+      }
+    },
+    "topShops": {
+      "verifiedBadge": "Boutique Vérifiée",
+      "ratingLabel": "Note",
+      "reviewsLabel": "Avis"
+    },
+    "personalized": {
+      "productsYouMightLike": "Produits Qui Pourraient Vous Plaire",
+      "personalizedRecommendations": "Sélectionnés spécialement pour vous selon vos préférences",
+      "basedOnYourLikes": "Basé sur votre activité",
+      "personalizationNote": "Ces recommandations s'améliorent au fur et à mesure que vous interagissez avec les produits et les boutiques. Aimez, suivez et jouez pour obtenir de meilleures suggestions !"
+    },
+    "shopInformationUnavailable": "Informations de la boutique non disponibles",
+    "followers": "Abonnés",
+    "specialOffers": "Offres Spéciales",
+    "chat": "Chat",
+    "validUntil": "Valide Jusqu'au",
+    "share": "Partager",
+    "sortBy": {
+      "newest": "Plus Récent",
+      "popular": "Plus Populaire",
+      "priceLow": "Prix: Croissant",
+      "priceHigh": "Prix: Décroissant",
+      "rating": "Mieux Noté"
+    }
   },
   "createGame": {
     "title": "Créer un nouveau jeu",
@@ -989,10 +1091,6 @@
     "descriptionPlaceholder": "Décrivez votre jeu de loterie et ce que les participants peuvent gagner...",
     "category": "Catégorie",
     "selectCategory": "Sélectionner une catégorie",
-    "productsYouMightLike": "Produits Qui Pourraient Vous Plaire",
-    "personalizedRecommendations": "Sélectionnés spécialement pour vous selon vos préférences",
-    "basedOnYourLikes": "Basé sur votre activité",
-    "personalizationNote": "Ces recommandations s'améliorent au fur et à mesure que vous interagissez avec les produits et les boutiques. Aimez, suivez et jouez pour obtenir de meilleures suggestions !",
     "followers": "abonnés",
     "offers": "Offres",
     "reviews": "Avis",
@@ -1018,14 +1116,50 @@
   },
   "chat": {
     "online": "En ligne",
+    "connected": "Connecté",
+    "connecting": "Connexion...",
+    "disconnected": "Déconnecté",
     "typeMessage": "Tapez un message...",
-    "loginRequiredDescription": "Veuillez vous connecter pour commencer à discuter avec les boutiques"
+    "loginRequiredDescription": "Veuillez vous connecter pour commencer à discuter avec les boutiques",
+    "sendError": "Échec de l'envoi du message",
+    "messageTooLong": "Le message est trop long. Veuillez le limiter à moins de 1000 caractères.",
+    "you": "Vous",
+    "shopAssistant": "Assistant de Boutique",
+    "autoResponse": "Merci pour votre message ! Nous avons {{productCount}} produits incroyables dans {{shopName}}. Comment puis-je vous aider aujourd'hui ?",
+    "startConversation": "Commencer une Conversation",
+    "startConversationDescription": "Envoyez un message à {{shopName}} et obtenez une assistance personnalisée avec leurs produits et services."
   },
   "error": {
     "shopNotFound": "Boutique Introuvable",
     "shopNotFoundDescription": "La boutique que vous recherchez n'existe pas ou a été supprimée.",
     "productNotFound": "Produit Introuvable",
-    "productNotFoundDescription": "Le produit que vous recherchez n'existe pas ou a été supprimé."
+    "productNotFoundDescription": "Le produit que vous recherchez n'existe pas ou a été supprimé.",
+    "somethingWentWrong": "Quelque chose s'est mal passé",
+    "unexpectedError": "Une erreur inattendue s'est produite. Veuillez réessayer.",
+    "pageError": "Erreur de Page",
+    "criticalError": "Erreur Critique",
+    "errorId": "ID d'Erreur",
+    "technicalDetails": "Détails Techniques",
+    "persistentIssue": "Si ce problème persiste, veuillez contacter notre équipe de support.",
+    "contactSupport": "Veuillez inclure cet ID d'erreur lorsque vous contactez le support : {{errorId}}"
+  },
+  "loading": {
+    "loading": "Chargement...",
+    "pleaseWait": "Veuillez patienter pendant que nous chargeons votre contenu",
+    "loadingShop": "Chargement de la Boutique",
+    "loadingChat": "Chargement du Chat",
+    "loadingProducts": "Chargement des Produits",
+    "loadingGames": "Chargement des Jeux",
+    "preparingShopData": "Préparation des données de la boutique et des produits pour vous",
+    "connectingToChat": "Connexion au chat et chargement de l'historique des conversations",
+    "fetchingProducts": "Récupération des derniers produits et offres",
+    "loadingGameData": "Chargement des données du jeu et vérification de la disponibilité"
+  },
+  "session": {
+    "extended": "Session prolongée avec succès",
+    "loggedOut": "Vous avez été déconnecté",
+    "expiring": "Votre session expire bientôt",
+    "expired": "Votre session a expiré"
   },
   "product": {
     "selectSize": "Sélectionner la Taille",
@@ -1036,6 +1170,8 @@
     "freeShipping": "Livraison Gratuite",
     "securePayment": "Paiement Sécurisé",
     "easyReturns": "Retours Faciles",
+    "addToCart": "Ajouter au Panier",
+    "buy": "Acheter",
     "played": "joué",
     "description": "Description",
     "specifications": "Caractéristiques",
@@ -1085,7 +1221,8 @@
       "email": "Email",
       "save": "Sauvegarder",
       "playAgain": "Jouer Encore 🎮",
-      "viewProfile": "Voir le Profil"
+      "viewProfile": "Voir le Profil",
+      "emailSent": "Détails du billet envoyés à votre email !"
     },
     "errors": {
       "enterPhone": "Veuillez entrer votre numéro de téléphone",
@@ -1095,23 +1232,46 @@
       "paymentDeclined": "Le paiement a été refusé ou annulé.",
       "paymentExpired": "La demande de paiement a expiré. Veuillez réessayer.",
       "paymentTimeout": "Délai d'attente du paiement. Veuillez vérifier votre téléphone et réessayer.",
-      "networkError": "Erreur de réseau. Veuillez vérifier votre connexion et réessayer."
+      "networkError": "Erreur de réseau. Veuillez vérifier votre connexion et réessayer.",
+      "serverError": "Service de paiement temporairement indisponible. Veuillez réessayer plus tard.",
+      "timeout": "Demande expirée. Veuillez réessayer.",
+      "maxRetriesReached": "Nombre maximum de tentatives atteint. Veuillez contacter le support.",
+      "statusCheckFailed": "Impossible de vérifier le statut du paiement. Veuillez réessayer.",
+      "paymentCancelled": "Le paiement a été annulé par l'utilisateur.",
+      "noTransactionId": "Aucun ID de transaction disponible. Veuillez réessayer.",
+      "databaseOffline": "Service temporairement indisponible. Veuillez réessayer dans 30 secondes.",
+      "paymentNotFound": "Enregistrement de paiement introuvable. Veuillez relancer le paiement.",
+      "checkTimeout": "Vérification du statut expirée. Veuillez réessayer.",
+      "authError": "Erreur d'authentification. Veuillez actualiser la page et réessayer."
     },
     "status": {
       "pending": "En Attente",
-      "processing": "Traitement",
+      "processing": "Traitement du paiement...",
       "success": "Succès",
       "failed": "Échoué",
       "cancelled": "Annulé",
       "expired": "Expiré",
-      "checking": "Vérification du statut du paiement... ({attempt}/{total})"
+      "checking": "Vérification du statut du paiement...",
+      "initiating": "Initialisation du paiement...",
+      "waiting": "En attente de confirmation du paiement...",
+      "stillProcessing": "Le paiement est toujours en cours de traitement",
+      "takingLong": "Le paiement prend plus de temps que prévu - veuillez vérifier le statut",
+      "pleaseCheck": "Veuillez utiliser le bouton 'Vérifier le Statut' pour vérifier votre paiement"
     },
     "notifications": {
       "initiated": "Traitement du paiement {method}...",
       "successful": "Paiement réussi via {method} ! Billet généré.",
       "emailSent": "Billet envoyé à votre téléphone et email !",
-      "emailDelayed": "Billet généré. La livraison par email peut être retardée."
-    }
+      "emailDelayed": "Billet généré. La livraison par email peut être retardée.",
+      "statusUpdated": "Statut du paiement mis à jour avec succès",
+      "stillProcessing": "Le paiement est toujours en cours de traitement. Veuillez réessayer dans quelques instants.",
+      "longProcessing": "Le paiement prend plus de temps que prévu. Veuillez utiliser le bouton 'Vérifier le Statut' pour vérifier.",
+      "pleaseCheck": "Veuillez vérifier manuellement le statut de votre paiement en cliquant sur 'Vérifier le Statut'"
+    },
+    "retry": "Réessayer",
+    "checkStatus": "Vérifier le Statut",
+    "manualCheck": "Vérification Manuelle du Statut",
+    "refreshStatus": "Actualiser le Statut du Paiement"
   },
   "cart": {
     "title": "Panier d'Achat",
@@ -1328,7 +1488,7 @@
     },
     "tabs": {
       "loyalty": "Fidélité",
-      "referrals": "Parrainages", 
+      "referrals": "Parrainages",
       "streak": "Série",
       "badges": "Badges",
       "notifications": "Notifications"
@@ -1339,7 +1499,7 @@
       "title": "Série Quotidienne",
       "days": "jours",
       "currentStreak": "Série Actuelle",
-      "longestStreak": "Plus Longue Série", 
+      "longestStreak": "Plus Longue Série",
       "toNextMilestone": "Au Prochain Jalon",
       "checkedInToday": "Connecté aujourd'hui !",
       "comeBackTomorrow": "Revenez demain pour continuer votre série",
@@ -1390,7 +1550,7 @@
         "loyalty": "Fidélité"
       },
       "unknownBadge": "Badge Inconnu",
-      "statistics": "Statistiques des Badges", 
+      "statistics": "Statistiques des Badges",
       "totalEarned": "Total Gagné",
       "milestones": "Jalons",
       "special": "Spécial",
@@ -1405,5 +1565,32 @@
       "noNotifications": "Aucune Notification",
       "noNotificationsDescription": "Vos activités de gamification apparaîtront ici"
     }
+  },
+  "social": {
+    "follow": "Suivre",
+    "following": "Suivi",
+    "followShop": "Suivre la Boutique",
+    "followUser": "Suivre l'Utilisateur",
+    "followVendor": "Suivre le Vendeur",
+    "unfollow": "Ne Plus Suivre",
+    "followers": "Abonnés",
+    "like": "J'aime",
+    "unlike": "Je n'aime plus",
+    "chat": "Chat",
+    "contactShop": "Contacter la Boutique",
+    "contactVendor": "Contacter le Vendeur",
+    "message": "Message",
+    "sendMessage": "Envoyer un Message",
+    "startChatWith": "Commencer le chat avec",
+    "chatStarted": "Chat démarré avec succès",
+    "chatError": "Échec du démarrage du chat",
+    "justNow": "À l'instant",
+    "hoursAgo": "Il y a {{hours}} heures",
+    "daysAgo": "Il y a {{days}} jours",
+    "verified": "Vérifié",
+    "report": "Signaler",
+    "showLess": "Afficher moins",
+    "readMore": "Lire plus",
+    "vendorResponse": "Réponse du Vendeur"
   }
 }

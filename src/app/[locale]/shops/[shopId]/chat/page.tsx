@@ -4,14 +4,14 @@ import { notFound } from 'next/navigation';
 import { ShopChat } from '@/components/features/shops/components/ShopChat';
 
 interface ShopChatPageProps {
-  params: {
+  params: Promise<{
     locale: string;
     shopId: string;
-  };
+  }>;
 }
 
-export default function ShopChatPage({ params }: ShopChatPageProps) {
-  const { shopId } = params;
+export default async function ShopChatPage({ params }: ShopChatPageProps) {
+  const { shopId } = await params;
 
   if (!shopId) {
     notFound();

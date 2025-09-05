@@ -49,7 +49,9 @@ export function AdminWinnersPage() {
   const [mounted, setMounted] = useState(false);
   const { data: winners = [], isLoading: loadingWinners } = useGameWinners();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'CLAIMED' | 'EXPIRED'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<
+    'ALL' | 'PENDING' | 'CLAIMED' | 'EXPIRED'
+  >('ALL');
   const [dateRange, setDateRange] = useState({ from: '', to: '' });
 
   useEffect(() => {
@@ -62,7 +64,6 @@ export function AdminWinnersPage() {
     }
   }, [user, loading, router]);
 
-
   const handleExportWinners = async () => {
     try {
       const csvData = filteredWinners.map(winner => ({
@@ -73,13 +74,13 @@ export function AdminWinnersPage() {
         'Prize Value': `${currencyService.formatCurrency(winner.prizeValue, winner.prizeCurrency)}`,
         'Prize Description': winner.prizeDescription,
         'Win Date': new Date(winner.winDate).toLocaleDateString(),
-        'Status': winner.status,
-        'Category': winner.category,
+        Status: winner.status,
+        Category: winner.category,
       }));
 
       const csv = [
         Object.keys(csvData[0]).join(','),
-        ...csvData.map(row => Object.values(row).join(','))
+        ...csvData.map(row => Object.values(row).join(',')),
       ].join('\n');
 
       const blob = new Blob([csv], { type: 'text/csv' });
@@ -102,7 +103,9 @@ export function AdminWinnersPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'PENDING':
-        return <Badge className='bg-yellow-500 text-white'>Pending Claim</Badge>;
+        return (
+          <Badge className='bg-yellow-500 text-white'>Pending Claim</Badge>
+        );
       case 'CLAIMED':
         return <Badge className='bg-green-500 text-white'>Claimed</Badge>;
       case 'EXPIRED':
@@ -113,14 +116,15 @@ export function AdminWinnersPage() {
   };
 
   const filteredWinners = winners.filter(winner => {
-    const matchesSearch = 
+    const matchesSearch =
       winner.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       winner.userEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
       winner.gameTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
       winner.ticketNumber.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'ALL' || winner.status === statusFilter;
-    
+
+    const matchesStatus =
+      statusFilter === 'ALL' || winner.status === statusFilter;
+
     let matchesDate = true;
     if (dateRange.from && dateRange.to) {
       const winDate = new Date(winner.winDate);
@@ -128,7 +132,7 @@ export function AdminWinnersPage() {
       const toDate = new Date(dateRange.to);
       matchesDate = winDate >= fromDate && winDate <= toDate;
     }
-    
+
     return matchesSearch && matchesStatus && matchesDate;
   });
 
@@ -170,8 +174,11 @@ export function AdminWinnersPage() {
                 </p>
               </div>
             </div>
-            
-            <Button onClick={handleExportWinners} className='flex items-center space-x-2'>
+
+            <Button
+              onClick={handleExportWinners}
+              className='flex items-center space-x-2'
+            >
               <Download className='w-4 h-4' />
               <span>Export Data</span>
             </Button>
@@ -225,18 +232,18 @@ export function AdminWinnersPage() {
                     type='text'
                     placeholder='Search winners...'
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={e => setSearchTerm(e.target.value)}
                     className='pl-9'
                   />
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor='status'>Status</Label>
                 <select
                   id='status'
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as any)}
+                  onChange={e => setStatusFilter(e.target.value as any)}
                   className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm'
                 >
                   <option value='ALL'>All Status</option>
@@ -245,34 +252,38 @@ export function AdminWinnersPage() {
                   <option value='EXPIRED'>Expired</option>
                 </select>
               </div>
-              
+
               <div>
                 <Label htmlFor='dateFrom'>From Date</Label>
                 <Input
                   id='dateFrom'
                   type='date'
                   value={dateRange.from}
-                  onChange={(e) => setDateRange({...dateRange, from: e.target.value})}
+                  onChange={e =>
+                    setDateRange({ ...dateRange, from: e.target.value })
+                  }
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor='dateTo'>To Date</Label>
                 <Input
                   id='dateTo'
                   type='date'
                   value={dateRange.to}
-                  onChange={(e) => setDateRange({...dateRange, to: e.target.value})}
+                  onChange={e =>
+                    setDateRange({ ...dateRange, to: e.target.value })
+                  }
                 />
               </div>
             </div>
-            
+
             <div className='flex justify-between items-center mt-4'>
               <p className='text-sm text-gray-600 dark:text-gray-400'>
                 Showing {filteredWinners.length} of {winners.length} winners
               </p>
-              <Button 
-                variant='outline' 
+              <Button
+                variant='outline'
                 size='sm'
                 onClick={() => {
                   setSearchTerm('');
@@ -291,7 +302,9 @@ export function AdminWinnersPage() {
         {loadingWinners ? (
           <div className='text-center py-12'>
             <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4'></div>
-            <p className='text-gray-600 dark:text-gray-400'>Loading winners...</p>
+            <p className='text-gray-600 dark:text-gray-400'>
+              Loading winners...
+            </p>
           </div>
         ) : filteredWinners.length === 0 ? (
           <Card className='p-8 text-center'>
@@ -300,15 +313,14 @@ export function AdminWinnersPage() {
               No winners found
             </h3>
             <p className='text-gray-600 dark:text-gray-400'>
-              {winners.length === 0 
+              {winners.length === 0
                 ? 'No winners have been recorded yet.'
-                : 'No winners match your current filters.'
-              }
+                : 'No winners match your current filters.'}
             </p>
           </Card>
         ) : (
           <div className='space-y-4'>
-            {filteredWinners.map((winner) => (
+            {filteredWinners.map(winner => (
               <Card key={winner.id} className='p-4 sm:p-6'>
                 <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0'>
                   <div className='flex items-center space-x-4 flex-1'>
@@ -337,7 +349,10 @@ export function AdminWinnersPage() {
                   <div className='flex items-center space-x-4 w-full sm:w-auto'>
                     <div className='text-right flex-1 sm:flex-initial'>
                       <div className='text-xl font-bold text-green-600'>
-                        {currencyService.formatCurrency(winner.prizeValue, winner.prizeCurrency)}
+                        {currencyService.formatCurrency(
+                          winner.prizeValue,
+                          winner.prizeCurrency
+                        )}
                       </div>
                       <div className='text-sm text-gray-500'>
                         {new Date(winner.winDate).toLocaleDateString()}
@@ -370,7 +385,8 @@ export function AdminWinnersPage() {
                       <div className='flex items-center space-x-2'>
                         <Users className='w-4 h-4 text-gray-400 flex-shrink-0' />
                         <span className='text-gray-600 dark:text-gray-400'>
-                          Claimed: {new Date(winner.claimedDate).toLocaleDateString()}
+                          Claimed:{' '}
+                          {new Date(winner.claimedDate).toLocaleDateString()}
                         </span>
                       </div>
                     )}

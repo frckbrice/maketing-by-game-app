@@ -5,6 +5,7 @@
 This document provides comprehensive API reference for the Lottery Marketing Application. All endpoints require authentication unless otherwise specified.
 
 ## Base URL
+
 ```
 Production: https://your-app.vercel.app/api
 Development: http://localhost:3000/api
@@ -13,6 +14,7 @@ Development: http://localhost:3000/api
 ## Authentication
 
 All API endpoints require Firebase JWT token in the Authorization header:
+
 ```
 Authorization: Bearer <firebase-jwt-token>
 ```
@@ -20,6 +22,7 @@ Authorization: Bearer <firebase-jwt-token>
 ## Response Format
 
 ### Success Response
+
 ```json
 {
   "success": true,
@@ -29,6 +32,7 @@ Authorization: Bearer <firebase-jwt-token>
 ```
 
 ### Error Response
+
 ```json
 {
   "success": false,
@@ -42,9 +46,11 @@ Authorization: Bearer <firebase-jwt-token>
 ## Authentication Endpoints
 
 ### POST /api/auth/register
+
 Register a new user account.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -56,6 +62,7 @@ Register a new user account.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -74,9 +81,11 @@ Register a new user account.
 ```
 
 ### POST /api/auth/login
+
 Authenticate user login.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -85,6 +94,7 @@ Authenticate user login.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -100,9 +110,11 @@ Authenticate user login.
 ```
 
 ### POST /api/auth/forgot-password
+
 Send password reset email.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com"
@@ -112,14 +124,17 @@ Send password reset email.
 ## User Management
 
 ### GET /api/users/profile
+
 Get current user profile.
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -149,9 +164,11 @@ Authorization: Bearer <token>
 ```
 
 ### PUT /api/users/profile
+
 Update user profile.
 
 **Request Body:**
+
 ```json
 {
   "firstName": "John",
@@ -167,14 +184,17 @@ Update user profile.
 ```
 
 ### GET /api/users/orders
+
 Get user order history.
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 10)
 - `status` (optional): Filter by status
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -211,9 +231,11 @@ Get user order history.
 ```
 
 ### GET /api/users/tickets
+
 Get user ticket history.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -239,9 +261,11 @@ Get user ticket history.
 ## Marketplace Endpoints
 
 ### GET /api/shops
+
 Get list of shops.
 
 **Query Parameters:**
+
 - `page` (optional): Page number
 - `limit` (optional): Items per page
 - `category` (optional): Filter by category
@@ -249,6 +273,7 @@ Get list of shops.
 - `featured` (optional): Show only featured shops
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -278,9 +303,11 @@ Get list of shops.
 ```
 
 ### GET /api/shops/{shopId}
+
 Get shop details.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -317,9 +344,11 @@ Get shop details.
 ```
 
 ### POST /api/shops/follow
+
 Follow/unfollow a shop.
 
 **Request Body:**
+
 ```json
 {
   "shopId": "shop123",
@@ -328,9 +357,11 @@ Follow/unfollow a shop.
 ```
 
 ### GET /api/products
+
 Get list of products.
 
 **Query Parameters:**
+
 - `page` (optional): Page number
 - `limit` (optional): Items per page
 - `category` (optional): Filter by category
@@ -341,6 +372,7 @@ Get list of products.
 - `sortBy` (optional): Sort by (newest, price_asc, price_desc, popular)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -375,9 +407,11 @@ Get list of products.
 ```
 
 ### POST /api/products/like
+
 Like/unlike a product.
 
 **Request Body:**
+
 ```json
 {
   "productId": "prod123",
@@ -386,9 +420,11 @@ Like/unlike a product.
 ```
 
 ### POST /api/orders
+
 Create a new order.
 
 **Request Body:**
+
 ```json
 {
   "items": [
@@ -413,6 +449,7 @@ Create a new order.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -428,9 +465,11 @@ Create a new order.
 ## Game Management
 
 ### GET /api/games
+
 Get list of games.
 
 **Query Parameters:**
+
 - `page` (optional): Page number
 - `limit` (optional): Items per page
 - `category` (optional): Filter by category
@@ -438,6 +477,7 @@ Get list of games.
 - `featured` (optional): Show only featured games
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -472,9 +512,11 @@ Get list of games.
 ```
 
 ### POST /api/games/participate
+
 Purchase a ticket for a game.
 
 **Request Body:**
+
 ```json
 {
   "gameId": "game123",
@@ -484,6 +526,7 @@ Purchase a ticket for a game.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -504,9 +547,11 @@ Purchase a ticket for a game.
 ## QR Code Validation
 
 ### POST /api/tickets/scan
+
 Scan and validate a QR code ticket.
 
 **Request Body:**
+
 ```json
 {
   "ticketId": "ticket123",
@@ -519,6 +564,7 @@ Scan and validate a QR code ticket.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -541,9 +587,11 @@ Scan and validate a QR code ticket.
 ```
 
 ### GET /api/tickets/{ticketId}/validate
+
 Validate ticket without marking as used.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -562,9 +610,11 @@ Validate ticket without marking as used.
 ## Real-time Features
 
 ### POST /api/chat/send
+
 Send a chat message.
 
 **Request Body:**
+
 ```json
 {
   "receiverId": "shop123",
@@ -575,13 +625,16 @@ Send a chat message.
 ```
 
 ### GET /api/chat/history
+
 Get chat message history.
 
 **Query Parameters:**
+
 - `partnerId`: Chat partner ID (shop or user)
 - `limit` (optional): Number of messages to retrieve
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -604,9 +657,11 @@ Get chat message history.
 ## Notifications
 
 ### POST /api/notifications/send
+
 Send a notification (Admin only).
 
 **Request Body:**
+
 ```json
 {
   "userId": "user123",
@@ -621,9 +676,11 @@ Send a notification (Admin only).
 ```
 
 ### GET /api/notifications
+
 Get user notifications.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -645,9 +702,11 @@ Get user notifications.
 ```
 
 ### PUT /api/notifications/{notificationId}/read
+
 Mark notification as read.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -658,32 +717,35 @@ Mark notification as read.
 ## Admin Endpoints
 
 ### GET /api/admin/analytics
+
 Get admin dashboard analytics.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
   "data": {
     "overview": {
       "totalUsers": 1250,
-      "totalRevenue": 125000.50,
+      "totalRevenue": 125000.5,
       "totalGames": 45,
       "activeGames": 12
     },
     "charts": {
       "revenueByMonth": [
-        {"month": "Jan", "revenue": 15000},
-        {"month": "Feb", "revenue": 18000}
+        { "month": "Jan", "revenue": 15000 },
+        { "month": "Feb", "revenue": 18000 }
       ],
       "usersByMonth": [
-        {"month": "Jan", "users": 100},
-        {"month": "Feb", "users": 150}
+        { "month": "Jan", "users": 100 },
+        { "month": "Feb", "users": 150 }
       ]
     }
   }
@@ -691,9 +753,11 @@ Authorization: Bearer <admin-token>
 ```
 
 ### POST /api/admin/vendors/approve
+
 Approve vendor application.
 
 **Request Body:**
+
 ```json
 {
   "userId": "user123",
@@ -703,9 +767,11 @@ Approve vendor application.
 ```
 
 ### GET /api/admin/scan-events
+
 Get QR scan event logs.
 
 **Query Parameters:**
+
 - `page` (optional): Page number
 - `limit` (optional): Items per page
 - `startDate` (optional): Filter by start date
@@ -713,6 +779,7 @@ Get QR scan event logs.
 - `result` (optional): Filter by scan result
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -734,20 +801,20 @@ Get QR scan event logs.
 
 ## Error Codes
 
-| Code | Description |
-|------|-------------|
-| `AUTH_REQUIRED` | Authentication required |
-| `INVALID_TOKEN` | Invalid or expired JWT token |
-| `INSUFFICIENT_PERMISSIONS` | User lacks required permissions |
-| `VALIDATION_ERROR` | Request validation failed |
-| `NOT_FOUND` | Resource not found |
-| `ALREADY_EXISTS` | Resource already exists |
-| `RATE_LIMIT_EXCEEDED` | Too many requests |
-| `PAYMENT_FAILED` | Payment processing failed |
-| `TICKET_INVALID` | Invalid ticket or QR code |
-| `GAME_CLOSED` | Game is no longer accepting participants |
-| `INSUFFICIENT_FUNDS` | User has insufficient funds |
-| `SERVER_ERROR` | Internal server error |
+| Code                       | Description                              |
+| -------------------------- | ---------------------------------------- |
+| `AUTH_REQUIRED`            | Authentication required                  |
+| `INVALID_TOKEN`            | Invalid or expired JWT token             |
+| `INSUFFICIENT_PERMISSIONS` | User lacks required permissions          |
+| `VALIDATION_ERROR`         | Request validation failed                |
+| `NOT_FOUND`                | Resource not found                       |
+| `ALREADY_EXISTS`           | Resource already exists                  |
+| `RATE_LIMIT_EXCEEDED`      | Too many requests                        |
+| `PAYMENT_FAILED`           | Payment processing failed                |
+| `TICKET_INVALID`           | Invalid ticket or QR code                |
+| `GAME_CLOSED`              | Game is no longer accepting participants |
+| `INSUFFICIENT_FUNDS`       | User has insufficient funds              |
+| `SERVER_ERROR`             | Internal server error                    |
 
 ## Rate Limiting
 
@@ -759,6 +826,7 @@ API endpoints are rate limited to prevent abuse:
 - Scan endpoints: 50 requests per minute per user
 
 Rate limit headers are included in responses:
+
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 99
@@ -768,9 +836,11 @@ X-RateLimit-Reset: 1704067260
 ## Webhooks
 
 ### Payment Webhooks
+
 Configure webhook URLs to receive payment status updates:
 
 **POST /api/webhooks/payment**
+
 ```json
 {
   "event": "payment.completed",
@@ -783,9 +853,11 @@ Configure webhook URLs to receive payment status updates:
 ```
 
 ### Game Webhooks
+
 Receive game status updates:
 
 **POST /api/webhooks/game**
+
 ```json
 {
   "event": "game.ended",
@@ -798,11 +870,12 @@ Receive game status updates:
 ## SDK Examples
 
 ### JavaScript/TypeScript
+
 ```javascript
 // Initialize API client
 const apiClient = new LotteryAPI({
   baseUrl: 'https://your-app.vercel.app/api',
-  token: 'your-jwt-token'
+  token: 'your-jwt-token',
 });
 
 // Get user profile
@@ -811,17 +884,18 @@ const profile = await apiClient.users.getProfile();
 // Purchase game ticket
 const ticket = await apiClient.games.participate({
   gameId: 'game123',
-  quantity: 1
+  quantity: 1,
 });
 
 // Scan QR code
 const scanResult = await apiClient.tickets.scan({
   ticketId: 'ticket123',
-  signature: 'hmac-signature'
+  signature: 'hmac-signature',
 });
 ```
 
 ### cURL Examples
+
 ```bash
 # Get user profile
 curl -X GET "https://your-app.vercel.app/api/users/profile" \
@@ -839,4 +913,4 @@ curl -X POST "https://your-app.vercel.app/api/orders" \
 
 ---
 
-*This API reference is automatically updated with each release. For the latest version, refer to the API documentation at `/api/docs`.*
+_This API reference is automatically updated with each release. For the latest version, refer to the API documentation at `/api/docs`._

@@ -5,11 +5,15 @@ import { auth } from '@/lib/firebase/config';
 export type PaymentMethod = 'MTN_MOMO' | 'ORANGE_MONEY';
 
 export interface PaymentRequest {
-  gameId: string;
+  gameId?: string;
+  productId?: string;
+  paymentType: 'GAME' | 'PRODUCT';
   paymentMethod: PaymentMethod;
   phoneNumber: string;
   amount: number;
   currency: string;
+  userId: string;
+  quantity?: number;
 }
 
 export interface PaymentResponse {
@@ -26,8 +30,8 @@ export type PaymentStatus =
   | 'SUCCESS'
   | 'FAILED'
   | 'CANCELLED'
-  | 'PROCESSING'
-  | 'EXPIRED';
+  | 'EXPIRED'
+  | 'PROCESSING';
 
 export interface TransactionStatusResponse {
   transactionId: string;
@@ -61,6 +65,10 @@ class SecurePaymentService {
         throw new Error('User not authenticated');
       }
 
+      // Add timeout and retry logic
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await fetch('/api/payment/initiate', {
         method: 'POST',
         headers: {
@@ -70,21 +78,42 @@ class SecurePaymentService {
           ...paymentRequest,
           userId: user.uid,
         }),
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({
+          message: `HTTP ${response.status}: ${response.statusText}`,
+        }));
         throw new Error(errorData.message || 'Payment initiation failed');
       }
 
       return await response.json();
     } catch (error) {
       console.error('Payment initiation error:', error);
+
+      // Handle specific error types
+      let errorMessage = 'Payment processing failed';
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'Payment request timed out. Please try again.';
+        } else if (
+          error.message.includes('NetworkError') ||
+          error.message.includes('fetch')
+        ) {
+          errorMessage =
+            'Network error. Please check your connection and try again.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
       return {
         success: false,
         status: 'FAILED',
-        message:
-          error instanceof Error ? error.message : 'Payment processing failed',
+        message: errorMessage,
       };
     }
   }
@@ -99,6 +128,9 @@ class SecurePaymentService {
         throw new Error('User not authenticated');
       }
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
       const response = await fetch(
         `/api/payment/status/${transactionId}?userId=${user.uid}`,
         {
@@ -106,8 +138,11 @@ class SecurePaymentService {
           headers: {
             'Content-Type': 'application/json',
           },
+          signal: controller.signal,
         }
       );
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -117,6 +152,10 @@ class SecurePaymentService {
 
       return await response.json();
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error('Transaction status check timeout:', error);
+        return null;
+      }
       console.error('Error checking transaction status:', error);
       return null;
     }

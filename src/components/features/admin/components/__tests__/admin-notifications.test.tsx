@@ -11,7 +11,9 @@ jest.mock('react-i18next');
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
-const mockUseTranslation = useTranslation as jest.MockedFunction<typeof useTranslation>;
+const mockUseTranslation = useTranslation as jest.MockedFunction<
+  typeof useTranslation
+>;
 
 const defaultUser = {
   id: '1',
@@ -109,7 +111,9 @@ describe('AdminNotificationsPage', () => {
       render(<AdminNotificationsPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Notifications Management')).toBeInTheDocument();
+        expect(
+          screen.getByText('Notifications Management')
+        ).toBeInTheDocument();
       });
     });
   });
@@ -128,8 +132,12 @@ describe('AdminNotificationsPage', () => {
       render(<AdminNotificationsPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Scheduled maintenance on Sunday at 2 AM UTC')).toBeInTheDocument();
-        expect(screen.getByText('Check out our new lottery game types!')).toBeInTheDocument();
+        expect(
+          screen.getByText('Scheduled maintenance on Sunday at 2 AM UTC')
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText('Check out our new lottery game types!')
+        ).toBeInTheDocument();
       });
     });
 
@@ -190,9 +198,9 @@ describe('AdminNotificationsPage', () => {
 
       await waitFor(() => {
         // Find view buttons (Eye icon)
-        const viewButtons = screen.getAllByRole('button').filter(button =>
-          button.querySelector('.lucide-eye')
-        );
+        const viewButtons = screen
+          .getAllByRole('button')
+          .filter(button => button.querySelector('.lucide-eye'));
 
         if (viewButtons.length > 0) {
           fireEvent.click(viewButtons[0]);
@@ -212,9 +220,9 @@ describe('AdminNotificationsPage', () => {
 
       await waitFor(() => {
         // Find edit buttons (Edit icon)
-        const editButtons = screen.getAllByRole('button').filter(button =>
-          button.querySelector('.lucide-edit')
-        );
+        const editButtons = screen
+          .getAllByRole('button')
+          .filter(button => button.querySelector('.lucide-edit'));
 
         if (editButtons.length > 0) {
           fireEvent.click(editButtons[0]);
@@ -234,9 +242,9 @@ describe('AdminNotificationsPage', () => {
 
       await waitFor(() => {
         // Find delete buttons (Trash2 icon)
-        const deleteButtons = screen.getAllByRole('button').filter(button =>
-          button.querySelector('.lucide-trash2')
-        );
+        const deleteButtons = screen
+          .getAllByRole('button')
+          .filter(button => button.querySelector('.lucide-trash2'));
 
         expect(deleteButtons.length).toBeGreaterThan(0);
       });
@@ -248,7 +256,8 @@ describe('AdminNotificationsPage', () => {
       render(<AdminNotificationsPage />);
 
       await waitFor(() => {
-        const searchInput = screen.getByPlaceholderText(/search notifications/i);
+        const searchInput =
+          screen.getByPlaceholderText(/search notifications/i);
         expect(searchInput).toBeInTheDocument();
 
         fireEvent.change(searchInput, { target: { value: 'System' } });
@@ -289,16 +298,14 @@ describe('AdminNotificationsPage', () => {
     });
   });
 
-
-
-
-
   describe('Responsive Design', () => {
     it('displays notifications in organized layout', async () => {
       render(<AdminNotificationsPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Notifications Management')).toBeInTheDocument();
+        expect(
+          screen.getByText('Notifications Management')
+        ).toBeInTheDocument();
         expect(screen.getByText('Create New')).toBeInTheDocument();
       });
     });

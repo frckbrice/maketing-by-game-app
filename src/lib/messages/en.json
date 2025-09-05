@@ -2,6 +2,7 @@
   "common": {
     "loading": "Loading...",
     "error": "An error occurred",
+    "errorMessage": "Something went wrong. Please try again.",
     "success": "Success!",
     "cancel": "Cancel",
     "save": "Save",
@@ -67,7 +68,8 @@
     "hoursLeft": "{{hours}}h left",
     "unknown": "Unknown",
     "refresh": "Refresh",
-    "export": "Export"
+    "export": "Export",
+    "reviews": "Reviews"
   },
   "notifications": {
     "title": "Notifications",
@@ -131,7 +133,9 @@
     "dashboard": "Dashboard",
     "admin": "Admin",
     "profile": "Profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "winners": "Winners",
+    "logout": "Logout"
   },
   "auth": {
     "login": {
@@ -177,7 +181,8 @@
     },
     "errors": {
       "popupBlocked": "Popup blocked by browser. Please allow popups for this site or try again.",
-      "popupBlockedInstructions": "To fix this: 1) Allow popups for this site, 2) Disable ad blockers, or 3) Try signing in again."
+      "popupBlockedInstructions": "To fix this: 1) Allow popups for this site, 2) Disable ad blockers, or 3) Try signing in again.",
+      "loginRequired": "Please log in to continue"
     }
   },
   "LocaleSwitcher": {
@@ -382,6 +387,8 @@
     "loadingGames": "Loading amazing games...",
     "gamesFound": "games found",
     "allGames": "All Games",
+    "yourGames": "Play your Games",
+    "yourGamesDescription": "Play your favorite games and win amazing prizes",
     "featuredGames": "Featured Games",
     "hotPicks": "Hot Picks",
     "chooseCategory": "Choose Your Category",
@@ -391,12 +398,40 @@
     "weeklyWinners": "🏆 Weekly Winners",
     "weeklyWinnersDescription": "Join 50,000+ happy winners who found their dream products",
     "quickPlay": "⚡ Quick Play",
+    "stats": {
+      "activeGames": "Active Games",
+      "happyPlayers": "Happy Players",
+      "prizeValue": "Prize Value",
+      "liveNow": "Live Now"
+    },
+    "vendor": {
+      "createYourOwn": "Create Your Own Lottery Games",
+      "joinPlatform": "Join our platform as a vendor and start earning by creating exciting lottery games for thousands of players worldwide!",
+      "becomeVendorToday": "Become a Vendor Today"
+    },
+    "empty": {
+      "noGamesMatch": "No games match your search",
+      "noGamesFound": "No games found",
+      "tryAdjusting": "Try adjusting your search terms or browse different categories to find amazing prizes.",
+      "noGamesAvailable": "No games are available in this category at the moment. Check back soon for new exciting prizes!",
+      "clearSearch": "Clear Search"
+    },
+    "vip": {
+      "joinVipClub": "Join Our VIP Club",
+      "exclusiveAccess": "Get exclusive access to premium games and special bonuses!",
+      "joinVip": "Join VIP"
+    },
     "quickPlayDescription": "Instant tickets, instant chances - play and win in seconds",
     "categories": {
       "all": "All Categories",
       "jackpot": "Jackpot",
       "daily": "Daily",
-      "weekly": "Weekly"
+      "weekly": "Weekly",
+      "exploreCategories": "Explore Categories",
+      "scrollLeft": "Scroll left",
+      "scrollRight": "Scroll right",
+      "game": "game",
+      "games": "games"
     },
     "ticketPrice": "Ticket Price",
     "participants": "Participants",
@@ -468,16 +503,12 @@
     "accessDenied": "Access Denied",
     "adminOnly": "This area is restricted to administrators only",
     "stats": "Statistics",
-    "users": "Users",
     "games": "Games",
-    "vendors": "Vendors",
     "analytics": "Analytics",
     "settings": "Settings",
-    "totalUsers": "Total Users",
     "totalGames": "Total Games",
     "totalWinners": "Total Winners",
     "pendingApplications": "Pending Applications",
-    "totalRevenue": "Total Revenue",
     "activeGames": "Active Games",
     "contentManagement": "Content Management",
     "userManagement": "User Management",
@@ -638,7 +669,17 @@
       "last7Days": "Last 7 Days",
       "last30Days": "Last 30 Days",
       "last90Days": "Last 90 Days",
-      "thisYear": "This Year"
+      "thisYear": "This Year",
+      "new": "New",
+      "featured": "Featured",
+      "playFor": "Play for",
+      "played": "Played",
+      "playNow": "Play Now",
+      "buyNow": "Buy Now",
+      "addToCart": "Add to Cart",
+      "outOfStock": "Out of Stock",
+      "lowStock": "Only {{count}} left",
+      "playedToday": "{{count}} people bought today"
     }
   },
   "vendor": {
@@ -650,7 +691,7 @@
     "createGame": "Create Game",
     "addProduct": "Add Product",
     "totalRevenue": "Total Revenue",
-    "monthlyRevenue": "Monthly Revenue", 
+    "monthlyRevenue": "Monthly Revenue",
     "totalItems": "Total Items",
     "totalOrders": "Total Orders",
     "shopRating": "Shop Rating",
@@ -669,7 +710,8 @@
     "gameRevenue": "Game Revenue",
     "totalParticipants": "Total Participants",
     "gameRevenueChart": "Game Revenue Trend",
-    "analytics": "Analytics"
+    "analytics": "Analytics",
+    "becomeAVendor": "Apply to Become a Vendor"
   },
   "qr": {
     "scanner": "QR Scanner",
@@ -796,7 +838,7 @@
     "price": "Price",
     "status": {
       "valid": "Valid",
-      "used": "Used", 
+      "used": "Used",
       "expired": "Expired",
       "cancelled": "Cancelled"
     },
@@ -895,7 +937,7 @@
     "addToCart": "Add to Cart",
     "outOfStock": "Out of Stock",
     "lowStock": "Only {{count}} left",
-    "playedToday": "{{count}} people played today",
+    "playedToday": "{{count}} people bought today",
     "featuredProducts": "Featured Products",
     "hotPicksHighParticipation": "Hot picks with the highest participation",
     "exploreAllProducts": "Explore All Products",
@@ -906,10 +948,49 @@
     "reviews": "Reviews",
     "noSpecifications": "No specifications available",
     "noReviews": "No reviews yet",
-    "relatedProducts": "Related Products"
+    "relatedProducts": "Related Products",
+    "shopInformationUnavailable": "Shop information unavailable",
+    "personalized": {
+      "productsYouMightLike": "Products You Might Like",
+      "personalizedRecommendations": "Curated just for you based on your preferences",
+      "basedOnYourLikes": "Based on your activity",
+      "personalizationNote": "These recommendations improve as you interact with products and shops. Like, follow, and play to get better suggestions!"
+    },
+    "followers": "Followers",
+    "specialOffers": "Special Offers",
+    "chat": "Chat",
+    "offers": "Special Offers",
+    "validUntil": "Valid Until",
+    "share": "Share",
+    "shopProducts": "Shop Products",
+    "searchProducts": "Search products...",
+    "sortBy": {
+      "newest": "Newest",
+      "popular": "Most Popular",
+      "priceLow": "Price: Low to High",
+      "priceHigh": "Price: High to Low",
+      "rating": "Highest Rated"
+    },
+    "visitShop": "Visit Shop",
+    "chatWithShop": "Chat with Shop"
   },
   "vendor": {
     "becomeAVendor": "Apply to Become a Vendor",
+    "bannerDescription": "Join thousands of successful vendors and grow your business with our innovative lottery platform",
+    "benefit1": {
+      "title": "Increase Sales",
+      "description": "Boost your product visibility and reach more customers through our engaging lottery games"
+    },
+    "benefit2": {
+      "title": "Build Community",
+      "description": "Create loyal customers and build lasting relationships with interactive marketing campaigns"
+    },
+    "benefit3": {
+      "title": "Quick Setup",
+      "description": "Get started in minutes with our easy-to-use platform and comprehensive support"
+    },
+    "activeUsers": "Active Users",
+    "getStarted": "Get Started",
     "applicationPending": "PENDING",
     "applicationUnderReview": "Your application is under review",
     "accessVendorDashboard": "Access Vendor Dashboard",
@@ -953,15 +1034,10 @@
     "descriptionPlaceholder": "Describe your lottery game and what participants can win...",
     "category": "Category",
     "selectCategory": "Select category",
-    "productsYouMightLike": "Products You Might Like",
-    "personalizedRecommendations": "Curated just for you based on your preferences",
-    "basedOnYourLikes": "Based on your activity",
-    "personalizationNote": "These recommendations improve as you interact with products and shops. Like, follow, and play to get better suggestions!",
     "followers": "followers",
     "offers": "Offers",
     "reviews": "Reviews",
     "chat": "Chat",
-    "shopProducts": "Shop Products",
     "searchProducts": "Search products...",
     "specialOffers": "Special Offers",
     "validUntil": "Valid until",
@@ -978,18 +1054,110 @@
       "priceLow": "Price: Low to High",
       "priceHigh": "Price: High to Low",
       "rating": "Highest Rated"
+    },
+    "shopStats": {
+      "products": "Products",
+      "followers": "Followers",
+      "rating": "Rating",
+      "reviews": "Reviews"
+    },
+    "shopActions": {
+      "follow": "Follow",
+      "following": "Following",
+      "chat": "Chat",
+      "share": "Share",
+      "viewShop": "View Shop"
+    },
+    "shopTabs": {
+      "products": "Products",
+      "offers": "Offers",
+      "reviews": "Reviews"
+    },
+    "shopHeader": {
+      "back": "Back",
+      "verified": "Verified Shop",
+      "totalReviews": "reviews"
+    },
+    "shopOffers": {
+      "specialOffers": "Special Offers",
+      "validUntil": "Valid until",
+      "discount": "Discount",
+      "promoCode": "Promo Code"
+    },
+    "shopReviews": {
+      "customerReviews": "Customer Reviews",
+      "verifiedPurchase": "Verified Purchase",
+      "helpful": "Helpful",
+      "report": "Report"
+    },
+    "shopProducts": {
+      "searchProducts": "Search products...",
+      "noProductsFound": "No products found",
+      "noProductsMatchSearch": "No products match your search",
+      "shopHasNoProducts": "This shop doesn't have any products yet",
+      "viewMode": {
+        "grid": "Grid View",
+        "list": "List View"
+      }
+    },
+    "topShops": {
+      "verifiedBadge": "Verified Shop",
+      "ratingLabel": "Rating",
+      "reviewsLabel": "Reviews"
+    },
+    "personalized": {
+      "productsYouMightLike": "Products You Might Like",
+      "personalizedRecommendations": "Curated just for you based on your preferences",
+      "basedOnYourLikes": "Based on your activity",
+      "personalizationNote": "These recommendations improve as you interact with products and shops. Like, follow, and play to get better suggestions!"
     }
   },
   "chat": {
     "online": "Online",
+    "connected": "Connected",
+    "connecting": "Connecting...",
+    "disconnected": "Disconnected",
     "typeMessage": "Type a message...",
-    "loginRequiredDescription": "Please log in to start chatting with shops"
+    "loginRequiredDescription": "Please log in to start chatting with shops",
+    "sendError": "Failed to send message",
+    "messageTooLong": "Message is too long. Please keep it under 1000 characters.",
+    "you": "You",
+    "shopAssistant": "Shop Assistant",
+    "autoResponse": "Thank you for your message! We have {{productCount}} amazing products in {{shopName}}. How can I help you today?",
+    "startConversation": "Start a Conversation",
+    "startConversationDescription": "Send a message to {{shopName}} and get personalized assistance with their products and services."
   },
   "error": {
     "shopNotFound": "Shop Not Found",
     "shopNotFoundDescription": "The shop you're looking for doesn't exist or has been removed.",
     "productNotFound": "Product Not Found",
-    "productNotFoundDescription": "The product you're looking for doesn't exist or has been removed."
+    "productNotFoundDescription": "The product you're looking for doesn't exist or has been removed.",
+    "somethingWentWrong": "Something went wrong",
+    "unexpectedError": "An unexpected error occurred. Please try again.",
+    "pageError": "Page Error",
+    "criticalError": "Critical Error",
+    "errorId": "Error ID",
+    "technicalDetails": "Technical Details",
+    "persistentIssue": "If this issue persists, please contact our support team.",
+    "contactSupport": "Please include this error ID when contacting support: {{errorId}}"
+  },
+  "loading": {
+    "loading": "Loading...",
+    "pleaseWait": "Please wait while we load your content",
+    "loadingShop": "Loading Shop",
+    "loadingChat": "Loading Chat",
+    "loadingProducts": "Loading Products",
+    "loadingGames": "Loading Games",
+    "preparingShopData": "Preparing shop data and products for you",
+    "connectingToChat": "Connecting to chat and loading conversation history",
+    "fetchingProducts": "Fetching the latest products and offers",
+    "loadingGameData": "Loading game data and checking availability"
+  },
+  "session": {
+    "extended": "Session extended successfully",
+    "loggedOut": "You have been logged out",
+    "expiring": "Your session is expiring soon",
+    "expired": "Your session has expired"
   },
   "product": {
     "selectSize": "Select Size",
@@ -1000,6 +1168,8 @@
     "freeShipping": "Free Shipping",
     "securePayment": "Secure Payment",
     "easyReturns": "Easy Returns",
+    "addToCart": "Add to Cart",
+    "buy": "Buy",
     "played": "played",
     "description": "Description",
     "specifications": "Specifications",
@@ -1023,6 +1193,9 @@
     "processingSubtitle": "Please wait while we process your payment",
     "success": "Payment Successful!",
     "successSubtitle": "Your lottery ticket has been generated successfully",
+    "failed": "Payment Failed",
+    "failedSubtitle": "Your payment could not be processed. Please try again.",
+    "retry": "Retry Payment",
     "ticketPrice": "Ticket Price",
     "participants": "Participants",
     "methods": {
@@ -1049,7 +1222,8 @@
       "email": "Email",
       "save": "Save",
       "playAgain": "Play Again 🎮",
-      "viewProfile": "View Profile"
+      "viewProfile": "View Profile",
+      "emailSent": "Ticket details sent to your email!"
     },
     "errors": {
       "enterPhone": "Please enter your phone number",
@@ -1059,23 +1233,48 @@
       "paymentDeclined": "Payment was declined or cancelled.",
       "paymentExpired": "Payment request expired. Please try again.",
       "paymentTimeout": "Payment timeout. Please check your phone and try again.",
-      "networkError": "Network error. Please check your connection and try again."
+      "networkError": "Network error. Please check your connection and try again.",
+      "serverError": "Payment service temporarily unavailable. Please try again later.",
+      "timeout": "Request timed out. Please try again.",
+      "maxRetriesReached": "Maximum retry attempts reached. Please contact support.",
+      "statusCheckFailed": "Unable to check payment status. Please try again.",
+      "paymentCancelled": "Payment was cancelled by user.",
+      "noTransactionId": "No transaction ID available. Please try again.",
+      "databaseOffline": "Service temporarily unavailable. Please try again in 30 seconds.",
+      "paymentNotFound": "Payment record not found. Please try initiating payment again.",
+      "checkTimeout": "Status check timed out. Please try again.",
+      "authError": "Authentication error. Please refresh the page and try again."
     },
     "status": {
       "pending": "Pending",
-      "processing": "Processing",
+      "processing": "Processing payment...",
       "success": "Success",
       "failed": "Failed",
       "cancelled": "Cancelled",
       "expired": "Expired",
-      "checking": "Checking payment status... ({attempt}/{total})"
+      "checking": "Checking payment status...",
+      "initiating": "Initiating payment...",
+      "waiting": "Waiting for payment confirmation...",
+      "stillProcessing": "Payment is still being processed",
+      "takingLong": "Payment taking longer than usual - please check status",
+      "pleaseCheck": "Please use the 'Check Status' button to verify your payment"
     },
     "notifications": {
       "initiated": "Processing {method} payment...",
       "successful": "Payment successful via {method}! Ticket generated.",
       "emailSent": "Ticket sent to your phone and email!",
-      "emailDelayed": "Ticket generated. Email delivery may be delayed."
-    }
+      "emailDelayed": "Ticket generated. Email delivery may be delayed.",
+      "statusUpdated": "Payment status updated successfully",
+      "stillProcessing": "Payment is still being processed. Please try again in a few moments.",
+      "longProcessing": "Payment is taking longer than usual. Please use the 'Check Status' button to verify.",
+      "pleaseCheck": "Please check your payment status manually by clicking 'Check Status'"
+    },
+    "retry": "Retry",
+    "checkStatus": "Check Status",
+    "failed": "Payment Failed",
+    "failedSubtitle": "Your payment could not be processed. Please try again.",
+    "manualCheck": "Manual Status Check",
+    "refreshStatus": "Refresh Payment Status"
   },
   "cart": {
     "title": "Shopping Cart",
@@ -1292,7 +1491,7 @@
     },
     "tabs": {
       "loyalty": "Loyalty",
-      "referrals": "Referrals", 
+      "referrals": "Referrals",
       "streak": "Streak",
       "badges": "Badges",
       "notifications": "Notifications"
@@ -1303,7 +1502,7 @@
       "title": "Daily Streak",
       "days": "days",
       "currentStreak": "Current Streak",
-      "longestStreak": "Longest Streak", 
+      "longestStreak": "Longest Streak",
       "toNextMilestone": "To Next Milestone",
       "checkedInToday": "Checked in today!",
       "comeBackTomorrow": "Come back tomorrow to continue your streak",
@@ -1354,7 +1553,7 @@
         "loyalty": "Loyalty"
       },
       "unknownBadge": "Unknown Badge",
-      "statistics": "Badge Statistics", 
+      "statistics": "Badge Statistics",
       "totalEarned": "Total Earned",
       "milestones": "Milestones",
       "special": "Special",
@@ -1369,5 +1568,32 @@
       "noNotifications": "No Notifications",
       "noNotificationsDescription": "Your gamification activities will appear here"
     }
+  },
+  "social": {
+    "follow": "Follow",
+    "following": "Following",
+    "followShop": "Follow Shop",
+    "followUser": "Follow User",
+    "followVendor": "Follow Vendor",
+    "unfollow": "Unfollow",
+    "followers": "Followers",
+    "like": "Like",
+    "unlike": "Unlike",
+    "chat": "Chat",
+    "contactShop": "Contact Shop",
+    "contactVendor": "Contact Vendor",
+    "message": "Message",
+    "sendMessage": "Send Message",
+    "startChatWith": "Start chat with",
+    "chatStarted": "Chat started successfully",
+    "chatError": "Failed to start chat",
+    "justNow": "Just now",
+    "hoursAgo": "{{hours}} hours ago",
+    "daysAgo": "{{days}} days ago",
+    "verified": "Verified",
+    "report": "Report",
+    "showLess": "Show less",
+    "readMore": "Read more",
+    "vendorResponse": "Vendor Response"
   }
 }

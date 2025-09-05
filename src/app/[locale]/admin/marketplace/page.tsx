@@ -5,16 +5,19 @@ import { Suspense } from 'react';
 import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
 
 const AdminMarketplaceAnalytics = dynamic(
-  () => import('@/components/features/admin/components/admin-marketplace-analytics').then(mod => ({ default: mod.AdminMarketplaceAnalytics })),
+  () =>
+    import(
+      '@/components/features/admin/components/admin-marketplace-analytics'
+    ).then(mod => ({ default: mod.AdminMarketplaceAnalytics })),
   {
-    loading: () => <LoadingSkeleton type="dashboard" />,
-    ssr: false
+    loading: () => <LoadingSkeleton type='dashboard' />,
+    ssr: false,
   }
 );
 
 export default function MarketplacePage() {
   return (
-    <Suspense fallback={<LoadingSkeleton type="dashboard" />}>
+    <Suspense fallback={<LoadingSkeleton type='dashboard' />}>
       <AdminMarketplaceAnalytics />
     </Suspense>
   );

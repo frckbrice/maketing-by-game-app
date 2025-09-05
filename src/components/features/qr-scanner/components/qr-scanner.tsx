@@ -2,11 +2,22 @@
 
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, Camera, CheckCircle, Upload, X, XCircle } from 'lucide-react';
+import {
+  AlertCircle,
+  Camera,
+  CheckCircle,
+  Upload,
+  X,
+  XCircle,
+} from 'lucide-react';
 import jsQR from 'jsqr';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useManualQREntry, useManualTicketValidation, useScanQRCode } from '../api/mutations';
+import {
+  useManualQREntry,
+  useManualTicketValidation,
+  useScanQRCode,
+} from '../api/mutations';
 import type { ScanResult } from '../api/types';
 
 interface QRScannerProps {
@@ -18,7 +29,7 @@ interface QRScannerProps {
 export const QRScanner: React.FC<QRScannerProps> = ({
   onScanResult,
   onClose,
-  scannerType
+  scannerType,
 }) => {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -44,8 +55,8 @@ export const QRScanner: React.FC<QRScannerProps> = ({
         video: {
           width: { ideal: 1280 },
           height: { ideal: 720 },
-          facingMode: 'environment' // Use back camera on mobile
-        }
+          facingMode: 'environment', // Use back camera on mobile
+        },
       });
 
       if (videoRef.current) {
@@ -85,11 +96,13 @@ export const QRScanner: React.FC<QRScannerProps> = ({
       };
 
       const result = await scanQRCodeMutation.mutateAsync(scanRequest);
-      setScanResult(result.data || {
-        success: false,
-        result: 'INVALID',
-        message: 'Scan failed',
-      });
+      setScanResult(
+        result.data || {
+          success: false,
+          result: 'INVALID',
+          message: 'Scan failed',
+        }
+      );
 
       if (result.success) {
         onScanResult(qrData);
@@ -108,7 +121,8 @@ export const QRScanner: React.FC<QRScannerProps> = ({
 
   // Scan QR from video frame
   const scanFromVideo = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current || !isScanning || isProcessing) return;
+    if (!videoRef.current || !canvasRef.current || !isScanning || isProcessing)
+      return;
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -130,7 +144,9 @@ export const QRScanner: React.FC<QRScannerProps> = ({
   }, [isScanning, isProcessing]);
 
   // Handle file upload
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -155,7 +171,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
 
       // Create image element and load the uploaded file
       const img = new Image();
-      
+
       const imageLoadPromise = new Promise<void>((resolve, reject) => {
         img.onload = () => resolve();
         img.onerror = () => reject(new Error('Failed to load image'));
@@ -167,10 +183,10 @@ export const QRScanner: React.FC<QRScannerProps> = ({
       // Set canvas dimensions to match image
       canvas.width = img.width;
       canvas.height = img.height;
-      
+
       // Draw image to canvas
       context.drawImage(img, 0, 0);
-      
+
       // Extract image data and scan for QR code
       const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
       const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
@@ -214,13 +230,15 @@ export const QRScanner: React.FC<QRScannerProps> = ({
         scannerType: scannerType,
         vendorId: scannerType === 'vendor' ? undefined : undefined, // Could be set based on user context
       });
-      
-      setScanResult(result.data || {
-        success: false,
-        result: 'INVALID',
-        message: 'Manual validation failed',
-      });
-      
+
+      setScanResult(
+        result.data || {
+          success: false,
+          result: 'INVALID',
+          message: 'Manual validation failed',
+        }
+      );
+
       if (result.success) {
         onScanResult(manualInputValue.trim());
         setShowManualInput(false);
@@ -241,7 +259,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
   // Format input as user types (for better UX)
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.toUpperCase();
-    
+
     // Auto-format as XXX-XXX for 6 digit numbers
     if (value.length === 3 && !value.includes('-')) {
       value = value + '-';
@@ -249,7 +267,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
       // Remove extra characters beyond XXX-XXX format
       value = value.substring(0, 7);
     }
-    
+
     setManualInputValue(value);
     setInputError(null);
   };
@@ -271,14 +289,14 @@ export const QRScanner: React.FC<QRScannerProps> = ({
     switch (result) {
       case 'VALIDATED':
       case 'VALID':
-        return <CheckCircle className="w-16 h-16 text-green-500" />;
+        return <CheckCircle className='w-16 h-16 text-green-500' />;
       case 'ALREADY_USED':
-        return <AlertCircle className="w-16 h-16 text-yellow-500" />;
+        return <AlertCircle className='w-16 h-16 text-yellow-500' />;
       case 'EXPIRED':
       case 'INVALID':
-        return <XCircle className="w-16 h-16 text-red-500" />;
+        return <XCircle className='w-16 h-16 text-red-500' />;
       default:
-        return <AlertCircle className="w-16 h-16 text-gray-500" />;
+        return <AlertCircle className='w-16 h-16 text-gray-500' />;
     }
   };
 
@@ -299,54 +317,53 @@ export const QRScanner: React.FC<QRScannerProps> = ({
 
   if (scanResult) {
     return (
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader className="flex items-center justify-between">
-          <CardTitle className="flex items-center space-x-2">
+      <Card className='w-full max-w-md mx-auto'>
+        <CardHeader className='flex items-center justify-between'>
+          <CardTitle className='flex items-center space-x-2'>
             <span>{t('qr.scanResult')}</span>
           </CardTitle>
           {onClose && (
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="w-4 h-4" />
+            <Button variant='ghost' size='sm' onClick={onClose}>
+              <X className='w-4 h-4' />
             </Button>
           )}
         </CardHeader>
-        <CardContent className="text-center space-y-4">
+        <CardContent className='text-center space-y-4'>
           {getResultIcon(scanResult.result)}
 
           <div>
-            <h3 className={`text-lg font-semibold ${getResultColor(scanResult.result)}`}>
+            <h3
+              className={`text-lg font-semibold ${getResultColor(scanResult.result)}`}
+            >
               {scanResult.message}
             </h3>
             {scanResult.ticketId && (
-              <p className="text-sm text-gray-500 mt-2">
+              <p className='text-sm text-gray-500 mt-2'>
                 {t('qr.ticketId')}: {scanResult.ticketId}
               </p>
             )}
           </div>
 
           {scanResult.coupon && (
-            <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg">
-              <h4 className="font-semibold text-orange-800 dark:text-orange-200">
+            <div className='bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg'>
+              <h4 className='font-semibold text-orange-800 dark:text-orange-200'>
                 {t('qr.couponAvailable')}
               </h4>
-              <p className="text-orange-700 dark:text-orange-300">
+              <p className='text-orange-700 dark:text-orange-300'>
                 {scanResult.coupon.amountOff}% {t('qr.discount')}
               </p>
-              <p className="text-sm text-orange-600 dark:text-orange-400">
+              <p className='text-sm text-orange-600 dark:text-orange-400'>
                 {t('qr.code')}: {scanResult.coupon.code}
               </p>
             </div>
           )}
 
-          <div className="flex space-x-2">
-            <Button
-              onClick={() => setScanResult(null)}
-              className="flex-1"
-            >
+          <div className='flex space-x-2'>
+            <Button onClick={() => setScanResult(null)} className='flex-1'>
               {t('qr.scanAnother')}
             </Button>
             {onClose && (
-              <Button variant="outline" onClick={onClose} className="flex-1">
+              <Button variant='outline' onClick={onClose} className='flex-1'>
                 {t('common.close')}
               </Button>
             )}
@@ -357,31 +374,33 @@ export const QRScanner: React.FC<QRScannerProps> = ({
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="flex items-center justify-between">
-        <CardTitle className="flex items-center space-x-2">
-          <Camera className="w-5 h-5" />
+    <Card className='w-full max-w-md mx-auto'>
+      <CardHeader className='flex items-center justify-between'>
+        <CardTitle className='flex items-center space-x-2'>
+          <Camera className='w-5 h-5' />
           <span>
-            {scannerType === 'vendor' ? t('qr.vendorScanner') : t('qr.playerScanner')}
+            {scannerType === 'vendor'
+              ? t('qr.vendorScanner')
+              : t('qr.playerScanner')}
           </span>
         </CardTitle>
         {onClose && (
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="w-4 h-4" />
+          <Button variant='ghost' size='sm' onClick={onClose}>
+            <X className='w-4 h-4' />
           </Button>
         )}
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className='space-y-4'>
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
-            <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+          <div className='bg-red-50 dark:bg-red-900/20 p-3 rounded-lg'>
+            <p className='text-red-600 dark:text-red-400 text-sm'>{error}</p>
           </div>
         )}
 
         {isProcessing && (
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-2"></div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+          <div className='text-center'>
+            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-2'></div>
+            <p className='text-sm text-gray-600 dark:text-gray-400'>
               {t('qr.processing')}
             </p>
           </div>
@@ -389,29 +408,29 @@ export const QRScanner: React.FC<QRScannerProps> = ({
 
         {!isScanning && !isProcessing && (
           <>
-            <div className="space-y-2">
+            <div className='space-y-2'>
               <Button
                 onClick={initializeCamera}
                 disabled={!navigator.mediaDevices}
-                className="w-full"
+                className='w-full'
               >
-                <Camera className="w-4 h-4 mr-2" />
+                <Camera className='w-4 h-4 mr-2' />
                 {t('qr.startCamera')}
               </Button>
 
               <Button
                 onClick={() => fileInputRef.current?.click()}
-                variant="outline"
-                className="w-full"
+                variant='outline'
+                className='w-full'
               >
-                <Upload className="w-4 h-4 mr-2" />
+                <Upload className='w-4 h-4 mr-2' />
                 {t('qr.uploadImage')}
               </Button>
 
               <Button
                 onClick={() => setShowManualInput(!showManualInput)}
-                variant="outline"
-                className="w-full"
+                variant='outline'
+                className='w-full'
               >
                 {t('qr.manualEntry')}
               </Button>
@@ -419,52 +438,52 @@ export const QRScanner: React.FC<QRScannerProps> = ({
 
             <input
               ref={fileInputRef}
-              type="file"
-              accept="image/*"
+              type='file'
+              accept='image/*'
               onChange={handleFileUpload}
-              className="hidden"
+              className='hidden'
             />
 
             {/* Manual Input Interface */}
             {showManualInput && (
-              <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg space-y-3">
+              <div className='bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg space-y-3'>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                     {t('qr.enterTicketNumber')}
                   </label>
                   <input
-                    type="text"
+                    type='text'
                     value={manualInputValue}
                     onChange={handleInputChange}
                     placeholder={t('qr.ticketNumberPlaceholder')}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent text-center font-mono text-lg"
+                    className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent text-center font-mono text-lg'
                     maxLength={20}
                     disabled={isProcessing}
                   />
                   {inputError && (
-                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    <p className='mt-1 text-sm text-red-600 dark:text-red-400'>
                       {inputError}
                     </p>
                   )}
                 </div>
 
-                <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                <div className='text-xs text-gray-600 dark:text-gray-400 space-y-1'>
                   <p>{t('qr.acceptedFormats')}:</p>
-                  <ul className="list-disc list-inside space-y-1">
+                  <ul className='list-disc list-inside space-y-1'>
                     <li>{t('qr.formatSimple')}: 123-456</li>
                     <li>{t('qr.formatReadable')}: LT-2024-ABC123</li>
                     <li>{t('qr.formatNumbers')}: 123456</li>
                   </ul>
                 </div>
 
-                <div className="flex space-x-2">
+                <div className='flex space-x-2'>
                   <Button
                     onClick={handleManualSubmit}
                     disabled={!manualInputValue.trim() || isProcessing}
-                    className="flex-1"
+                    className='flex-1'
                   >
                     {isProcessing ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
                     ) : null}
                     {t('qr.validateTicket')}
                   </Button>
@@ -474,7 +493,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
                       setManualInputValue('');
                       setInputError(null);
                     }}
-                    variant="outline"
+                    variant='outline'
                     disabled={isProcessing}
                   >
                     {t('common.cancel')}
@@ -486,31 +505,31 @@ export const QRScanner: React.FC<QRScannerProps> = ({
         )}
 
         {isScanning && (
-          <div className="relative">
+          <div className='relative'>
             <video
               ref={videoRef}
               autoPlay
               playsInline
-              className="w-full rounded-lg"
+              className='w-full rounded-lg'
             />
-            <div className="absolute inset-0 border-2 border-orange-500 rounded-lg"></div>
-            <div className="absolute top-2 left-2 right-2">
-              <div className="bg-black/50 text-white p-2 rounded text-center">
-                <p className="text-sm">{t('qr.pointCamera')}</p>
+            <div className='absolute inset-0 border-2 border-orange-500 rounded-lg'></div>
+            <div className='absolute top-2 left-2 right-2'>
+              <div className='bg-black/50 text-white p-2 rounded text-center'>
+                <p className='text-sm'>{t('qr.pointCamera')}</p>
               </div>
             </div>
             <Button
               onClick={stopCamera}
-              variant="destructive"
-              size="sm"
-              className="absolute bottom-2 left-1/2 transform -translate-x-1/2"
+              variant='destructive'
+              size='sm'
+              className='absolute bottom-2 left-1/2 transform -translate-x-1/2'
             >
               {t('qr.stopScanning')}
             </Button>
           </div>
         )}
 
-        <canvas ref={canvasRef} className="hidden" />
+        <canvas ref={canvasRef} className='hidden' />
       </CardContent>
     </Card>
   );

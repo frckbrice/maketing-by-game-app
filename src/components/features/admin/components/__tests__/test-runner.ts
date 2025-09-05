@@ -15,13 +15,13 @@ const testConfig = {
 export async function runAdminTests() {
   try {
     console.log('🚀 Starting admin component tests...');
-    
+
     // Run tests with configuration
     const results = await runTests(testConfig);
-    
+
     console.log('✅ Admin component tests completed!');
     console.log('📊 Test Results:', results);
-    
+
     return results;
   } catch (error) {
     console.error('❌ Error running admin component tests:', error);
@@ -33,14 +33,14 @@ export async function runAdminTests() {
 export async function runTestSuite(suiteName: string) {
   try {
     console.log(`🚀 Starting ${suiteName} tests...`);
-    
+
     const specificConfig = {
       ...testConfig,
       testNamePattern: suiteName,
     };
-    
+
     const results = await runTests(specificConfig);
-    
+
     console.log(`✅ ${suiteName} tests completed!`);
     return results;
   } catch (error) {
@@ -66,7 +66,7 @@ export const testUtils = {
     updateProfile: jest.fn(),
     deleteAccount: jest.fn(),
   }),
-  
+
   mockRouter: () => ({
     push: jest.fn(),
     replace: jest.fn(),
@@ -75,11 +75,11 @@ export const testUtils = {
     forward: jest.fn(),
     refresh: jest.fn(),
   }),
-  
+
   mockTranslation: () => ({
     t: (key: string, fallback?: string) => fallback || key,
   }),
-  
+
   createMockUser: (role: 'ADMIN' | 'USER' | 'VENDOR' = 'ADMIN') => ({
     id: '1',
     firstName: 'Test',

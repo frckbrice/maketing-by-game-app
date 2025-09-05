@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 
-const SECRET_KEY = process.env.QR_SECRET_KEY || 'default-secret-key-change-in-production';
+const SECRET_KEY =
+  process.env.QR_SECRET_KEY || 'default-secret-key-change-in-production';
 
 export interface QRPayload {
   ticketId: string;
@@ -24,7 +25,7 @@ export function generateQRHash(ticketId: string, issuedAt?: number): string {
 export function generateQRPayload(ticketId: string): QRPayload {
   const issuedAt = Date.now();
   const hash = generateQRHash(ticketId, issuedAt);
-  
+
   return {
     ticketId,
     hash,
@@ -35,7 +36,11 @@ export function generateQRPayload(ticketId: string): QRPayload {
 /**
  * Verify QR code hash
  */
-export function verifyQRHash(ticketId: string, hash: string, issuedAt: number): boolean {
+export function verifyQRHash(
+  ticketId: string,
+  hash: string,
+  issuedAt: number
+): boolean {
   const expectedHash = generateQRHash(ticketId, issuedAt);
   return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(expectedHash));
 }
@@ -54,12 +59,12 @@ export function generateQRCodeData(ticketId: string): string {
 export function parseQRCodeData(qrData: string): QRPayload | null {
   try {
     const payload = JSON.parse(qrData) as QRPayload;
-    
+
     // Validate required fields
     if (!payload.ticketId || !payload.hash || !payload.issuedAt) {
       return null;
     }
-    
+
     return payload;
   } catch (error) {
     console.error('Error parsing QR code data:', error);
@@ -75,15 +80,15 @@ export function validateQRPayload(payload: QRPayload): boolean {
   if (!verifyQRHash(payload.ticketId, payload.hash, payload.issuedAt)) {
     return false;
   }
-  
+
   // Check if QR code is not too old (24 hours)
   const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   const age = Date.now() - payload.issuedAt;
-  
+
   if (age > maxAge) {
     return false;
   }
-  
+
   return true;
 }
 
@@ -91,7 +96,10 @@ export function validateQRPayload(payload: QRPayload): boolean {
  * Generate HMAC signature for API requests
  */
 export function generateHMACSignature(data: string): string {
-  return crypto.createHmac('sha256', SECRET_KEY).update(data).digest('base64url');
+  return crypto
+    .createHmac('sha256', SECRET_KEY)
+    .update(data)
+    .digest('base64url');
 }
 
 /**
@@ -99,5 +107,8 @@ export function generateHMACSignature(data: string): string {
  */
 export function verifyHMACSignature(data: string, signature: string): boolean {
   const expectedSignature = generateHMACSignature(data);
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expectedSignature)
+  );
 }

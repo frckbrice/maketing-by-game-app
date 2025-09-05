@@ -7,20 +7,26 @@ export async function GET(request: NextRequest) {
     const user = await requireAuth(request);
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '20');
-    
-    const notifications = await gamificationService.getUserNotifications(user.id, limit);
-    
+
+    const notifications = await gamificationService.getUserNotifications(
+      user.id,
+      limit
+    );
+
     return NextResponse.json({
       success: true,
       notifications,
     });
   } catch (error) {
     console.error('Error fetching gamification notifications:', error);
-    
-    if (error instanceof Error && error.message.includes('Authentication required')) {
+
+    if (
+      error instanceof Error &&
+      error.message.includes('Authentication required')
+    ) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -41,8 +47,9 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const success = await gamificationService.markNotificationAsRead(notificationId);
-    
+    const success =
+      await gamificationService.markNotificationAsRead(notificationId);
+
     if (success) {
       return NextResponse.json({
         success: true,

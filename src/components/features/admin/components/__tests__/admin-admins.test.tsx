@@ -25,13 +25,45 @@ const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 
 describe('AdminAdminsPage', () => {
   const defaultUser = {
-    id: '1', firstName: 'Admin', lastName: 'User', email: 'admin@example.com', role: 'ADMIN' as const,
-    createdAt: Date.now(), updatedAt: Date.now(), status: 'ACTIVE' as const, emailVerified: true,
-    phoneVerified: false, socialMedia: {}, phoneNumber: undefined, avatar: undefined,
-    preferences: { language: 'en', theme: 'light' as const, notifications: true, emailUpdates: true, smsUpdates: false, timezone: 'UTC', currency: 'USD', },
+    id: '1',
+    firstName: 'Admin',
+    lastName: 'User',
+    email: 'admin@example.com',
+    role: 'ADMIN' as const,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    status: 'ACTIVE' as const,
+    emailVerified: true,
+    phoneVerified: false,
+    socialMedia: {},
+    phoneNumber: undefined,
+    avatar: undefined,
+    preferences: {
+      language: 'en',
+      theme: 'light' as const,
+      notifications: true,
+      emailUpdates: true,
+      smsUpdates: false,
+      timezone: 'UTC',
+      currency: 'USD',
+    },
     twoFactorEnabled: false,
-    notificationSettings: { email: true, sms: false, push: true, inApp: true, marketing: false, gameUpdates: true, winnerAnnouncements: true, },
-    privacySettings: { profileVisibility: 'public' as const, showEmail: false, showPhone: false, allowContact: true, dataSharing: false, },
+    notificationSettings: {
+      email: true,
+      sms: false,
+      push: true,
+      inApp: true,
+      marketing: false,
+      gameUpdates: true,
+      winnerAnnouncements: true,
+    },
+    privacySettings: {
+      profileVisibility: 'public' as const,
+      showEmail: false,
+      showPhone: false,
+      allowContact: true,
+      dataSharing: false,
+    },
   };
 
   const mockAdmins = [
@@ -273,7 +305,9 @@ describe('AdminAdminsPage', () => {
 
       // The modal doesn't have a cancel button in the current implementation
       // but we can test that it's properly rendered
-      expect(screen.getByText('Admin creation form will be implemented here.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Admin creation form will be implemented here.')
+      ).toBeInTheDocument();
     });
   });
 
@@ -320,7 +354,9 @@ describe('AdminAdminsPage', () => {
       await waitFor(() => {
         // Check that the admin management header is displayed
         expect(screen.getByText('Admin Management')).toBeInTheDocument();
-        expect(screen.getByText('Manage system administrators and their permissions')).toBeInTheDocument();
+        expect(
+          screen.getByText('Manage system administrators and their permissions')
+        ).toBeInTheDocument();
       });
     });
   });

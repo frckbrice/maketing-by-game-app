@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/lib/contexts/AuthContext';
 
-
 import {
   AlertCircle,
   Building2,
@@ -440,7 +439,9 @@ export function AdminVendorApplicationsPage() {
             {/* Modal Header */}
             <div className='sticky top-0 bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 sm:p-6 rounded-t-2xl sm:rounded-t-3xl'>
               <div className='flex items-center justify-between'>
-                <h2 className='text-xl sm:text-2xl font-bold'>Application Details</h2>
+                <h2 className='text-xl sm:text-2xl font-bold'>
+                  Application Details
+                </h2>
                 <button
                   onClick={() => setShowDetailsModal(false)}
                   className='w-8 h-8 sm:w-10 sm:h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors'
@@ -571,11 +572,15 @@ export function AdminVendorApplicationsPage() {
                           onClick={() => {
                             // Create a new window to view the certificate
                             if (selectedApplication.businessCertificateUrl) {
-                              const newWindow = window.open(selectedApplication.businessCertificateUrl, '_blank');
+                              const newWindow = window.open(
+                                selectedApplication.businessCertificateUrl,
+                                '_blank'
+                              );
                               if (!newWindow) {
                                 // If popup is blocked, try downloading
                                 const link = document.createElement('a');
-                                link.href = selectedApplication.businessCertificateUrl;
+                                link.href =
+                                  selectedApplication.businessCertificateUrl;
                                 link.download = `${selectedApplication.companyName}_certificate`;
                                 document.body.appendChild(link);
                                 link.click();
@@ -595,7 +600,8 @@ export function AdminVendorApplicationsPage() {
                             // Download the certificate
                             if (selectedApplication.businessCertificateUrl) {
                               const link = document.createElement('a');
-                              link.href = selectedApplication.businessCertificateUrl;
+                              link.href =
+                                selectedApplication.businessCertificateUrl;
                               link.download = `${selectedApplication.companyName}_certificate`;
                               document.body.appendChild(link);
                               link.click();

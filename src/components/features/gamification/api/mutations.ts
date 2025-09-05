@@ -8,7 +8,7 @@ import {
   LoyaltyProfileResponse,
   ReferralProfileResponse,
   StreakResponse,
-  BadgesResponse
+  BadgesResponse,
 } from './types';
 
 const API_BASE = '/api/gamification';
@@ -18,16 +18,18 @@ const postWithAuth = async (url: string, body: any) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
     },
     body: JSON.stringify(body),
   });
-  
+
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+    throw new Error(
+      errorData.error || `HTTP ${response.status}: ${response.statusText}`
+    );
   }
-  
+
   return response.json();
 };
 
@@ -36,16 +38,18 @@ const patchWithAuth = async (url: string, body: any) => {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
     },
     body: JSON.stringify(body),
   });
-  
+
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+    throw new Error(
+      errorData.error || `HTTP ${response.status}: ${response.statusText}`
+    );
   }
-  
+
   return response.json();
 };
 
@@ -55,8 +59,10 @@ export const useGamificationMutations = (userId?: string) => {
   const awardPointsMutation = useMutation({
     mutationFn: (data: AwardPointsRequest): Promise<LoyaltyProfileResponse> =>
       postWithAuth(`${API_BASE}/loyalty`, data),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['gamification', 'loyalty', userId] });
+    onSuccess: data => {
+      queryClient.invalidateQueries({
+        queryKey: ['gamification', 'loyalty', userId],
+      });
       if (data.success && data.profile) {
         toast.success(`${data.profile.currentBalance} points awarded!`);
       }
@@ -69,8 +75,10 @@ export const useGamificationMutations = (userId?: string) => {
   const generateReferralCodeMutation = useMutation({
     mutationFn: (data: GenerateReferralCodeRequest) =>
       postWithAuth(`${API_BASE}/referrals`, data),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['gamification', 'referrals', userId] });
+    onSuccess: data => {
+      queryClient.invalidateQueries({
+        queryKey: ['gamification', 'referrals', userId],
+      });
       if (data.success && data.referralCode) {
         toast.success('Referral code generated!');
       }
@@ -83,9 +91,13 @@ export const useGamificationMutations = (userId?: string) => {
   const applyReferralMutation = useMutation({
     mutationFn: (data: ApplyReferralRequest) =>
       postWithAuth(`${API_BASE}/referrals`, data),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['gamification', 'referrals', userId] });
-      queryClient.invalidateQueries({ queryKey: ['gamification', 'loyalty', userId] });
+    onSuccess: data => {
+      queryClient.invalidateQueries({
+        queryKey: ['gamification', 'referrals', userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['gamification', 'loyalty', userId],
+      });
       if (data.success) {
         toast.success(data.message || 'Referral applied successfully!');
       }
@@ -98,12 +110,23 @@ export const useGamificationMutations = (userId?: string) => {
   const updateStreakMutation = useMutation({
     mutationFn: (): Promise<StreakResponse> =>
       postWithAuth(`${API_BASE}/streak`, {}),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['gamification', 'streak', userId] });
-      queryClient.invalidateQueries({ queryKey: ['gamification', 'loyalty', userId] });
-      
-      if (data.success && data.streakUpdated && data.pointsAwarded && data.pointsAwarded > 0) {
-        toast.success(`Daily streak updated! +${data.pointsAwarded} points earned`);
+    onSuccess: data => {
+      queryClient.invalidateQueries({
+        queryKey: ['gamification', 'streak', userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['gamification', 'loyalty', userId],
+      });
+
+      if (
+        data.success &&
+        data.streakUpdated &&
+        data.pointsAwarded &&
+        data.pointsAwarded > 0
+      ) {
+        toast.success(
+          `Daily streak updated! +${data.pointsAwarded} points earned`
+        );
       }
     },
     onError: (error: Error) => {
@@ -115,10 +138,14 @@ export const useGamificationMutations = (userId?: string) => {
   const checkBadgesMutation = useMutation({
     mutationFn: (): Promise<BadgesResponse> =>
       postWithAuth(`${API_BASE}/badges`, {}),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['gamification', 'badges', userId] });
-      queryClient.invalidateQueries({ queryKey: ['gamification', 'notifications', userId] });
-      
+    onSuccess: data => {
+      queryClient.invalidateQueries({
+        queryKey: ['gamification', 'badges', userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['gamification', 'notifications', userId],
+      });
+
       if (data.success && data.newBadges && data.newBadges.length > 0) {
         toast.success(`🎉 You earned ${data.newBadges.length} new badge(s)!`);
       }
@@ -133,7 +160,9 @@ export const useGamificationMutations = (userId?: string) => {
     mutationFn: (data: MarkNotificationReadRequest) =>
       patchWithAuth(`${API_BASE}/notifications`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['gamification', 'notifications', userId] });
+      queryClient.invalidateQueries({
+        queryKey: ['gamification', 'notifications', userId],
+      });
     },
     onError: (error: Error) => {
       console.error('Mark notification read error:', error);

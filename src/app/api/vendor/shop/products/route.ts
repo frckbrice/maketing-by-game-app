@@ -20,19 +20,19 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
 
     // Fetch vendor's products
-    const products = await firestoreService.getProducts({ 
-      shopId: vendorShop.id, 
-      limit 
+    const products = await firestoreService.getProducts({
+      shopId: vendorShop.id,
+      limit,
     });
 
     return NextResponse.json(products);
   } catch (error) {
     console.error('Error fetching vendor products:', error);
-    
+
     if (error instanceof Error && error.message.includes('required')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -69,16 +69,19 @@ export async function POST(request: NextRequest) {
       updatedAt: Date.now(),
     };
 
-    const productId = await firestoreService.createDocumentWithTimestamps('products', newProduct);
+    const productId = await firestoreService.createDocumentWithTimestamps(
+      'products',
+      newProduct
+    );
 
     return NextResponse.json({ id: productId, ...newProduct });
   } catch (error) {
     console.error('Error creating product:', error);
-    
+
     if (error instanceof Error && error.message.includes('required')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

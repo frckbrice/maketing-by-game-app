@@ -61,3 +61,4 @@ lighthouse-*.json
 FIREBASE_*.md
 firebase-*.log
 docs/database/FIREBASE_INDEXES_URGENT.md
+test-payment.js

@@ -5,7 +5,7 @@ import {
   setPersistence,
 } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
-import { getFirestore } from 'firebase/firestore';
+import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore';
 // import { getAnalytics, isSupported } from 'firebase/analytics';
 // import { getMessaging, isSupported } from 'firebase/messaging';
 import { getStorage } from 'firebase/storage';
@@ -35,11 +35,31 @@ if (getApps().length === 0) {
   app = getApp();
 }
 
-// Initialize Firebase services
+// Initialize Firebase services with better error handling
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const database = getDatabase(app);
 export const storage = getStorage(app);
+
+// Configure Firestore settings for better performance and reliability
+if (typeof window !== 'undefined') {
+  // Client-side only configurations
+  try {
+    // Enable offline persistence and network resilience
+    import('firebase/firestore').then(({ enableNetwork, disableNetwork }) => {
+      // Handle network connectivity gracefully
+      window.addEventListener('online', () => {
+        enableNetwork(db).catch(console.warn);
+      });
+
+      window.addEventListener('offline', () => {
+        disableNetwork(db).catch(console.warn);
+      });
+    });
+  } catch (error) {
+    console.warn('Firestore network handling setup failed:', error);
+  }
+}
 
 // Firebase Cloud Messaging - Disabled for now to avoid runtime errors
 // Will be re-enabled when proper service worker setup is complete

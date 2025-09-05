@@ -21,9 +21,9 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
 
     // Fetch vendor's orders
-    let orders = await firestoreService.getOrders({ 
-      shopId: vendorShop.id, 
-      limit 
+    let orders = await firestoreService.getOrders({
+      shopId: vendorShop.id,
+      limit,
     });
 
     // Filter by status if provided
@@ -34,11 +34,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(orders);
   } catch (error) {
     console.error('Error fetching vendor orders:', error);
-    
+
     if (error instanceof Error && error.message.includes('required')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -62,7 +62,10 @@ export async function PATCH(request: NextRequest) {
     const { orderId, status } = await request.json();
 
     // Verify the order belongs to this vendor's shop
-    const orders = await firestoreService.getOrders({ shopId: vendorShop.id, limit: 1000 });
+    const orders = await firestoreService.getOrders({
+      shopId: vendorShop.id,
+      limit: 1000,
+    });
     const order = orders.find((o: Order) => o.id === orderId);
 
     if (!order) {
@@ -70,19 +73,19 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update order status
-    await firestoreService.updateOrder(orderId, { 
+    await firestoreService.updateOrder(orderId, {
       status,
-      updatedAt: Date.now() 
+      updatedAt: Date.now(),
     });
 
     return NextResponse.json({ success: true, orderId, status });
   } catch (error) {
     console.error('Error updating order status:', error);
-    
+
     if (error instanceof Error && error.message.includes('required')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

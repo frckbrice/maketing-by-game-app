@@ -411,7 +411,7 @@ export function AdminUsersPage() {
                                   aria-label='Phone not verified'
                                 />
                               )}
-                              {userData.twoFactorEnabled && (
+                              {(userData as any).twoFactorEnabled && (
                                 <Shield
                                   className='w-4 h-4 text-blue-500'
                                   aria-label='2FA enabled'
@@ -521,7 +521,9 @@ export function AdminUsersPage() {
                   No users found
                 </h3>
                 <p className='text-gray-500 dark:text-gray-400'>
-                  {searchTerm || (roleFilter !== 'ALL_ROLES') || (statusFilter !== 'ALL_STATUS')
+                  {searchTerm ||
+                  roleFilter !== 'ALL_ROLES' ||
+                  statusFilter !== 'ALL_STATUS'
                     ? 'Try adjusting your search or filters'
                     : 'No users are registered yet'}
                 </p>

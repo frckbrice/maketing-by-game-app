@@ -24,18 +24,10 @@ import {
   UpdateCategoryData,
 } from '@/hooks/useApi';
 import { toast } from 'sonner';
-import {
-  Edit2,
-  Gamepad2,
-  Grid3X3,
-  Plus,
-  Settings,
-  Trash2
-} from 'lucide-react';
+import { Edit2, Gamepad2, Grid3X3, Plus, Settings, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-
 
 export function AdminCategoriesPage() {
   const { t } = useTranslation();
@@ -47,7 +39,8 @@ export function AdminCategoriesPage() {
   const [showEditModal, setShowEditModal] = useState(false);
 
   // TanStack Query hooks
-  const { data: categories = [], isLoading: loadingCategories } = useCategories();
+  const { data: categories = [], isLoading: loadingCategories } =
+    useCategories();
   const createCategoryMutation = useCreateCategory();
   const updateCategoryMutation = useUpdateCategory();
   const deleteCategoryMutation = useDeleteCategory();
@@ -71,7 +64,6 @@ export function AdminCategoriesPage() {
       router.replace('/dashboard');
     }
   }, [user, loading, router]);
-
 
   const handleCreate = async () => {
     if (!formData.name.trim()) {
@@ -130,7 +122,11 @@ export function AdminCategoriesPage() {
   };
 
   const handleDelete = async (categoryId: string) => {
-    if (!confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
+    if (
+      !confirm(
+        'Are you sure you want to delete this category? This action cannot be undone.'
+      )
+    ) {
       return;
     }
 
@@ -166,7 +162,9 @@ export function AdminCategoriesPage() {
       <div className='min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center'>
         <div className='text-center'>
           <div className='animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mx-auto mb-4'></div>
-          <p className='text-gray-600 dark:text-gray-300'>{t('common.loading')}</p>
+          <p className='text-gray-600 dark:text-gray-300'>
+            {t('common.loading')}
+          </p>
         </div>
       </div>
     );
@@ -193,7 +191,7 @@ export function AdminCategoriesPage() {
             </div>
 
             <div className='flex items-center space-x-3'>
-              <Button 
+              <Button
                 onClick={() => router.push('/admin/create-game')}
                 variant='outline'
                 className='flex items-center space-x-2'
@@ -201,7 +199,7 @@ export function AdminCategoriesPage() {
                 <Gamepad2 className='w-4 h-4' />
                 <span>{t('admin.createGame')}</span>
               </Button>
-              
+
               <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
                 <DialogTrigger asChild>
                   <Button className='flex items-center space-x-2'>
@@ -209,88 +207,114 @@ export function AdminCategoriesPage() {
                     <span>{t('admin.createCategory')}</span>
                   </Button>
                 </DialogTrigger>
-              <DialogContent className='max-w-2xl'>
-                <DialogHeader>
-                  <DialogTitle>{t('admin.createNewCategory')}</DialogTitle>
-                </DialogHeader>
-                <div className='space-y-4'>
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                    <div>
-                      <Label htmlFor='name'>Category Name</Label>
-                      <Input
-                        id='name'
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder='Category name'
-                      />
+                <DialogContent className='max-w-2xl'>
+                  <DialogHeader>
+                    <DialogTitle>{t('admin.createNewCategory')}</DialogTitle>
+                  </DialogHeader>
+                  <div className='space-y-4'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                      <div>
+                        <Label htmlFor='name'>Category Name</Label>
+                        <Input
+                          id='name'
+                          value={formData.name}
+                          onChange={e =>
+                            setFormData({ ...formData, name: e.target.value })
+                          }
+                          placeholder='Category name'
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor='icon'>Icon</Label>
+                        <Input
+                          id='icon'
+                          value={formData.icon}
+                          onChange={e =>
+                            setFormData({ ...formData, icon: e.target.value })
+                          }
+                          placeholder='Icon name'
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <Label htmlFor='icon'>Icon</Label>
-                      <Input
-                        id='icon'
-                        value={formData.icon}
-                        onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                        placeholder='Icon name'
-                      />
-                    </div>
-                  </div>
 
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                    <div>
-                      <Label htmlFor='description'>Description</Label>
-                      <Textarea
-                        id='description'
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        placeholder='Category description'
-                        rows={3}
-                      />
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                      <div>
+                        <Label htmlFor='description'>Description</Label>
+                        <Textarea
+                          id='description'
+                          value={formData.description}
+                          onChange={e =>
+                            setFormData({
+                              ...formData,
+                              description: e.target.value,
+                            })
+                          }
+                          placeholder='Category description'
+                          rows={3}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor='color'>Color</Label>
+                        <Input
+                          id='color'
+                          type='color'
+                          value={formData.color}
+                          onChange={e =>
+                            setFormData({ ...formData, color: e.target.value })
+                          }
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <Label htmlFor='color'>Color</Label>
-                      <Input
-                        id='color'
-                        type='color'
-                        value={formData.color}
-                        onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                      />
-                    </div>
-                  </div>
 
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                    <div>
-                      <Label htmlFor='sortOrder'>Sort Order</Label>
-                      <Input
-                        id='sortOrder'
-                        type='number'
-                        value={formData.sortOrder}
-                        onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
-                        placeholder='0'
-                      />
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                      <div>
+                        <Label htmlFor='sortOrder'>Sort Order</Label>
+                        <Input
+                          id='sortOrder'
+                          type='number'
+                          value={formData.sortOrder}
+                          onChange={e =>
+                            setFormData({
+                              ...formData,
+                              sortOrder: parseInt(e.target.value) || 0,
+                            })
+                          }
+                          placeholder='0'
+                        />
+                      </div>
+                      <div className='flex items-center space-x-2 pt-6'>
+                        <Switch
+                          checked={formData.isActive}
+                          onCheckedChange={checked =>
+                            setFormData({ ...formData, isActive: checked })
+                          }
+                        />
+                        <Label>Active</Label>
+                      </div>
                     </div>
-                    <div className='flex items-center space-x-2 pt-6'>
-                      <Switch
-                        checked={formData.isActive}
-                        onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
-                      />
-                      <Label>Active</Label>
-                    </div>
-                  </div>
 
-                  <div className='flex justify-end space-x-2 pt-4'>
-                    <Button variant='outline' onClick={() => setShowCreateModal(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleCreate} disabled={createCategoryMutation.isPending}>
-                      {createCategoryMutation.isPending ? (
-                        <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white dark:border-gray-300 mr-2'></div>
-                      ) : null}
-                      {createCategoryMutation.isPending ? t('common.creating') : t('admin.createCategory')}
-                    </Button>
+                    <div className='flex justify-end space-x-2 pt-4'>
+                      <Button
+                        variant='outline'
+                        onClick={() => setShowCreateModal(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleCreate}
+                        disabled={createCategoryMutation.isPending}
+                      >
+                        {createCategoryMutation.isPending ? (
+                          <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white dark:border-gray-300 mr-2'></div>
+                        ) : null}
+                        {createCategoryMutation.isPending
+                          ? t('common.creating')
+                          : t('admin.createCategory')}
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
 
@@ -322,7 +346,10 @@ export function AdminCategoriesPage() {
             </Card>
             <Card className='p-4 text-center'>
               <div className='text-2xl font-bold text-orange-600'>
-                {categories.reduce((sum, cat) => sum + (cat.gamesCount || 0), 0)}
+                {categories.reduce(
+                  (sum, cat) => sum + (cat.gamesCount || 0),
+                  0
+                )}
               </div>
               <div className='text-sm text-gray-600 dark:text-gray-400'>
                 {t('admin.totalGames')}
@@ -335,7 +362,9 @@ export function AdminCategoriesPage() {
         {loadingCategories ? (
           <div className='text-center py-12'>
             <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4'></div>
-            <p className='text-gray-600 dark:text-gray-400'>{t('admin.loadingCategories')}</p>
+            <p className='text-gray-600 dark:text-gray-400'>
+              {t('admin.loadingCategories')}
+            </p>
           </div>
         ) : categories.length === 0 ? (
           <Card className='p-8 text-center'>
@@ -353,7 +382,7 @@ export function AdminCategoriesPage() {
           </Card>
         ) : (
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {categories.map((category) => (
+            {categories.map(category => (
               <Card key={category.id} className='p-6 relative'>
                 <div className='flex items-start justify-between mb-4'>
                   <div className='w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center'>
@@ -379,7 +408,7 @@ export function AdminCategoriesPage() {
 
                 <div className='flex items-center justify-between text-sm text-gray-500 mb-4'>
                   <span>Order: {category.sortOrder}</span>
-                  <div 
+                  <div
                     className='w-4 h-4 rounded border'
                     style={{ backgroundColor: category.color }}
                   />
@@ -435,7 +464,9 @@ export function AdminCategoriesPage() {
                   <Input
                     id='editName'
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     placeholder='Category name'
                   />
                 </div>
@@ -444,7 +475,9 @@ export function AdminCategoriesPage() {
                   <Input
                     id='editIcon'
                     value={formData.icon}
-                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, icon: e.target.value })
+                    }
                     placeholder='Icon name'
                   />
                 </div>
@@ -456,7 +489,9 @@ export function AdminCategoriesPage() {
                   <Textarea
                     id='editDescription'
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
                     placeholder='Category description'
                     rows={3}
                   />
@@ -467,7 +502,9 @@ export function AdminCategoriesPage() {
                     id='editColor'
                     type='color'
                     value={formData.color}
-                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, color: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -479,24 +516,37 @@ export function AdminCategoriesPage() {
                     id='editSortOrder'
                     type='number'
                     value={formData.sortOrder}
-                    onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        sortOrder: parseInt(e.target.value) || 0,
+                      })
+                    }
                     placeholder='0'
                   />
                 </div>
                 <div className='flex items-center space-x-2 pt-6'>
                   <Switch
                     checked={formData.isActive}
-                    onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                    onCheckedChange={checked =>
+                      setFormData({ ...formData, isActive: checked })
+                    }
                   />
                   <Label>Active</Label>
                 </div>
               </div>
 
               <div className='flex justify-end space-x-2 pt-4'>
-                <Button variant='outline' onClick={() => setShowEditModal(false)}>
+                <Button
+                  variant='outline'
+                  onClick={() => setShowEditModal(false)}
+                >
                   Cancel
                 </Button>
-                <Button onClick={handleEdit} disabled={updateCategoryMutation.isPending}>
+                <Button
+                  onClick={handleEdit}
+                  disabled={updateCategoryMutation.isPending}
+                >
                   {updateCategoryMutation.isPending ? (
                     <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white'></div>
                   ) : (

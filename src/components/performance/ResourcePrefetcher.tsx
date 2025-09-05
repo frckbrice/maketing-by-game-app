@@ -14,7 +14,7 @@ const ResourcePrefetcher = ({
   prefetchImages = [],
   prefetchRoutes = [],
   prefetchOnHover = true,
-  prefetchOnVisible = true
+  prefetchOnVisible = true,
 }: ResourcePrefetcherProps) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -27,7 +27,7 @@ const ResourcePrefetcher = ({
 
     const prefetchImage = (src: string) => {
       if (prefetchedImages.current.has(src)) return;
-      
+
       const img = new Image();
       img.src = src;
       prefetchedImages.current.add(src);
@@ -51,7 +51,7 @@ const ResourcePrefetcher = ({
 
     const prefetchRoute = (route: string) => {
       if (prefetchedRoutes.current.has(route) || route === pathname) return;
-      
+
       router.prefetch(route);
       prefetchedRoutes.current.add(route);
     };
@@ -75,12 +75,12 @@ const ResourcePrefetcher = ({
     const handleMouseEnter = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const link = target.closest('a[href^="/"]') as HTMLAnchorElement;
-      
+
       if (!link || !link.href) return;
-      
+
       const url = new URL(link.href);
       const route = url.pathname;
-      
+
       if (!prefetchedRoutes.current.has(route) && route !== pathname) {
         router.prefetch(route);
         prefetchedRoutes.current.add(route);
@@ -88,7 +88,7 @@ const ResourcePrefetcher = ({
     };
 
     document.addEventListener('mouseenter', handleMouseEnter, true);
-    
+
     return () => {
       document.removeEventListener('mouseenter', handleMouseEnter, true);
     };
@@ -99,16 +99,18 @@ const ResourcePrefetcher = ({
     if (!prefetchOnVisible) return;
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
             const target = entry.target as HTMLElement;
-            const link = target.querySelector('a[href^="/"]') as HTMLAnchorElement;
-            
+            const link = target.querySelector(
+              'a[href^="/"]'
+            ) as HTMLAnchorElement;
+
             if (link && link.href) {
               const url = new URL(link.href);
               const route = url.pathname;
-              
+
               if (!prefetchedRoutes.current.has(route) && route !== pathname) {
                 router.prefetch(route);
                 prefetchedRoutes.current.add(route);
@@ -117,7 +119,7 @@ const ResourcePrefetcher = ({
 
             // Also prefetch images in viewport
             const images = target.querySelectorAll('img[data-src]');
-            images.forEach((img) => {
+            images.forEach(img => {
               const src = img.getAttribute('data-src');
               if (src && !prefetchedImages.current.has(src)) {
                 const preloadImg = new Image();
@@ -130,12 +132,14 @@ const ResourcePrefetcher = ({
       },
       {
         rootMargin: '100px',
-        threshold: 0.1
+        threshold: 0.1,
       }
     );
 
     // Observe all cards and interactive elements
-    const cards = document.querySelectorAll('[class*="card"], [class*="item"], [class*="product"]');
+    const cards = document.querySelectorAll(
+      '[class*="card"], [class*="item"], [class*="product"]'
+    );
     cards.forEach(card => observer.observe(card));
 
     return () => {
@@ -155,12 +159,12 @@ const ResourcePrefetcher = ({
     };
 
     const routesToPrefetch = strategicRoutes[pathname] || [];
-    
+
     if (routesToPrefetch.length > 0) {
       // Use requestIdleCallback to prefetch during idle time
       if ('requestIdleCallback' in window) {
         (window as any).requestIdleCallback(() => {
-          routesToPrefetch.forEach((route) => {
+          routesToPrefetch.forEach(route => {
             if (!prefetchedRoutes.current.has(route)) {
               router.prefetch(route);
               prefetchedRoutes.current.add(route);

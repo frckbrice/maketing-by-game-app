@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     } else {
       // Default email
       emailSubject = subject;
-      emailHtml = html;
+      emailHtml = html || '';
     }
 
     // Send email
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
       from: `"BlackFriday Marketing App " <${process.env.PROJECT_MAIL}>`,
       to: to || userEmail,
       subject: emailSubject,
-      text: text || emailHtml.replace(/<[^>]*>/g, ''),
+      text: text || (emailHtml ? emailHtml.replace(/<[^>]*>/g, '') : ''),
       html: emailHtml,
     });
 

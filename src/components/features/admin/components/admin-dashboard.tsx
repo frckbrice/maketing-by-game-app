@@ -29,14 +29,17 @@ export const AdminDashboard = () => {
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // TanStack Query hook for admin stats
-  const { data: stats = {
-    totalUsers: 0,
-    totalGames: 0,
-    totalWinners: 0,
-    pendingApplications: 0,
-    totalRevenue: 0,
-    activeGames: 0,
-  }, isLoading: loadingStats } = useAdminStats();
+  const {
+    data: stats = {
+      totalUsers: 0,
+      totalGames: 0,
+      totalWinners: 0,
+      pendingApplications: 0,
+      totalRevenue: 0,
+      activeGames: 0,
+    },
+    isLoading: loadingStats,
+  } = useAdminStats();
   const router = useRouter();
 
   // Ensure component is mounted before accessing theme
@@ -50,7 +53,6 @@ export const AdminDashboard = () => {
       router.replace('/dashboard');
     }
   }, [user, loading, router]);
-
 
   if (!mounted) {
     return null;
@@ -250,32 +252,48 @@ export const AdminDashboard = () => {
               <div className='w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-2'>
                 <Building2 className='w-6 h-6 text-white' />
               </div>
-              <p className='text-2xl font-bold text-gray-900 dark:text-white'>45</p>
-              <p className='text-sm text-gray-600 dark:text-gray-400'>{t('admin.marketplace.totalShops')}</p>
+              <p className='text-2xl font-bold text-gray-900 dark:text-white'>
+                45
+              </p>
+              <p className='text-sm text-gray-600 dark:text-gray-400'>
+                {t('admin.marketplace.totalShops')}
+              </p>
             </div>
 
             <div className='text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg'>
               <div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-2'>
                 <Building2 className='w-6 h-6 text-white' />
               </div>
-              <p className='text-2xl font-bold text-gray-900 dark:text-white'>326</p>
-              <p className='text-sm text-gray-600 dark:text-gray-400'>{t('admin.marketplace.totalProducts')}</p>
+              <p className='text-2xl font-bold text-gray-900 dark:text-white'>
+                326
+              </p>
+              <p className='text-sm text-gray-600 dark:text-gray-400'>
+                {t('admin.marketplace.totalProducts')}
+              </p>
             </div>
 
             <div className='text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg'>
               <div className='w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-2'>
                 <Building2 className='w-6 h-6 text-white' />
               </div>
-              <p className='text-2xl font-bold text-gray-900 dark:text-white'>1.2K</p>
-              <p className='text-sm text-gray-600 dark:text-gray-400'>{t('admin.marketplace.totalOrders')}</p>
+              <p className='text-2xl font-bold text-gray-900 dark:text-white'>
+                1.2K
+              </p>
+              <p className='text-sm text-gray-600 dark:text-gray-400'>
+                {t('admin.marketplace.totalOrders')}
+              </p>
             </div>
 
             <div className='text-center p-4 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg'>
               <div className='w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-2'>
                 <DollarSign className='w-6 h-6 text-white' />
               </div>
-              <p className='text-2xl font-bold text-gray-900 dark:text-white'>$89K</p>
-              <p className='text-sm text-gray-600 dark:text-gray-400'>{t('admin.marketplace.totalRevenue')}</p>
+              <p className='text-2xl font-bold text-gray-900 dark:text-white'>
+                $89K
+              </p>
+              <p className='text-sm text-gray-600 dark:text-gray-400'>
+                {t('admin.marketplace.totalRevenue')}
+              </p>
             </div>
           </div>
         </div>

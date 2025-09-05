@@ -15,7 +15,7 @@ export default function Cart() {
       router.push('/auth/login?redirect=/cart');
       return;
     }
-    
+
     // Store checkout items in session
     sessionStorage.setItem('checkoutItems', JSON.stringify(items));
     router.push('/checkout');

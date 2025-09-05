@@ -156,7 +156,13 @@ export interface SocialActivity {
 export interface SocialNotification {
   id: ID;
   userId: ID;
-  type: 'NEW_FOLLOWER' | 'NEW_LIKE' | 'NEW_REVIEW' | 'REVIEW_RESPONSE' | 'NEW_MESSAGE' | 'MENTION';
+  type:
+    | 'NEW_FOLLOWER'
+    | 'NEW_LIKE'
+    | 'NEW_REVIEW'
+    | 'REVIEW_RESPONSE'
+    | 'NEW_MESSAGE'
+    | 'MENTION';
   title: string;
   message: string;
   actorId: ID;

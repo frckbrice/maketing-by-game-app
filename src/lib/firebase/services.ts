@@ -404,10 +404,7 @@ export const firestoreService = {
 
   async getUsers(): Promise<User[]> {
     const querySnapshot = await getDocs(
-      query(
-        collection(db, 'users'),
-        orderBy('createdAt', 'desc')
-      )
+      query(collection(db, 'users'), orderBy('createdAt', 'desc'))
     );
     return mapFirestoreDocs<User>(querySnapshot);
   },
@@ -431,23 +428,21 @@ export const firestoreService = {
   async getCategories(): Promise<GameCategory[]> {
     try {
       const querySnapshot = await getDocs(
-        query(
-          collection(db, 'categories'),
-          orderBy('sortOrder', 'asc')
-        )
+        query(collection(db, 'categories'), orderBy('sortOrder', 'asc'))
       );
       const categories = mapFirestoreDocs<GameCategory>(querySnapshot);
-      
+
       // Get games count for each category
       const gamesSnapshot = await getDocs(collection(db, 'games'));
       const games = mapFirestoreDocs<any>(gamesSnapshot);
-      
+
       // Add games count to each category
       const categoriesWithGamesCount = categories.map(category => ({
         ...category,
-        gamesCount: games.filter(game => game.categoryId === category.id).length
+        gamesCount: games.filter(game => game.categoryId === category.id)
+          .length,
       }));
-      
+
       return categoriesWithGamesCount;
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -501,6 +496,17 @@ export const firestoreService = {
 
   async deleteGame(gameId: string): Promise<void> {
     await softDeleteDocument('games', gameId, 'status', 'CANCELLED');
+  },
+
+  async getGamesByVendor(vendorId: string): Promise<LotteryGame[]> {
+    const querySnapshot = await getDocs(
+      query(
+        collection(db, 'games'),
+        where('createdBy', '==', vendorId),
+        orderBy('createdAt', 'desc')
+      )
+    );
+    return mapFirestoreDocs<LotteryGame>(querySnapshot);
   },
 
   // Ticket operations
@@ -756,10 +762,7 @@ export const firestoreService = {
   async getNotifications(): Promise<any[]> {
     try {
       const querySnapshot = await getDocs(
-        query(
-          collection(db, 'notifications'),
-          orderBy('createdAt', 'desc')
-        )
+        query(collection(db, 'notifications'), orderBy('createdAt', 'desc'))
       );
       return mapFirestoreDocs<any>(querySnapshot);
     } catch (error) {
@@ -881,7 +884,7 @@ export const firestoreService = {
           createdAt: Date.now(),
           updatedAt: Date.now(),
         };
-        
+
         // Save default settings to database
         await setDoc(doc(db, 'settings', 'app'), defaultSettings);
         return defaultSettings;
@@ -894,10 +897,14 @@ export const firestoreService = {
 
   async updateAppSettings(settings: any): Promise<void> {
     try {
-      await setDoc(doc(db, 'settings', 'app'), {
-        ...settings,
-        updatedAt: Date.now(),
-      }, { merge: true });
+      await setDoc(
+        doc(db, 'settings', 'app'),
+        {
+          ...settings,
+          updatedAt: Date.now(),
+        },
+        { merge: true }
+      );
     } catch (error) {
       console.error('Error updating app settings:', error);
       throw error;
@@ -908,15 +915,15 @@ export const firestoreService = {
   async getShops(params?: { limit?: number; status?: string }): Promise<any[]> {
     try {
       let q = query(collection(db, 'shops'), orderBy('createdAt', 'desc'));
-      
+
       if (params?.status) {
         q = query(q, where('status', '==', params.status));
       }
-      
+
       if (params?.limit) {
         q = query(q, limit(params.limit));
       }
-      
+
       const querySnapshot = await getDocs(q);
       return mapFirestoreDocs(querySnapshot);
     } catch (error) {
@@ -947,22 +954,26 @@ export const firestoreService = {
     await updateDocumentWithTimestamp('shops', shopId, data);
   },
 
-  async getProducts(params?: { limit?: number; shopId?: string; categoryId?: string }): Promise<any[]> {
+  async getProducts(params?: {
+    limit?: number;
+    shopId?: string;
+    categoryId?: string;
+  }): Promise<any[]> {
     try {
       let q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
-      
+
       if (params?.shopId) {
         q = query(q, where('shopId', '==', params.shopId));
       }
-      
+
       if (params?.categoryId) {
         q = query(q, where('categoryId', '==', params.categoryId));
       }
-      
+
       if (params?.limit) {
         q = query(q, limit(params.limit));
       }
-      
+
       const querySnapshot = await getDocs(q);
       return mapFirestoreDocs(querySnapshot);
     } catch (error) {
@@ -971,22 +982,26 @@ export const firestoreService = {
     }
   },
 
-  async getOrders(params?: { limit?: number; userId?: string; shopId?: string }): Promise<any[]> {
+  async getOrders(params?: {
+    limit?: number;
+    userId?: string;
+    shopId?: string;
+  }): Promise<any[]> {
     try {
       let q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
-      
+
       if (params?.userId) {
         q = query(q, where('userId', '==', params.userId));
       }
-      
+
       if (params?.shopId) {
         q = query(q, where('shopId', '==', params.shopId));
       }
-      
+
       if (params?.limit) {
         q = query(q, limit(params.limit));
       }
-      
+
       const querySnapshot = await getDocs(q);
       return mapFirestoreDocs(querySnapshot);
     } catch (error) {
@@ -1003,18 +1018,24 @@ export const firestoreService = {
     await updateDocumentWithTimestamp('orders', orderId, data);
   },
 
-  async getVendorApplications(params?: { status?: string; limit?: number }): Promise<VendorApplication[]> {
+  async getVendorApplications(params?: {
+    status?: string;
+    limit?: number;
+  }): Promise<VendorApplication[]> {
     try {
-      let q = query(collection(db, 'vendorApplications'), orderBy('createdAt', 'desc'));
-      
+      let q = query(
+        collection(db, 'vendorApplications'),
+        orderBy('createdAt', 'desc')
+      );
+
       if (params?.status) {
         q = query(q, where('status', '==', params.status));
       }
-      
+
       if (params?.limit) {
         q = query(q, limit(params.limit));
       }
-      
+
       const querySnapshot = await getDocs(q);
       return mapFirestoreDocs<VendorApplication>(querySnapshot);
     } catch (error) {
@@ -1023,7 +1044,11 @@ export const firestoreService = {
     }
   },
 
-  async updateVendorApplicationStatus(applicationId: string, status: string, adminId: string): Promise<void> {
+  async updateVendorApplicationStatus(
+    applicationId: string,
+    status: string,
+    adminId: string
+  ): Promise<void> {
     await updateDocumentWithTimestamp('vendorApplications', applicationId, {
       status,
       reviewedBy: adminId,
@@ -1031,7 +1056,10 @@ export const firestoreService = {
     });
   },
 
-  async createDocumentWithTimestamps(collection: string, data: any): Promise<string> {
+  async createDocumentWithTimestamps(
+    collection: string,
+    data: any
+  ): Promise<string> {
     return createDocumentWithTimestamps(collection, data);
   },
 };

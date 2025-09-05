@@ -8,15 +8,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  Form
-} from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
   useCategories,
-  useCreateGame,
+  useCreateGameAdmin,
   useCreateShop,
   useProducts,
   useShops,
@@ -78,8 +76,6 @@ const createGameSchema = z
 
 type CreateGameFormData = z.infer<typeof createGameSchema>;
 
-
-
 export function CreateGamePage() {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
@@ -123,10 +119,22 @@ export function CreateGamePage() {
   }, []);
 
   // TanStack Query hooks
-  const { data: categories = [], isLoading: categoriesLoading, error: categoriesError } = useCategories();
-  const { data: shops = [], isLoading: shopsLoading, error: shopsError } = useShops();
-  const { data: products = [], isLoading: productsLoading, error: productsError } = useProducts();
-  const createGameMutation = useCreateGame();
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+    error: categoriesError,
+  } = useCategories();
+  const {
+    data: shops = [],
+    isLoading: shopsLoading,
+    error: shopsError,
+  } = useShops();
+  const {
+    data: products = [],
+    isLoading: productsLoading,
+    error: productsError,
+  } = useProducts();
+  const createGameMutation = useCreateGameAdmin();
   const createShopMutation = useCreateShop();
 
   const form = useForm<CreateGameFormData>({
@@ -150,8 +158,6 @@ export function CreateGamePage() {
       router.push('/');
     }
   }, [user, loading, router]);
-
-
 
   const handleAddProduct = async () => {
     if (!newProductForm.name.trim() || newProductForm.price <= 0) {
@@ -187,12 +193,12 @@ export function CreateGamePage() {
         category: selectedShop.category || 'general',
         tags: [],
         shop: {
-          shopId: selectedShop.id,
-          shopName: selectedShop.name,
-          shopLogo: selectedShop.logo || '',
+          id: selectedShop.id,
+          name: selectedShop.name,
+          logoUrl: selectedShop.logo || '',
         },
         rating: 0,
-        reviewCount: 0,
+        reviewsCount: 0,
         likeCount: 0,
         shareCount: 0,
         isAvailable: true,
@@ -248,9 +254,7 @@ export function CreateGamePage() {
   const onSubmit = async (data: CreateGameFormData) => {
     if (!user) return;
 
-    const selectedCategory = categories.find(
-      cat => cat.id === data.categoryId
-    );
+    const selectedCategory = categories.find(cat => cat.id === data.categoryId);
     const gameData = {
       ...data,
       createdBy: user.id,
@@ -302,7 +306,7 @@ export function CreateGamePage() {
     };
 
     createGameMutation.mutate(gameData, {
-      onSuccess: async (gameId) => {
+      onSuccess: async gameId => {
         // Initialize real-time counter
         await realtimeService.updateGameCounter(gameId, {
           participants: 0,
@@ -336,7 +340,9 @@ export function CreateGamePage() {
       <div className='lg:hidden'>
         <div className='bg-lottery-800/50 backdrop-blur-sm border-b border-lottery-700/30 p-4'>
           <div className='flex items-center justify-between'>
-            <h1 className='text-xl font-bold text-white'>{t('admin.createGame')}</h1>
+            <h1 className='text-xl font-bold text-white'>
+              {t('admin.createGame')}
+            </h1>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className='text-lottery-300 hover:text-white transition-colors'
@@ -414,32 +420,58 @@ export function CreateGamePage() {
         {/* Error Display */}
         {(categoriesError || shopsError || productsError) && (
           <div className='mb-6 p-4 bg-red-900/20 border border-red-600/30 rounded-xl'>
-            <h3 className='text-red-400 font-semibold mb-2'>Data Loading Errors:</h3>
+            <h3 className='text-red-400 font-semibold mb-2'>
+              Data Loading Errors:
+            </h3>
             <ul className='text-red-300 text-sm space-y-1'>
-              {categoriesError && <li>• Categories: {categoriesError.message || 'Failed to load'}</li>}
-              {shopsError && <li>• Shops: {shopsError.message || 'Failed to load'}</li>}
-              {productsError && <li>• Products: {productsError.message || 'Failed to load'}</li>}
+              {categoriesError && (
+                <li>
+                  • Categories: {categoriesError.message || 'Failed to load'}
+                </li>
+              )}
+              {shopsError && (
+                <li>• Shops: {shopsError.message || 'Failed to load'}</li>
+              )}
+              {productsError && (
+                <li>• Products: {productsError.message || 'Failed to load'}</li>
+              )}
             </ul>
-            <p className='text-red-400 text-sm mt-2'>Please refresh the page or contact support if the issue persists.</p>
+            <p className='text-red-400 text-sm mt-2'>
+              Please refresh the page or contact support if the issue persists.
+            </p>
           </div>
         )}
 
         <div className='bg-lottery-800/50 backdrop-blur-sm rounded-2xl p-6 lg:p-8 border border-lottery-700/30'>
           {/* Data Summary */}
           <div className='mb-6 p-4 bg-lottery-700/20 border border-lottery-600/30 rounded-xl'>
-            <h3 className='text-lottery-200 font-semibold mb-3'>📊 Data Status</h3>
+            <h3 className='text-lottery-200 font-semibold mb-3'>
+              📊 Data Status
+            </h3>
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4 text-sm'>
               <div className='flex items-center space-x-2'>
-                <span className={`w-3 h-3 rounded-full ${categories && categories.length > 0 ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                <span className='text-lottery-300'>Categories: {categories?.length || 0}</span>
+                <span
+                  className={`w-3 h-3 rounded-full ${categories && categories.length > 0 ? 'bg-green-500' : 'bg-red-500'}`}
+                ></span>
+                <span className='text-lottery-300'>
+                  Categories: {categories?.length || 0}
+                </span>
               </div>
               <div className='flex items-center space-x-2'>
-                <span className={`w-3 h-3 rounded-full ${shops && shops.length > 0 ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                <span className='text-lottery-300'>Shops: {shops?.length || 0}</span>
+                <span
+                  className={`w-3 h-3 rounded-full ${shops && shops.length > 0 ? 'bg-green-500' : 'bg-red-500'}`}
+                ></span>
+                <span className='text-lottery-300'>
+                  Shops: {shops?.length || 0}
+                </span>
               </div>
               <div className='flex items-center space-x-2'>
-                <span className={`w-3 h-3 rounded-full ${products && products.length > 0 ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                <span className='text-lottery-300'>Products: {products?.length || 0}</span>
+                <span
+                  className={`w-3 h-3 rounded-full ${products && products.length > 0 ? 'bg-green-500' : 'bg-red-500'}`}
+                ></span>
+                <span className='text-lottery-300'>
+                  Products: {products?.length || 0}
+                </span>
               </div>
             </div>
           </div>
@@ -447,86 +479,96 @@ export function CreateGamePage() {
           {/* Data Validation */}
           {(!categories || categories.length === 0) && (
             <div className='mb-6 p-4 bg-yellow-900/20 border border-yellow-600/30 rounded-xl'>
-              <p className='text-yellow-300'>⚠️ No categories available. Please add categories before creating games.</p>
+              <p className='text-yellow-300'>
+                ⚠️ No categories available. Please add categories before
+                creating games.
+              </p>
             </div>
           )}
 
           {(!shops || shops.length === 0) && (
             <div className='mb-6 p-4 bg-yellow-900/20 border border-yellow-600/30 rounded-xl'>
-              <p className='text-yellow-300'>⚠️ No shops available. Please add shops before creating games.</p>
+              <p className='text-yellow-300'>
+                ⚠️ No shops available. Please add shops before creating games.
+              </p>
             </div>
           )}
 
           {(!products || products.length === 0) && (
             <div className='mb-6 p-4 bg-yellow-900/20 border border-yellow-600/30 rounded-xl'>
-              <p className='text-yellow-300'>⚠️ No products available. Please add products before creating games.</p>
+              <p className='text-yellow-300'>
+                ⚠️ No products available. Please add products before creating
+                games.
+              </p>
             </div>
           )}
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-            {/* Basic Information */}
-            <div className='space-y-6'>
-              <div>
-                <h3 className='text-lg font-semibold text-white mb-4 flex items-center'>
-                  <Gamepad2 className='w-5 h-5 mr-2 text-lottery-500' />
-                  Basic Information
-                </h3>
+              {/* Basic Information */}
+              <div className='space-y-6'>
+                <div>
+                  <h3 className='text-lg font-semibold text-white mb-4 flex items-center'>
+                    <Gamepad2 className='w-5 h-5 mr-2 text-lottery-500' />
+                    Basic Information
+                  </h3>
 
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                  <div>
-                    <label
-                      htmlFor='title'
-                      className='block text-sm font-medium text-lottery-200 mb-2'
-                    >
-                      Game Title *
-                    </label>
-                    <input
-                      {...register('title')}
-                      type='text'
-                      id='title'
-                      className='w-full px-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white placeholder-lottery-400 focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
-                      placeholder='e.g., Weekend Special Lottery'
-                    />
-                    {errors.title && (
-                      <p className='mt-2 text-sm text-red-400'>
-                        {errors.title.message}
-                      </p>
-                    )}
-                  </div>
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                    <div>
+                      <label
+                        htmlFor='title'
+                        className='block text-sm font-medium text-lottery-200 mb-2'
+                      >
+                        Game Title *
+                      </label>
+                      <input
+                        {...register('title')}
+                        type='text'
+                        id='title'
+                        className='w-full px-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white placeholder-lottery-400 focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
+                        placeholder='e.g., Weekend Special Lottery'
+                      />
+                      {errors.title && (
+                        <p className='mt-2 text-sm text-red-400'>
+                          {errors.title.message}
+                        </p>
+                      )}
+                    </div>
 
-                  <div>
-                    <label
-                      htmlFor='categoryId'
-                      className='block text-sm font-medium text-lottery-200 mb-2'
-                    >
-                      Category *
-                    </label>
-                    <select
-                      {...register('categoryId')}
-                      id='categoryId'
+                    <div>
+                      <label
+                        htmlFor='categoryId'
+                        className='block text-sm font-medium text-lottery-200 mb-2'
+                      >
+                        Category *
+                      </label>
+                      <select
+                        {...register('categoryId')}
+                        id='categoryId'
                         className='w-full px-4 py-3 bg-lottery-700/80 border border-lottery-600/80 rounded-xl text-white placeholder-lottery-300 focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
                         style={{
-                          colorScheme: 'dark'
+                          colorScheme: 'dark',
                         }}
-                    >
-                        <option value='' className='bg-lottery-700 text-white'>Select a category</option>
-                      {categories.map(category => (
-                        <option
-                          key={category.id}
-                          value={category.id}
-                          className='bg-lottery-700 text-white hover:bg-lottery-600'
-                        >
-                          {category.name}
+                      >
+                        <option value='' className='bg-lottery-700 text-white'>
+                          Select a category
                         </option>
-                      ))}
-                    </select>
-                    {errors.categoryId && (
-                      <p className='mt-2 text-sm text-red-400'>
-                        {errors.categoryId.message}
-                      </p>
-                    )}
-                  </div>
+                        {categories.map(category => (
+                          <option
+                            key={category.id}
+                            value={category.id}
+                            className='bg-lottery-700 text-white hover:bg-lottery-600'
+                          >
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.categoryId && (
+                        <p className='mt-2 text-sm text-red-400'>
+                          {errors.categoryId.message}
+                        </p>
+                      )}
+                    </div>
 
                     <div>
                       <label
@@ -541,10 +583,15 @@ export function CreateGamePage() {
                           id='shopId'
                           className='flex-1 px-4 py-3 bg-lottery-700/80 border border-lottery-600/80 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
                           style={{
-                            colorScheme: 'dark'
+                            colorScheme: 'dark',
                           }}
                         >
-                          <option value='' className='bg-lottery-700 text-white'>Select a shop</option>
+                          <option
+                            value=''
+                            className='bg-lottery-700 text-white'
+                          >
+                            Select a shop
+                          </option>
                           {shops.map(shop => (
                             <option
                               key={shop.id}
@@ -555,7 +602,10 @@ export function CreateGamePage() {
                             </option>
                           ))}
                         </select>
-                        <Dialog open={showAddShopModal} onOpenChange={setShowAddShopModal}>
+                        <Dialog
+                          open={showAddShopModal}
+                          onOpenChange={setShowAddShopModal}
+                        >
                           <DialogTrigger asChild>
                             <Button
                               type='button'
@@ -569,35 +619,67 @@ export function CreateGamePage() {
                           </DialogTrigger>
                           <DialogContent className='bg-lottery-800 border-lottery-700'>
                             <DialogHeader>
-                              <DialogTitle className='text-white'>Add New Shop</DialogTitle>
+                              <DialogTitle className='text-white'>
+                                Add New Shop
+                              </DialogTitle>
                             </DialogHeader>
                             <div className='space-y-4'>
                               <div>
-                                <Label htmlFor='shopName' className='text-lottery-200'>Shop Name *</Label>
+                                <Label
+                                  htmlFor='shopName'
+                                  className='text-lottery-200'
+                                >
+                                  Shop Name *
+                                </Label>
                                 <Input
                                   id='shopName'
                                   value={newShopForm.name}
-                                  onChange={(e) => setNewShopForm({ ...newShopForm, name: e.target.value })}
+                                  onChange={e =>
+                                    setNewShopForm({
+                                      ...newShopForm,
+                                      name: e.target.value,
+                                    })
+                                  }
                                   placeholder='Shop name'
                                   className='bg-lottery-700/50 border-lottery-600/50 text-white'
                                 />
                               </div>
                               <div>
-                                <Label htmlFor='shopDescription' className='text-lottery-200'>Description</Label>
+                                <Label
+                                  htmlFor='shopDescription'
+                                  className='text-lottery-200'
+                                >
+                                  Description
+                                </Label>
                                 <Textarea
                                   id='shopDescription'
                                   value={newShopForm.description}
-                                  onChange={(e) => setNewShopForm({ ...newShopForm, description: e.target.value })}
+                                  onChange={e =>
+                                    setNewShopForm({
+                                      ...newShopForm,
+                                      description: e.target.value,
+                                    })
+                                  }
                                   placeholder='Shop description'
                                   className='bg-lottery-700/50 border-lottery-600/50 text-white'
                                 />
                               </div>
                               <div>
-                                <Label htmlFor='shopCategory' className='text-lottery-200'>Category *</Label>
+                                <Label
+                                  htmlFor='shopCategory'
+                                  className='text-lottery-200'
+                                >
+                                  Category *
+                                </Label>
                                 <Input
                                   id='shopCategory'
                                   value={newShopForm.category}
-                                  onChange={(e) => setNewShopForm({ ...newShopForm, category: e.target.value })}
+                                  onChange={e =>
+                                    setNewShopForm({
+                                      ...newShopForm,
+                                      category: e.target.value,
+                                    })
+                                  }
                                   placeholder='e.g., Electronics, Fashion'
                                   className='bg-lottery-700/50 border-lottery-600/50 text-white'
                                 />
@@ -642,14 +724,39 @@ export function CreateGamePage() {
                         id='currency'
                         className='w-full px-4 py-3 bg-lottery-700/80 border border-lottery-600/80 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
                         style={{
-                          colorScheme: 'dark'
+                          colorScheme: 'dark',
                         }}
                       >
-                        <option value='USD' className='bg-lottery-700 text-white'>USD - US Dollar</option>
-                        <option value='EUR' className='bg-lottery-700 text-white'>EUR - Euro</option>
-                        <option value='GBP' className='bg-lottery-700 text-white'>GBP - British Pound</option>
-                        <option value='CAD' className='bg-lottery-700 text-white'>CAD - Canadian Dollar</option>
-                        <option value='AUD' className='bg-lottery-700 text-white'>AUD - Australian Dollar</option>
+                        <option
+                          value='USD'
+                          className='bg-lottery-700 text-white'
+                        >
+                          USD - US Dollar
+                        </option>
+                        <option
+                          value='EUR'
+                          className='bg-lottery-700 text-white'
+                        >
+                          EUR - Euro
+                        </option>
+                        <option
+                          value='GBP'
+                          className='bg-lottery-700 text-white'
+                        >
+                          GBP - British Pound
+                        </option>
+                        <option
+                          value='CAD'
+                          className='bg-lottery-700 text-white'
+                        >
+                          CAD - Canadian Dollar
+                        </option>
+                        <option
+                          value='AUD'
+                          className='bg-lottery-700 text-white'
+                        >
+                          AUD - Australian Dollar
+                        </option>
                       </select>
                       {errors.currency && (
                         <p className='mt-2 text-sm text-red-400'>
@@ -657,286 +764,333 @@ export function CreateGamePage() {
                         </p>
                       )}
                     </div>
+                  </div>
+
+                  <div className='mt-6'>
+                    <label
+                      htmlFor='description'
+                      className='block text-sm font-medium text-lottery-200 mb-2'
+                    >
+                      Description *
+                    </label>
+                    <textarea
+                      {...register('description')}
+                      id='description'
+                      rows={4}
+                      className='w-full px-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white placeholder-lottery-400 focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
+                      placeholder='Describe your lottery game and what participants can win...'
+                    />
+                    {errors.description && (
+                      <p className='mt-2 text-sm text-red-400'>
+                        {errors.description.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
-                <div className='mt-6'>
-                  <label
-                    htmlFor='description'
-                    className='block text-sm font-medium text-lottery-200 mb-2'
-                  >
-                    Description *
-                  </label>
-                  <textarea
-                    {...register('description')}
-                    id='description'
-                    rows={4}
-                    className='w-full px-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white placeholder-lottery-400 focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
-                    placeholder='Describe your lottery game and what participants can win...'
-                  />
-                  {errors.description && (
-                    <p className='mt-2 text-sm text-red-400'>
-                      {errors.description.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Product Selection */}
-              <div>
-                <h3 className='text-lg font-semibold text-white mb-4 flex items-center'>
-                  <Package className='w-5 h-5 mr-2 text-lottery-500' />
-                  Product Selection
-                </h3>
-
+                {/* Product Selection */}
                 <div>
-                  <div className='flex items-center justify-between mb-2'>
-                    <label
-                      htmlFor='productId'
-                      className='block text-sm font-medium text-lottery-200'
-                    >
-                      Select Product *
-                    </label>
-                    <Dialog open={showAddProductModal} onOpenChange={setShowAddProductModal}>
-                      <DialogTrigger asChild>
-                        <Button
-                          type='button'
-                          variant='outline'
-                          size='sm'
-                          className='text-xs border-lottery-600 text-lottery-300 hover:bg-lottery-700'
-                        >
-                          <Plus className='w-3 h-3 mr-1' />
-                          Add Product
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className='bg-lottery-800 border-lottery-700'>
-                        <DialogHeader>
-                          <DialogTitle className='text-white'>Add New Product</DialogTitle>
-                        </DialogHeader>
-                        <div className='space-y-4'>
-                          <div>
-                            <Label htmlFor='productName' className='text-lottery-200'>Product Name *</Label>
-                            <Input
-                              id='productName'
-                              value={newProductForm.name}
-                              onChange={(e) => setNewProductForm({ ...newProductForm, name: e.target.value })}
-                              placeholder='Product name'
-                              className='bg-lottery-700/50 border-lottery-600/50 text-white'
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor='productDescription' className='text-lottery-200'>Description</Label>
-                            <Textarea
-                              id='productDescription'
-                              value={newProductForm.description}
-                              onChange={(e) => setNewProductForm({ ...newProductForm, description: e.target.value })}
-                              placeholder='Product description'
-                              className='bg-lottery-700/50 border-lottery-600/50 text-white'
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor='productPrice' className='text-lottery-200'>Price *</Label>
-                            <Input
-                              id='productPrice'
-                              type='number'
-                              step='0.01'
-                              min='0'
-                              value={newProductForm.price}
-                              onChange={(e) => setNewProductForm({ ...newProductForm, price: parseFloat(e.target.value) || 0 })}
-                              placeholder='0.00'
-                              className='bg-lottery-700/50 border-lottery-600/50 text-white'
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor='productImage' className='text-lottery-200'>Image URL</Label>
-                            <Input
-                              id='productImage'
-                              value={newProductForm.image}
-                              onChange={(e) => setNewProductForm({ ...newProductForm, image: e.target.value })}
-                              placeholder='https://example.com/image.jpg'
-                              className='bg-lottery-700/50 border-lottery-600/50 text-white'
-                            />
-                          </div>
-                          <div className='flex justify-end space-x-2 pt-4'>
-                            <Button
-                              type='button'
-                              variant='outline'
-                              onClick={() => setShowAddProductModal(false)}
-                              className='border-lottery-600 text-lottery-300'
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              type='button'
-                              onClick={handleAddProduct}
-                              className='bg-lottery-500 hover:bg-lottery-600'
-                            >
-                              Add Product
-                            </Button>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                  <select
-                    {...register('productId')}
-                    id='productId'
-                    className='w-full px-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
-                  >
-                    <option value=''>Select a product</option>
-                    {products.map(product => (
-                      <option key={product.id} value={product.id}>
-                        {product.name} - ${product.price}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.productId && (
-                    <p className='mt-2 text-sm text-red-400'>
-                      {errors.productId.message}
-                    </p>
-                  )}
-                </div>
-              </div>
+                  <h3 className='text-lg font-semibold text-white mb-4 flex items-center'>
+                    <Package className='w-5 h-5 mr-2 text-lottery-500' />
+                    Product Selection
+                  </h3>
 
-              {/* Game Configuration */}
-              <div>
-                <h3 className='text-lg font-semibold text-white mb-4 flex items-center'>
-                  <Settings className='w-5 h-5 mr-2 text-lottery-500' />
-                  Game Configuration
-                </h3>
-
-                <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
                   <div>
-                    <label
-                      htmlFor='ticketPrice'
-                      className='block text-sm font-medium text-lottery-200 mb-2'
-                    >
-                      Ticket Price *
-                    </label>
-                    <div className='relative'>
-                      <DollarSign className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-lottery-400' />
-                      <input
-                        {...register('ticketPrice', { valueAsNumber: true })}
-                        type='number'
-                        id='ticketPrice'
-                        step='0.01'
-                        min='0.01'
-                        className='w-full pl-10 pr-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white placeholder-lottery-400 focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
-                        placeholder='1.00'
-                      />
+                    <div className='flex items-center justify-between mb-2'>
+                      <label
+                        htmlFor='productId'
+                        className='block text-sm font-medium text-lottery-200'
+                      >
+                        Select Product *
+                      </label>
+                      <Dialog
+                        open={showAddProductModal}
+                        onOpenChange={setShowAddProductModal}
+                      >
+                        <DialogTrigger asChild>
+                          <Button
+                            type='button'
+                            variant='outline'
+                            size='sm'
+                            className='text-xs border-lottery-600 text-lottery-300 hover:bg-lottery-700'
+                          >
+                            <Plus className='w-3 h-3 mr-1' />
+                            Add Product
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className='bg-lottery-800 border-lottery-700'>
+                          <DialogHeader>
+                            <DialogTitle className='text-white'>
+                              Add New Product
+                            </DialogTitle>
+                          </DialogHeader>
+                          <div className='space-y-4'>
+                            <div>
+                              <Label
+                                htmlFor='productName'
+                                className='text-lottery-200'
+                              >
+                                Product Name *
+                              </Label>
+                              <Input
+                                id='productName'
+                                value={newProductForm.name}
+                                onChange={e =>
+                                  setNewProductForm({
+                                    ...newProductForm,
+                                    name: e.target.value,
+                                  })
+                                }
+                                placeholder='Product name'
+                                className='bg-lottery-700/50 border-lottery-600/50 text-white'
+                              />
+                            </div>
+                            <div>
+                              <Label
+                                htmlFor='productDescription'
+                                className='text-lottery-200'
+                              >
+                                Description
+                              </Label>
+                              <Textarea
+                                id='productDescription'
+                                value={newProductForm.description}
+                                onChange={e =>
+                                  setNewProductForm({
+                                    ...newProductForm,
+                                    description: e.target.value,
+                                  })
+                                }
+                                placeholder='Product description'
+                                className='bg-lottery-700/50 border-lottery-600/50 text-white'
+                              />
+                            </div>
+                            <div>
+                              <Label
+                                htmlFor='productPrice'
+                                className='text-lottery-200'
+                              >
+                                Price *
+                              </Label>
+                              <Input
+                                id='productPrice'
+                                type='number'
+                                step='0.01'
+                                min='0'
+                                value={newProductForm.price}
+                                onChange={e =>
+                                  setNewProductForm({
+                                    ...newProductForm,
+                                    price: parseFloat(e.target.value) || 0,
+                                  })
+                                }
+                                placeholder='0.00'
+                                className='bg-lottery-700/50 border-lottery-600/50 text-white'
+                              />
+                            </div>
+                            <div>
+                              <Label
+                                htmlFor='productImage'
+                                className='text-lottery-200'
+                              >
+                                Image URL
+                              </Label>
+                              <Input
+                                id='productImage'
+                                value={newProductForm.image}
+                                onChange={e =>
+                                  setNewProductForm({
+                                    ...newProductForm,
+                                    image: e.target.value,
+                                  })
+                                }
+                                placeholder='https://example.com/image.jpg'
+                                className='bg-lottery-700/50 border-lottery-600/50 text-white'
+                              />
+                            </div>
+                            <div className='flex justify-end space-x-2 pt-4'>
+                              <Button
+                                type='button'
+                                variant='outline'
+                                onClick={() => setShowAddProductModal(false)}
+                                className='border-lottery-600 text-lottery-300'
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                type='button'
+                                onClick={handleAddProduct}
+                                className='bg-lottery-500 hover:bg-lottery-600'
+                              >
+                                Add Product
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     </div>
-                    {errors.ticketPrice && (
-                      <p className='mt-2 text-sm text-red-400'>
-                        {errors.ticketPrice.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor='maxParticipants'
-                      className='block text-sm font-medium text-lottery-200 mb-2'
-                    >
-                      Max Participants *
-                    </label>
-                    <div className='relative'>
-                      <Users className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-lottery-400' />
-                      <input
-                        {...register('maxParticipants', {
-                          valueAsNumber: true,
-                        })}
-                        type='number'
-                        id='maxParticipants'
-                        min='1'
-                        className='w-full pl-10 pr-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white placeholder-lottery-400 focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
-                        placeholder='100'
-                      />
-                    </div>
-                    {errors.maxParticipants && (
-                      <p className='mt-2 text-sm text-red-400'>
-                        {errors.maxParticipants.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor='ticketPrice'
-                      className='block text-sm font-medium text-lottery-200 mb-2'
-                    >
-                      Total Prize Pool
-                    </label>
-                    <div className='w-full px-4 py-3 bg-lottery-700/30 border border-lottery-600/30 rounded-xl text-lottery-300'>
-                      ${watch('ticketPrice') * watch('maxParticipants') || 0}
-                    </div>
-                    <p className='mt-1 text-xs text-lottery-400'>
-                      Based on ticket price × max participants
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Schedule */}
-              <div>
-                <h3 className='text-lg font-semibold text-white mb-4 flex items-center'>
-                  <Calendar className='w-5 h-5 mr-2 text-lottery-500' />
-                  Schedule
-                </h3>
-
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                  <div>
-                    <label
-                      htmlFor='startDate'
-                      className='block text-sm font-medium text-lottery-200 mb-2'
-                    >
-                      Start Date *
-                    </label>
-                    <input
-                      {...register('startDate')}
-                      type='datetime-local'
-                      id='startDate'
+                    <select
+                      {...register('productId')}
+                      id='productId'
                       className='w-full px-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
-                    />
-                    {errors.startDate && (
-                      <p className='mt-2 text-sm text-red-400'>
-                        {errors.startDate.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor='endDate'
-                      className='block text-sm font-medium text-lottery-200 mb-2'
                     >
-                      End Date *
-                    </label>
-                    <input
-                      {...register('endDate')}
-                      type='datetime-local'
-                      id='endDate'
-                      className='w-full px-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
-                    />
-                    {errors.endDate && (
+                      <option value=''>Select a product</option>
+                      {products.map(product => (
+                        <option key={product.id} value={product.id}>
+                          {product.name} - ${product.price}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.productId && (
                       <p className='mt-2 text-sm text-red-400'>
-                        {errors.endDate.message}
+                        {errors.productId.message}
                       </p>
                     )}
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Submit Button */}
-            <div className='pt-6 border-t border-lottery-700/30'>
-              <Button
-                type='submit'
-                disabled={createGameMutation.isPending}
-                className='w-full py-3 bg-gradient-to-r from-lottery-500 to-lottery-600 hover:from-lottery-600 hover:to-lottery-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl'
-              >
-                {createGameMutation.isPending ? t('admin.creatingGame') : t('admin.createGame')}
-              </Button>
-            </div>
-          </form>
+                {/* Game Configuration */}
+                <div>
+                  <h3 className='text-lg font-semibold text-white mb-4 flex items-center'>
+                    <Settings className='w-5 h-5 mr-2 text-lottery-500' />
+                    Game Configuration
+                  </h3>
+
+                  <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+                    <div>
+                      <label
+                        htmlFor='ticketPrice'
+                        className='block text-sm font-medium text-lottery-200 mb-2'
+                      >
+                        Ticket Price *
+                      </label>
+                      <div className='relative'>
+                        <DollarSign className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-lottery-400' />
+                        <input
+                          {...register('ticketPrice', { valueAsNumber: true })}
+                          type='number'
+                          id='ticketPrice'
+                          step='0.01'
+                          min='0.01'
+                          className='w-full pl-10 pr-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white placeholder-lottery-400 focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
+                          placeholder='1.00'
+                        />
+                      </div>
+                      {errors.ticketPrice && (
+                        <p className='mt-2 text-sm text-red-400'>
+                          {errors.ticketPrice.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor='maxParticipants'
+                        className='block text-sm font-medium text-lottery-200 mb-2'
+                      >
+                        Max Participants *
+                      </label>
+                      <div className='relative'>
+                        <Users className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-lottery-400' />
+                        <input
+                          {...register('maxParticipants', {
+                            valueAsNumber: true,
+                          })}
+                          type='number'
+                          id='maxParticipants'
+                          min='1'
+                          className='w-full pl-10 pr-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white placeholder-lottery-400 focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
+                          placeholder='100'
+                        />
+                      </div>
+                      {errors.maxParticipants && (
+                        <p className='mt-2 text-sm text-red-400'>
+                          {errors.maxParticipants.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor='ticketPrice'
+                        className='block text-sm font-medium text-lottery-200 mb-2'
+                      >
+                        Total Prize Pool
+                      </label>
+                      <div className='w-full px-4 py-3 bg-lottery-700/30 border border-lottery-600/30 rounded-xl text-lottery-300'>
+                        ${watch('ticketPrice') * watch('maxParticipants') || 0}
+                      </div>
+                      <p className='mt-1 text-xs text-lottery-400'>
+                        Based on ticket price × max participants
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Schedule */}
+                <div>
+                  <h3 className='text-lg font-semibold text-white mb-4 flex items-center'>
+                    <Calendar className='w-5 h-5 mr-2 text-lottery-500' />
+                    Schedule
+                  </h3>
+
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                    <div>
+                      <label
+                        htmlFor='startDate'
+                        className='block text-sm font-medium text-lottery-200 mb-2'
+                      >
+                        Start Date *
+                      </label>
+                      <input
+                        {...register('startDate')}
+                        type='datetime-local'
+                        id='startDate'
+                        className='w-full px-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
+                      />
+                      {errors.startDate && (
+                        <p className='mt-2 text-sm text-red-400'>
+                          {errors.startDate.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor='endDate'
+                        className='block text-sm font-medium text-lottery-200 mb-2'
+                      >
+                        End Date *
+                      </label>
+                      <input
+                        {...register('endDate')}
+                        type='datetime-local'
+                        id='endDate'
+                        className='w-full px-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
+                      />
+                      {errors.endDate && (
+                        <p className='mt-2 text-sm text-red-400'>
+                          {errors.endDate.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className='pt-6 border-t border-lottery-700/30'>
+                <Button
+                  type='submit'
+                  disabled={createGameMutation.isPending}
+                  className='w-full py-3 bg-gradient-to-r from-lottery-500 to-lottery-600 hover:from-lottery-600 hover:to-lottery-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl'
+                >
+                  {createGameMutation.isPending
+                    ? t('admin.creatingGame')
+                    : t('admin.createGame')}
+                </Button>
+              </div>
+            </form>
           </Form>
         </div>
       </div>

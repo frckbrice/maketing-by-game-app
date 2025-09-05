@@ -1,49 +1,92 @@
 /**
- * Currency Service - Optimized for Mobile Performance
- * 
+ * Professional Currency Service
+ *
  * Features:
- * - Dual API support: ExchangeRate-API (primary) + Fixer.io (fallback)
- * - Smart caching with memory limits and automatic cleanup
- * - Request deduplication to prevent duplicate API calls
- * - 10-second timeout protection for better UX
- * - Offline fallback with mock exchange rates
- * - Performance monitoring and health checks
- * - Mobile-optimized with minimal memory footprint
- * 
- * Environment Variables Required:
- * - EXCHANGE_RATE_API_KEY: Primary API key from exchangerate-api.com
- * - FIXER_API_KEY: Fallback API key from fixer.io
+ * - ExchangeRate-API.com integration (primary)
+ * - Fixer.io integration (fallback)
+ * - Server-side optimized for production
+ * - No mock data - real API calls only
+ * - Environment agnostic (server/client detection)
+ * - Smart caching with TTL
+ * - Request deduplication
+ * - Timeout protection
+ * - Error handling and fallback strategies
  */
 
+import { EXCHANGE_RATE_API_KEY, FIXER_API_KEY } from '@/lib/constants';
+
 interface ExchangeRates {
-  [key: string]: number;
+  [currency: string]: number;
 }
 
-interface CurrencyApiResponse {
+interface ExchangeRateApiResponse {
+  result: 'success' | 'error';
+  documentation: string;
+  terms_of_use: string;
+  time_last_update_unix: number;
+  time_last_update_utc: string;
+  time_next_update_unix: number;
+  time_next_update_utc: string;
+  base_code: string;
+  conversion_rates: ExchangeRates;
+  error_type?: string;
+}
+
+interface PairConversionResponse {
+  result: 'success' | 'error';
+  documentation: string;
+  terms_of_use: string;
+  time_last_update_unix: number;
+  time_last_update_utc: string;
+  time_next_update_unix: number;
+  time_next_update_utc: string;
+  base_code: string;
+  target_code: string;
+  conversion_rate: number;
+  error_type?: string;
+}
+
+interface FixerApiResponse {
+  success: boolean;
+  timestamp: number;
   base: string;
   date: string;
   rates: ExchangeRates;
-  // Fixer.io specific fields
-  success?: boolean;
   error?: {
     code: number;
     info: string;
+    type: string;
   };
-  // ExchangeRate-API specific fields
-  result?: string;
-  'error-type'?: string;
+}
+
+interface ConversionResult {
+  success: boolean;
+  originalAmount: number;
+  convertedAmount: number;
+  fromCurrency: string;
+  toCurrency: string;
+  exchangeRate: number;
+  timestamp: string;
+  source: 'exchangerate-api' | 'fixer' | 'cache';
 }
 
 export class CurrencyService {
   private static instance: CurrencyService;
-  private cache: Map<string, { rates: ExchangeRates; timestamp: number }> =
-    new Map();
+  private cache: Map<
+    string,
+    { rates: ExchangeRates; timestamp: number; source: string }
+  > = new Map();
+  private pendingRequests: Map<string, Promise<ExchangeRates>> = new Map();
+
+  // Configuration
   private readonly CACHE_DURATION = 60 * 60 * 1000; // 1 hour
-  private readonly MAX_CACHE_SIZE = 10; // Limit cache size for memory optimization
-  private pendingRequests: Map<string, Promise<ExchangeRates>> = new Map(); // Prevent duplicate requests
-  private readonly API_URL = `https://v6.exchangerate-api.com/v6/${process.env.EXCHANGE_RATE_API_KEY}/latest/`;
-  private readonly FALLBACK_API_URL =
-    'https://api.fixer.io/latest?access_key=';
+  private readonly REQUEST_TIMEOUT = 15000; // 15 seconds
+  private readonly MAX_CACHE_SIZE = 50;
+
+  // API URLs according to documentation
+  private readonly EXCHANGE_RATE_API_BASE =
+    'https://v6.exchangerate-api.com/v6';
+  private readonly FIXER_API_BASE = 'https://api.fixer.io';
 
   public static getInstance(): CurrencyService {
     if (!CurrencyService.instance) {
@@ -52,129 +95,194 @@ export class CurrencyService {
     return CurrencyService.instance;
   }
 
-  async getExchangeRates(baseCurrency: string = 'USD'): Promise<ExchangeRates> {
-    const cacheKey = baseCurrency;
-    const cached = this.cache.get(cacheKey);
+  private constructor() {
+    // Only validate API keys on server side
+    if (typeof window === 'undefined') {
+      if (!EXCHANGE_RATE_API_KEY && !FIXER_API_KEY) {
+        console.error(
+          'Currency Service: No API keys configured. Service will fail.'
+        );
+      }
+    }
+  }
+
+  /**
+   * Get exchange rates for a base currency
+   */
+  async getExchangeRates(baseCurrency: string = 'XAF'): Promise<ExchangeRates> {
+    const cacheKey = `rates:${baseCurrency}`;
 
     // Check cache first
+    const cached = this.cache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
       return cached.rates;
     }
 
-    // Check if there's already a pending request for this currency
+    // Check for pending request
     if (this.pendingRequests.has(cacheKey)) {
       return this.pendingRequests.get(cacheKey)!;
     }
 
-    // Create a new request
-    const requestPromise = this.fetchExchangeRates(baseCurrency, cached);
+    // Create new request
+    const requestPromise = this.fetchExchangeRates(baseCurrency);
     this.pendingRequests.set(cacheKey, requestPromise);
 
     try {
       const rates = await requestPromise;
-      
-      // Cache the result
-      this.setCacheWithLimit(cacheKey, rates);
-      
+      this.setCacheWithLimit(cacheKey, rates, 'exchangerate-api');
       return rates;
     } finally {
-      // Always clean up pending request
       this.pendingRequests.delete(cacheKey);
     }
   }
 
-  private async fetchExchangeRates(
-    baseCurrency: string, 
-    cached?: { rates: ExchangeRates; timestamp: number }
-  ): Promise<ExchangeRates> {
-    try {
-      // Try primary API
-      const rates = await this.fetchFromPrimaryApi(baseCurrency);
-      return rates;
-    } catch (error) {
-      console.error('Primary currency API failed:', error);
-
-      try {
-        // Try fallback API
-        const rates = await this.fetchFromFallbackApi(baseCurrency);
-        return rates;
-      } catch (fallbackError) {
-        console.error('Fallback currency API failed:', fallbackError);
-
-        // Return cached data if available, otherwise mock data
-        if (cached) {
-          console.warn('Using stale currency data');
-          return cached.rates;
-        }
-
-        console.warn('Using mock currency exchange rates');
-        return this.getMockExchangeRates(baseCurrency);
-      }
-    }
-  }
-
-  private setCacheWithLimit(cacheKey: string, rates: ExchangeRates): void {
-    // If cache is at limit, remove oldest entry
-    if (this.cache.size >= this.MAX_CACHE_SIZE) {
-      const oldestKey = this.cache.keys().next().value;
-      if (oldestKey) {
-        this.cache.delete(oldestKey);
-      }
-    }
-
-    this.cache.set(cacheKey, { rates, timestamp: Date.now() });
-  }
-
+  /**
+   * Convert currency amounts using efficient pair conversion
+   */
   async convertCurrency(
     amount: number,
     fromCurrency: string,
     toCurrency: string
-  ): Promise<number> {
-    if (fromCurrency === toCurrency) {
-      return amount;
+  ): Promise<ConversionResult> {
+    if (amount <= 0) {
+      throw new Error('Amount must be greater than 0');
     }
 
-    // Round amount to avoid floating point precision issues in caching
-    const roundedAmount = Math.round(amount * 100) / 100;
-    const conversionKey = `${roundedAmount}:${fromCurrency}:${toCurrency}`;
-    
-    // Check conversion cache (short-term cache for common conversions)
-    const cached = this.cache.get(conversionKey);
-    if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) { // 5 minute cache for conversions
-      return cached.rates.converted as unknown as number;
+    if (fromCurrency === toCurrency) {
+      return {
+        success: true,
+        originalAmount: amount,
+        convertedAmount: amount,
+        fromCurrency,
+        toCurrency,
+        exchangeRate: 1,
+        timestamp: new Date().toISOString(),
+        source: 'cache',
+      };
+    }
+
+    // Check cache first
+    const cacheKey = `pair:${fromCurrency}:${toCurrency}`;
+    const cached = this.cache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
+      const rate = cached.rates.rate as number;
+      const convertedAmount = Math.round(amount * rate * 100) / 100;
+
+      return {
+        success: true,
+        originalAmount: amount,
+        convertedAmount,
+        fromCurrency,
+        toCurrency,
+        exchangeRate: rate,
+        timestamp: new Date().toISOString(),
+        source: 'cache',
+      };
     }
 
     try {
-      const rates = await this.getExchangeRates(fromCurrency);
-      const rate = rates[toCurrency];
+      // Use pair conversion endpoint for direct conversion
+      const rate = await this.getPairConversionRate(fromCurrency, toCurrency);
+      const convertedAmount = Math.round(amount * rate * 100) / 100;
 
-      if (!rate) {
-        console.error(`Exchange rate not found for ${toCurrency}`);
-        return amount; // Return original amount if rate not found
-      }
+      // Cache the rate
+      this.setCacheWithLimit(cacheKey, { rate }, 'exchangerate-api');
 
-      const converted = Math.round((amount * rate) * 100) / 100; // Round to 2 decimal places
-      
-      // Cache the conversion result
-      this.setCacheWithLimit(conversionKey, { converted } as any);
-      
-      return converted;
+      return {
+        success: true,
+        originalAmount: amount,
+        convertedAmount,
+        fromCurrency,
+        toCurrency,
+        exchangeRate: rate,
+        timestamp: new Date().toISOString(),
+        source: 'exchangerate-api',
+      };
     } catch (error) {
-      console.error('Currency conversion failed:', error);
-      return amount; // Return original amount on error
+      throw new Error(
+        `Currency conversion failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
-  private async fetchFromPrimaryApi(
-    baseCurrency: string
-  ): Promise<ExchangeRates> {
+  /**
+   * Get pair conversion rate using ExchangeRate-API pair endpoint
+   */
+  private async getPairConversionRate(
+    fromCurrency: string,
+    toCurrency: string
+  ): Promise<number> {
+    const isServer = typeof window === 'undefined';
+
+    if (!isServer) {
+      throw new Error(
+        'Currency service should only be used on the server side for security'
+      );
+    }
+
+    let lastError: Error | null = null;
+
+    // Try ExchangeRate-API pair endpoint first
+    if (EXCHANGE_RATE_API_KEY) {
+      try {
+        const rate = await this.fetchPairConversionRate(
+          fromCurrency,
+          toCurrency
+        );
+        return rate;
+      } catch (error) {
+        console.error('ExchangeRate-API pair conversion failed:', error);
+        lastError =
+          error instanceof Error ? error : new Error('ExchangeRate-API failed');
+      }
+    }
+
+    // Fallback to full rates and extract the specific rate
+    try {
+      const rates = await this.fetchExchangeRates(fromCurrency);
+      const rate = rates[toCurrency];
+
+      if (!rate || rate <= 0) {
+        throw new Error(
+          `Exchange rate not available for ${fromCurrency} to ${toCurrency}`
+        );
+      }
+
+      return rate;
+    } catch (error) {
+      throw new Error(
+        `All currency APIs failed. Last error: ${lastError?.message || 'Unknown error'}`
+      );
+    }
+  }
+
+  /**
+   * Fetch pair conversion rate from ExchangeRate-API
+   */
+  private async fetchPairConversionRate(
+    fromCurrency: string,
+    toCurrency: string
+  ): Promise<number> {
+    if (!EXCHANGE_RATE_API_KEY) {
+      throw new Error('ExchangeRate-API key not configured');
+    }
+
+    console.log('EXCHANGE_RATE_API_KEY', EXCHANGE_RATE_API_KEY);
+
+    const url = `${this.EXCHANGE_RATE_API_BASE}/${EXCHANGE_RATE_API_KEY}/pair/${fromCurrency}/${toCurrency}`;
+
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      this.REQUEST_TIMEOUT
+    );
 
     try {
-      const response = await fetch(`${this.API_URL}${baseCurrency}`, {
+      const response = await fetch(url, {
+        method: 'GET',
         headers: {
           Accept: 'application/json',
+          'User-Agent': 'BlackFriday-Marketing-App/1.0',
         },
         signal: controller.signal,
       });
@@ -182,107 +290,225 @@ export class CurrencyService {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`ExchangeRate-API error! status: ${response.status}`);
+        throw new Error(
+          `ExchangeRate-API Pair HTTP ${response.status}: ${response.statusText}`
+        );
       }
 
-      const data: CurrencyApiResponse = await response.json();
-      
-      // Handle ExchangeRate-API response structure
-      if (data.result === 'error') {
-        throw new Error(`ExchangeRate-API error: ${data['error-type'] || 'Unknown error'}`);
+      const data: PairConversionResponse = await response.json();
+
+      if (data.result !== 'success') {
+        throw new Error(
+          `ExchangeRate-API Pair error: ${data.error_type || 'Unknown error'}`
+        );
       }
 
-      return data.rates;
+      if (!data.conversion_rate || data.conversion_rate <= 0) {
+        throw new Error('Invalid conversion rate from ExchangeRate-API');
+      }
+
+      return data.conversion_rate;
     } catch (error) {
       clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('ExchangeRate-API Pair request timeout');
+      }
       throw error;
     }
   }
 
-  private async fetchFromFallbackApi(
+  /**
+   * Fetch exchange rates from APIs
+   */
+  private async fetchExchangeRates(
     baseCurrency: string
   ): Promise<ExchangeRates> {
-    // Note: need to get a free API key from fixer.io
-    const apiKey = process.env.FIXER_API_KEY;
+    // Environment detection
+    const isServer = typeof window === 'undefined';
 
-    if (!apiKey) {
-      throw new Error('Fixer API key not configured - using mock rates');
+    if (!isServer) {
+      throw new Error(
+        'Currency service should only be used on the server side for security'
+      );
     }
 
+    let lastError: Error | null = null;
+
+    // Try ExchangeRate-API first (primary)
+    if (EXCHANGE_RATE_API_KEY) {
+      try {
+        const rates = await this.fetchFromExchangeRateApi(baseCurrency);
+        return rates;
+      } catch (error) {
+        console.error('ExchangeRate-API failed:', error);
+        lastError =
+          error instanceof Error ? error : new Error('ExchangeRate-API failed');
+      }
+    }
+
+    // Try Fixer.io as fallback
+    if (FIXER_API_KEY) {
+      try {
+        const rates = await this.fetchFromFixerApi(baseCurrency);
+        return rates;
+      } catch (error) {
+        console.error('Fixer API failed:', error);
+        lastError =
+          error instanceof Error ? error : new Error('Fixer API failed');
+      }
+    }
+
+    // If both APIs fail, throw the last error
+    throw new Error(
+      `All currency APIs failed. Last error: ${lastError?.message || 'Unknown error'}`
+    );
+  }
+
+  /**
+   * Fetch from ExchangeRate-API.com
+   * Documentation: https://www.exchangerate-api.com/docs/standard-requests
+   */
+  private async fetchFromExchangeRateApi(
+    baseCurrency: string
+  ): Promise<ExchangeRates> {
+    if (!EXCHANGE_RATE_API_KEY) {
+      throw new Error('ExchangeRate-API key not configured');
+    }
+
+    const url = `${this.EXCHANGE_RATE_API_BASE}/${EXCHANGE_RATE_API_KEY}/latest/${baseCurrency}`;
+
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      this.REQUEST_TIMEOUT
+    );
 
     try {
-      const response = await fetch(
-        `${this.FALLBACK_API_URL}${apiKey}&base=${baseCurrency}&symbols=USD,XAF,EUR,GBP,JPY,CAD,AUD,CHF,CNY,INR,BRL,ZAR,NGN,KES,GHS`,
-        {
-          headers: {
-            Accept: 'application/json',
-          },
-          signal: controller.signal,
-        }
-      );
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'User-Agent': 'BlackFriday-Marketing-App/1.0',
+        },
+        signal: controller.signal,
+      });
 
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`Fixer API error! status: ${response.status}`);
+        throw new Error(
+          `ExchangeRate-API HTTP ${response.status}: ${response.statusText}`
+        );
       }
 
-      const data: CurrencyApiResponse = await response.json();
-      
-      // Handle Fixer.io response structure
-      if (data.success === false) {
-        throw new Error(`Fixer API error: ${data.error?.info || 'Unknown error'}`);
+      const data: ExchangeRateApiResponse = await response.json();
+
+      if (data.result !== 'success') {
+        throw new Error(
+          `ExchangeRate-API error: ${data.error_type || 'Unknown error'}`
+        );
+      }
+
+      if (!data.conversion_rates || typeof data.conversion_rates !== 'object') {
+        throw new Error('Invalid response format from ExchangeRate-API');
+      }
+
+      return data.conversion_rates;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('ExchangeRate-API request timeout');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Fetch from Fixer.io
+   * Documentation: https://fixer.io/documentation
+   */
+  private async fetchFromFixerApi(
+    baseCurrency: string
+  ): Promise<ExchangeRates> {
+    if (!FIXER_API_KEY) {
+      throw new Error('Fixer API key not configured');
+    }
+
+    // Get supported currencies for Fixer API
+    const symbols = this.getSupportedCurrencies().join(',');
+    const url = `${this.FIXER_API_BASE}/latest?access_key=${FIXER_API_KEY}&base=${baseCurrency}&symbols=${symbols}`;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      this.REQUEST_TIMEOUT
+    );
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'User-Agent': 'BlackFriday-Marketing-App/1.0',
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(
+          `Fixer API HTTP ${response.status}: ${response.statusText}`
+        );
+      }
+
+      const data: FixerApiResponse = await response.json();
+
+      if (!data.success) {
+        const errorMsg =
+          data.error?.info || data.error?.type || 'Unknown error';
+        throw new Error(`Fixer API error: ${errorMsg}`);
+      }
+
+      if (!data.rates || typeof data.rates !== 'object') {
+        throw new Error('Invalid response format from Fixer API');
       }
 
       return data.rates;
     } catch (error) {
       clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Fixer API request timeout');
+      }
       throw error;
     }
   }
 
-  private getMockExchangeRates(baseCurrency: string): ExchangeRates {
-    // Mock exchange rates for development/fallback
-    const mockRates: Record<string, ExchangeRates> = {
-      USD: {
-        EUR: 0.85,
-        GBP: 0.73,
-        JPY: 110.0,
-        CAD: 1.25,
-        AUD: 1.35,
-        CHF: 0.92,
-        CNY: 6.45,
-        INR: 74.5,
-        BRL: 5.2,
-        ZAR: 14.8,
-        NGN: 411.0,
-        KES: 108.5,
-        GHS: 6.1,
-        XAF: 585.9, // Central African Franc (Cameroon)
-      },
-      EUR: {
-        USD: 1.18,
-        GBP: 0.86,
-        JPY: 129.5,
-        CAD: 1.47,
-        AUD: 1.59,
-        CHF: 1.08,
-        CNY: 7.6,
-        INR: 87.8,
-        BRL: 6.12,
-        ZAR: 17.4,
-        NGN: 484.0,
-        KES: 127.8,
-        GHS: 7.18,
-        XAF: 690.0, // Central African Franc (Cameroon)
-      },
-    };
+  /**
+   * Cache management with size limit
+   */
+  private setCacheWithLimit(
+    cacheKey: string,
+    rates: ExchangeRates,
+    source: string
+  ): void {
+    if (this.cache.size >= this.MAX_CACHE_SIZE) {
+      const oldestKey = this.cache.keys().next().value;
+      if (oldestKey) {
+        this.cache.delete(oldestKey);
+      }
+    }
 
-    return mockRates[baseCurrency] || mockRates.USD;
+    this.cache.set(cacheKey, {
+      rates,
+      timestamp: Date.now(),
+      source,
+    });
   }
 
+  /**
+   * Get supported currencies
+   */
   getSupportedCurrencies(): string[] {
     return [
       'USD',
@@ -293,21 +519,39 @@ export class CurrencyService {
       'AUD',
       'CHF',
       'CNY',
-      'INR',
-      'BRL',
-      'ZAR',
-      'NGN',
-      'KES',
-      'GHS',
-      'XAF', // Central African Franc
+      'XAF', // Central African Franc (Cameroon)
+      'NGN', // Nigerian Naira
+      'KES', // Kenyan Shilling
+      'GHS', // Ghanaian Cedi
+      'ZAR', // South African Rand
+      'INR', // Indian Rupee
+      'BRL', // Brazilian Real
     ];
   }
 
+  /**
+   * Get default currency for Cameroon
+   */
+  getDefaultCurrency(): string {
+    return 'XAF';
+  }
+
+  /**
+   * Format currency amount
+   */
   formatCurrency(
     amount: number,
     currency: string,
     locale: string = 'en-US'
   ): string {
+    // Special handling for XAF (Central African Franc)
+    if (currency === 'XAF') {
+      return `${amount.toLocaleString('fr-FR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      })} FCFA`;
+    }
+
     try {
       return new Intl.NumberFormat(locale, {
         style: 'currency',
@@ -316,82 +560,101 @@ export class CurrencyService {
         maximumFractionDigits: 2,
       }).format(amount);
     } catch (error) {
-      // Fallback formatting if Intl fails
-      const symbol = this.getCurrencySymbol(currency);
+      // Fallback formatting
+      const symbols: Record<string, string> = {
+        USD: '$',
+        EUR: '€',
+        GBP: '£',
+        JPY: '¥',
+        CAD: 'C$',
+        AUD: 'A$',
+        CHF: 'CHF',
+        CNY: '¥',
+        NGN: '₦',
+        KES: 'KSh',
+        GHS: '₵',
+        ZAR: 'R',
+        INR: '₹',
+        BRL: 'R$',
+      };
+
+      const symbol = symbols[currency] || currency;
       return `${symbol}${amount.toFixed(2)}`;
     }
   }
 
-  private getCurrencySymbol(currency: string): string {
-    const symbols: Record<string, string> = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      JPY: '¥',
-      CAD: 'C$',
-      AUD: 'A$',
-      CHF: 'CHF',
-      CNY: '¥',
-      INR: '₹',
-      BRL: 'R$',
-      ZAR: 'R',
-      NGN: '₦',
-      KES: 'KSh',
-      GHS: '₵',
-      XAF: 'FCFA', // Central African Franc
-    };
+  /**
+   * Health check for APIs
+   */
+  async checkApiHealth(): Promise<{
+    exchangeRateApi: boolean;
+    fixerApi: boolean;
+  }> {
+    const results = { exchangeRateApi: false, fixerApi: false };
 
-    return symbols[currency] || currency;
+    // Quick health check for ExchangeRate-API
+    if (EXCHANGE_RATE_API_KEY) {
+      try {
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(), 5000);
+
+        const response = await fetch(
+          `${this.EXCHANGE_RATE_API_BASE}/${EXCHANGE_RATE_API_KEY}/latest/USD`,
+          {
+            method: 'HEAD',
+            signal: controller.signal,
+          }
+        );
+
+        results.exchangeRateApi = response.ok;
+      } catch {
+        results.exchangeRateApi = false;
+      }
+    }
+
+    // Quick health check for Fixer API
+    if (FIXER_API_KEY) {
+      try {
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(), 5000);
+
+        const response = await fetch(
+          `${this.FIXER_API_BASE}/latest?access_key=${FIXER_API_KEY}`,
+          {
+            method: 'HEAD',
+            signal: controller.signal,
+          }
+        );
+
+        results.fixerApi = response.ok;
+      } catch {
+        results.fixerApi = false;
+      }
+    }
+
+    return results;
   }
 
-  // Utility methods for performance monitoring and cache management
+  /**
+   * Clear cache
+   */
   clearCache(): void {
     this.cache.clear();
     this.pendingRequests.clear();
   }
 
+  /**
+   * Get cache statistics
+   */
   getCacheStats(): { size: number; maxSize: number; keys: string[] } {
     return {
       size: this.cache.size,
       maxSize: this.MAX_CACHE_SIZE,
-      keys: Array.from(this.cache.keys())
+      keys: Array.from(this.cache.keys()),
     };
-  }
-
-  // Check if APIs are available (for offline detection)
-  async checkAPIHealth(): Promise<{primary: boolean; fallback: boolean}> {
-    const results = { primary: false, fallback: false };
-    
-    try {
-      const controller = new AbortController();
-      setTimeout(() => controller.abort(), 3000); // Quick health check
-      
-      await fetch(`${this.API_URL}USD`, {
-        method: 'HEAD',
-        signal: controller.signal
-      });
-      results.primary = true;
-    } catch (error) {
-      // Primary API not available
-    }
-
-    try {
-      if (process.env.FIXER_API_KEY) {
-        const controller = new AbortController();
-        setTimeout(() => controller.abort(), 3000);
-        
-        await fetch(`${this.FALLBACK_API_URL}${process.env.FIXER_API_KEY}`, {
-          method: 'HEAD',
-          signal: controller.signal
-        });
-        results.fallback = true;
-      }
-    } catch (error) {
-      // Fallback API not available
-    }
-
-    return results;
   }
 }
 
-export const currencyService = CurrencyService.getInstance();
+// Export singleton instance - only create on server side
+export const currencyService =
+  typeof window === 'undefined' ? CurrencyService.getInstance() : (null as any);

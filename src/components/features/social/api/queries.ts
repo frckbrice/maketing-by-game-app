@@ -1,16 +1,16 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { 
-  collection, 
-  doc, 
-  getDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit as fbLimit, 
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  limit as fbLimit,
   startAfter,
   count,
-  getCountFromServer
+  getCountFromServer,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import {
@@ -27,11 +27,15 @@ import {
   SocialNotification,
   SocialQueryParams,
   ChatQueryParams,
-  ReviewQueryParams
+  ReviewQueryParams,
 } from './types';
 
 // Follow System Queries
-export const useFollowStats = (targetId: string, targetType: 'USER' | 'SHOP' | 'VENDOR', userId?: string) => {
+export const useFollowStats = (
+  targetId: string,
+  targetType: 'USER' | 'SHOP' | 'VENDOR',
+  userId?: string
+) => {
   return useQuery({
     queryKey: ['follow-stats', targetId, targetType, userId],
     queryFn: async (): Promise<FollowStats> => {
@@ -87,7 +91,7 @@ export const useFollowStats = (targetId: string, targetType: 'USER' | 'SHOP' | '
           followersCount,
           followingCount,
           isFollowing,
-          isFollowedBy
+          isFollowedBy,
         };
       } catch (error) {
         console.error('Error fetching follow stats:', error);
@@ -96,7 +100,7 @@ export const useFollowStats = (targetId: string, targetType: 'USER' | 'SHOP' | '
           followersCount: Math.floor(Math.random() * 1000) + 50,
           followingCount: Math.floor(Math.random() * 500) + 20,
           isFollowing: false,
-          isFollowedBy: false
+          isFollowedBy: false,
         };
       }
     },
@@ -107,7 +111,11 @@ export const useFollowStats = (targetId: string, targetType: 'USER' | 'SHOP' | '
 };
 
 // Like System Queries
-export const useLikeStats = (targetId: string, targetType: 'PRODUCT' | 'SHOP' | 'POST' | 'REVIEW', userId?: string) => {
+export const useLikeStats = (
+  targetId: string,
+  targetType: 'PRODUCT' | 'SHOP' | 'POST' | 'REVIEW',
+  userId?: string
+) => {
   return useQuery({
     queryKey: ['like-stats', targetId, targetType, userId],
     queryFn: async (): Promise<LikeStats> => {
@@ -121,14 +129,18 @@ export const useLikeStats = (targetId: string, targetType: 'PRODUCT' | 'SHOP' | 
 
         const likesSnapshot = await getDocs(likesQuery);
         const likesCount = likesSnapshot.size;
-        
+
         let isLiked = false;
-        const recentLikers: Array<{ userId: string; userName: string; userAvatar?: string }> = [];
+        const recentLikers: Array<{
+          userId: string;
+          userName: string;
+          userAvatar?: string;
+        }> = [];
 
         // Check if current user liked and get recent likers
         for (const likeDoc of likesSnapshot.docs) {
           const like = likeDoc.data() as Like;
-          
+
           if (userId && like.userId === userId) {
             isLiked = true;
           }
@@ -142,7 +154,7 @@ export const useLikeStats = (targetId: string, targetType: 'PRODUCT' | 'SHOP' | 
                 recentLikers.push({
                   userId: like.userId,
                   userName: `${userData.firstName} ${userData.lastName}`,
-                  userAvatar: userData.avatar
+                  userAvatar: userData.avatar,
                 });
               }
             } catch (userError) {
@@ -154,7 +166,7 @@ export const useLikeStats = (targetId: string, targetType: 'PRODUCT' | 'SHOP' | 
         return {
           likesCount,
           isLiked,
-          recentLikers
+          recentLikers,
         };
       } catch (error) {
         console.error('Error fetching like stats:', error);
@@ -162,7 +174,7 @@ export const useLikeStats = (targetId: string, targetType: 'PRODUCT' | 'SHOP' | 
         return {
           likesCount: Math.floor(Math.random() * 200) + 10,
           isLiked: false,
-          recentLikers: []
+          recentLikers: [],
         };
       }
     },
@@ -194,7 +206,7 @@ export const useChatRooms = (userId: string, params: ChatQueryParams) => {
 
         for (const chatDoc of chatSnapshot.docs) {
           const chatRoom = { id: chatDoc.id, ...chatDoc.data() } as ChatRoom;
-          
+
           // Get unread count
           const messagesRef = collection(db, 'chatMessages');
           const unreadQuery = query(
@@ -209,7 +221,7 @@ export const useChatRooms = (userId: string, params: ChatQueryParams) => {
           chatPreviews.push({
             chatRoom,
             unreadCount,
-            lastActivity: chatRoom.updatedAt
+            lastActivity: chatRoom.updatedAt,
           });
         }
 
@@ -227,18 +239,18 @@ export const useChatRooms = (userId: string, params: ChatQueryParams) => {
                   userId: 'vendor1',
                   userName: 'Electronics Store',
                   userAvatar: '/images/shop-avatar.jpg',
-                  role: 'VENDOR'
-                }
+                  role: 'VENDOR',
+                },
               ],
               type: 'SHOP_SUPPORT',
               shopId: 'shop1',
               isActive: true,
               createdAt: Date.now() - 24 * 60 * 60 * 1000,
-              updatedAt: Date.now() - 2 * 60 * 60 * 1000
+              updatedAt: Date.now() - 2 * 60 * 60 * 1000,
             },
             unreadCount: 2,
-            lastActivity: Date.now() - 2 * 60 * 60 * 1000
-          }
+            lastActivity: Date.now() - 2 * 60 * 60 * 1000,
+          },
         ];
       }
     },
@@ -249,10 +261,18 @@ export const useChatRooms = (userId: string, params: ChatQueryParams) => {
   });
 };
 
-export const useChatMessages = (chatRoomId: string, params: ChatQueryParams) => {
+export const useChatMessages = (
+  chatRoomId: string,
+  params: ChatQueryParams
+) => {
   return useInfiniteQuery({
     queryKey: ['chat-messages', chatRoomId, params],
-    queryFn: async ({ pageParam = null }): Promise<ChatMessage[]> => {
+    initialPageParam: null,
+    queryFn: async ({
+      pageParam,
+    }: {
+      pageParam: number | null;
+    }): Promise<ChatMessage[]> => {
       if (!chatRoomId) return [];
 
       try {
@@ -271,10 +291,10 @@ export const useChatMessages = (chatRoomId: string, params: ChatQueryParams) => 
         const messagesSnapshot = await getDocs(messagesQuery);
         const messages: ChatMessage[] = [];
 
-        messagesSnapshot.forEach((doc) => {
+        messagesSnapshot.forEach(doc => {
           messages.push({
             id: doc.id,
-            ...doc.data()
+            ...doc.data(),
           } as ChatMessage);
         });
 
@@ -284,7 +304,7 @@ export const useChatMessages = (chatRoomId: string, params: ChatQueryParams) => 
         return [];
       }
     },
-    getNextPageParam: (lastPage) => {
+    getNextPageParam: lastPage => {
       if (lastPage.length === 0) return undefined;
       return lastPage[lastPage.length - 1].createdAt;
     },
@@ -298,7 +318,12 @@ export const useChatMessages = (chatRoomId: string, params: ChatQueryParams) => 
 export const useReviews = (params: ReviewQueryParams) => {
   return useInfiniteQuery({
     queryKey: ['reviews', params],
-    queryFn: async ({ pageParam = 0 }): Promise<Review[]> => {
+    initialPageParam: 0,
+    queryFn: async ({
+      pageParam,
+    }: {
+      pageParam: number;
+    }): Promise<Review[]> => {
       try {
         const reviewsRef = collection(db, 'reviews');
         let reviewsQuery = query(
@@ -310,11 +335,17 @@ export const useReviews = (params: ReviewQueryParams) => {
 
         // Add filters
         if (params.rating) {
-          reviewsQuery = query(reviewsQuery, where('rating', '==', params.rating));
+          reviewsQuery = query(
+            reviewsQuery,
+            where('rating', '==', params.rating)
+          );
         }
 
         if (params.verified) {
-          reviewsQuery = query(reviewsQuery, where('isVerifiedPurchase', '==', true));
+          reviewsQuery = query(
+            reviewsQuery,
+            where('isVerifiedPurchase', '==', true)
+          );
         }
 
         // Add sorting
@@ -344,10 +375,10 @@ export const useReviews = (params: ReviewQueryParams) => {
         const reviewsSnapshot = await getDocs(reviewsQuery);
         const reviews: Review[] = [];
 
-        reviewsSnapshot.forEach((doc) => {
+        reviewsSnapshot.forEach(doc => {
           reviews.push({
             id: doc.id,
-            ...doc.data()
+            ...doc.data(),
           } as Review);
         });
 
@@ -365,7 +396,8 @@ export const useReviews = (params: ReviewQueryParams) => {
             targetType: params.targetType,
             rating: 5,
             title: 'Excellent product!',
-            content: 'Really happy with this purchase. Fast delivery and great quality.',
+            content:
+              'Really happy with this purchase. Fast delivery and great quality.',
             isVerifiedPurchase: true,
             helpful: 12,
             notHelpful: 1,
@@ -386,7 +418,7 @@ export const useReviews = (params: ReviewQueryParams) => {
             notHelpful: 0,
             status: 'PUBLISHED',
             createdAt: Date.now() - 14 * 24 * 60 * 60 * 1000,
-          }
+          },
         ];
       }
     },
@@ -400,7 +432,11 @@ export const useReviews = (params: ReviewQueryParams) => {
   });
 };
 
-export const useReviewStats = (targetId: string, targetType: 'PRODUCT' | 'SHOP' | 'VENDOR', userId?: string) => {
+export const useReviewStats = (
+  targetId: string,
+  targetType: 'PRODUCT' | 'SHOP' | 'VENDOR',
+  userId?: string
+) => {
   return useQuery({
     queryKey: ['review-stats', targetId, targetType, userId],
     queryFn: async (): Promise<ReviewStats> => {
@@ -417,13 +453,17 @@ export const useReviewStats = (targetId: string, targetType: 'PRODUCT' | 'SHOP' 
         const reviews = reviewsSnapshot.docs.map(doc => doc.data() as Review);
 
         const totalReviews = reviews.length;
-        const averageRating = totalReviews > 0 
-          ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews 
-          : 0;
+        const averageRating =
+          totalReviews > 0
+            ? reviews.reduce((sum, review) => sum + review.rating, 0) /
+              totalReviews
+            : 0;
 
         const ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
         reviews.forEach(review => {
-          ratingDistribution[review.rating as keyof typeof ratingDistribution]++;
+          ratingDistribution[
+            review.rating as keyof typeof ratingDistribution
+          ]++;
         });
 
         // Check if user has reviewed
@@ -439,7 +479,7 @@ export const useReviewStats = (targetId: string, targetType: 'PRODUCT' | 'SHOP' 
           averageRating,
           ratingDistribution,
           hasUserReviewed,
-          userReview
+          userReview,
         };
       } catch (error) {
         console.error('Error fetching review stats:', error);
@@ -448,7 +488,7 @@ export const useReviewStats = (targetId: string, targetType: 'PRODUCT' | 'SHOP' 
           totalReviews: 45,
           averageRating: 4.2,
           ratingDistribution: { 1: 2, 2: 3, 3: 8, 4: 15, 5: 17 },
-          hasUserReviewed: false
+          hasUserReviewed: false,
         };
       }
     },
@@ -459,10 +499,18 @@ export const useReviewStats = (targetId: string, targetType: 'PRODUCT' | 'SHOP' 
 };
 
 // Social Activity Feed
-export const useSocialActivity = (userId: string, params: SocialQueryParams) => {
+export const useSocialActivity = (
+  userId: string,
+  params: SocialQueryParams
+) => {
   return useInfiniteQuery({
     queryKey: ['social-activity', userId, params],
-    queryFn: async ({ pageParam = 0 }): Promise<SocialActivity[]> => {
+    initialPageParam: 0,
+    queryFn: async ({
+      pageParam,
+    }: {
+      pageParam: number;
+    }): Promise<SocialActivity[]> => {
       try {
         const activitiesRef = collection(db, 'socialActivities');
         let activitiesQuery = query(
@@ -479,10 +527,10 @@ export const useSocialActivity = (userId: string, params: SocialQueryParams) => 
         const activitiesSnapshot = await getDocs(activitiesQuery);
         const activities: SocialActivity[] = [];
 
-        activitiesSnapshot.forEach((doc) => {
+        activitiesSnapshot.forEach(doc => {
           activities.push({
             id: doc.id,
-            ...doc.data()
+            ...doc.data(),
           } as SocialActivity);
         });
 
@@ -501,10 +549,10 @@ export const useSocialActivity = (userId: string, params: SocialQueryParams) => 
             targetType: 'GAME',
             targetName: 'Super Lottery Draw',
             metadata: {
-              prizeAmount: 5000
+              prizeAmount: 5000,
             },
             isPublic: true,
-            createdAt: Date.now() - 2 * 60 * 60 * 1000
+            createdAt: Date.now() - 2 * 60 * 60 * 1000,
           },
           {
             id: '2',
@@ -516,11 +564,11 @@ export const useSocialActivity = (userId: string, params: SocialQueryParams) => 
             targetName: 'Wireless Headphones',
             metadata: {
               rating: 5,
-              productImage: '/images/headphones.jpg'
+              productImage: '/images/headphones.jpg',
             },
             isPublic: true,
-            createdAt: Date.now() - 4 * 60 * 60 * 1000
-          }
+            createdAt: Date.now() - 4 * 60 * 60 * 1000,
+          },
         ];
       }
     },
@@ -549,7 +597,10 @@ export const useSocialNotifications = (userId: string, unreadOnly = false) => {
         );
 
         if (unreadOnly) {
-          notificationsQuery = query(notificationsQuery, where('isRead', '==', false));
+          notificationsQuery = query(
+            notificationsQuery,
+            where('isRead', '==', false)
+          );
         }
 
         notificationsQuery = query(
@@ -561,10 +612,10 @@ export const useSocialNotifications = (userId: string, unreadOnly = false) => {
         const notificationsSnapshot = await getDocs(notificationsQuery);
         const notifications: SocialNotification[] = [];
 
-        notificationsSnapshot.forEach((doc) => {
+        notificationsSnapshot.forEach(doc => {
           notifications.push({
             id: doc.id,
-            ...doc.data()
+            ...doc.data(),
           } as SocialNotification);
         });
 

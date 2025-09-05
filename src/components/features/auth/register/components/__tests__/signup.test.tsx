@@ -30,7 +30,7 @@ jest.mock('react-i18next', () => ({
 // Mock EnhancedAuthForm
 jest.mock('../../../EnhancedAuthForm', () => ({
   EnhancedAuthForm: ({ mode }: { mode: string }) => (
-    <div data-testid="enhanced-auth-form">
+    <div data-testid='enhanced-auth-form'>
       <span>Mode: {mode}</span>
     </div>
   ),
@@ -38,9 +38,19 @@ jest.mock('../../../EnhancedAuthForm', () => ({
 
 // Mock DesktopHeader
 jest.mock('@/components/home/components/DesktopHeader', () => ({
-  DesktopHeader: ({ isDark, onThemeToggle }: { isDark: boolean; onThemeToggle: () => void }) => (
-    <header data-testid="desktop-header">
-      <button type="button" onClick={onThemeToggle} data-testid="desktop-theme-toggle">
+  DesktopHeader: ({
+    isDark,
+    onThemeToggle,
+  }: {
+    isDark: boolean;
+    onThemeToggle: () => void;
+  }) => (
+    <header data-testid='desktop-header'>
+      <button
+        type='button'
+        onClick={onThemeToggle}
+        data-testid='desktop-theme-toggle'
+      >
         {isDark ? 'Switch to Light' : 'Switch to Dark'}
       </button>
     </header>
@@ -53,18 +63,26 @@ jest.mock('@/components/home/components/MobileNavigation', () => ({
     isDark,
     mobileMenuOpen,
     setMobileMenuOpen,
-    onThemeToggle
+    onThemeToggle,
   }: {
     isDark: boolean;
     mobileMenuOpen: boolean;
     setMobileMenuOpen: (open: boolean) => void;
     onThemeToggle: () => void;
   }) => (
-    <nav data-testid="mobile-navigation">
-      <button type="button" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} data-testid="mobile-menu-toggle">
+    <nav data-testid='mobile-navigation'>
+      <button
+        type='button'
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        data-testid='mobile-menu-toggle'
+      >
         {mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
       </button>
-      <button type="button" onClick={onThemeToggle} data-testid="mobile-theme-toggle">
+      <button
+        type='button'
+        onClick={onThemeToggle}
+        data-testid='mobile-theme-toggle'
+      >
         {isDark ? 'Switch to Light' : 'Switch to Dark'}
       </button>
     </nav>
@@ -88,7 +106,9 @@ describe('RegisterPage', () => {
       render(<RegisterPage />);
 
       expect(screen.getByText('Create Account')).toBeInTheDocument();
-      expect(screen.getByText('Join us and start your journey')).toBeInTheDocument();
+      expect(
+        screen.getByText('Join us and start your journey')
+      ).toBeInTheDocument();
     });
 
     it('shows the logo with checkmark icon', () => {
@@ -144,7 +164,11 @@ describe('RegisterPage', () => {
       render(<RegisterPage />);
 
       const mainContainer = document.querySelector('div.min-h-screen');
-      expect(mainContainer).toHaveClass('min-h-screen', 'bg-white', 'dark:bg-gray-900');
+      expect(mainContainer).toHaveClass(
+        'min-h-screen',
+        'bg-white',
+        'dark:bg-gray-900'
+      );
     });
 
     it('renders with dark theme when theme is dark', () => {
@@ -166,19 +190,42 @@ describe('RegisterPage', () => {
 
       // Check main container
       const mainContainer = document.querySelector('div.min-h-screen');
-      expect(mainContainer).toHaveClass('min-h-screen', 'bg-white', 'dark:bg-gray-900');
+      expect(mainContainer).toHaveClass(
+        'min-h-screen',
+        'bg-white',
+        'dark:bg-gray-900'
+      );
 
       // Check content area
-      const contentArea = document.querySelector('div.flex.items-center.justify-center');
-      expect(contentArea).toHaveClass('flex', 'items-center', 'justify-center', 'min-h-[calc(100vh-8rem)]', 'p-4');
+      const contentArea = document.querySelector(
+        'div.flex.items-center.justify-center'
+      );
+      expect(contentArea).toHaveClass(
+        'flex',
+        'items-center',
+        'justify-center',
+        'min-h-[calc(100vh-8rem)]',
+        'p-4'
+      );
 
       // Check content wrapper
       const contentWrapper = document.querySelector('div.w-full.max-w-md');
       expect(contentWrapper).toHaveClass('w-full', 'max-w-md');
 
       // Check form container
-      const formContainer = document.querySelector('div.bg-white.dark\\:bg-gray-800.rounded-2xl');
-      expect(formContainer).toHaveClass('bg-white', 'dark:bg-gray-800', 'rounded-2xl', 'p-8', 'shadow-2xl', 'border', 'border-gray-200', 'dark:border-gray-700');
+      const formContainer = document.querySelector(
+        'div.bg-white.dark\\:bg-gray-800.rounded-2xl'
+      );
+      expect(formContainer).toHaveClass(
+        'bg-white',
+        'dark:bg-gray-800',
+        'rounded-2xl',
+        'p-8',
+        'shadow-2xl',
+        'border',
+        'border-gray-200',
+        'dark:border-gray-700'
+      );
     });
 
     it('has proper accessibility attributes', () => {
@@ -190,9 +237,18 @@ describe('RegisterPage', () => {
       expect(mainHeading.textContent).toBe('Create Account');
 
       // Check for proper button roles
-      expect(screen.getByTestId('desktop-theme-toggle')).toHaveAttribute('type', 'button');
-      expect(screen.getByTestId('mobile-theme-toggle')).toHaveAttribute('type', 'button');
-      expect(screen.getByTestId('mobile-menu-toggle')).toHaveAttribute('type', 'button');
+      expect(screen.getByTestId('desktop-theme-toggle')).toHaveAttribute(
+        'type',
+        'button'
+      );
+      expect(screen.getByTestId('mobile-theme-toggle')).toHaveAttribute(
+        'type',
+        'button'
+      );
+      expect(screen.getByTestId('mobile-menu-toggle')).toHaveAttribute(
+        'type',
+        'button'
+      );
     });
 
     it('handles responsive design classes', () => {
@@ -202,7 +258,9 @@ describe('RegisterPage', () => {
       const contentWrapper = document.querySelector('div.w-full.max-w-md');
       expect(contentWrapper).toHaveClass('w-full', 'max-w-md');
 
-      const contentArea = document.querySelector('div.flex.items-center.justify-center');
+      const contentArea = document.querySelector(
+        'div.flex.items-center.justify-center'
+      );
       expect(contentArea).toHaveClass('p-4');
     });
   });
@@ -211,9 +269,23 @@ describe('RegisterPage', () => {
     it('renders logo with proper styling', () => {
       render(<RegisterPage />);
 
-      const logoContainer = document.querySelector('div.w-20.h-20.mx-auto.mb-4.bg-gradient-to-r.from-orange-500.to-red-500.rounded-full.flex.items-center.justify-center');
+      const logoContainer = document.querySelector(
+        'div.w-20.h-20.mx-auto.mb-4.bg-gradient-to-r.from-orange-500.to-red-500.rounded-full.flex.items-center.justify-center'
+      );
       expect(logoContainer).toBeInTheDocument();
-      expect(logoContainer).toHaveClass('w-20', 'h-20', 'mx-auto', 'mb-4', 'bg-gradient-to-r', 'from-orange-500', 'to-red-500', 'rounded-full', 'flex', 'items-center', 'justify-center');
+      expect(logoContainer).toHaveClass(
+        'w-20',
+        'h-20',
+        'mx-auto',
+        'mb-4',
+        'bg-gradient-to-r',
+        'from-orange-500',
+        'to-red-500',
+        'rounded-full',
+        'flex',
+        'items-center',
+        'justify-center'
+      );
     });
 
     it('renders header section with proper styling', () => {
@@ -224,7 +296,13 @@ describe('RegisterPage', () => {
       expect(headerSection).toHaveClass('text-center', 'mb-8');
 
       const title = screen.getByText('Create Account');
-      expect(title).toHaveClass('text-3xl', 'font-bold', 'text-gray-900', 'dark:text-white', 'mb-2');
+      expect(title).toHaveClass(
+        'text-3xl',
+        'font-bold',
+        'text-gray-900',
+        'dark:text-white',
+        'mb-2'
+      );
 
       const subtitle = screen.getByText('Join us and start your journey');
       expect(subtitle).toHaveClass('text-gray-600', 'dark:text-gray-300');
@@ -243,8 +321,19 @@ describe('RegisterPage', () => {
     it('form container has proper styling', () => {
       render(<RegisterPage />);
 
-      const formContainer = document.querySelector('div.bg-white.dark\\:bg-gray-800.rounded-2xl');
-      expect(formContainer).toHaveClass('bg-white', 'dark:bg-gray-800', 'rounded-2xl', 'p-8', 'shadow-2xl', 'border', 'border-gray-200', 'dark:border-gray-700');
+      const formContainer = document.querySelector(
+        'div.bg-white.dark\\:bg-gray-800.rounded-2xl'
+      );
+      expect(formContainer).toHaveClass(
+        'bg-white',
+        'dark:bg-gray-800',
+        'rounded-2xl',
+        'p-8',
+        'shadow-2xl',
+        'border',
+        'border-gray-200',
+        'dark:border-gray-700'
+      );
     });
   });
 
@@ -269,7 +358,9 @@ describe('RegisterPage', () => {
       render(<RegisterPage />);
 
       expect(screen.getByText('Create Account')).toBeInTheDocument();
-      expect(screen.getByText('Join us and start your journey')).toBeInTheDocument();
+      expect(
+        screen.getByText('Join us and start your journey')
+      ).toBeInTheDocument();
     });
   });
 

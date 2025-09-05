@@ -10,14 +10,14 @@ const CartButton = React.memo(() => {
 
   return (
     <Button
-      variant="ghost"
+      variant='ghost'
       onClick={() => router.push('/cart')}
-      className="relative text-white hover:bg-gray-800 p-2"
+      className='relative text-white hover:bg-gray-800 p-2'
       aria-label={`Shopping cart with ${state.itemCount} items`}
     >
-      <ShoppingCart className="w-6 h-6" />
+      <ShoppingCart className='w-6 h-6' />
       {state.itemCount > 0 && (
-        <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+        <span className='absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium'>
           {state.itemCount > 99 ? '99+' : state.itemCount}
         </span>
       )}

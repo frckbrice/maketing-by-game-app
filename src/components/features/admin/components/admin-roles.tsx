@@ -35,9 +35,6 @@ import { toast } from 'sonner';
 import { DEFAULT_PERMISSIONS } from '../api/data';
 import { Permission, Role } from '../api/type';
 
-
-
-
 export function AdminRolesPage() {
   const { t } = useTranslation();
   const { user, loading } = useAuth();
@@ -47,7 +44,7 @@ export function AdminRolesPage() {
   const { data: roles = [], isLoading: loadingRoles, error } = useRoles();
   const { data: vendors = [] } = useVendors();
   const { data: admins = [] } = useAdminUsers();
-  
+
   // Mutation hooks
   const createRole = useCreateRole();
   const updateRole = useUpdateRole();
@@ -72,7 +69,7 @@ export function AdminRolesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [processingAction, setProcessingAction] = useState<string | null>(null);
-  
+
   // Form state
   const [formData, setFormData] = useState({
     name: '',
@@ -92,7 +89,6 @@ export function AdminRolesPage() {
     }
   }, [user, loading, router]);
 
-
   const handleCreate = async () => {
     if (!formData.name.trim() || !formData.displayName.trim()) {
       toast.error('Please fill in all required fields');
@@ -101,7 +97,7 @@ export function AdminRolesPage() {
 
     try {
       setProcessingAction('create');
-      
+
       const newRole = {
         name: formData.name.toUpperCase().replace(/\s+/g, '_'),
         displayName: formData.displayName.trim(),
@@ -123,7 +119,7 @@ export function AdminRolesPage() {
         onError: (error: any) => {
           console.error('Error creating role:', error);
           toast.error('Failed to create role');
-        }
+        },
       });
     } catch (error) {
       console.error('Error creating role:', error);
@@ -134,7 +130,11 @@ export function AdminRolesPage() {
   };
 
   const handleEdit = async () => {
-    if (!selectedRole || !formData.name.trim() || !formData.displayName.trim()) {
+    if (
+      !selectedRole ||
+      !formData.name.trim() ||
+      !formData.displayName.trim()
+    ) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -146,7 +146,7 @@ export function AdminRolesPage() {
 
     try {
       setProcessingAction('edit');
-      
+
       const updatedRole = {
         displayName: formData.displayName.trim(),
         description: formData.description.trim(),
@@ -155,17 +155,20 @@ export function AdminRolesPage() {
         updatedAt: Date.now(),
       };
 
-      updateRole.mutate({ id: selectedRole.id, ...updatedRole }, {
-        onSuccess: () => {
-          toast.success('Role updated successfully');
-          setShowEditModal(false);
-          setSelectedRole(null);
-        },
-        onError: (error: any) => {
-          console.error('Error updating role:', error);
-          toast.error('Failed to update role');
+      updateRole.mutate(
+        { id: selectedRole.id, ...updatedRole },
+        {
+          onSuccess: () => {
+            toast.success('Role updated successfully');
+            setShowEditModal(false);
+            setSelectedRole(null);
+          },
+          onError: (error: any) => {
+            console.error('Error updating role:', error);
+            toast.error('Failed to update role');
+          },
         }
-      });
+      );
     } catch (error) {
       console.error('Error updating role:', error);
       toast.error('Failed to update role');
@@ -188,7 +191,11 @@ export function AdminRolesPage() {
       return;
     }
 
-    if (!confirm('Are you sure you want to delete this role? This action cannot be undone.')) {
+    if (
+      !confirm(
+        'Are you sure you want to delete this role? This action cannot be undone.'
+      )
+    ) {
       return;
     }
 
@@ -201,7 +208,7 @@ export function AdminRolesPage() {
         onError: (error: any) => {
           console.error('Error deleting role:', error);
           toast.error('Failed to delete role');
-        }
+        },
       });
     } catch (error) {
       console.error('Error deleting role:', error);
@@ -219,18 +226,23 @@ export function AdminRolesPage() {
 
     try {
       setProcessingAction(role.id);
-      updateRole.mutate({ 
-        id: role.id, 
-        isActive: !role.isActive 
-      }, {
-        onSuccess: () => {
-          toast.success(`Role ${!role.isActive ? 'activated' : 'deactivated'} successfully`);
+      updateRole.mutate(
+        {
+          id: role.id,
+          isActive: !role.isActive,
         },
-        onError: (error: any) => {
-          console.error('Error toggling role status:', error);
-          toast.error('Failed to update role status');
+        {
+          onSuccess: () => {
+            toast.success(
+              `Role ${!role.isActive ? 'activated' : 'deactivated'} successfully`
+            );
+          },
+          onError: (error: any) => {
+            console.error('Error toggling role status:', error);
+            toast.error('Failed to update role status');
+          },
         }
-      });
+      );
     } catch (error) {
       console.error('Error toggling role status:', error);
       toast.error('Failed to update role status');
@@ -263,10 +275,14 @@ export function AdminRolesPage() {
 
   const getRoleIcon = (roleName: string) => {
     switch (roleName) {
-      case 'ADMIN': return <Crown className='w-5 h-5 text-yellow-500' />;
-      case 'VENDOR': return <ShieldCheck className='w-5 h-5 text-blue-500' />;
-      case 'USER': return <UserCheck className='w-5 h-5 text-green-500' />;
-      default: return <Shield className='w-5 h-5 text-gray-500' />;
+      case 'ADMIN':
+        return <Crown className='w-5 h-5 text-yellow-500' />;
+      case 'VENDOR':
+        return <ShieldCheck className='w-5 h-5 text-blue-500' />;
+      case 'USER':
+        return <UserCheck className='w-5 h-5 text-green-500' />;
+      default:
+        return <Shield className='w-5 h-5 text-gray-500' />;
     }
   };
 
@@ -300,8 +316,12 @@ export function AdminRolesPage() {
     return (
       <div className='min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center'>
         <div className='text-center'>
-          <h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-2'>Error Loading Roles</h2>
-          <p className='text-gray-600 dark:text-gray-400 mb-4'>Please try refreshing the page</p>
+          <h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-2'>
+            Error Loading Roles
+          </h2>
+          <p className='text-gray-600 dark:text-gray-400 mb-4'>
+            Please try refreshing the page
+          </p>
           <Button onClick={() => window.location.reload()} variant='outline'>
             Refresh
           </Button>
@@ -329,7 +349,7 @@ export function AdminRolesPage() {
                 </p>
               </div>
             </div>
-            
+
             <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
               <DialogTrigger asChild>
                 <Button className='flex items-center space-x-2'>
@@ -348,7 +368,9 @@ export function AdminRolesPage() {
                       <Input
                         id='name'
                         value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        onChange={e =>
+                          setFormData({ ...formData, name: e.target.value })
+                        }
                         placeholder='CUSTOM_ROLE'
                       />
                     </div>
@@ -357,18 +379,28 @@ export function AdminRolesPage() {
                       <Input
                         id='displayName'
                         value={formData.displayName}
-                        onChange={(e) => setFormData({...formData, displayName: e.target.value})}
+                        onChange={e =>
+                          setFormData({
+                            ...formData,
+                            displayName: e.target.value,
+                          })
+                        }
                         placeholder='Custom Role'
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <Label htmlFor='description'>Description</Label>
                     <Textarea
                       id='description'
                       value={formData.description}
-                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
+                      }
                       placeholder='Role description and purpose'
                       rows={3}
                     />
@@ -377,55 +409,80 @@ export function AdminRolesPage() {
                   <div>
                     <Label>Permissions</Label>
                     <div className='mt-4 space-y-6'>
-                      {Object.entries(getPermissionsByCategory()).map(([category, permissions]) => (
-                        <div key={category} className='border rounded-lg p-4'>
-                          <h4 className='font-medium text-gray-900 dark:text-white mb-3'>{category}</h4>
-                          <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
-                            {permissions.map(permission => (
-                              <div key={permission.id} className='flex items-start space-x-3'>
-                                <Switch
-                                  checked={formData.permissions.includes(permission.id)}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      setFormData({
-                                        ...formData,
-                                        permissions: [...formData.permissions, permission.id]
-                                      });
-                                    } else {
-                                      setFormData({
-                                        ...formData,
-                                        permissions: formData.permissions.filter(p => p !== permission.id)
-                                      });
-                                    }
-                                  }}
-                                />
-                                <div className='flex-1'>
-                                  <Label className='text-sm font-medium'>{permission.name}</Label>
-                                  <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                                    {permission.description}
-                                  </p>
+                      {Object.entries(getPermissionsByCategory()).map(
+                        ([category, permissions]) => (
+                          <div key={category} className='border rounded-lg p-4'>
+                            <h4 className='font-medium text-gray-900 dark:text-white mb-3'>
+                              {category}
+                            </h4>
+                            <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                              {permissions.map(permission => (
+                                <div
+                                  key={permission.id}
+                                  className='flex items-start space-x-3'
+                                >
+                                  <Switch
+                                    checked={formData.permissions.includes(
+                                      permission.id
+                                    )}
+                                    onCheckedChange={checked => {
+                                      if (checked) {
+                                        setFormData({
+                                          ...formData,
+                                          permissions: [
+                                            ...formData.permissions,
+                                            permission.id,
+                                          ],
+                                        });
+                                      } else {
+                                        setFormData({
+                                          ...formData,
+                                          permissions:
+                                            formData.permissions.filter(
+                                              p => p !== permission.id
+                                            ),
+                                        });
+                                      }
+                                    }}
+                                  />
+                                  <div className='flex-1'>
+                                    <Label className='text-sm font-medium'>
+                                      {permission.name}
+                                    </Label>
+                                    <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                                      {permission.description}
+                                    </p>
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      )}
                     </div>
                   </div>
-                  
+
                   <div className='flex items-center space-x-2'>
                     <Switch
                       checked={formData.isActive}
-                      onCheckedChange={(checked) => setFormData({...formData, isActive: checked})}
+                      onCheckedChange={checked =>
+                        setFormData({ ...formData, isActive: checked })
+                      }
                     />
                     <Label>Active</Label>
                   </div>
-                  
+
                   <div className='flex justify-end space-x-2 pt-4'>
-                    <Button variant='outline' onClick={() => setShowCreateModal(false)}>
+                    <Button
+                      variant='outline'
+                      onClick={() => setShowCreateModal(false)}
+                    >
                       Cancel
                     </Button>
-                    <Button onClick={handleCreate} disabled={processingAction === 'create'}>
+                    <Button
+                      onClick={handleCreate}
+                      disabled={processingAction === 'create'}
+                    >
                       {processingAction === 'create' ? (
                         <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white'></div>
                       ) : (
@@ -497,7 +554,7 @@ export function AdminRolesPage() {
           </Card>
         ) : (
           <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6'>
-            {rolesWithStats.map((role) => (
+            {rolesWithStats.map(role => (
               <Card key={role.id} className='p-6 relative'>
                 <div className='flex items-start justify-between mb-4'>
                   <div className='flex items-center space-x-3'>
@@ -518,19 +575,22 @@ export function AdminRolesPage() {
                       <Badge className='bg-red-500 text-white'>Inactive</Badge>
                     )}
                     {role.isSystem && (
-                      <Badge variant='outline' className='border-blue-500 text-blue-600 dark:text-blue-400'>
+                      <Badge
+                        variant='outline'
+                        className='border-blue-500 text-blue-600 dark:text-blue-400'
+                      >
                         System
                       </Badge>
                     )}
                   </div>
                 </div>
-                
+
                 <div className='mb-4'>
                   <p className='text-sm text-gray-600 dark:text-gray-400'>
                     {role.description}
                   </p>
                 </div>
-                
+
                 <div className='flex items-center justify-between text-sm text-gray-500 mb-4'>
                   <span className='flex items-center space-x-1'>
                     <Users className='w-4 h-4' />
@@ -541,7 +601,7 @@ export function AdminRolesPage() {
                     <span>{role.permissions.length} permissions</span>
                   </span>
                 </div>
-                
+
                 <div className='flex items-center justify-between'>
                   <div className='flex items-center space-x-2'>
                     <Button
@@ -569,7 +629,11 @@ export function AdminRolesPage() {
                     variant='outline'
                     size='sm'
                     onClick={() => handleDelete(role.id)}
-                    disabled={processingAction === role.id || role.isSystem || role.userCount > 0}
+                    disabled={
+                      processingAction === role.id ||
+                      role.isSystem ||
+                      role.userCount > 0
+                    }
                     className='text-red-600 border-red-300 hover:bg-red-50'
                   >
                     <Trash2 className='w-4 h-4' />
@@ -594,7 +658,9 @@ export function AdminRolesPage() {
                     id='editName'
                     value={formData.name}
                     disabled={selectedRole?.isSystem}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    onChange={e =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     placeholder='CUSTOM_ROLE'
                   />
                 </div>
@@ -603,18 +669,22 @@ export function AdminRolesPage() {
                   <Input
                     id='editDisplayName'
                     value={formData.displayName}
-                    onChange={(e) => setFormData({...formData, displayName: e.target.value})}
+                    onChange={e =>
+                      setFormData({ ...formData, displayName: e.target.value })
+                    }
                     placeholder='Custom Role'
                   />
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor='editDescription'>Description</Label>
                 <Textarea
                   id='editDescription'
                   value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  onChange={e =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   placeholder='Role description and purpose'
                   rows={3}
                 />
@@ -624,57 +694,82 @@ export function AdminRolesPage() {
                 <div>
                   <Label>Permissions</Label>
                   <div className='mt-4 space-y-6'>
-                    {Object.entries(getPermissionsByCategory()).map(([category, permissions]) => (
-                      <div key={category} className='border rounded-lg p-4'>
-                        <h4 className='font-medium text-gray-900 dark:text-white mb-3'>{category}</h4>
-                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
-                          {permissions.map(permission => (
-                            <div key={permission.id} className='flex items-start space-x-3'>
-                              <Switch
-                                checked={formData.permissions.includes(permission.id)}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setFormData({
-                                      ...formData,
-                                      permissions: [...formData.permissions, permission.id]
-                                    });
-                                  } else {
-                                    setFormData({
-                                      ...formData,
-                                      permissions: formData.permissions.filter(p => p !== permission.id)
-                                    });
-                                  }
-                                }}
-                              />
-                              <div className='flex-1'>
-                                <Label className='text-sm font-medium'>{permission.name}</Label>
-                                <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                                  {permission.description}
-                                </p>
+                    {Object.entries(getPermissionsByCategory()).map(
+                      ([category, permissions]) => (
+                        <div key={category} className='border rounded-lg p-4'>
+                          <h4 className='font-medium text-gray-900 dark:text-white mb-3'>
+                            {category}
+                          </h4>
+                          <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                            {permissions.map(permission => (
+                              <div
+                                key={permission.id}
+                                className='flex items-start space-x-3'
+                              >
+                                <Switch
+                                  checked={formData.permissions.includes(
+                                    permission.id
+                                  )}
+                                  onCheckedChange={checked => {
+                                    if (checked) {
+                                      setFormData({
+                                        ...formData,
+                                        permissions: [
+                                          ...formData.permissions,
+                                          permission.id,
+                                        ],
+                                      });
+                                    } else {
+                                      setFormData({
+                                        ...formData,
+                                        permissions:
+                                          formData.permissions.filter(
+                                            p => p !== permission.id
+                                          ),
+                                      });
+                                    }
+                                  }}
+                                />
+                                <div className='flex-1'>
+                                  <Label className='text-sm font-medium'>
+                                    {permission.name}
+                                  </Label>
+                                  <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                                    {permission.description}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    )}
                   </div>
                 </div>
               )}
-              
+
               <div className='flex items-center space-x-2'>
                 <Switch
                   checked={formData.isActive}
                   disabled={selectedRole?.isSystem}
-                  onCheckedChange={(checked) => setFormData({...formData, isActive: checked})}
+                  onCheckedChange={checked =>
+                    setFormData({ ...formData, isActive: checked })
+                  }
                 />
                 <Label>Active</Label>
               </div>
-              
+
               <div className='flex justify-end space-x-2 pt-4'>
-                <Button variant='outline' onClick={() => setShowEditModal(false)}>
+                <Button
+                  variant='outline'
+                  onClick={() => setShowEditModal(false)}
+                >
                   Cancel
                 </Button>
-                <Button onClick={handleEdit} disabled={processingAction === 'edit'}>
+                <Button
+                  onClick={handleEdit}
+                  disabled={processingAction === 'edit'}
+                >
                   {processingAction === 'edit' ? (
                     <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white'></div>
                   ) : (

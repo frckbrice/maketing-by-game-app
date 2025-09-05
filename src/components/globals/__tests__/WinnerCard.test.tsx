@@ -4,7 +4,7 @@ import { WinnerCard } from '../WinnerCard';
 // Mock the Card component
 jest.mock('../Card', () => ({
   Card: ({ children, className, variant }: any) => (
-    <div data-testid="card" className={className} data-variant={variant}>
+    <div data-testid='card' className={className} data-variant={variant}>
       {children}
     </div>
   ),
@@ -35,7 +35,7 @@ describe('WinnerCard', () => {
   });
 
   it('applies custom className', () => {
-    render(<WinnerCard winner={mockWinner} className="custom-winner-card" />);
+    render(<WinnerCard winner={mockWinner} className='custom-winner-card' />);
 
     const card = screen.getByTestId('card');
     expect(card).toHaveClass('custom-winner-card');
@@ -60,8 +60,15 @@ describe('WinnerCard', () => {
 
     const iconContainer = document.querySelector('.w-12.h-12.rounded-full');
     expect(iconContainer).toHaveClass(
-      'w-12', 'h-12', 'rounded-full', 'bg-gradient-to-r',
-      'from-orange-500', 'to-orange-600', 'flex', 'items-center', 'justify-center'
+      'w-12',
+      'h-12',
+      'rounded-full',
+      'bg-gradient-to-r',
+      'from-orange-500',
+      'to-orange-600',
+      'flex',
+      'items-center',
+      'justify-center'
     );
   });
 
@@ -69,14 +76,22 @@ describe('WinnerCard', () => {
     render(<WinnerCard winner={mockWinner} />);
 
     const name = screen.getByText('John Doe');
-    expect(name).toHaveClass('font-semibold', 'text-slate-900', 'dark:text-white');
+    expect(name).toHaveClass(
+      'font-semibold',
+      'text-slate-900',
+      'dark:text-white'
+    );
   });
 
   it('has correct date styling', () => {
     render(<WinnerCard winner={mockWinner} />);
 
     const date = screen.getByText('2024-01-15');
-    expect(date).toHaveClass('text-sm', 'text-slate-600', 'dark:text-slate-400');
+    expect(date).toHaveClass(
+      'text-sm',
+      'text-slate-600',
+      'dark:text-slate-400'
+    );
   });
 
   it('has correct contest and numbers styling', () => {
@@ -103,7 +118,8 @@ describe('WinnerCard', () => {
   it('handles long contest names', () => {
     const longContestWinner = {
       ...mockWinner,
-      contest: 'This is a very long contest name that might wrap to multiple lines in the UI',
+      contest:
+        'This is a very long contest name that might wrap to multiple lines in the UI',
     };
 
     render(<WinnerCard winner={longContestWinner} />);
@@ -124,7 +140,7 @@ describe('WinnerCard', () => {
 
   it('handles special characters in winner data', () => {
     const specialWinner = {
-      name: 'José María O\'Connor-Smith',
+      name: "José María O'Connor-Smith",
       date: '2024-01-15',
       contest: 'iPhone 15 Pro & MacBook Air Lottery! 🎉',
       numbers: '7-14-23-45-67-89',
@@ -137,7 +153,7 @@ describe('WinnerCard', () => {
   });
 
   it('combines custom and default classes correctly', () => {
-    render(<WinnerCard winner={mockWinner} className="my-custom-winner" />);
+    render(<WinnerCard winner={mockWinner} className='my-custom-winner' />);
 
     const card = screen.getByTestId('card');
     expect(card).toHaveClass('my-custom-winner', 'p-6', 'hover:-translate-y-2');
@@ -166,7 +182,12 @@ describe('WinnerCard', () => {
     const iconContainer = document.querySelector('.w-12.h-12.rounded-full');
     const contestContainer = document.querySelector('.space-y-2');
 
-    expect(iconContainer?.parentElement).toHaveClass('flex', 'items-center', 'space-x-4', 'mb-4');
+    expect(iconContainer?.parentElement).toHaveClass(
+      'flex',
+      'items-center',
+      'space-x-4',
+      'mb-4'
+    );
     expect(contestContainer).toHaveClass('space-y-2');
   });
 

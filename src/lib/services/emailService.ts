@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { APP_URL } from '../constants';
 
 export interface EmailData {
   to: string;
@@ -88,7 +89,7 @@ export class EmailService {
             </div>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_LOCAL_APP_URL}/en/vendor-dashboard" 
+              <a href="${APP_URL || process.env.NEXT_PUBLIC_LOCAL_APP_URL}/en/vendor-dashboard" 
                  style="background: #4caf50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
                 Go to Dashboard
               </a>
@@ -141,7 +142,7 @@ export class EmailService {
             </div>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/en/vendor-application" 
+              <a href="${APP_URL || 'http://localhost:3000'}/en/vendor-application" 
                  style="background: #2196f3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
                 Submit New Application
               </a>
@@ -235,11 +236,11 @@ export class EmailService {
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/en/profile" 
+            <a href="${APP_URL || 'http://localhost:3000'}/en/profile" 
                style="background: #FF5722; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; display: inline-block; font-weight: bold; font-size: 16px; margin: 5px;">
               View My Tickets
             </a>
-            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/en/games" 
+            <a href="${APP_URL || 'http://localhost:3000'}/en/games" 
                style="background: #4CAF50; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; display: inline-block; font-weight: bold; font-size: 16px; margin: 5px;">
               Play More Games
             </a>
@@ -286,7 +287,7 @@ export class EmailService {
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/en/dashboard" 
+            <a href="${APP_URL || 'http://localhost:3000'}/en/dashboard" 
                style="background: ${colorMap[type]}; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
               Go to Dashboard
             </a>

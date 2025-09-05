@@ -95,7 +95,9 @@ export function CategoryTabs({
               aria-controls={`category-${category.id}-panel`}
             >
               {/* Lightning Background Pattern */}
-              <div className={`absolute inset-0 ${isSelected ? 'opacity-20' : 'opacity-5'}`}>
+              <div
+                className={`absolute inset-0 ${isSelected ? 'opacity-20' : 'opacity-5'}`}
+              >
                 <div
                   className='absolute inset-0'
                   style={{
@@ -138,7 +140,9 @@ export function CategoryTabs({
                     }`}
                   >
                     {/* Handle both emoji and image icons */}
-                    {category.icon && typeof category.icon === 'string' && (category.icon.startsWith('http') ||
+                    {category.icon &&
+                    typeof category.icon === 'string' &&
+                    (category.icon.startsWith('http') ||
                       category.icon.startsWith('/')) ? (
                       <Image
                         src={category.icon}
@@ -155,11 +159,11 @@ export function CategoryTabs({
                             : 'text-gray-600 dark:text-gray-400 group-hover:text-orange-500 group-hover:scale-105'
                         }`}
                       >
-                          {category.icon || '🎯'}
+                        {category.icon || '🎯'}
                       </span>
                     )}
                   </div>
-                  
+
                   {/* Icon glow effect for selected */}
                   {isSelected && (
                     <div className='absolute inset-0 flex items-center justify-center'>
@@ -173,8 +177,8 @@ export function CategoryTabs({
                 <div className='flex-1'>
                   <h3
                     className={`font-bold text-base mb-3 line-clamp-2 transition-colors duration-300 ${
-                      isSelected 
-                        ? 'text-white drop-shadow-md' 
+                      isSelected
+                        ? 'text-white drop-shadow-md'
                         : 'text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400'
                     }`}
                   >
@@ -190,7 +194,8 @@ export function CategoryTabs({
                     }`}
                   >
                     <span className='w-2 h-2 rounded-full bg-current opacity-60' />
-                    {count} {count === 1 ? t('categories.game') : t('categories.games')}
+                    {count}{' '}
+                    {count === 1 ? t('categories.game') : t('categories.games')}
                   </div>
                 </div>
 
@@ -233,7 +238,7 @@ export function CategoryTabs({
           <div className='relative inline-block'>
             {/* Lightning background effect */}
             <div className='absolute -inset-2 bg-gradient-to-r from-orange-500/20 via-red-500/20 to-pink-500/20 rounded-3xl blur-xl opacity-50' />
-            
+
             <div className='relative bg-gradient-to-br from-white/80 to-gray-50/60 dark:from-gray-800/80 dark:to-gray-900/60 backdrop-blur-md rounded-2xl px-8 py-6 border border-orange-200/50 dark:border-orange-700/50 shadow-xl shadow-orange-500/10'>
               {/* Lightning decorations */}
               <div className='absolute top-2 left-4 w-6 h-6'>
@@ -242,11 +247,11 @@ export function CategoryTabs({
               <div className='absolute bottom-2 right-4 w-6 h-6'>
                 <Sparkles className='w-4 h-4 text-red-400 opacity-60 animate-pulse delay-1000' />
               </div>
-              
+
               <p className='text-gray-800 dark:text-gray-200 max-w-2xl mx-auto text-base leading-relaxed font-medium'>
                 {categories.find(c => c.id === selectedCategory)?.description}
               </p>
-              
+
               {/* Subtle lightning pattern overlay */}
               <div className='absolute inset-0 opacity-5'>
                 <div

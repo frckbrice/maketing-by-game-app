@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminFirestore } from '@/lib/firebase/admin';
 import { requireAuth } from '@/lib/utils/auth-helpers';
-import { parseQRCodeData, validateQRPayload, verifyHMACSignature } from '@/lib/utils/qr-utils';
+import {
+  parseQRCodeData,
+  validateQRPayload,
+  verifyHMACSignature,
+} from '@/lib/utils/qr-utils';
 import { LotteryTicket, ScanEvent } from '@/types';
 
 interface ScanRequest {
@@ -19,10 +23,21 @@ export async function POST(request: NextRequest) {
   try {
     // Verify authentication
     const user = await requireAuth(request);
-    const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    const clientIP =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
 
     const body: ScanRequest = await request.json();
-    const { ticketId, qrData, signature, scannedBy, vendorId, device, appVersion } = body;
+    const {
+      ticketId,
+      qrData,
+      signature,
+      scannedBy,
+      vendorId,
+      device,
+      appVersion,
+    } = body;
 
     let finalTicketId = ticketId;
     let scanResult: ScanEvent['result'] = 'INVALID';
@@ -31,41 +46,53 @@ export async function POST(request: NextRequest) {
     if (qrData && !ticketId) {
       const qrPayload = parseQRCodeData(qrData);
       if (!qrPayload) {
-        return NextResponse.json({
-          success: false,
-          result: 'INVALID',
-          message: 'Invalid QR code format'
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            success: false,
+            result: 'INVALID',
+            message: 'Invalid QR code format',
+          },
+          { status: 400 }
+        );
       }
 
       // Validate QR payload
       if (!validateQRPayload(qrPayload)) {
-        return NextResponse.json({
-          success: false,
-          result: 'INVALID',
-          message: 'QR code validation failed'
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            success: false,
+            result: 'INVALID',
+            message: 'QR code validation failed',
+          },
+          { status: 400 }
+        );
       }
 
       finalTicketId = qrPayload.ticketId;
     }
 
     if (!finalTicketId) {
-      return NextResponse.json({
-        success: false,
-        result: 'INVALID',
-        message: 'No ticket ID provided'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          result: 'INVALID',
+          message: 'No ticket ID provided',
+        },
+        { status: 400 }
+      );
     }
 
     // Verify HMAC signature if provided (for enhanced security)
     if (signature && qrData) {
       if (!verifyHMACSignature(qrData, signature)) {
-        return NextResponse.json({
-          success: false,
-          result: 'INVALID',
-          message: 'Invalid signature'
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            success: false,
+            result: 'INVALID',
+            message: 'Invalid signature',
+          },
+          { status: 400 }
+        );
       }
     }
 
@@ -77,22 +104,28 @@ export async function POST(request: NextRequest) {
       scanResult = 'INVALID';
     } else {
       const ticket = { id: ticketDoc.id, ...ticketDoc.data() } as LotteryTicket;
-      
+
       // Check ticket status and expiration
       if (ticket.status === 'used') {
         scanResult = 'ALREADY_USED';
-      } else if (ticket.status === 'expired' || (ticket.expiresAt && ticket.expiresAt < Date.now())) {
+      } else if (
+        ticket.status === 'expired' ||
+        (ticket.expiresAt && ticket.expiresAt < Date.now())
+      ) {
         scanResult = 'EXPIRED';
       } else if (ticket.status === 'valid') {
         // If scanned by vendor, mark as used
         if (scannedBy === 'vendor') {
           // Verify vendor has permission to scan this ticket
           if (vendorId && ticket.vendorId !== vendorId) {
-            return NextResponse.json({
-              success: false,
-              result: 'INVALID',
-              message: 'Vendor not authorized to scan this ticket'
-            }, { status: 403 });
+            return NextResponse.json(
+              {
+                success: false,
+                result: 'INVALID',
+                message: 'Vendor not authorized to scan this ticket',
+              },
+              { status: 403 }
+            );
           }
 
           // Mark ticket as used
@@ -128,7 +161,7 @@ export async function POST(request: NextRequest) {
     const scanEvent: Omit<ScanEvent, 'id'> = {
       ticketId: finalTicketId,
       scannedBy,
-      vendorId: scannedBy === 'vendor' ? (vendorId || user.id) : undefined,
+      vendorId: scannedBy === 'vendor' ? vendorId || user.id : undefined,
       userId: user.id,
       appVersion,
       device,
@@ -178,22 +211,30 @@ export async function POST(request: NextRequest) {
       ticketId: finalTicketId,
       ...additionalData,
     });
-
   } catch (error) {
     console.error('Error scanning ticket:', error);
-    
-    if (error instanceof Error && error.message.includes('Authentication required')) {
-      return NextResponse.json({
+
+    if (
+      error instanceof Error &&
+      error.message.includes('Authentication required')
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          result: 'INVALID',
+          message: 'Authentication required',
+        },
+        { status: 401 }
+      );
+    }
+
+    return NextResponse.json(
+      {
         success: false,
         result: 'INVALID',
-        message: 'Authentication required'
-      }, { status: 401 });
-    }
-    
-    return NextResponse.json({
-      success: false,
-      result: 'INVALID',
-      message: 'Internal server error'
-    }, { status: 500 });
+        message: 'Internal server error',
+      },
+      { status: 500 }
+    );
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { currencyService } from '@/lib/api/currencyService';
+import { formatCurrency } from '@/lib/utils/currency';
 import { LotteryGame } from '@/types';
 import {
   ArrowRight,
@@ -21,7 +21,8 @@ import { PaymentModal } from './PaymentModal';
 interface GameCardProps {
   game: LotteryGame;
   isSponsored?: boolean;
-  companyInfo?: {
+  shop?: {
+    id?: string;
     name: string;
     logo: string;
     website?: string;
@@ -31,7 +32,7 @@ interface GameCardProps {
 export const GameCard = React.memo<GameCardProps>(function GameCard({
   game,
   isSponsored = false,
-  companyInfo,
+  shop,
 }) {
   const { t } = useTranslation();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -40,10 +41,19 @@ export const GameCard = React.memo<GameCardProps>(function GameCard({
   const [mounted, setMounted] = useState(false);
 
   // Memoized handlers to prevent unnecessary re-renders
-  const handleOpenPaymentModal = useCallback(() => setShowPaymentModal(true), []);
-  const handleClosePaymentModal = useCallback(() => setShowPaymentModal(false), []);
+  const handleOpenPaymentModal = useCallback(
+    () => setShowPaymentModal(true),
+    []
+  );
+  const handleClosePaymentModal = useCallback(
+    () => setShowPaymentModal(false),
+    []
+  );
   const handleOpenDetailModal = useCallback(() => setShowDetailModal(true), []);
-  const handleCloseDetailModal = useCallback(() => setShowDetailModal(false), []);
+  const handleCloseDetailModal = useCallback(
+    () => setShowDetailModal(false),
+    []
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -83,9 +93,13 @@ export const GameCard = React.memo<GameCardProps>(function GameCard({
   }, [game.endDate, mounted, t]);
 
   const gameStats = useMemo(() => {
-    const progress = game.maxParticipants > 0
-      ? Math.min(100, Math.max(0, (game.currentParticipants / game.maxParticipants) * 100))
-      : 0;
+    const progress =
+      game.maxParticipants > 0
+        ? Math.min(
+          100,
+          Math.max(0, (game.currentParticipants / game.maxParticipants) * 100)
+        )
+        : 0;
 
     return {
       progress,
@@ -98,17 +112,21 @@ export const GameCard = React.memo<GameCardProps>(function GameCard({
   const { progress, isHotGame, isAlmostFull, isNew } = gameStats;
 
   // Memoize safe category to prevent recreation on every render
-  const safeCategory = useMemo(() => game.category || {
-    id: 'general',
-    name: 'General',
-    description: 'General category',
-    icon: '🎁',
-    color: '#9E9E9E',
-    isActive: true,
-    sortOrder: 999,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  }, [game.category]);
+  const safeCategory = useMemo(
+    () =>
+      game.category || {
+        id: 'general',
+        name: 'General',
+        description: 'General category',
+        icon: '🎁',
+        color: '#9E9E9E',
+        isActive: true,
+        sortOrder: 999,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+    [game.category]
+  );
 
   if (!mounted) {
     return (
@@ -145,7 +163,9 @@ export const GameCard = React.memo<GameCardProps>(function GameCard({
           <div className='absolute top-2 sm:top-3 left-2 sm:left-3 z-10'>
             <div className='bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-xs font-bold px-2 sm:px-3 py-1 rounded-full shadow-lg flex items-center'>
               <Star className='w-3 h-3 mr-1' />
-              <span className='hidden sm:inline'>{t('games.gameCard.sponsored')}</span>
+              <span className='hidden sm:inline'>
+                {t('games.gameCard.sponsored')}
+              </span>
               <span className='sm:hidden'>★</span>
             </div>
           </div>
@@ -156,7 +176,9 @@ export const GameCard = React.memo<GameCardProps>(function GameCard({
           {isNew && (
             <div className='bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg flex items-center'>
               <Zap className='w-3 h-3 mr-1' />
-              <span className='hidden sm:inline'>{t('games.gameCard.new')}</span>
+              <span className='hidden sm:inline'>
+                {t('games.gameCard.new')}
+              </span>
               <span className='sm:hidden'>New</span>
             </div>
           )}
@@ -210,11 +232,11 @@ export const GameCard = React.memo<GameCardProps>(function GameCard({
           </div>
 
           {/* Company Logo Overlay */}
-          {companyInfo && (
+          {shop && (
             <div className='absolute bottom-2 sm:bottom-3 right-2 sm:right-3'>
               <div className='bg-white dark:bg-gray-800 rounded-lg p-1.5 sm:p-2 shadow-lg opacity-90 hover:opacity-100 transition-opacity'>
                 <div className='text-xs font-medium text-gray-600 dark:text-gray-300 truncate max-w-16 sm:max-w-20'>
-                  {companyInfo.name}
+                  {shop.name}
                 </div>
               </div>
             </div>
@@ -228,14 +250,14 @@ export const GameCard = React.memo<GameCardProps>(function GameCard({
         <div className='p-4 sm:p-6 flex flex-col h-[calc(100%-10rem)] sm:h-[calc(100%-12rem)]'>
           {/* Title - Fixed height to ensure uniformity */}
           <div className='mb-3 sm:mb-4 flex-shrink-0'>
-            <h3 
+            <h3
               className='text-base sm:text-lg font-bold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors leading-tight h-12 sm:h-14 overflow-hidden'
               title={game.title}
-              style={{ 
+              style={{
                 display: '-webkit-box',
                 WebkitLineClamp: 2,
                 WebkitBoxOrient: 'vertical',
-                lineHeight: '1.5rem'
+                lineHeight: '1.5rem',
               }}
             >
               {game.title}
@@ -249,10 +271,9 @@ export const GameCard = React.memo<GameCardProps>(function GameCard({
                 {t('games.gameCard.ticketPrice')}
               </div>
               <div className='font-bold text-gray-900 dark:text-white'>
-                {currencyService.formatCurrency(
-                  game.ticketPrice,
-                  game.currency
-                )}
+                {formatCurrency
+                  ? formatCurrency(game.ticketPrice, game.currency)
+                  : `$${game.ticketPrice.toFixed(2)}`}
               </div>
             </div>
 
@@ -306,29 +327,29 @@ export const GameCard = React.memo<GameCardProps>(function GameCard({
           </div>
 
           {/* Company Info */}
-          {companyInfo && (
+          {shop && (
             <div className='flex items-center justify-between mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl'>
               <div>
                 <div className='text-xs text-blue-600 dark:text-blue-400 font-medium'>
                   {t('games.gameCard.sponsoredBy')}
                 </div>
                 <div className='text-sm font-semibold text-blue-900 dark:text-blue-100'>
-                  {companyInfo.name}
+                  {shop.name}
                 </div>
               </div>
-              {companyInfo.website && (
+              {shop.website && (
                 <button
                   onClick={e => {
                     e.stopPropagation();
                     window.open(
-                      companyInfo.website,
+                      shop.website,
                       '_blank',
                       'noopener,noreferrer'
                     );
                   }}
                   className='text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors'
                   aria-label={t('games.gameCard.visitWebsite', {
-                    company: companyInfo.name,
+                    company: shop.name,
                   })}
                 >
                   <ExternalLink className='w-4 h-4' />

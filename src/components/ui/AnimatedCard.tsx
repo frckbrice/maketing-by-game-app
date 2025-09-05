@@ -49,10 +49,8 @@ export const AnimatedCard: React.FC<AnimatedCardProps> = ({
         transitionDelay: isVisible ? `${delay}ms` : '0ms',
       }}
     >
-      <Card className="hover:shadow-xl transition-shadow duration-300">
-        <CardContent className="p-6">
-          {children}
-        </CardContent>
+      <Card className='hover:shadow-xl transition-shadow duration-300'>
+        <CardContent className='p-6'>{children}</CardContent>
       </Card>
     </div>
   );

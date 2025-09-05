@@ -1,48 +1,57 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { firestoreService } from '@/lib/firebase/client-services';
-import { winnerQueryKeys } from './queries';
+import { db } from '@/lib/firebase/config';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from 'firebase/firestore';
 import { toast } from 'sonner';
+import { winnerQueryKeys } from './queries';
 import type { Winner, WinnerAnnouncement, WinnerVerification } from './types';
-import type { Winner as CoreWinner } from '@/types';
 
 // Winner claim mutation
 export const useClaimPrize = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ 
-      winnerId, 
+    mutationFn: async ({
+      winnerId,
       claimMethod,
-      claimDetails = {}
-    }: { 
-      winnerId: string; 
+      claimDetails = {},
+    }: {
+      winnerId: string;
       claimMethod: 'AUTOMATIC' | 'MANUAL';
       claimDetails?: Record<string, any>;
     }) => {
-      await firestoreService.updateWinner(winnerId, { 
-        isClaimed: true, 
+      await firestoreService.updateWinner(winnerId, {
+        isClaimed: true,
         claimedAt: Date.now(),
         claimMethod,
         status: 'CLAIMED',
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       });
 
-      return { 
-        success: true, 
-        winnerId, 
+      return {
+        success: true,
+        winnerId,
         claimMethod,
-        message: 'Prize claimed successfully!' 
+        message: 'Prize claimed successfully!',
       };
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
-      
+
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: winnerQueryKeys.winner(data.winnerId) });
+      queryClient.invalidateQueries({
+        queryKey: winnerQueryKeys.winner(data.winnerId),
+      });
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.stats });
-      
+
       queryClient.setQueryData(
-        winnerQueryKeys.winner(data.winnerId), 
+        winnerQueryKeys.winner(data.winnerId),
         (oldData: Winner | undefined) => {
           if (oldData) {
             return {
@@ -51,7 +60,7 @@ export const useClaimPrize = () => {
               claimedAt: Date.now(),
               claimMethod: data.claimMethod,
               status: 'CLAIMED' as const,
-              updatedAt: Date.now()
+              updatedAt: Date.now(),
             };
           }
           return oldData;
@@ -68,22 +77,22 @@ export const useClaimPrize = () => {
 // Winner status update mutation (Admin only)
 export const useUpdateWinnerStatus = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ 
-      winnerId, 
-      status, 
+    mutationFn: async ({
+      winnerId,
+      status,
       adminId,
-      notes = ''
-    }: { 
-      winnerId: string; 
+      notes = '',
+    }: {
+      winnerId: string;
       status: 'PENDING' | 'CLAIMED' | 'DELIVERED' | 'CANCELLED';
       adminId: string;
       notes?: string;
     }) => {
       const updateData: Partial<Winner> = {
         status,
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       };
 
       switch (status) {
@@ -103,20 +112,22 @@ export const useUpdateWinnerStatus = () => {
       }
 
       await firestoreService.updateWinner(winnerId, updateData);
-      
-      return { 
-        success: true, 
-        winnerId, 
-        status, 
+
+      return {
+        success: true,
+        winnerId,
+        status,
         adminId,
-        message: `Winner status updated to ${status.toLowerCase()}` 
+        message: `Winner status updated to ${status.toLowerCase()}`,
       };
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
-      
+
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: winnerQueryKeys.winner(data.winnerId) });
+      queryClient.invalidateQueries({
+        queryKey: winnerQueryKeys.winner(data.winnerId),
+      });
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.stats });
     },
     onError: (error: Error) => {
@@ -129,27 +140,35 @@ export const useUpdateWinnerStatus = () => {
 // Winner announcement creation mutation
 export const useCreateWinnerAnnouncement = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async (announcement: Omit<WinnerAnnouncement, 'id' | 'createdAt' | 'updatedAt'>) => {
+    mutationFn: async (
+      announcement: Omit<WinnerAnnouncement, 'id' | 'createdAt' | 'updatedAt'>
+    ) => {
       const newAnnouncement = {
         ...announcement,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        publishedAt: announcement.publishedAt || Date.now()
+        publishedAt: announcement.publishedAt || Date.now(),
       };
 
-      const id = await firestoreService.createDocument('winnerAnnouncements', newAnnouncement);
-      
-      return { 
-        success: true, 
+      const docRef = await addDoc(
+        collection(db, 'winnerAnnouncements'),
+        newAnnouncement
+      );
+      const id = docRef.id;
+
+      return {
+        success: true,
         announcement: { ...newAnnouncement, id },
-        message: 'Winner announcement created successfully!' 
+        message: 'Winner announcement created successfully!',
       };
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
-      queryClient.invalidateQueries({ queryKey: winnerQueryKeys.announcements });
+      queryClient.invalidateQueries({
+        queryKey: winnerQueryKeys.announcements,
+      });
     },
     onError: (error: Error) => {
       console.error('Error creating winner announcement:', error);
@@ -161,32 +180,37 @@ export const useCreateWinnerAnnouncement = () => {
 // Winner announcement update mutation
 export const useUpdateWinnerAnnouncement = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ 
-      announcementId, 
-      updates 
-    }: { 
-      announcementId: string; 
+    mutationFn: async ({
+      announcementId,
+      updates,
+    }: {
+      announcementId: string;
       updates: Partial<WinnerAnnouncement>;
     }) => {
       const updateData = {
         ...updates,
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       };
 
-      await firestoreService.updateDocument('winnerAnnouncements', announcementId, updateData);
-      
-      return { 
-        success: true, 
-        announcementId, 
+      await updateDoc(
+        doc(db, 'winnerAnnouncements', announcementId),
+        updateData
+      );
+
+      return {
+        success: true,
+        announcementId,
         updates: updateData,
-        message: 'Announcement updated successfully!' 
+        message: 'Announcement updated successfully!',
       };
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
-      queryClient.invalidateQueries({ queryKey: winnerQueryKeys.announcements });
+      queryClient.invalidateQueries({
+        queryKey: winnerQueryKeys.announcements,
+      });
     },
     onError: (error: Error) => {
       console.error('Error updating winner announcement:', error);
@@ -198,20 +222,22 @@ export const useUpdateWinnerAnnouncement = () => {
 // Winner announcement deletion mutation
 export const useDeleteWinnerAnnouncement = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (announcementId: string) => {
-      await firestoreService.deleteDocument('winnerAnnouncements', announcementId);
-      
-      return { 
-        success: true, 
+      await deleteDoc(doc(db, 'winnerAnnouncements', announcementId));
+
+      return {
+        success: true,
         announcementId,
-        message: 'Announcement deleted successfully!' 
+        message: 'Announcement deleted successfully!',
       };
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
-      queryClient.invalidateQueries({ queryKey: winnerQueryKeys.announcements });
+      queryClient.invalidateQueries({
+        queryKey: winnerQueryKeys.announcements,
+      });
     },
     onError: (error: Error) => {
       console.error('Error deleting winner announcement:', error);
@@ -223,21 +249,21 @@ export const useDeleteWinnerAnnouncement = () => {
 // Winner verification mutation (for admin use)
 export const useVerifyWinner = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ 
-      winnerId, 
-      adminId, 
+    mutationFn: async ({
+      winnerId,
+      adminId,
       verificationNotes = '',
-      isVerified = true
-    }: { 
-      winnerId: string; 
+      isVerified = true,
+    }: {
+      winnerId: string;
       adminId: string;
       verificationNotes?: string;
       isVerified?: boolean;
     }) => {
       await firestoreService.updateWinner(winnerId, {
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       });
 
       const verificationRecord: Omit<WinnerVerification, 'id'> = {
@@ -250,25 +276,27 @@ export const useVerifyWinner = () => {
         verifiedBy: adminId,
         rejectionReason: !isVerified ? verificationNotes : undefined,
         createdAt: Date.now(),
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       };
 
-      await firestoreService.createDocument('winnerVerifications', verificationRecord);
-      
-      return { 
-        success: true, 
-        winnerId, 
-        adminId, 
+      await addDoc(collection(db, 'winnerVerifications'), verificationRecord);
+
+      return {
+        success: true,
+        winnerId,
+        adminId,
         verificationNotes,
         isVerified,
-        message: `Winner ${isVerified ? 'verified' : 'rejected'} successfully!` 
+        message: `Winner ${isVerified ? 'verified' : 'rejected'} successfully!`,
       };
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
-      
+
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: winnerQueryKeys.winner(data.winnerId) });
+      queryClient.invalidateQueries({
+        queryKey: winnerQueryKeys.winner(data.winnerId),
+      });
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.stats });
     },
     onError: (error: Error) => {
@@ -281,16 +309,16 @@ export const useVerifyWinner = () => {
 // Winner prize delivery mutation
 export const useDeliverPrize = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ 
-      winnerId, 
-      deliveryMethod, 
+    mutationFn: async ({
+      winnerId,
+      deliveryMethod,
       trackingNumber = '',
       adminId,
-      deliveryNotes = ''
-    }: { 
-      winnerId: string; 
+      deliveryNotes = '',
+    }: {
+      winnerId: string;
       deliveryMethod: string;
       trackingNumber?: string;
       adminId: string;
@@ -300,34 +328,36 @@ export const useDeliverPrize = () => {
         status: 'DELIVERED',
         isClaimed: true,
         claimedAt: Date.now(),
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       });
-      
-      return { 
-        success: true, 
-        winnerId, 
-        deliveryMethod, 
-        trackingNumber, 
+
+      return {
+        success: true,
+        winnerId,
+        deliveryMethod,
+        trackingNumber,
         adminId,
-        message: 'Prize delivery recorded successfully!' 
+        message: 'Prize delivery recorded successfully!',
       };
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
-      
+
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: winnerQueryKeys.winner(data.winnerId) });
+      queryClient.invalidateQueries({
+        queryKey: winnerQueryKeys.winner(data.winnerId),
+      });
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.stats });
-      
+
       queryClient.setQueryData(
-        winnerQueryKeys.winner(data.winnerId), 
+        winnerQueryKeys.winner(data.winnerId),
         (oldData: Winner | undefined) => {
           if (oldData) {
             return {
               ...oldData,
               status: 'DELIVERED' as const,
               isClaimed: true,
-              updatedAt: Date.now()
+              updatedAt: Date.now(),
             };
           }
           return oldData;
@@ -344,32 +374,38 @@ export const useDeliverPrize = () => {
 // Create winner mutation (Admin only)
 export const useCreateWinner = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async (winnerData: Omit<Winner, 'id' | 'createdAt' | 'updatedAt'>) => {
+    mutationFn: async (
+      winnerData: Omit<Winner, 'id' | 'createdAt' | 'updatedAt'>
+    ) => {
       const newWinner = {
         ...winnerData,
         createdAt: Date.now(),
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       };
 
-      const id = await firestoreService.createWinner(newWinner);
-      
-      return { 
-        success: true, 
+      const docRef = await addDoc(collection(db, 'winners'), newWinner);
+      const id = docRef.id;
+
+      return {
+        success: true,
         winner: { ...newWinner, id },
-        message: 'Winner created successfully!' 
+        message: 'Winner created successfully!',
       };
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
-      
+
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.all });
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.stats });
-      
-      queryClient.setQueryData(winnerQueryKeys.all, (oldData: Winner[] | undefined) => {
-        return oldData ? [...oldData, data.winner] : [data.winner];
-      });
+
+      queryClient.setQueryData(
+        winnerQueryKeys.all,
+        (oldData: Winner[] | undefined) => {
+          return oldData ? [...oldData, data.winner] : [data.winner];
+        }
+      );
     },
     onError: (error: Error) => {
       console.error('Error creating winner:', error);
@@ -381,43 +417,45 @@ export const useCreateWinner = () => {
 // Bulk winner status update mutation (Admin only)
 export const useBulkUpdateWinnerStatus = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ 
-      winnerIds, 
-      status, 
-      adminId 
-    }: { 
-      winnerIds: string[]; 
+    mutationFn: async ({
+      winnerIds,
+      status,
+      adminId,
+    }: {
+      winnerIds: string[];
       status: 'PENDING' | 'CLAIMED' | 'DELIVERED' | 'CANCELLED';
       adminId: string;
     }) => {
-      const updatePromises = winnerIds.map(winnerId => 
+      const updatePromises = winnerIds.map(winnerId =>
         firestoreService.updateWinner(winnerId, {
           status,
-          updatedAt: Date.now()
+          updatedAt: Date.now(),
         })
       );
 
       await Promise.all(updatePromises);
-      
-      return { 
-        success: true, 
-        winnerIds, 
-        status, 
+
+      return {
+        success: true,
+        winnerIds,
+        status,
         adminId,
         count: winnerIds.length,
-        message: `${winnerIds.length} winners updated successfully!` 
+        message: `${winnerIds.length} winners updated successfully!`,
       };
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
-      
+
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.all });
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.stats });
-      
+
       data.winnerIds.forEach(winnerId => {
-        queryClient.invalidateQueries({ queryKey: winnerQueryKeys.winner(winnerId) });
+        queryClient.invalidateQueries({
+          queryKey: winnerQueryKeys.winner(winnerId),
+        });
       });
     },
     onError: (error: Error) => {
@@ -430,18 +468,18 @@ export const useBulkUpdateWinnerStatus = () => {
 // Winner leaderboard refresh mutation (Admin only)
 export const useRefreshLeaderboard = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async () => {
       queryClient.invalidateQueries({ queryKey: ['winners', 'leaderboard'] });
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.stats });
-      
-      return { 
+
+      return {
         success: true,
-        message: 'Leaderboard refreshed successfully!' 
+        message: 'Leaderboard refreshed successfully!',
       };
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
     },
     onError: (error: Error) => {
@@ -454,23 +492,25 @@ export const useRefreshLeaderboard = () => {
 // Delete winner mutation (Admin only)
 export const useDeleteWinner = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (winnerId: string) => {
-      await firestoreService.deleteDocument('winners', winnerId);
-      
-      return { 
-        success: true, 
+      await deleteDoc(doc(db, 'winners', winnerId));
+
+      return {
+        success: true,
         winnerId,
-        message: 'Winner deleted successfully!' 
+        message: 'Winner deleted successfully!',
       };
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
-      
+
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.all });
       queryClient.invalidateQueries({ queryKey: winnerQueryKeys.stats });
-      queryClient.removeQueries({ queryKey: winnerQueryKeys.winner(data.winnerId) });
+      queryClient.removeQueries({
+        queryKey: winnerQueryKeys.winner(data.winnerId),
+      });
     },
     onError: (error: Error) => {
       console.error('Error deleting winner:', error);
@@ -482,15 +522,15 @@ export const useDeleteWinner = () => {
 // Winner contact mutation (Admin use)
 export const useContactWinner = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ 
-      winnerId, 
-      message, 
-      contactMethod, 
-      adminId 
-    }: { 
-      winnerId: string; 
+    mutationFn: async ({
+      winnerId,
+      message,
+      contactMethod,
+      adminId,
+    }: {
+      winnerId: string;
       message: string;
       contactMethod: 'EMAIL' | 'SMS' | 'PHONE';
       adminId: string;
@@ -502,21 +542,23 @@ export const useContactWinner = () => {
         contactedBy: adminId,
         contactedAt: Date.now(),
         createdAt: Date.now(),
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       };
 
-      await firestoreService.createDocument('winnerContacts', contactRecord);
-      
-      return { 
-        success: true, 
+      await addDoc(collection(db, 'winnerContacts'), contactRecord);
+
+      return {
+        success: true,
         winnerId,
-        message: 'Winner contacted successfully!' 
+        message: 'Winner contacted successfully!',
       };
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
-      
-      queryClient.invalidateQueries({ queryKey: winnerQueryKeys.winner(data.winnerId) });
+
+      queryClient.invalidateQueries({
+        queryKey: winnerQueryKeys.winner(data.winnerId),
+      });
     },
     onError: (error: Error) => {
       console.error('Error contacting winner:', error);

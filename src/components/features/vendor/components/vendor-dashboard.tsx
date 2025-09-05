@@ -34,7 +34,12 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useVendorStats, useVendorGames, useVendorRevenueChart, useVendorParticipationChart } from '@/hooks/useApi';
+import {
+  useVendorStats,
+  useVendorGames,
+  useVendorRevenueChart,
+  useVendorParticipationChart,
+} from '@/hooks/useApi';
 
 interface VendorStats {
   totalGames: number;
@@ -62,23 +67,31 @@ export function VendorDashboard() {
   const { t } = useTranslation();
   const { user } = useAuth();
   // TanStack Query hooks
-  const { data: stats, isLoading: statsLoading } = useVendorStats(user?.id || '');
-  const { data: vendorGames = [], isLoading: gamesLoading } = useVendorGames(user?.id || '');
-  const { data: revenueChart = [], isLoading: revenueLoading } = useVendorRevenueChart(user?.id || '');
-  const { data: participationChart = [], isLoading: participationLoading } = useVendorParticipationChart(user?.id || '');
+  const { data: stats, isLoading: statsLoading } = useVendorStats(
+    user?.id || ''
+  );
+  const { data: vendorGames = [], isLoading: gamesLoading } = useVendorGames(
+    user?.id || ''
+  );
+  const { data: revenueChart = [], isLoading: revenueLoading } =
+    useVendorRevenueChart(user?.id || '');
+  const { data: participationChart = [], isLoading: participationLoading } =
+    useVendorParticipationChart(user?.id || '');
 
-  const loading = statsLoading || gamesLoading || revenueLoading || participationLoading;
+  const loading =
+    statsLoading || gamesLoading || revenueLoading || participationLoading;
 
   // Transform games to recent games format
-  const recentGames: RecentGame[] = vendorGames.slice(0, 5).map((game: any) => ({
-    id: game.id,
-    title: game.title,
-    status: game.status,
-    participants: game.currentParticipants || 0,
-    revenue: (game.currentParticipants || 0) * (game.ticketPrice || 0),
-    endDate: game.endDate,
-  }));
-
+  const recentGames: RecentGame[] = vendorGames
+    .slice(0, 5)
+    .map((game: any) => ({
+      id: game.id,
+      title: game.title,
+      status: game.status,
+      participants: game.currentParticipants || 0,
+      revenue: (game.currentParticipants || 0) * (game.ticketPrice || 0),
+      endDate: game.endDate,
+    }));
 
   const getStatusBadge = (status: string) => {
     const badges = {
@@ -132,7 +145,11 @@ export function VendorDashboard() {
               {t('vendor.createGame')}
             </Link>
           </Button>
-          <Button variant='outline' asChild className='w-full sm:w-auto text-sm sm:text-base'>
+          <Button
+            variant='outline'
+            asChild
+            className='w-full sm:w-auto text-sm sm:text-base'
+          >
             <Link href='/vendor-dashboard/analytics'>
               <BarChart className='w-4 h-4 mr-2' />
               {t('vendor.analytics')}

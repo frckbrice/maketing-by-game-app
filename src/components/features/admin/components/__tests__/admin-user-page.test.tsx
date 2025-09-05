@@ -94,14 +94,18 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     expect(screen.getByText('User Management')).toBeInTheDocument();
-    expect(screen.getByText('Manage all users, vendors, and their permissions')).toBeInTheDocument();
+    expect(
+      screen.getByText('Manage all users, vendors, and their permissions')
+    ).toBeInTheDocument();
   });
 
   it('renders access denied for non-admin users', async () => {
     const mockRouter = { replace: jest.fn() };
-    jest.spyOn(require('next/navigation'), 'useRouter').mockReturnValue(mockRouter);
+    jest
+      .spyOn(require('next/navigation'), 'useRouter')
+      .mockReturnValue(mockRouter);
 
     mockUseAuth.mockReturnValue({
       user: { ...defaultUser, role: 'USER' },
@@ -120,7 +124,7 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     await waitFor(() => {
       expect(mockRouter.replace).toHaveBeenCalledWith('/en/auth/login');
     });
@@ -144,18 +148,18 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     await waitFor(() => {
       // Check that all users are displayed
       expect(screen.getByText('John Doe')).toBeInTheDocument();
       expect(screen.getByText('Jane Smith')).toBeInTheDocument();
       expect(screen.getByText('Bob Johnson')).toBeInTheDocument();
-      
+
       // Check emails
       expect(screen.getByText('john@example.com')).toBeInTheDocument();
       expect(screen.getByText('jane@example.com')).toBeInTheDocument();
       expect(screen.getByText('bob@example.com')).toBeInTheDocument();
-      
+
       // Check roles
       expect(screen.getByText('USER')).toBeInTheDocument();
       expect(screen.getByText('VENDOR')).toBeInTheDocument();
@@ -180,12 +184,12 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     await waitFor(() => {
       // Active users should show "Active" badge
       const activeBadges = screen.getAllByText('Active');
       expect(activeBadges).toHaveLength(2);
-      
+
       // Inactive users should show "Inactive" badge
       const inactiveBadges = screen.getAllByText('Inactive');
       expect(inactiveBadges).toHaveLength(1);
@@ -210,12 +214,12 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     const createButton = screen.getByText('Create User');
     expect(createButton).toBeInTheDocument();
-    
+
     await userEvent.click(createButton);
-    
+
     // Modal should open
     expect(screen.getByText('Create New User')).toBeInTheDocument();
     expect(screen.getByLabelText('First Name')).toBeInTheDocument();
@@ -242,15 +246,15 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     await waitFor(() => {
       const editButtons = screen.getAllByText('Edit');
       expect(editButtons).toHaveLength(3); // One for each user
     });
-    
+
     const firstEditButton = screen.getAllByText('Edit')[0];
     await userEvent.click(firstEditButton);
-    
+
     // Edit modal should open with pre-filled data
     expect(screen.getByText('Edit User')).toBeInTheDocument();
     expect(screen.getByDisplayValue('John')).toBeInTheDocument();
@@ -276,22 +280,24 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     await waitFor(() => {
       const deleteButtons = screen.getAllByText('Delete');
       expect(deleteButtons).toHaveLength(3);
     });
-    
+
     const firstDeleteButton = screen.getAllByText('Delete')[0];
     await userEvent.click(firstDeleteButton);
-    
+
     // Confirmation dialog should appear
     expect(screen.getByText('Delete User')).toBeInTheDocument();
-    expect(screen.getByText('Are you sure you want to delete this user?')).toBeInTheDocument();
-    
+    expect(
+      screen.getByText('Are you sure you want to delete this user?')
+    ).toBeInTheDocument();
+
     const confirmButton = screen.getByText('Delete');
     await userEvent.click(confirmButton);
-    
+
     // Should call delete function
     expect(confirmButton).toBeInTheDocument();
   });
@@ -314,22 +320,22 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     const searchInput = screen.getByPlaceholderText('Search users...');
     expect(searchInput).toBeInTheDocument();
-    
+
     // Search for "John"
     await userEvent.type(searchInput, 'John');
-    
+
     await waitFor(() => {
       expect(screen.getByText('John Doe')).toBeInTheDocument();
       expect(screen.queryByText('Jane Smith')).not.toBeInTheDocument();
       expect(screen.queryByText('Bob Johnson')).not.toBeInTheDocument();
     });
-    
+
     // Clear search
     await userEvent.clear(searchInput);
-    
+
     await waitFor(() => {
       expect(screen.getByText('John Doe')).toBeInTheDocument();
       expect(screen.getByText('Jane Smith')).toBeInTheDocument();
@@ -355,22 +361,22 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     const roleFilter = screen.getByLabelText('Role');
     expect(roleFilter).toBeInTheDocument();
-    
+
     // Filter by USER role
     await userEvent.selectOptions(roleFilter, 'USER');
-    
+
     await waitFor(() => {
       expect(screen.getByText('John Doe')).toBeInTheDocument();
       expect(screen.queryByText('Jane Smith')).not.toBeInTheDocument();
       expect(screen.getByText('Bob Johnson')).toBeInTheDocument();
     });
-    
+
     // Filter by VENDOR role
     await userEvent.selectOptions(roleFilter, 'VENDOR');
-    
+
     await waitFor(() => {
       expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
       expect(screen.getByText('Jane Smith')).toBeInTheDocument();
@@ -396,22 +402,22 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     const statusFilter = screen.getByLabelText('Status');
     expect(statusFilter).toBeInTheDocument();
-    
+
     // Filter by active status
     await userEvent.selectOptions(statusFilter, 'active');
-    
+
     await waitFor(() => {
       expect(screen.getByText('John Doe')).toBeInTheDocument();
       expect(screen.getByText('Jane Smith')).toBeInTheDocument();
       expect(screen.queryByText('Bob Johnson')).not.toBeInTheDocument();
     });
-    
+
     // Filter by inactive status
     await userEvent.selectOptions(statusFilter, 'inactive');
-    
+
     await waitFor(() => {
       expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
       expect(screen.queryByText('Jane Smith')).not.toBeInTheDocument();
@@ -437,22 +443,22 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     const sortSelect = screen.getByLabelText('Sort by');
     expect(sortSelect).toBeInTheDocument();
-    
+
     // Sort by name (A-Z)
     await userEvent.selectOptions(sortSelect, 'name-asc');
-    
+
     // Sort by name (Z-A)
     await userEvent.selectOptions(sortSelect, 'name-desc');
-    
+
     // Sort by creation date
     await userEvent.selectOptions(sortSelect, 'created-asc');
-    
+
     // Sort by last login
     await userEvent.selectOptions(sortSelect, 'last-login');
-    
+
     // All sorting options should be available
     expect(sortSelect).toHaveValue('last-login');
   });
@@ -475,15 +481,15 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     // Check pagination controls
     const pageSizeSelect = screen.getByLabelText('Show');
     expect(pageSizeSelect).toBeInTheDocument();
-    
+
     // Change page size
     await userEvent.selectOptions(pageSizeSelect, '25');
     expect(pageSizeSelect).toHaveValue('25');
-    
+
     // Check that page size options are available
     expect(pageSizeSelect).toHaveValue('25');
   });
@@ -506,16 +512,16 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     await waitFor(() => {
       // Check total users count
       expect(screen.getByText('Total Users')).toBeInTheDocument();
       expect(screen.getByText('3')).toBeInTheDocument();
-      
+
       // Check active users count
       expect(screen.getByText('Active Users')).toBeInTheDocument();
       expect(screen.getByText('2')).toBeInTheDocument();
-      
+
       // Check inactive users count
       expect(screen.getByText('Inactive Users')).toBeInTheDocument();
       expect(screen.getByText('1')).toBeInTheDocument();
@@ -540,15 +546,15 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     // Open create modal
     const createButton = screen.getByText('Create User');
     await userEvent.click(createButton);
-    
+
     // Try to submit without filling required fields
     const submitButton = screen.getByText('Create User');
     await userEvent.click(submitButton);
-    
+
     // Should show validation errors
     await waitFor(() => {
       expect(screen.getByText('First name is required')).toBeInTheDocument();
@@ -575,18 +581,18 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     // Open create modal
     const createButton = screen.getByText('Create User');
     await userEvent.click(createButton);
-    
+
     // Modal should be open
     expect(screen.getByText('Create New User')).toBeInTheDocument();
-    
+
     // Click cancel button
     const cancelButton = screen.getByText('Cancel');
     await userEvent.click(cancelButton);
-    
+
     // Modal should close
     expect(screen.queryByText('Create New User')).not.toBeInTheDocument();
   });
@@ -609,7 +615,7 @@ describe('AdminUsersPage', () => {
     });
 
     render(<AdminUsersPage />);
-    
+
     await waitFor(() => {
       // Check that user activity data is displayed
       expect(screen.getByText('5')).toBeInTheDocument(); // John's total games

@@ -14,8 +14,15 @@ const PerformanceMonitor = () => {
   useEffect(() => {
     if (typeof window === 'undefined' || hasInitialized.current) return;
 
-    const getRating = (value: number, thresholds: [number, number]): 'good' | 'needs-improvement' | 'poor' => {
-      return value <= thresholds[0] ? 'good' : value <= thresholds[1] ? 'needs-improvement' : 'poor';
+    const getRating = (
+      value: number,
+      thresholds: [number, number]
+    ): 'good' | 'needs-improvement' | 'poor' => {
+      return value <= thresholds[0]
+        ? 'good'
+        : value <= thresholds[1]
+          ? 'needs-improvement'
+          : 'poor';
     };
 
     const sendToAnalytics = (metric: PerformanceMetric) => {
@@ -25,14 +32,21 @@ const PerformanceMonitor = () => {
           event_category: 'Performance',
           event_label: metric.name,
           value: Math.round(metric.value),
-          custom_map: { metric_rating: metric.rating }
+          custom_map: { metric_rating: metric.rating },
         });
       }
 
       // Log in development
       if (process.env.NODE_ENV === 'development') {
-        const emoji = metric.rating === 'good' ? '🟢' : metric.rating === 'needs-improvement' ? '🟡' : '🔴';
-        console.log(`${emoji} ${metric.name}: ${metric.value.toFixed(2)}ms (${metric.rating})`);
+        const emoji =
+          metric.rating === 'good'
+            ? '🟢'
+            : metric.rating === 'needs-improvement'
+              ? '🟡'
+              : '🔴';
+        console.log(
+          `${emoji} ${metric.name}: ${metric.value.toFixed(2)}ms (${metric.rating})`
+        );
       }
     };
 
@@ -47,17 +61,18 @@ const PerformanceMonitor = () => {
           sendToAnalytics({
             name: 'Load Time',
             value: loadTime,
-            rating: getRating(loadTime, [2500, 4000])
+            rating: getRating(loadTime, [2500, 4000]),
           });
         }
 
         // DOM Ready
-        const domReady = timing.domContentLoadedEventEnd - timing.navigationStart;
+        const domReady =
+          timing.domContentLoadedEventEnd - timing.navigationStart;
         if (domReady > 0) {
           sendToAnalytics({
             name: 'DOM Ready',
             value: domReady,
-            rating: getRating(domReady, [1500, 2500])
+            rating: getRating(domReady, [1500, 2500]),
           });
         }
 
@@ -67,7 +82,7 @@ const PerformanceMonitor = () => {
           sendToAnalytics({
             name: 'TTFB',
             value: ttfb,
-            rating: getRating(ttfb, [600, 1500])
+            rating: getRating(ttfb, [600, 1500]),
           });
         }
       }
@@ -80,7 +95,7 @@ const PerformanceMonitor = () => {
             effectiveType: connection.effectiveType,
             downlink: connection.downlink + 'Mbps',
             rtt: connection.rtt + 'ms',
-            saveData: connection.saveData ? 'enabled' : 'disabled'
+            saveData: connection.saveData ? 'enabled' : 'disabled',
           });
         }
       }
@@ -112,8 +127,11 @@ const PerformanceMonitor = () => {
           console.log(`💾 Memory: ${used}MB / ${total}MB`);
 
           // Warn if memory usage is high for mobile
-          if (memoryInfo.usedJSHeapSize > 50 * 1024 * 1024) { // 50MB
-            console.warn('⚠️ High memory usage detected - optimize for mobile devices');
+          if (memoryInfo.usedJSHeapSize > 50 * 1024 * 1024) {
+            // 50MB
+            console.warn(
+              '⚠️ High memory usage detected - optimize for mobile devices'
+            );
           }
         }
       };

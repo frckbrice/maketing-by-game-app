@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/Button';
@@ -13,10 +12,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { adminService } from '@/lib/api/adminService';
-import { vendorService } from '@/lib/api/vendorService';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import { useCreateGame, useSaveGameDraft } from '../api/mutations';
+import { adminService } from '@/lib/api/adminService';
 import type { GameCategory } from '@/types';
+import type { Prize } from '../api/types';
 import {
   ArrowLeft,
   Award,
@@ -28,36 +28,12 @@ import {
   Plus,
   Save,
   Upload,
-  X
+  X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-
-interface Prize {
-  name: string;
-  description: string;
-  value: number;
-  imageUrl?: string;
-}
-
-interface GameFormData {
-  title: string;
-  description: string;
-  categoryId: string;
-  ticketPrice: number;
-  currency: string;
-  maxParticipants: number;
-  images: string[];
-  prizes: Prize[];
-  rules: string[];
-  startDate: string;
-  endDate: string;
-  drawDate: string;
-  videoUrl?: string;
-  type: 'daily' | 'weekly' | 'special';
-}
 
 const PRODUCT_CATEGORIES = [
   {
@@ -132,9 +108,29 @@ export function CreateGame() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<GameCategory[]>([]);
-  const [formData, setFormData] = useState<GameFormData>({
+
+  // React Query mutations
+  const createGameMutation = useCreateGame();
+  const saveGameDraftMutation = useSaveGameDraft();
+  // Local form state with string dates for datetime-local inputs
+  interface FormData {
+    title: string;
+    description: string;
+    categoryId: string;
+    ticketPrice: number;
+    currency: string;
+    maxParticipants: number;
+    images: string[];
+    prizes: Prize[];
+    rules: string[];
+    startDate: string;
+    endDate: string;
+    drawDate: string;
+    videoUrl?: string;
+    type: 'daily' | 'weekly' | 'special';
+  }
+
+  const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
     categoryId: '',
@@ -149,11 +145,9 @@ export function CreateGame() {
     drawDate: '',
     type: 'daily',
   });
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [imageUploadLoading, setImageUploadLoading] = useState(false);
 
   useEffect(() => {
-    loadCategories();
     // Set default dates
     const now = new Date();
     const tomorrow = new Date(now);
@@ -169,17 +163,7 @@ export function CreateGame() {
     }));
   }, []);
 
-  const loadCategories = async () => {
-    try {
-      const categoriesData = await adminService.getCategories();
-      setCategories(categoriesData);
-    } catch (error) {
-      console.error('Error loading categories:', error);
-      toast.error('Failed to load categories');
-    }
-  };
-
-  const handleInputChange = (field: keyof GameFormData, value: any) => {
+  const handleInputChange = (field: keyof FormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -297,42 +281,36 @@ export function CreateGame() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    if (!user || !validateForm()) return;
 
-    setLoading(true);
-    try {
-      const gameData = {
-        ...formData,
-        startDate: new Date(formData.startDate).getTime(),
-        endDate: new Date(formData.endDate).getTime(),
-        drawDate: new Date(formData.drawDate).getTime(),
-      };
+    const gameData = {
+      ...formData,
+      startDate: new Date(formData.startDate).getTime(),
+      endDate: new Date(formData.endDate).getTime(),
+      drawDate: new Date(formData.drawDate).getTime(),
+    };
 
-      const gameId = await vendorService.createGame(user!.id, gameData);
-
-      toast.success(
-        'Game created successfully! It will be reviewed by admin before going live.'
-      );
-      router.push('/vendor-dashboard/games');
-    } catch (error) {
-      console.error('Error creating game:', error);
-      toast.error('Failed to create game');
-    } finally {
-      setLoading(false);
-    }
+    createGameMutation.mutate(
+      { vendorId: user.id, gameData },
+      {
+        onSuccess: () => {
+          router.push('/vendor-dashboard/games');
+        },
+      }
+    );
   };
 
   const handleSaveDraft = async () => {
-    setLoading(true);
-    try {
-      // Save as draft functionality
-      toast.success('Game saved as draft');
-    } catch (error) {
-      console.error('Error saving draft:', error);
-      toast.error('Failed to save draft');
-    } finally {
-      setLoading(false);
-    }
+    const gameData = {
+      ...formData,
+      startDate: formData.startDate
+        ? new Date(formData.startDate).getTime()
+        : 0,
+      endDate: formData.endDate ? new Date(formData.endDate).getTime() : 0,
+      drawDate: formData.drawDate ? new Date(formData.drawDate).getTime() : 0,
+    };
+
+    saveGameDraftMutation.mutate({ gameData });
   };
 
   const calculateTotalPrizeValue = () => {
@@ -364,13 +342,16 @@ export function CreateGame() {
           <Button
             variant='outline'
             onClick={handleSaveDraft}
-            disabled={loading}
+            disabled={saveGameDraftMutation.isPending}
           >
             <Save className='w-4 h-4 mr-2' />
-            Save Draft
+            {saveGameDraftMutation.isPending ? 'Saving...' : 'Save Draft'}
           </Button>
-          <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Creating...' : 'Submit for Review'}
+          <Button
+            onClick={handleSubmit}
+            disabled={createGameMutation.isPending}
+          >
+            {createGameMutation.isPending ? 'Creating...' : 'Submit for Review'}
           </Button>
         </div>
       </div>

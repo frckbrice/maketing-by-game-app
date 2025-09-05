@@ -15,7 +15,7 @@ import {
   Palette,
   Save,
   Settings as SettingsIcon,
-  Shield
+  Shield,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
@@ -25,8 +25,6 @@ import { toast } from 'sonner';
 import { useUpdateAppSettings } from '../api/mutations';
 import { useAppSettings } from '../api/queries';
 import { AppSettings } from '../api/type';
-
-
 
 export function AdminSettingsPage() {
   const { t } = useTranslation();
@@ -97,20 +95,32 @@ export function AdminSettingsPage() {
         updatedAt: Date.now(),
         updatedBy: user.id,
       };
-      
+
       // Use the mutation with proper error handling
       updateSettingsMutation.mutate(updatedSettings, {
         onSuccess: () => {
-          toast.success(t('admin.localSettings.saveSuccess', 'Settings saved successfully'));
+          toast.success(
+            t('admin.localSettings.saveSuccess', 'Settings saved successfully')
+          );
         },
         onError: (error: any) => {
           console.error('Failed to save settings:', error);
-          toast.error(t('admin.localSettings.saveError', 'Failed to save localSettings. Please try again.'));
-        }
+          toast.error(
+            t(
+              'admin.localSettings.saveError',
+              'Failed to save localSettings. Please try again.'
+            )
+          );
+        },
       });
     } catch (error) {
       console.error('Error in handleSaveSettings:', error);
-      toast.error(t('admin.localSettings.saveError', 'Failed to save localSettings. Please try again.'));
+      toast.error(
+        t(
+          'admin.localSettings.saveError',
+          'Failed to save localSettings. Please try again.'
+        )
+      );
     }
   };
 
@@ -130,7 +140,9 @@ export function AdminSettingsPage() {
       <div className='min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center'>
         <div className='text-center'>
           <div className='animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mx-auto mb-4'></div>
-          <p className='text-gray-600 dark:text-gray-300'>{t('common.loading')}</p>
+          <p className='text-gray-600 dark:text-gray-300'>
+            {t('common.loading')}
+          </p>
         </div>
       </div>
     );
@@ -141,7 +153,9 @@ export function AdminSettingsPage() {
       <div className='min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center'>
         <div className='text-center'>
           <div className='animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mx-auto mb-4'></div>
-          <p className='text-gray-600 dark:text-gray-300'>{t('admin.loadingSettings')}</p>
+          <p className='text-gray-600 dark:text-gray-300'>
+            {t('admin.loadingSettings')}
+          </p>
         </div>
       </div>
     );
@@ -166,9 +180,9 @@ export function AdminSettingsPage() {
                 </p>
               </div>
             </div>
-            
-            <Button 
-              onClick={handleSaveSettings} 
+
+            <Button
+              onClick={handleSaveSettings}
               disabled={updateSettingsMutation.isPending}
               className='flex items-center space-x-2'
             >
@@ -177,7 +191,7 @@ export function AdminSettingsPage() {
               ) : (
                 <>
                   <Save className='w-4 h-4' />
-                    <span>{t('admin.saveSettings')}</span>
+                  <span>{t('admin.saveSettings')}</span>
                 </>
               )}
             </Button>
@@ -199,7 +213,7 @@ export function AdminSettingsPage() {
                 <Input
                   id='appName'
                   value={localSettings.appName}
-                  onChange={(e) => updateSetting('appName', e.target.value)}
+                  onChange={e => updateSetting('appName', e.target.value)}
                 />
               </div>
               <div>
@@ -208,7 +222,7 @@ export function AdminSettingsPage() {
                   id='supportEmail'
                   type='email'
                   value={localSettings.supportEmail}
-                  onChange={(e) => updateSetting('supportEmail', e.target.value)}
+                  onChange={e => updateSetting('supportEmail', e.target.value)}
                 />
               </div>
             </div>
@@ -217,17 +231,19 @@ export function AdminSettingsPage() {
               <Textarea
                 id='appDescription'
                 value={localSettings.appDescription}
-                onChange={(e) => updateSetting('appDescription', e.target.value)}
+                onChange={e => updateSetting('appDescription', e.target.value)}
                 rows={3}
               />
             </div>
             <div className='flex items-center space-x-2 mt-4'>
               <Switch
-                id="maintenanceMode"
+                id='maintenanceMode'
                 checked={localSettings.maintenanceMode}
-                onCheckedChange={(checked) => updateSetting('maintenanceMode', checked)}
+                onCheckedChange={checked =>
+                  updateSetting('maintenanceMode', checked)
+                }
               />
-              <Label htmlFor="maintenanceMode">Maintenance Mode</Label>
+              <Label htmlFor='maintenanceMode'>Maintenance Mode</Label>
             </div>
           </Card>
 
@@ -246,7 +262,12 @@ export function AdminSettingsPage() {
                   id='defaultTicketPrice'
                   type='number'
                   value={localSettings.defaultTicketPrice}
-                  onChange={(e) => updateSetting('defaultTicketPrice', parseInt(e.target.value))}
+                  onChange={e =>
+                    updateSetting(
+                      'defaultTicketPrice',
+                      parseInt(e.target.value)
+                    )
+                  }
                 />
               </div>
               <div>
@@ -254,7 +275,9 @@ export function AdminSettingsPage() {
                 <select
                   id='defaultCurrency'
                   value={localSettings.defaultCurrency}
-                  onChange={(e) => updateSetting('defaultCurrency', e.target.value)}
+                  onChange={e =>
+                    updateSetting('defaultCurrency', e.target.value)
+                  }
                   className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md'
                 >
                   <option value='XAF'>XAF - Central African Franc</option>
@@ -268,7 +291,9 @@ export function AdminSettingsPage() {
                   id='maxTicketsPerUser'
                   type='number'
                   value={localSettings.maxTicketsPerUser}
-                  onChange={(e) => updateSetting('maxTicketsPerUser', parseInt(e.target.value))}
+                  onChange={e =>
+                    updateSetting('maxTicketsPerUser', parseInt(e.target.value))
+                  }
                 />
               </div>
               <div>
@@ -276,7 +301,7 @@ export function AdminSettingsPage() {
                 <select
                   id='drawFrequency'
                   value={localSettings.drawFrequency}
-                  onChange={(e) => updateSetting('drawFrequency', e.target.value)}
+                  onChange={e => updateSetting('drawFrequency', e.target.value)}
                   className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md'
                 >
                   <option value='daily'>Daily</option>
@@ -298,27 +323,33 @@ export function AdminSettingsPage() {
             <div className='space-y-4'>
               <div className='flex items-center space-x-2'>
                 <Switch
-                  id="enableStripe"
+                  id='enableStripe'
                   checked={localSettings.enableStripe}
-                  onCheckedChange={(checked) => updateSetting('enableStripe', checked)}
+                  onCheckedChange={checked =>
+                    updateSetting('enableStripe', checked)
+                  }
                 />
-                <Label htmlFor="enableStripe">Enable Stripe Payments</Label>
+                <Label htmlFor='enableStripe'>Enable Stripe Payments</Label>
               </div>
               <div className='flex items-center space-x-2'>
                 <Switch
-                  id="enablePayPal"
+                  id='enablePayPal'
                   checked={localSettings.enablePayPal}
-                  onCheckedChange={(checked) => updateSetting('enablePayPal', checked)}
+                  onCheckedChange={checked =>
+                    updateSetting('enablePayPal', checked)
+                  }
                 />
-                <Label htmlFor="enablePayPal">Enable PayPal Payments</Label>
+                <Label htmlFor='enablePayPal'>Enable PayPal Payments</Label>
               </div>
               <div className='flex items-center space-x-2'>
                 <Switch
-                  id="enableMobileMoney"
+                  id='enableMobileMoney'
                   checked={localSettings.enableMobileMoney}
-                  onCheckedChange={(checked) => updateSetting('enableMobileMoney', checked)}
+                  onCheckedChange={checked =>
+                    updateSetting('enableMobileMoney', checked)
+                  }
                 />
-                <Label htmlFor="enableMobileMoney">Enable Mobile Money</Label>
+                <Label htmlFor='enableMobileMoney'>Enable Mobile Money</Label>
               </div>
               <div className='mt-4'>
                 <Label htmlFor='minWithdrawal'>Minimum Withdrawal Amount</Label>
@@ -326,7 +357,9 @@ export function AdminSettingsPage() {
                   id='minWithdrawal'
                   type='number'
                   value={localSettings.minWithdrawal}
-                  onChange={(e) => updateSetting('minWithdrawal', parseInt(e.target.value))}
+                  onChange={e =>
+                    updateSetting('minWithdrawal', parseInt(e.target.value))
+                  }
                 />
               </div>
             </div>
@@ -343,27 +376,39 @@ export function AdminSettingsPage() {
             <div className='space-y-4'>
               <div className='flex items-center space-x-2'>
                 <Switch
-                  id="enablePushNotifications"
+                  id='enablePushNotifications'
                   checked={localSettings.enablePushNotifications}
-                  onCheckedChange={(checked) => updateSetting('enablePushNotifications', checked)}
+                  onCheckedChange={checked =>
+                    updateSetting('enablePushNotifications', checked)
+                  }
                 />
-                <Label htmlFor="enablePushNotifications">Enable Push Notifications</Label>
+                <Label htmlFor='enablePushNotifications'>
+                  Enable Push Notifications
+                </Label>
               </div>
               <div className='flex items-center space-x-2'>
                 <Switch
-                  id="enableEmailNotifications"
+                  id='enableEmailNotifications'
                   checked={localSettings.enableEmailNotifications}
-                  onCheckedChange={(checked) => updateSetting('enableEmailNotifications', checked)}
+                  onCheckedChange={checked =>
+                    updateSetting('enableEmailNotifications', checked)
+                  }
                 />
-                <Label htmlFor="enableEmailNotifications">Enable Email Notifications</Label>
+                <Label htmlFor='enableEmailNotifications'>
+                  Enable Email Notifications
+                </Label>
               </div>
               <div className='flex items-center space-x-2'>
                 <Switch
-                  id="enableSMSNotifications"
+                  id='enableSMSNotifications'
                   checked={localSettings.enableSMSNotifications}
-                  onCheckedChange={(checked) => updateSetting('enableSMSNotifications', checked)}
+                  onCheckedChange={checked =>
+                    updateSetting('enableSMSNotifications', checked)
+                  }
                 />
-                <Label htmlFor="enableSMSNotifications">Enable SMS Notifications</Label>
+                <Label htmlFor='enableSMSNotifications'>
+                  Enable SMS Notifications
+                </Label>
               </div>
             </div>
           </Card>
@@ -379,27 +424,39 @@ export function AdminSettingsPage() {
             <div className='space-y-4'>
               <div className='flex items-center space-x-2'>
                 <Switch
-                  id="requireEmailVerification"
+                  id='requireEmailVerification'
                   checked={localSettings.requireEmailVerification}
-                  onCheckedChange={(checked) => updateSetting('requireEmailVerification', checked)}
+                  onCheckedChange={checked =>
+                    updateSetting('requireEmailVerification', checked)
+                  }
                 />
-                <Label htmlFor="requireEmailVerification">Require Email Verification</Label>
+                <Label htmlFor='requireEmailVerification'>
+                  Require Email Verification
+                </Label>
               </div>
               <div className='flex items-center space-x-2'>
                 <Switch
-                  id="requirePhoneVerification"
+                  id='requirePhoneVerification'
                   checked={localSettings.requirePhoneVerification}
-                  onCheckedChange={(checked) => updateSetting('requirePhoneVerification', checked)}
+                  onCheckedChange={checked =>
+                    updateSetting('requirePhoneVerification', checked)
+                  }
                 />
-                <Label htmlFor="requirePhoneVerification">Require Phone Verification</Label>
+                <Label htmlFor='requirePhoneVerification'>
+                  Require Phone Verification
+                </Label>
               </div>
               <div className='mt-4'>
-                <Label htmlFor='sessionTimeout'>Session Timeout (minutes)</Label>
+                <Label htmlFor='sessionTimeout'>
+                  Session Timeout (minutes)
+                </Label>
                 <Input
                   id='sessionTimeout'
                   type='number'
                   value={localSettings.sessionTimeout}
-                  onChange={(e) => updateSetting('sessionTimeout', parseInt(e.target.value))}
+                  onChange={e =>
+                    updateSetting('sessionTimeout', parseInt(e.target.value))
+                  }
                 />
               </div>
             </div>
@@ -420,7 +477,7 @@ export function AdminSettingsPage() {
                   id='primaryColor'
                   type='color'
                   value={localSettings.primaryColor}
-                  onChange={(e) => updateSetting('primaryColor', e.target.value)}
+                  onChange={e => updateSetting('primaryColor', e.target.value)}
                 />
               </div>
               <div>
@@ -429,7 +486,9 @@ export function AdminSettingsPage() {
                   id='secondaryColor'
                   type='color'
                   value={localSettings.secondaryColor}
-                  onChange={(e) => updateSetting('secondaryColor', e.target.value)}
+                  onChange={e =>
+                    updateSetting('secondaryColor', e.target.value)
+                  }
                 />
               </div>
             </div>
@@ -446,19 +505,27 @@ export function AdminSettingsPage() {
             <div className='space-y-4'>
               <div className='flex items-center space-x-2'>
                 <Switch
-                  id="enableAnalytics"
+                  id='enableAnalytics'
                   checked={localSettings.enableAnalytics}
-                  onCheckedChange={(checked) => updateSetting('enableAnalytics', checked)}
+                  onCheckedChange={checked =>
+                    updateSetting('enableAnalytics', checked)
+                  }
                 />
-                <Label htmlFor="enableAnalytics">Enable Analytics Tracking</Label>
+                <Label htmlFor='enableAnalytics'>
+                  Enable Analytics Tracking
+                </Label>
               </div>
               <div className='flex items-center space-x-2'>
                 <Switch
-                  id="enableCrashReporting"
+                  id='enableCrashReporting'
                   checked={localSettings.enableCrashReporting}
-                  onCheckedChange={(checked) => updateSetting('enableCrashReporting', checked)}
+                  onCheckedChange={checked =>
+                    updateSetting('enableCrashReporting', checked)
+                  }
                 />
-                <Label htmlFor="enableCrashReporting">Enable Crash Reporting</Label>
+                <Label htmlFor='enableCrashReporting'>
+                  Enable Crash Reporting
+                </Label>
               </div>
             </div>
           </Card>
@@ -466,8 +533,8 @@ export function AdminSettingsPage() {
 
         {/* Save Button */}
         <div className='mt-8 flex justify-end'>
-          <Button 
-            onClick={handleSaveSettings} 
+          <Button
+            onClick={handleSaveSettings}
             disabled={updateSettingsMutation.isPending}
             size='lg'
             className='px-8'

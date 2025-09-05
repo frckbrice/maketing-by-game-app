@@ -17,7 +17,7 @@ const CriticalCSS = ({ styles, id = 'critical-css' }: CriticalCSSProps) => {
     const styleSheet = document.createElement('style');
     styleSheet.id = id;
     styleSheet.textContent = styles;
-    
+
     // Insert critical CSS at the beginning of head
     document.head.insertBefore(styleSheet, document.head.firstChild);
 

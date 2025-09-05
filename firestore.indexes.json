@@ -16,7 +16,7 @@
     },
     {
       "collectionGroup": "vendorApplications",
-      "queryScope": "COLLECTION", 
+      "queryScope": "COLLECTION",
       "fields": [
         {
           "fieldPath": "userId",
@@ -47,7 +47,7 @@
       ]
     },
     {
-      "collectionGroup": "games", 
+      "collectionGroup": "games",
       "queryScope": "COLLECTION",
       "fields": [
         {
@@ -62,7 +62,7 @@
     },
     {
       "collectionGroup": "users",
-      "queryScope": "COLLECTION", 
+      "queryScope": "COLLECTION",
       "fields": [
         {
           "fieldPath": "role",
