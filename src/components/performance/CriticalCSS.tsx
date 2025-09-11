@@ -9,7 +9,7 @@ interface CriticalCSSProps {
 
 const CriticalCSS = ({ styles, id = 'critical-css' }: CriticalCSSProps) => {
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') return; // no need on server
 
     // Check if critical CSS is already loaded
     if (document.getElementById(id)) return;

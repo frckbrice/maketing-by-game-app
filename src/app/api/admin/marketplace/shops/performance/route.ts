@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         (order: Order) => order.shopId === shop.id
       );
       const shopProducts = products.filter(
-        (product: Product) => product.shop.id === shop.id 
+        (product: Product) => product.shop.id === shop.id
       );
 
       const revenue = shopOrders.reduce(

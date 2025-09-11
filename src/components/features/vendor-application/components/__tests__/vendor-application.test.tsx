@@ -191,7 +191,7 @@ describe('VendorApplicationPage', () => {
       mockSubmitVendorApplication;
 
     // Mock console.error to avoid noise in tests
-    jest.spyOn(console, 'error').mockImplementation(() => { });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -307,7 +307,7 @@ describe('VendorApplicationPage', () => {
   });
 
   it('shows loading state while checking application', async () => {
-    mockGetVendorApplication.mockImplementation(() => new Promise(() => { })); // Never resolves
+    mockGetVendorApplication.mockImplementation(() => new Promise(() => {})); // Never resolves
 
     render(<VendorApplicationPage />);
 
@@ -428,7 +428,7 @@ describe('VendorApplicationPage', () => {
     });
 
     // Mock router.replace to prevent actual navigation
-    mockReplace.mockImplementation(() => { });
+    mockReplace.mockImplementation(() => {});
 
     render(<VendorApplicationPage />);
 
@@ -443,7 +443,7 @@ describe('VendorApplicationPage', () => {
     });
 
     // Mock router.replace to prevent actual navigation
-    mockReplace.mockImplementation(() => { });
+    mockReplace.mockImplementation(() => {});
 
     render(<VendorApplicationPage />);
 
@@ -458,7 +458,7 @@ describe('VendorApplicationPage', () => {
     });
 
     // Mock router.replace to prevent actual navigation
-    mockReplace.mockImplementation(() => { });
+    mockReplace.mockImplementation(() => {});
 
     render(<VendorApplicationPage />);
 
@@ -473,7 +473,7 @@ describe('VendorApplicationPage', () => {
     });
 
     // Mock router.replace to prevent actual navigation
-    mockReplace.mockImplementation(() => { });
+    mockReplace.mockImplementation(() => {});
 
     render(<VendorApplicationPage />);
 

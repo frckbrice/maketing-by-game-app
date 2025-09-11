@@ -585,7 +585,7 @@ function ShopChatInner({ shopId }: ShopChatProps) {
             {t('chat.loginRequiredDescription')}
           </p>
           <Button onClick={() => router.push('/auth/login')}>
-            {t('auth.login')}
+            {t('auth.login.submit')}
           </Button>
         </div>
       </div>

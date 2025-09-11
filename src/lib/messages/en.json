@@ -183,7 +183,9 @@
       "popupBlocked": "Popup blocked by browser. Please allow popups for this site or try again.",
       "popupBlockedInstructions": "To fix this: 1) Allow popups for this site, 2) Disable ad blockers, or 3) Try signing in again.",
       "loginRequired": "Please log in to continue"
-    }
+    },
+    "loginRequired": "Please log in to continue",
+    "pleaseLogin": "Please log in to continue"
   },
   "LocaleSwitcher": {
     "switchLanguage": "Switch Language",
@@ -441,6 +443,7 @@
     "gameCard": {
       "sponsored": "SPONSORED",
       "new": "NEW",
+      "newFallback": "New",
       "hot": "🔥 HOT",
       "fillingFast": "FILLING FAST",
       "ticketPrice": "Ticket Price",
@@ -515,6 +518,8 @@
     "gamesManagement": "Games Management",
     "manageLotteryGames": "Manage lottery games and settings",
     "createGame": "Create Game",
+    "createNewGame": "Create New Game",
+    "launchNewMarketingLottery": "Launch a new marketing lottery",
     "gameStatusUpdated": "Game status updated successfully",
     "failedToUpdateGameStatus": "Failed to update game status",
     "gameDeletedSuccessfully": "Game deleted successfully",
@@ -711,7 +716,49 @@
     "totalParticipants": "Total Participants",
     "gameRevenueChart": "Game Revenue Trend",
     "analytics": "Analytics",
-    "becomeAVendor": "Apply to Become a Vendor"
+    "becomeAVendor": "Apply to Become a Vendor",
+    "gameType": "Game Type",
+    "dailyGame": "Daily Game",
+    "weeklyGame": "Weekly Game",
+    "specialEvent": "Special Event",
+    "currency": "Currency",
+    "prizeDescription": "Prize Description",
+    "gamePreview": "Game Preview",
+    "quickStats": "Quick Stats",
+    "selectProduct": "Select a product",
+    "shopName": "Shop name",
+    "shopDescription": "Shop description",
+    "productName": "Product name",
+    "productDescription": "Product description",
+    "statusBadges": {
+      "active": "Active",
+      "pendingApproval": "Pending Approval",
+      "drawingSoon": "Drawing Soon",
+      "closed": "Closed",
+      "draft": "Draft",
+      "unknown": "Unknown"
+    },
+    "gameTitle": "Game Title",
+    "selectCategory": "Select category",
+    "imageUploadSuccess": "Image uploaded successfully",
+    "imageUploadFailed": "Failed to upload image",
+    "basicInformation": "Basic Information",
+    "ticketPrice": "Ticket Price",
+    "maxParticipants": "Max Participants",
+    "prizeValue": "Prize Value",
+    "gamePreview": "Game Preview",
+    "quickStats": "Quick Stats",
+    "totalPrizeValue": "Total Prize Value",
+    "estimatedRevenue": "Est. Revenue",
+    "profitMargin": "Profit Margin",
+    "tipsForSuccess": "💡 Tips for Success",
+    "tips": {
+      "highQualityImages": "Use high-quality images to attract more participants",
+      "competitivePrices": "Set competitive ticket prices for your market",
+      "clearDescriptions": "Write clear and engaging game descriptions",
+      "multiplePrizes": "Add multiple prizes to increase excitement",
+      "gameDuration": "Choose appropriate game duration (3-7 days works best)"
+    }
   },
   "qr": {
     "scanner": "QR Scanner",
@@ -725,6 +772,7 @@
     "scanAnother": "Scan Another",
     "cameraError": "Camera access denied or not available",
     "scanError": "Error processing scan",
+    "qrCodeDemo": "QR Code Demo",
     "processing": "Processing...",
     "startCamera": "Start Camera",
     "uploadImage": "Upload QR Image",
@@ -972,7 +1020,8 @@
       "rating": "Highest Rated"
     },
     "visitShop": "Visit Shop",
-    "chatWithShop": "Chat with Shop"
+    "chatWithShop": "Chat with Shop",
+    "price": "Price"
   },
   "vendor": {
     "becomeAVendor": "Apply to Become a Vendor",
@@ -1184,7 +1233,22 @@
     "relatedProducts": "Related Products"
   },
   "payment": {
-    "title": "Purchase Ticket",
+    "title": {
+      "purchase": "Purchase Product"
+    },
+    "description": {
+      "purchase": "Complete your purchase to get this amazing product"
+    },
+    "method": {
+      "title": "Payment Method"
+    },
+    "phone": {
+      "title": "Phone Number",
+      "format": "Enter your phone number in the format: 6XXXXXXXX"
+    },
+    "button": {
+      "pay": "Pay Now"
+    },
     "chooseMethod": "Choose Payment Method",
     "selectMethodSubtitle": "Select your preferred mobile money provider",
     "enterPhone": "Enter Phone Number",
@@ -1198,6 +1262,15 @@
     "retry": "Retry Payment",
     "ticketPrice": "Ticket Price",
     "participants": "Participants",
+    "notifications": {
+      "longProcessing": "Payment is taking longer than usual. Please use the \"Check Status\" button to verify.",
+      "pleaseCheck": "Please check your payment status manually by clicking \"Check Status\""
+    },
+    "status": {
+      "takingLong": "Payment taking longer than usual - please check status",
+      "pleaseCheck": "Please use the \"Check Status\" button to verify your payment"
+    },
+    "scanToVerify": "Scan to verify",
     "methods": {
       "orangeMoney": "Orange Money",
       "orangeDescription": "Pay with your Orange Money account",

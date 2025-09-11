@@ -107,7 +107,7 @@ const BundleAnalyzer = () => {
 
     history.replaceState = function (...args) {
       originalReplaceState.apply(this, args);
-      setTimeout(analyzeBundle, 500);
+      setTimeout(analyzeBundle, 500); // Re-analyze after rout change
     };
 
     return () => {

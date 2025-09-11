@@ -314,9 +314,7 @@ export function GameDetailModal({
                     </p>
                   </div>
                   <Button
-                    onClick={() =>
-                      window.open('https://example.com', '_blank')
-                    }
+                    onClick={() => window.open('https://example.com', '_blank')}
                     variant='outline'
                     size='sm'
                     className='border-blue-300 text-blue-600 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/30'

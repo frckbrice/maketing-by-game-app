@@ -5,9 +5,11 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import { Shop, ShopBanner } from '@/types';
 import {
   ArrowLeft,
-  Eye,
+  ChevronLeft,
+  ChevronRight,
   Grid,
   Heart,
   List,
@@ -19,10 +21,19 @@ import {
   Users,
   Verified,
 } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
-import { memo, Suspense, useCallback, useMemo, useState } from 'react';
+import {
+  memo,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { Footer } from '../../../globals/footer';
 import OptimizedImage from '../../../performance/OptimizedImage';
 import type { Review } from '../api/types';
 
@@ -51,7 +62,7 @@ const ShopHeader = memo(
     onShare,
     onChat,
   }: {
-    shop: any;
+    shop: Shop;
     isFollowed: boolean;
     onFollow: () => void;
     onShare: () => void;
@@ -64,7 +75,7 @@ const ShopHeader = memo(
         {/* Hero Banner */}
         <div className='relative h-48 sm:h-64 lg:h-80 overflow-hidden'>
           <OptimizedImage
-            src={shop.bannerImage || '/images/default-shop-banner.jpg'}
+            src={shop.bannerUrl || '/images/default-shop-banner.jpg'}
             alt={shop.name}
             fill
             className='object-cover'
@@ -78,7 +89,7 @@ const ShopHeader = memo(
             <div className='flex flex-col sm:flex-row sm:items-end gap-4'>
               <div className='relative'>
                 <OptimizedImage
-                  src={shop.logo || '/images/default-shop-logo.jpg'}
+                  src={shop.logoUrl || '/images/default-shop-logo.jpg'}
                   alt={shop.name}
                   width={80}
                   height={80}
@@ -109,17 +120,17 @@ const ShopHeader = memo(
                     <Star className='w-4 h-4 fill-yellow-400 text-yellow-400' />
                     <span>{shop.rating?.toFixed(1) || '0.0'}</span>
                     <span className='opacity-75'>
-                      ({(shop.reviewCount || 0).toLocaleString()}{' '}
+                      ({(shop.reviewsCount || 0).toLocaleString()}{' '}
                       {t('marketplace.reviews')})
                     </span>
                   </div>
-                  <div className='flex items-center gap-1'>
+                  {/* <div className='flex items-center gap-1'>
                     <Eye className='w-4 h-4' />
                     <span>
-                      {(shop.viewCount || 0).toLocaleString()}{' '}
+                      {(shop?.viewsCount || 0).toLocaleString()}{' '}
                       {t('marketplace.views')}
                     </span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
@@ -236,9 +247,139 @@ const ProductGrid = memo(
 
 ProductGrid.displayName = 'ProductGrid';
 
+// Enhanced Banner Carousel Component
+const BannerCarousel = memo(({ banners }: { banners: ShopBanner[] }) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const nextSlide = useCallback(() => {
+    setCurrentSlide(prev => (prev + 1) % banners.length);
+  }, [banners.length]);
+
+  const prevSlide = useCallback(() => {
+    setCurrentSlide(prev => (prev - 1 + banners.length) % banners.length);
+  }, [banners.length]);
+
+  // Auto-advance carousel
+  useEffect(() => {
+    if (banners.length <= 1) return;
+
+    const interval = setInterval(nextSlide, 6000);
+    return () => clearInterval(interval);
+  }, [nextSlide, banners.length]);
+
+  if (!banners || banners.length === 0) return null;
+
+  return (
+    <div className='relative w-full h-full group'>
+      {/* Banner Images */}
+      {banners.map((banner, index) => (
+        <div
+          key={banner.id}
+          className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+            index === currentSlide
+              ? 'opacity-100 scale-100'
+              : 'opacity-0 scale-105'
+          }`}
+        >
+          {/* Image Layer - z-0 */}
+          <div className='absolute inset-0 z-0'>
+            <OptimizedImage
+              src={banner.imageUrl || '/en/images/default-banner.jpg'}
+              alt={banner.title}
+              fill
+              className='object-cover w-full h-full'
+              priority={index === 0}
+              sizes='(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw'
+            />
+          </div>
+
+          {/* Enhanced Overlay - z-10 */}
+          <div className='absolute inset-0 z-10 bg-gradient-to-r from-black/80 via-black/40 to-transparent' />
+
+          {/* Banner Content - z-20 */}
+          <div className='absolute inset-0 z-20 flex items-end pb-6 '>
+            <div className='max-w-7xl mx-auto px-6 w-full'>
+              <div className='max-w-xl transform transition-all duration-700 group-hover:translate-x-2'>
+                <div className='bg-white/10 backdrop-blur-xs rounded-2xl p-6 border border-white/20'>
+                  <h2 className='text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2 drop-shadow-lg leading-tight'>
+                    {banner.title}
+                  </h2>
+                  <p className='text-sm sm:text-base lg:text-lg text-white/90 mb-4 drop-shadow-md leading-relaxed line-clamp-2'>
+                    {banner.subtitle}
+                  </p>
+                  {banner.ctaText && (
+                    <Button
+                      size='sm'
+                      className='bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold px-6 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105'
+                      onClick={() => window.open(banner.ctaLink, '_blank')}
+                    >
+                      {banner.ctaText}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+
+      {/* Subtle Navigation Buttons */}
+      {banners.length > 1 && (
+        <>
+          <button
+            onClick={prevSlide}
+            className='absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white p-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl opacity-80 hover:opacity-100 z-10'
+            aria-label='Previous banner'
+          >
+            <ChevronLeft className='w-5 h-5' />
+          </button>
+          <button
+            onClick={nextSlide}
+            className='absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white p-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl opacity-80 hover:opacity-100 z-10'
+            aria-label='Next banner'
+          >
+            <ChevronRight className='w-5 h-5' />
+          </button>
+        </>
+      )}
+
+      {/* Minimalist Dots Indicator */}
+      {banners.length > 1 && (
+        <div className='absolute top-4 right-4 flex gap-2 z-10'>
+          {banners.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === currentSlide
+                  ? 'bg-white shadow-md scale-125'
+                  : 'bg-white/60 hover:bg-white/80'
+              }`}
+              aria-label={`Go to banner ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Subtle Progress Bar */}
+      {banners.length > 1 && (
+        <div className='absolute bottom-0 left-0 right-0 h-0.5 bg-white/20 z-10'>
+          <div
+            className='h-full bg-white/80 transition-all duration-300 ease-out'
+            style={{ width: `${((currentSlide + 1) / banners.length) * 100}%` }}
+          />
+        </div>
+      )}
+    </div>
+  );
+});
+
+BannerCarousel.displayName = 'BannerCarousel';
+
 export function ShopPage({ shopId }: ShopPageProps) {
   const { t } = useTranslation();
   const router = useRouter();
+  const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState<'products' | 'offers' | 'reviews'>(
     'products'
   );
@@ -361,19 +502,6 @@ export function ShopPage({ shopId }: ShopPageProps) {
     return filtered;
   }, [products, searchTerm, sortBy]);
 
-  // Shop info and stats memoization
-  const shopStats = useMemo(() => {
-    if (!shop) return null;
-
-    return {
-      totalProducts: products.length,
-      avgRating: shop.rating || 0,
-      totalReviews: shop.reviewsCount || 0,
-      responseTime: shop.averageResponseTime || '2h',
-      isVerified: shop.isVerified || false,
-    };
-  }, [shop, products]);
-
   // Real offers data - replace with actual API call
   const offers = useMemo(
     () => [
@@ -429,12 +557,11 @@ export function ShopPage({ shopId }: ShopPageProps) {
     },
   ];
 
-  console.log('shop', shop);
-
   // Use memoized filtered products
   const displayProducts = filteredAndSortedProducts;
 
   console.log('displayProducts', displayProducts);
+  console.log('shop', shop);
 
   if (shopError) {
     return (
@@ -478,8 +605,6 @@ export function ShopPage({ shopId }: ShopPageProps) {
     );
   }
 
-
-
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
       {/* Header Bar */}
@@ -500,122 +625,262 @@ export function ShopPage({ shopId }: ShopPageProps) {
         </div>
       </div>
 
-      {/* Shop Header */}
+      {/* Shop Header with Enhanced Banners */}
       <div className='relative'>
-        {/* Banner Image */}
-        <div className='h-64 sm:h-80 lg:h-96 relative overflow-hidden'>
-          <OptimizedImage
-            src={
-              shop?.bannerUrl || shop?.logoUrl || '/images/default-banner.jpg'
-            }
-            alt={shop?.name || 'Shop banner'}
-            fill
-            className='object-cover'
-            priority
-          />
-          <div className='absolute inset-0 bg-black/20' />
+        {/* Enhanced Banner Carousel */}
+        <div className='h-64 sm:h-80 lg:h-96 relative overflow-hidden rounded-b-xl'>
+          {shop?.banners && shop.banners.length > 0 ? (
+            <BannerCarousel banners={shop.banners} />
+          ) : (
+            <>
+              <OptimizedImage
+                src={
+                  shop?.bannerUrl ||
+                  shop?.logoUrl ||
+                  '/images/default-banner.jpg'
+                }
+                alt={shop?.name || 'Shop banner'}
+                fill
+                className='object-cover'
+                priority
+              />
+              <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent' />
+            </>
+          )}
         </div>
 
-        {/* Shop Info Overlay */}
-        <div className='absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 text-white'>
-          <div className='max-w-7xl mx-auto'>
-            <div className='flex items-start gap-6'>
-              {/* Shop Logo */}
-              <div className='flex-shrink-0'>
-                <div className='w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-4 border-white/20 backdrop-blur-sm'>
-                  <OptimizedImage
-                    src={shop?.logoUrl || '/images/default-logo.jpg'}
-                    alt={shop?.name || 'Shop logo'}
-                    width={128}
-                    height={128}
-                    className='w-full h-full object-cover'
-                  />
-                </div>
-              </div>
-
-              {/* Shop Details */}
-              <div className='flex-1 min-w-0'>
-                <div className='flex items-center gap-3 mb-2'>
-                  <h1 className='text-3xl sm:text-4xl font-bold truncate'>
-                    {shop?.name || ''}
-                  </h1>
-                  {shop?.isVerified && (
-                    <Verified className='w-8 h-8 text-blue-400 flex-shrink-0' />
-                  )}
-                </div>
-
-                <p className='text-white/90 text-lg mb-4 line-clamp-2'>
-                  {shop?.description || ''}
-                </p>
-
-                {/* Stats */}
-                <div className='flex flex-wrap items-center gap-6 text-sm'>
-                  <div className='flex items-center gap-2'>
-                    <Star className='w-4 h-4 text-yellow-400' />
-                    <span className='font-semibold'>{shop?.rating || 0}</span>
-                    <span className='text-white/70'>
-                      ({shop?.reviewsCount || 0} {t('common.reviews')})
-                    </span>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <Users className='w-4 h-4' />
-                    <span>
-                      {(shop?.followersCount || 0).toLocaleString()}{' '}
-                      {t('marketplace.followers')}
-                    </span>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <Eye className='w-4 h-4' />
-                    <span>
-                      {shop?.productsCount || 0} {t('marketplace.products')}
-                    </span>
+        {/* Conditional Shop Info Layout */}
+        {shop?.banners && shop.banners.length > 0 ? (
+          /* Shop Info Below Banners */
+          <div className='bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700'>
+            <div className='max-w-7xl mx-auto p-6'>
+              <div className='flex items-start gap-6'>
+                {/* Enhanced Shop Logo */}
+                <div className='flex-shrink-0'>
+                  <div className='relative group'>
+                    <div className='w-28 h-28 sm:w-36 sm:h-36 rounded-3xl overflow-hidden border-4 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-xl group-hover:border-orange-300 dark:group-hover:border-orange-500 group-hover:shadow-2xl transition-all duration-500 transform group-hover:scale-105'>
+                      <OptimizedImage
+                        src={shop?.logoUrl || '/images/default-logo.jpg'}
+                        alt={shop?.name || 'Shop logo'}
+                        fill
+                        className='object-cover object-center group-hover:scale-110 transition-transform duration-500'
+                        priority
+                      />
+                    </div>
+                    {/* Verified Badge */}
+                    {shop?.isVerified && (
+                      <div className='absolute -bottom-3 -right-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full p-2.5 border-4 border-white dark:border-gray-900 shadow-xl group-hover:scale-110 transition-transform duration-300'>
+                        <Verified className='w-5 h-5 text-white' />
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
 
-              {/* Action Buttons */}
-              <div className='flex flex-col gap-3 flex-shrink-0'>
-                <Button
-                  onClick={handleFollowShop}
-                  disabled={followShopMutation.isPending}
-                  className={`px-6 py-3 font-semibold rounded-xl transition-all ${
-                    isFollowed
-                      ? 'bg-white/20 text-white border border-white/30 hover:bg-white/30'
-                      : 'bg-white text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <Heart
-                    className={`w-4 h-4 mr-2 ${isFollowed ? 'fill-current' : ''}`}
-                  />
-                  {isFollowed
-                    ? t('marketplace.following')
-                    : t('marketplace.follow')}
-                </Button>
+                {/* Shop Details */}
+                <div className='flex-1 min-w-0'>
+                  <div className='flex items-center justify-between gap-4 mb-2'>
+                    <h1 className='text-3xl sm:text-4xl font-bold truncate text-gray-900 dark:text-white'>
+                      {shop?.name || ''}
+                    </h1>
+                    {/* Follow Button - Top Level */}
+                    <Button
+                      onClick={handleFollowShop}
+                      disabled={followShopMutation.isPending}
+                      className={`px-6 py-2 font-semibold rounded-lg transition-all transform hover:scale-105 shadow-md flex-shrink-0 ${
+                        isFollowed
+                          ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white hover:from-red-600 hover:to-pink-600 shadow-red-500/30'
+                          : 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 shadow-orange-500/30'
+                      }`}
+                    >
+                      <Heart
+                        className={`w-4 h-4 mr-2 ${isFollowed ? 'fill-current' : ''}`}
+                      />
+                      {isFollowed
+                        ? t('marketplace.following')
+                        : t('marketplace.follow')}
+                    </Button>
+                  </div>
 
-                <div className='flex gap-2'>
-                  <Button
-                    onClick={handleChatWithShop}
-                    variant='secondary'
-                    size='sm'
-                    className='bg-white/20 hover:bg-white/30 text-white border border-white/30'
-                  >
-                    <MessageCircle className='w-4 h-4 mr-2' />
-                    {t('marketplace.chat')}
-                  </Button>
+                  <p className='text-gray-600 dark:text-gray-300 text-lg mb-4 line-clamp-2'>
+                    {shop?.description || ''}
+                  </p>
 
-                  <Button
-                    onClick={handleShareShop}
-                    variant='secondary'
-                    size='sm'
-                    className='bg-white/20 hover:bg-white/30 text-white border border-white/30'
-                  >
-                    <Share2 className='w-4 h-4' />
-                  </Button>
+                  {/* Stats and Action Buttons - Same Level */}
+                  <div className='flex flex-wrap items-center justify-between gap-4'>
+                    {/* Enhanced Stats */}
+                    <div className='flex flex-wrap items-center gap-6 text-sm'>
+                      <div className='flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-full px-3 py-1 border border-yellow-200 dark:border-yellow-800'>
+                        <Star className='w-4 h-4 text-yellow-500 fill-yellow-500' />
+                        <span className='font-bold text-gray-900 dark:text-white'>
+                          {shop?.rating?.toFixed(1) || '0.0'}
+                        </span>
+                        <span className='text-gray-600 dark:text-gray-300'>
+                          ({(shop?.reviewsCount || 0).toLocaleString()})
+                        </span>
+                      </div>
+                      <div className='flex items-center gap-2 bg-orange-50 dark:bg-orange-900/20 rounded-full px-3 py-1 border border-orange-200 dark:border-orange-800'>
+                        <Users className='w-4 h-4 text-orange-500' />
+                        <span className='font-semibold text-gray-900 dark:text-white'>
+                          {(shop?.followersCount || 0).toLocaleString()}
+                        </span>
+                        <span className='text-gray-600 dark:text-gray-300'>
+                          {t('marketplace.followers')}
+                        </span>
+                      </div>
+                      <div className='flex items-center gap-2 bg-green-50 dark:bg-green-900/20 rounded-full px-3 py-1 border border-green-200 dark:border-green-800'>
+                        <ShoppingCart className='w-4 h-4 text-green-500' />
+                        <span className='font-semibold text-gray-900 dark:text-white'>
+                          {shop?.productsCount || 0}
+                        </span>
+                        <span className='text-gray-600 dark:text-gray-300'>
+                          {t('marketplace.products')}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Chat and Share Buttons - Same Level as Stats */}
+                    <div className='flex items-center gap-3 flex-shrink-0'>
+                      <Button
+                        onClick={handleChatWithShop}
+                        variant='outline'
+                        className='px-4 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all transform hover:scale-105'
+                      >
+                        <MessageCircle className='w-4 h-4 mr-2' />
+                        {t('marketplace.chat')}
+                      </Button>
+
+                      <Button
+                        onClick={handleShareShop}
+                        variant='outline'
+                        className='px-4 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all transform hover:scale-105'
+                      >
+                        <Share2 className='w-4 h-4 mr-2' />
+                        {t('marketplace.share')}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          /* Shop Info Overlay for No Banners */
+          <div className='absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 text-white'>
+            <div className='max-w-7xl mx-auto'>
+              <div className='flex items-start gap-6'>
+                {/* Enhanced Shop Logo */}
+                <div className='flex-shrink-0'>
+                  <div className='relative group'>
+                    <div className='w-28 h-28 sm:w-36 sm:h-36 rounded-3xl overflow-hidden border-4 border-white/40 backdrop-blur-md bg-white/20 shadow-2xl group-hover:border-white/60 group-hover:shadow-3xl transition-all duration-500 transform group-hover:scale-105'>
+                      <OptimizedImage
+                        src={shop?.logoUrl || '/images/default-logo.jpg'}
+                        alt={shop?.name || 'Shop logo'}
+                        fill
+                        className='object-cover object-center group-hover:scale-110 transition-transform duration-500'
+                        priority
+                      />
+                    </div>
+                    {/* Verified Badge */}
+                    {shop?.isVerified && (
+                      <div className='absolute -bottom-3 -right-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full p-2.5 border-4 border-white shadow-xl group-hover:scale-110 transition-transform duration-300'>
+                        <Verified className='w-5 h-5 text-white' />
+                      </div>
+                    )}
+                    {/* Logo Glow Effect */}
+                    <div className='absolute inset-0 rounded-3xl bg-gradient-to-br from-white/20 to-transparent pointer-events-none' />
+                  </div>
+                </div>
+
+                {/* Shop Details */}
+                <div className='flex-1 min-w-0'>
+                  <div className='flex items-center justify-between gap-4 mb-2'>
+                    <h1 className='text-3xl sm:text-4xl font-bold truncate drop-shadow-lg'>
+                      {shop?.name || ''}
+                    </h1>
+                    {/* Follow Button - Top Level */}
+                    <Button
+                      onClick={handleFollowShop}
+                      disabled={followShopMutation.isPending}
+                      className={`px-6 py-2 font-semibold rounded-xl transition-all transform hover:scale-105 shadow-lg flex-shrink-0 ${
+                        isFollowed
+                          ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white hover:from-red-600 hover:to-pink-600 shadow-red-500/30'
+                          : 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 shadow-orange-500/30'
+                      }`}
+                    >
+                      <Heart
+                        className={`w-4 h-4 mr-2 ${isFollowed ? 'fill-current' : ''}`}
+                      />
+                      {isFollowed
+                        ? t('marketplace.following')
+                        : t('marketplace.follow')}
+                    </Button>
+                  </div>
+
+                  <p className='text-white/90 text-lg mb-4 line-clamp-2 drop-shadow-md'>
+                    {shop?.description || ''}
+                  </p>
+
+                  {/* Stats and Action Buttons - Same Level */}
+                  <div className='flex flex-wrap items-center justify-between gap-4'>
+                    {/* Enhanced Stats */}
+                    <div className='flex flex-wrap items-center gap-6 text-sm'>
+                      <div className='flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1'>
+                        <Star className='w-4 h-4 text-yellow-400 fill-yellow-400' />
+                        <span className='font-bold text-white'>
+                          {shop?.rating?.toFixed(1) || '0.0'}
+                        </span>
+                        <span className='text-white/80'>
+                          ({(shop?.reviewsCount || 0).toLocaleString()})
+                        </span>
+                      </div>
+                      <div className='flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1'>
+                        <Users className='w-4 h-4 text-orange-400' />
+                        <span className='font-semibold text-white'>
+                          {(shop?.followersCount || 0).toLocaleString()}
+                        </span>
+                        <span className='text-white/80'>
+                          {t('marketplace.followers')}
+                        </span>
+                      </div>
+                      <div className='flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1'>
+                        <ShoppingCart className='w-4 h-4 text-green-400' />
+                        <span className='font-semibold text-white'>
+                          {shop?.productsCount || 0}
+                        </span>
+                        <span className='text-white/80'>
+                          {t('marketplace.products')}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Chat and Share Buttons - Same Level as Stats */}
+                    <div className='flex items-center gap-3 flex-shrink-0'>
+                      <Button
+                        onClick={handleChatWithShop}
+                        variant='secondary'
+                        size='sm'
+                        className='bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border border-white/30 rounded-xl transition-all transform hover:scale-105'
+                      >
+                        <MessageCircle className='w-4 h-4 mr-2' />
+                        {t('marketplace.chat')}
+                      </Button>
+
+                      <Button
+                        onClick={handleShareShop}
+                        variant='secondary'
+                        size='sm'
+                        className='bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border border-white/30 rounded-xl transition-all transform hover:scale-105'
+                      >
+                        <Share2 className='w-4 h-4 mr-2' />
+                        {t('marketplace.share')}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
@@ -759,44 +1024,48 @@ export function ShopPage({ shopId }: ShopPageProps) {
                 <h3 className='text-xl font-semibold text-gray-900 dark:text-white mb-2'>
                   {t('marketplace.noProductsFound')}
                 </h3>
-                  <p className='text-gray-600 dark:text-gray-400'>
+                <p className='text-gray-600 dark:text-gray-400'>
                   {searchTerm
                     ? t('marketplace.noProductsMatchSearch')
-                      : t('marketplace.shopHasNoProducts')}
+                    : t('marketplace.shopHasNoProducts')}
                 </p>
               </div>
             ) : (
-                  <div
-                    className={`grid gap-6 ${viewMode === 'grid'
-                      ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-                      : 'grid-cols-1'
-                      }`}
-                  >
-                    {products.map(product => (
+              <div
+                className={`grid gap-6 ${
+                  viewMode === 'grid'
+                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                    : 'grid-cols-1'
+                }`}
+              >
+                {(displayProducts.length > 0 && displayProducts
+                  ? displayProducts
+                  : products
+                ).map(product => (
                   <ProductCard
                     key={product.id}
                     product={product}
-                        onLikeProduct={async productId => {
+                    onLikeProduct={async productId => {
                       likeProductMutation.mutate({ productId, action: 'like' });
                     }}
-                        onPlayGame={productId => {
+                    onPlayGame={productId => {
                       playGameMutation.mutate({ productId });
                     }}
-                        onBuyNow={productId => {
+                    onBuyNow={productId => {
                       buyNowMutation.mutate({ productId });
                     }}
-                        onShare={async productId => {
-                          shareProductMutation.mutate({
-                            productId,
-                            method: 'native',
-                          });
+                    onShare={async productId => {
+                      shareProductMutation.mutate({
+                        productId,
+                        method: 'native',
+                      });
                     }}
                     likedProducts={likedProducts}
                     followedShops={new Set()}
                     showBuyNow={true} // Show buy now on shop page
-                        className={
-                          viewMode === 'list' ? 'flex flex-row h-48' : 'h-full'
-                        }
+                    className={
+                      viewMode === 'list' ? 'flex flex-row h-48' : 'h-full'
+                    }
                   />
                 ))}
               </div>
@@ -928,6 +1197,9 @@ export function ShopPage({ shopId }: ShopPageProps) {
           }}
         />
       )}
+
+      {/* Footer */}
+      <Footer isDark={theme === 'dark'} />
     </div>
   );
 }

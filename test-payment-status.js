@@ -9,9 +9,9 @@
  * 4. Notifications are sent
  */
 
-const { exec } = require('child_process');
-const https = require('https');
-const http = require('http');
+import { exec } from 'child_process';
+import https from 'https';
+import http from 'http';
 
 // Test configuration
 const CONFIG = {

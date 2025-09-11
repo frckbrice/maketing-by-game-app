@@ -72,7 +72,7 @@ class EnhancedErrorBoundary extends React.Component<
     };
 
     if (process.env.NODE_ENV === 'production') {
-      // In production, send to error tracking service
+      //TODO: In production, send to error tracking service
       console.error('Enhanced Error Boundary caught error:', {
         error: {
           name: error.name,

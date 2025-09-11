@@ -87,7 +87,37 @@ class SecurePaymentService {
         const errorData = await response.json().catch(() => ({
           message: `HTTP ${response.status}: ${response.statusText}`,
         }));
-        throw new Error(errorData.message || 'Payment initiation failed');
+
+        // Log detailed error for debugging
+        console.error('Payment API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData,
+          requestPayload: {
+            ...paymentRequest,
+            phoneNumber: paymentRequest.phoneNumber
+              ? '***masked***'
+              : undefined,
+          },
+          responseHeaders: {
+            'content-type': response.headers.get('content-type'),
+            'content-length': response.headers.get('content-length'),
+          },
+        });
+
+        // More specific error handling
+        if (response.status === 400) {
+          console.error('400 Bad Request Details:', {
+            validationErrors:
+              errorData.details || 'No validation details provided',
+            errorCode: errorData.code,
+            errorMessage: errorData.error || errorData.message,
+          });
+        }
+
+        throw new Error(
+          errorData.message || errorData.error || 'Payment initiation failed'
+        );
       }
 
       return await response.json();

@@ -1,12 +1,12 @@
 'use client';
 
 import { ChatButton, FollowButton } from '@/components/features/social';
+import { Shop } from '@/types';
 import { ChevronLeft, ChevronRight, Star, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Shop } from '@/types';
 
 interface TopShopsProps {
   shops: Shop[];

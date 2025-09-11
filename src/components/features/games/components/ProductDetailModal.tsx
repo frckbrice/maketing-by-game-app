@@ -127,9 +127,9 @@ export const ProductDetailModal = React.memo<ProductDetailModalProps>(
       product.originalPrice && product.originalPrice > product.price;
     const discountPercentage = hasDiscount
       ? Math.round(
-        ((product.originalPrice! - product.price) / product.originalPrice!) *
-        100
-      )
+          ((product.originalPrice! - product.price) / product.originalPrice!) *
+            100
+        )
       : 0;
 
     return (
@@ -194,10 +194,11 @@ export const ProductDetailModal = React.memo<ProductDetailModalProps>(
                     <button
                       onClick={handleLike}
                       disabled={isLiking}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${isLiked
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
+                        isLiked
                           ? 'bg-red-500 text-white'
                           : 'bg-white/80 text-gray-600 hover:bg-red-500 hover:text-white'
-                        } ${isLiking ? 'opacity-70' : ''}`}
+                      } ${isLiking ? 'opacity-70' : ''}`}
                     >
                       {isLiking ? (
                         <div className='w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin' />
@@ -251,10 +252,11 @@ export const ProductDetailModal = React.memo<ProductDetailModalProps>(
                       <button
                         key={index}
                         onClick={() => setSelectedImage(index)}
-                        className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${index === selectedImage
+                        className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
+                          index === selectedImage
                             ? 'border-orange-500'
                             : 'border-gray-200 dark:border-gray-700'
-                          }`}
+                        }`}
                       >
                         <Image
                           src={image}
@@ -310,10 +312,11 @@ export const ProductDetailModal = React.memo<ProductDetailModalProps>(
                           <button
                             key={size}
                             onClick={() => setSelectedSize(size)}
-                            className={`px-4 py-2 border rounded-lg transition-colors ${selectedSize === size
+                            className={`px-4 py-2 border rounded-lg transition-colors ${
+                              selectedSize === size
                                 ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400'
                                 : 'border-gray-300 dark:border-gray-600 hover:border-orange-300'
-                              }`}
+                            }`}
                           >
                             {size}
                           </button>
@@ -331,8 +334,8 @@ export const ProductDetailModal = React.memo<ProductDetailModalProps>(
                         {(product.stockQuantity || 0) > 10
                           ? t('marketplace.inStock')
                           : t('marketplace.lowStock', {
-                            count: product.stockQuantity || 0,
-                          })}
+                              count: product.stockQuantity || 0,
+                            })}
                       </span>
                     </div>
                   ) : (
@@ -374,10 +377,11 @@ export const ProductDetailModal = React.memo<ProductDetailModalProps>(
                   <button
                     onClick={handleFollowShop}
                     disabled={isFollowing}
-                    className={`w-full py-3 px-6 rounded-xl font-medium transition-all duration-200 flex items-center justify-center ${isShopFollowed
+                    className={`w-full py-3 px-6 rounded-xl font-medium transition-all duration-200 flex items-center justify-center ${
+                      isShopFollowed
                         ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-700'
                         : 'border border-purple-300 dark:border-purple-600 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/10'
-                      } ${isFollowing ? 'opacity-70' : ''}`}
+                    } ${isFollowing ? 'opacity-70' : ''}`}
                   >
                     {isFollowing ? (
                       <div className='w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-2' />
@@ -429,28 +433,31 @@ export const ProductDetailModal = React.memo<ProductDetailModalProps>(
               <div className='flex border-b border-gray-200 dark:border-gray-700 px-6'>
                 <button
                   onClick={() => setActiveTab('description')}
-                  className={`py-4 px-6 font-medium transition-colors ${activeTab === 'description'
+                  className={`py-4 px-6 font-medium transition-colors ${
+                    activeTab === 'description'
                       ? 'text-orange-600 border-b-2 border-orange-600'
                       : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                    }`}
+                  }`}
                 >
                   📝 {t('marketplace.description')}
                 </button>
                 <button
                   onClick={() => setActiveTab('specifications')}
-                  className={`py-4 px-6 font-medium transition-colors ${activeTab === 'specifications'
+                  className={`py-4 px-6 font-medium transition-colors ${
+                    activeTab === 'specifications'
                       ? 'text-orange-600 border-b-2 border-orange-600'
                       : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                    }`}
+                  }`}
                 >
                   ⚙️ {t('marketplace.specifications')}
                 </button>
                 <button
                   onClick={() => setActiveTab('reviews')}
-                  className={`py-4 px-6 font-medium transition-colors ${activeTab === 'reviews'
+                  className={`py-4 px-6 font-medium transition-colors ${
+                    activeTab === 'reviews'
                       ? 'text-orange-600 border-b-2 border-orange-600'
                       : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                    }`}
+                  }`}
                 >
                   ⭐ {t('marketplace.reviews')} ({reviews.length})
                 </button>
@@ -469,7 +476,7 @@ export const ProductDetailModal = React.memo<ProductDetailModalProps>(
                 {activeTab === 'specifications' && (
                   <div>
                     {product.specifications &&
-                      Object.keys(product.specifications).length > 0 ? (
+                    Object.keys(product.specifications).length > 0 ? (
                       <div className='space-y-3'>
                         {Object.entries(product.specifications).map(
                           ([key, value]) => (
@@ -510,10 +517,11 @@ export const ProductDetailModal = React.memo<ProductDetailModalProps>(
                                   {[1, 2, 3, 4, 5].map(star => (
                                     <Star
                                       key={star}
-                                      className={`w-4 h-4 ${star <= review.rating
+                                      className={`w-4 h-4 ${
+                                        star <= review.rating
                                           ? 'text-yellow-500 fill-current'
                                           : 'text-gray-300'
-                                        }`}
+                                      }`}
                                     />
                                   ))}
                                 </div>

@@ -56,7 +56,9 @@ export async function generateStaticParams() {
 }
 
 // Server-side metadata generation
-export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: ProductPageProps): Promise<Metadata> {
   const { productId } = await params;
   const product = await getProductData(productId);
 

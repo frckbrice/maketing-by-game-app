@@ -284,7 +284,7 @@ const nextConfig = {
                     },
                     {
                         key: "X-Frame-Options",
-                        value: "DENY",
+                        value: "SAMEORIGIN",
                     },
                     {
                         key: "X-XSS-Protection",
@@ -293,6 +293,14 @@ const nextConfig = {
                     {
                         key: "Referrer-Policy",
                         value: "strict-origin-when-cross-origin",
+                    },
+                    {
+                        key: "Cross-Origin-Opener-Policy",
+                        value: "unsafe-none",
+                    },
+                    {
+                        key: "Cross-Origin-Embedder-Policy",
+                        value: "unsafe-none",
                     },
                     {
                         key: "Permissions-Policy",
@@ -307,15 +315,15 @@ const nextConfig = {
                         key: "Content-Security-Policy",
                         value: [
                             "default-src 'self'",
-                            `script-src 'self' 'unsafe-inline' ${process.env.NODE_ENV !== "production" ? "'unsafe-eval' " : ""}https:`,
-                            "style-src 'self' 'unsafe-inline' https:",
-                            "font-src 'self' https: data:",
-                            "img-src 'self' data: https: blob:",
-                            `connect-src 'self' https: ${process.env.NODE_ENV !== "production" ? "ws:" : "wss:"}`,
-                            "frame-src 'self' https:",
+                            `script-src 'self' 'unsafe-inline' ${process.env.NODE_ENV !== "production" ? "'unsafe-eval' " : ""}https://apis.google.com https://accounts.google.com https://www.gstatic.com https://ssl.gstatic.com https://www.google.com`,
+                            "style-src 'self' 'unsafe-inline' https: https://fonts.googleapis.com https://accounts.google.com",
+                            "font-src 'self' https: data: https://fonts.gstatic.com",
+                            "img-src 'self' data: https: blob: https://lh3.googleusercontent.com https://www.google.com",
+                            `connect-src 'self' https: ${process.env.NODE_ENV !== "production" ? "ws:" : "wss:"} https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://accounts.google.com https://ssl.gstatic.com`,
+                            "frame-src 'self' https: https://accounts.google.com https://apis.google.com https://ssl.gstatic.com https://www.google.com",
                             "object-src 'none'",
                             "base-uri 'self'",
-                            "form-action 'self'",
+                            "form-action 'self' https://accounts.google.com",
                             "frame-ancestors 'none'",
                             "upgrade-insecure-requests",
                         ].join("; "),

@@ -83,7 +83,129 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (firebaseUser) {
         try {
-          const userData = await firestoreService.getUser(firebaseUser.uid);
+          let userData;
+
+          // Try to get user data
+          try {
+            userData = await firestoreService.getUser(firebaseUser.uid);
+          } catch (firestoreError: any) {
+            console.error(
+              'Failed to get user data from Firestore:',
+              firestoreError
+            );
+
+            // If offline, try to use only cached user data from previous successful login
+            if (
+              firestoreError.code === 'unavailable' ||
+              firestoreError.message?.includes('offline')
+            ) {
+              const cachedUser = localStorage.getItem('lottery-user-session');
+              const cachedTimestamp = localStorage.getItem(
+                'lottery-session-timestamp'
+              );
+
+              if (cachedUser && cachedTimestamp) {
+                const timestamp = parseInt(cachedTimestamp, 10);
+                const now = Date.now();
+                // Only use cache if it's less than 24 hours old and from a real user
+                if (now - timestamp < 24 * 60 * 60 * 1000) {
+                  try {
+                    const parsedUser = JSON.parse(cachedUser);
+                    // Only use cached data if it has a real database ID (not mock data)
+                    if (
+                      parsedUser.id === firebaseUser.uid &&
+                      !parsedUser._pendingSync
+                    ) {
+                      userData = parsedUser;
+                      console.log(
+                        'Using cached user data due to offline status'
+                      );
+                    }
+                  } catch (parseError) {
+                    console.error(
+                      'Failed to parse cached user data:',
+                      parseError
+                    );
+                  }
+                }
+              }
+            }
+
+            // If no userData at this point, we cannot proceed safely
+            if (!userData) {
+              console.error('Cannot access user data - database unavailable');
+              throw new Error(
+                'Cannot access user data. Please check your internet connection and try again.'
+              );
+            }
+          }
+
+          // If user exists in Firebase Auth but not in Firestore, create the document
+          if (!userData && firebaseUser.email) {
+            console.log(
+              'User found in Firebase Auth but not in Firestore. Creating user document...'
+            );
+            const newUserData = {
+              email: firebaseUser.email,
+              firstName: firebaseUser.displayName?.split(' ')[0] || 'User',
+              lastName:
+                firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+              role: 'USER' as const,
+              status: 'ACTIVE' as const,
+              emailVerified: firebaseUser.emailVerified,
+              phoneVerified: false,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              preferences: {
+                language: 'en',
+                theme: 'system',
+                notifications: true,
+                emailUpdates: true,
+                smsUpdates: false,
+                timezone: 'UTC',
+                currency: 'XAF',
+              },
+              notificationSettings: {
+                email: true,
+                sms: false,
+                push: true,
+                inApp: true,
+                marketing: false,
+                gameUpdates: true,
+                winnerAnnouncements: true,
+              },
+              privacySettings: {
+                profileVisibility: 'public' as const,
+                showEmail: false,
+                showPhone: false,
+                allowContact: true,
+                dataSharing: false,
+              },
+              socialMedia: {
+                facebook: '',
+                twitter: '',
+                instagram: '',
+                linkedin: '',
+              },
+            };
+
+            try {
+              // Use setDoc to create user with specific UID
+              const { setDoc, doc } = await import('firebase/firestore');
+              const { db } = await import('@/lib/firebase/config');
+
+              await setDoc(doc(db, 'users', firebaseUser.uid), newUserData);
+              userData = { ...newUserData, id: firebaseUser.uid };
+              console.log('Successfully created user document in Firestore');
+            } catch (createError) {
+              console.error(
+                'Failed to create user document in Firestore:',
+                createError
+              );
+              // Continue without userData, user will see auth issues
+            }
+          }
+
           if (isMounted && userData) {
             setUser(userData);
 
@@ -209,8 +331,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const firebaseUser = await authService.login(email, password);
 
-      // Wait for user data to be fetched and role-based redirect
-      const userData = await firestoreService.getUser(firebaseUser.uid);
+      let userData;
+
+      // Try to get user data, handle offline gracefully
+      try {
+        userData = await firestoreService.getUser(firebaseUser.uid);
+      } catch (firestoreError: any) {
+        console.warn('Firestore error during login:', firestoreError);
+
+        // If offline, try cached data or create minimal user
+        if (
+          firestoreError.code === 'unavailable' ||
+          firestoreError.message?.includes('offline')
+        ) {
+          const cachedUser = localStorage.getItem('lottery-user-session');
+          if (cachedUser) {
+            try {
+              userData = JSON.parse(cachedUser);
+            } catch (parseError) {
+              console.error('Failed to parse cached user data:', parseError);
+            }
+          }
+
+          // Create minimal user data if no cache
+          if (!userData) {
+            userData = {
+              id: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              firstName: firebaseUser.displayName?.split(' ')[0] || 'User',
+              lastName:
+                firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+              role: 'USER' as const,
+              status: 'ACTIVE' as const,
+              emailVerified: firebaseUser.emailVerified,
+              phoneVerified: false,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+            };
+          }
+        } else {
+          throw firestoreError; // Re-throw non-offline errors
+        }
+      }
+
       if (userData) {
         setUser(userData);
 
@@ -306,8 +469,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const firebaseUser = await authService.signInWithGoogle();
 
       if (firebaseUser) {
-        // Fetch and persist user data
-        const userData = await firestoreService.getUser(firebaseUser.uid);
+        let userData;
+
+        // Try to fetch user data, handle offline gracefully
+        try {
+          userData = await firestoreService.getUser(firebaseUser.uid);
+        } catch (firestoreError: any) {
+          console.warn(
+            'Firestore error during Google sign-in:',
+            firestoreError
+          );
+
+          if (
+            firestoreError.code === 'unavailable' ||
+            firestoreError.message?.includes('offline')
+          ) {
+            // Create minimal user data for offline mode
+            userData = {
+              id: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              firstName: firebaseUser.displayName?.split(' ')[0] || 'User',
+              lastName:
+                firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+              role: 'USER' as const,
+              status: 'ACTIVE' as const,
+              emailVerified: firebaseUser.emailVerified,
+              phoneVerified: false,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+            };
+          } else {
+            throw firestoreError;
+          }
+        }
+
         if (userData) {
           setUser(userData);
 

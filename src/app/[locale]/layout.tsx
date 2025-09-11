@@ -15,7 +15,7 @@ import {
   generateWebSiteStructuredData,
 } from '@/lib/seo/structured-data';
 import { ThemeProvider } from '@/lib/themes/theme-provider';
-import { Inter } from 'next/font/google';
+// import { Inter } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { Toaster } from 'sonner';
 import { I18nProvider } from '../../components/providers/I18nProvider';
@@ -26,12 +26,13 @@ import '../globals.css';
 const locales = ['en', 'fr'] as const;
 type Locale = (typeof locales)[number];
 
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  preload: true,
-  variable: '--font-inter',
-});
+// Temporarily disable Google Fonts to avoid build issues
+// const inter = Inter({
+//   subsets: ['latin'],
+//   display: 'swap',
+//   preload: false,
+//   variable: '--font-inter',
+// });
 
 export async function generateStaticParams() {
   return locales.map(locale => ({ locale }));
@@ -49,8 +50,8 @@ export async function generateMetadata({
     locale,
     title:
       locale === 'fr'
-        ? 'Application de Loterie - Gagnez des Prix Incroyables'
-        : 'Lottery App - Win Amazing Prizes',
+        ? 'Application de Marketing des entreprises par des jeux - Gagnez des Prix Incroyables'
+        : 'Marketing Game App - Win Amazing Prizes',
     description:
       locale === 'fr'
         ? 'Participez à des jeux de loterie passionnants et gagnez des prix incroyables. Rejoignez des milliers de joueurs sur notre plateforme de loterie sécurisée et équitable.'
@@ -95,13 +96,6 @@ export default async function RootLayout({
           crossOrigin='anonymous'
         />
         <link rel='dns-prefetch' href='//fonts.googleapis.com' />
-        <link
-          rel='preload'
-          href='https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2'
-          as='font'
-          type='font/woff2'
-          crossOrigin='anonymous'
-        />
         <link rel='modulepreload' href='/_next/static/chunks/webpack.js' />
         <link rel='modulepreload' href='/_next/static/chunks/main-app.js' />
         <link rel='dns-prefetch' href='//firebase.googleapis.com' />
@@ -132,7 +126,10 @@ export default async function RootLayout({
         <link rel='icon' type='image/svg+xml' href='/icons/icon.svg' />
         <ServerStructuredData
           data={[
-            { type: 'WebSite', data: generateWebSiteStructuredData() },
+            {
+              type: 'WebSite',
+              data: generateWebSiteStructuredData(),
+            },
             {
               type: 'Organization',
               data: generateOrganizationStructuredData(),
@@ -140,7 +137,7 @@ export default async function RootLayout({
           ]}
         />
       </head>
-      <body className={inter.className}>
+      <body className='font-sans'>
         <ServiceWorkerManager />
         <PreloadManager
           prefetchRoutes={['/games', '/shops', '/products', '/profile']}

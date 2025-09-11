@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { firestoreService } from '../../../../lib/firebase/services';
-import { requireRole } from '../../../../lib/utils/auth-helpers';
+import { firestoreService } from '@/lib/firebase/client-services';
+import { requireRole } from '@/lib/utils/auth-helpers';
 
 export async function GET(request: NextRequest) {
   try {

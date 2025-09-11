@@ -387,9 +387,11 @@ export function CreateGamePage() {
         <div className='max-w-7xl mx-auto px-6 py-6'>
           <div className='flex items-center justify-between'>
             <div>
-              <h1 className='text-3xl font-bold text-white'>Create New Game</h1>
+              <h1 className='text-3xl font-bold text-white'>
+                {t('admin.createNewGame')}
+              </h1>
               <p className='text-lottery-300 mt-1'>
-                Launch a new marketing lottery
+                {t('admin.launchNewMarketingLottery')}
               </p>
             </div>
             <div className='flex items-center space-x-4'>
@@ -640,7 +642,7 @@ export function CreateGamePage() {
                                       name: e.target.value,
                                     })
                                   }
-                                  placeholder='Shop name'
+                                  placeholder={t('vendor.shopName')}
                                   className='bg-lottery-700/50 border-lottery-600/50 text-white'
                                 />
                               </div>
@@ -660,7 +662,7 @@ export function CreateGamePage() {
                                       description: e.target.value,
                                     })
                                   }
-                                  placeholder='Shop description'
+                                  placeholder={t('vendor.shopDescription')}
                                   className='bg-lottery-700/50 border-lottery-600/50 text-white'
                                 />
                               </div>
@@ -841,7 +843,7 @@ export function CreateGamePage() {
                                     name: e.target.value,
                                   })
                                 }
-                                placeholder='Product name'
+                                placeholder={t('vendor.productName')}
                                 className='bg-lottery-700/50 border-lottery-600/50 text-white'
                               />
                             </div>
@@ -861,7 +863,7 @@ export function CreateGamePage() {
                                     description: e.target.value,
                                   })
                                 }
-                                placeholder='Product description'
+                                placeholder={t('vendor.productDescription')}
                                 className='bg-lottery-700/50 border-lottery-600/50 text-white'
                               />
                             </div>
@@ -934,7 +936,7 @@ export function CreateGamePage() {
                       id='productId'
                       className='w-full px-4 py-3 bg-lottery-700/50 border border-lottery-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-lottery-500 focus:border-transparent transition-all duration-200'
                     >
-                      <option value=''>Select a product</option>
+                      <option value=''>{t('vendor.selectProduct')}</option>
                       {products.map(product => (
                         <option key={product.id} value={product.id}>
                           {product.name} - ${product.price}

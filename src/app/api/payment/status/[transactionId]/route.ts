@@ -1,5 +1,6 @@
 import { db } from '@/lib/firebase/config';
 // import { logSecurityEvent } from '@/lib/security/middleware';
+import { withRetry } from '@/lib/utils/firestore-retry';
 import { doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -67,44 +68,36 @@ export async function GET(
       );
     }
 
-    // Get payment record from database with retry logic
+    // Get payment record from database with improved error handling
     let paymentDoc;
-    let retryCount = 0;
-    const maxRetries = 3;
+    try {
+      paymentDoc = await withRetry(() =>
+        getDoc(doc(db, 'payments', transactionId))
+      );
+    } catch (error: any) {
+      console.error('Payment status check error:', error);
 
-    while (retryCount < maxRetries) {
-      try {
-        paymentDoc = await getDoc(doc(db, 'payments', transactionId));
-        break;
-      } catch (error: any) {
-        retryCount++;
-        console.warn(
-          `Firebase read attempt ${retryCount} failed:`,
-          error?.code || error?.message
-        );
-
-        if (retryCount >= maxRetries) {
-          // If all retries failed, return a more specific error
-          if (error?.code === 'unavailable') {
-            return NextResponse.json(
-              {
-                success: false,
-                error:
-                  'Database temporarily unavailable. Please try again in a moment.',
-                code: 'DATABASE_OFFLINE',
-                retryAfter: 30000, // 30 seconds
-              },
-              { status: 503 }
-            );
-          }
-          throw error;
-        }
-
-        // Wait before retrying (exponential backoff)
-        await new Promise(resolve =>
-          setTimeout(resolve, Math.pow(2, retryCount) * 1000)
+      if (error?.code === 'unavailable') {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Database temporarily unavailable. Please try again.',
+            code: 'DATABASE_OFFLINE',
+            processingTime: Date.now() - startTime,
+          },
+          { status: 503 }
         );
       }
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Internal server error during status check',
+          code: 'INTERNAL_ERROR',
+          processingTime: Date.now() - startTime,
+        },
+        { status: 500 }
+      );
     }
 
     if (!paymentDoc?.exists()) {
@@ -186,7 +179,9 @@ export async function GET(
           updateData.failureReason = data.status;
         }
 
-        await updateDoc(doc(db, 'payments', transactionId), updateData);
+        await withRetry(() =>
+          updateDoc(doc(db, 'payments', transactionId), updateData)
+        );
       }
 
       console.log('Payment status check completed:', {

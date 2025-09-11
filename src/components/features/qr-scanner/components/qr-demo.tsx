@@ -4,10 +4,12 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { generateAllTicketNumbers } from '@/lib/utils/ticket-utils';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { QRGenerator } from './qr-generator';
 import { QRScanner } from './qr-scanner';
 
 export const QRDemo = () => {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<'scanner' | 'generator' | 'none'>('none');
   const [scanResult, setScanResult] = useState<string | null>(null);
 
@@ -31,7 +33,7 @@ export const QRDemo = () => {
     <div className='max-w-2xl mx-auto p-6 space-y-6'>
       <Card>
         <CardHeader>
-          <CardTitle>QR Code Demo</CardTitle>
+          <CardTitle>{t('qr.qrCodeDemo')}</CardTitle>
         </CardHeader>
         <CardContent className='space-y-4'>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>

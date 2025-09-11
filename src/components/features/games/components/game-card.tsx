@@ -96,9 +96,9 @@ export const GameCard = React.memo<GameCardProps>(function GameCard({
     const progress =
       game.maxParticipants > 0
         ? Math.min(
-          100,
-          Math.max(0, (game.currentParticipants / game.maxParticipants) * 100)
-        )
+            100,
+            Math.max(0, (game.currentParticipants / game.maxParticipants) * 100)
+          )
         : 0;
 
     return {
@@ -179,7 +179,9 @@ export const GameCard = React.memo<GameCardProps>(function GameCard({
               <span className='hidden sm:inline'>
                 {t('games.gameCard.new')}
               </span>
-              <span className='sm:hidden'>New</span>
+              <span className='sm:hidden'>
+                {t('games.gameCard.newFallback')}
+              </span>
             </div>
           )}
           {isHotGame && (
@@ -341,11 +343,7 @@ export const GameCard = React.memo<GameCardProps>(function GameCard({
                 <button
                   onClick={e => {
                     e.stopPropagation();
-                    window.open(
-                      shop.website,
-                      '_blank',
-                      'noopener,noreferrer'
-                    );
+                    window.open(shop.website, '_blank', 'noopener,noreferrer');
                   }}
                   className='text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors'
                   aria-label={t('games.gameCard.visitWebsite', {

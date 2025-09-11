@@ -13,6 +13,7 @@ import Link from 'next/link';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Product } from '../../../../types';
+import { PaymentModal } from './PaymentModal';
 
 interface ProductCardProps {
   product: Product;
@@ -45,13 +46,17 @@ export const ProductCard = React.memo<ProductCardProps>(function ProductCard({
   const { addItem, getItemQuantity } = useCart();
   const [imageLoaded, setImageLoaded] = useState(false);
 
+  // Payment modal state
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [isLotteryPlay, setIsLotteryPlay] = useState(false);
+
   const hasDiscount =
     product.originalPrice && product.originalPrice > product.price;
   const discountPercentage = hasDiscount
     ? Math.round(
-      ((product.originalPrice! - product.price) / product.originalPrice!) *
-      100
-    )
+        ((product.originalPrice! - product.price) / product.originalPrice!) *
+          100
+      )
     : 0;
 
   const handleShare = useCallback(
@@ -71,11 +76,16 @@ export const ProductCard = React.memo<ProductCardProps>(function ProductCard({
       e.preventDefault();
       e.stopPropagation();
 
-      if (onPlayGame) {
+      // Open payment modal for lottery play if product has lottery enabled
+      if (product.isLotteryEnabled && product.lotteryPrice) {
+        setIsLotteryPlay(true);
+        setShowPaymentModal(true);
+      } else if (onPlayGame) {
+        // Fallback to parent handler if no lottery enabled
         onPlayGame(product.id);
       }
     },
-    [onPlayGame, product.id]
+    [onPlayGame, product.id, product.isLotteryEnabled, product.lotteryPrice]
   );
 
   const handleBuyNow = useCallback(
@@ -83,6 +93,11 @@ export const ProductCard = React.memo<ProductCardProps>(function ProductCard({
       e.preventDefault();
       e.stopPropagation();
 
+      // Open payment modal for regular purchase
+      setIsLotteryPlay(false);
+      setShowPaymentModal(true);
+
+      // Also call parent handler if provided (for analytics, etc.)
       if (onBuyNow) {
         onBuyNow(product.id);
       }
@@ -135,21 +150,23 @@ export const ProductCard = React.memo<ProductCardProps>(function ProductCard({
         )}
       </div>
 
-      {/* Action Buttons */}
-      <div className='absolute top-3 right-3 z-20 flex flex-col space-y-2'>
+      {/* Enhanced Action Buttons */}
+      <div className='absolute top-3 right-3 z-20 flex flex-col space-y-3'>
         <LikeButton
           targetId={product.id}
           targetType='PRODUCT'
           variant='icon'
           showCount={false}
           size='sm'
+          className='!w-10 !h-10 !bg-white/90 !shadow-xl !border !border-gray-200/50 backdrop-blur-md hover:!bg-pink-50 hover:!border-pink-200 hover:!shadow-2xl !rounded-full !transition-all !duration-300 hover:!scale-110 !text-gray-600 hover:!text-pink-500'
         />
 
         <button
           onClick={handleShare}
-          className='w-8 h-8 bg-white/80 backdrop-blur-sm text-gray-600 hover:bg-blue-500 hover:text-white rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110'
+          className='group/share w-10 h-10 bg-white/90 backdrop-blur-md text-gray-600 hover:bg-blue-50 hover:text-blue-500 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-xl border border-gray-200/50 hover:border-blue-200 hover:shadow-2xl'
+          title={t('common.share')}
         >
-          <Share2 className='w-4 h-4' />
+          <Share2 className='w-4 h-4 stroke-2 transition-transform duration-200 group-hover/share:rotate-12' />
         </button>
       </div>
 
@@ -173,8 +190,8 @@ export const ProductCard = React.memo<ProductCardProps>(function ProductCard({
               priority={product.isFeatured}
             />
           ) : (
-              <div className='absolute inset-0 flex items-center justify-center'>
-                <div className='text-6xl opacity-50'>📦</div>
+            <div className='absolute inset-0 flex items-center justify-center'>
+              <div className='text-6xl opacity-50'>📦</div>
             </div>
           )}
 
@@ -339,6 +356,17 @@ export const ProductCard = React.memo<ProductCardProps>(function ProductCard({
 
       {/* Hover Effect Overlay */}
       <div className='absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl' />
+
+      {/* Payment Modal */}
+      <PaymentModal
+        product={product}
+        isLotteryPlay={isLotteryPlay}
+        isOpen={showPaymentModal}
+        onClose={() => {
+          setShowPaymentModal(false);
+          setIsLotteryPlay(false);
+        }}
+      />
     </div>
   );
 });

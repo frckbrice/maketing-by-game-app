@@ -79,14 +79,18 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
     let classes = `${className} transition-all duration-200`;
 
     if (variant === 'icon') {
-      classes += ` w-${size === 'sm' ? '8' : size === 'lg' ? '12' : '10'} h-${size === 'sm' ? '8' : size === 'lg' ? '12' : '10'} rounded-full flex items-center justify-center`;
+      // Use fixed dimensions for better consistency
+      const sizeClasses =
+        size === 'sm' ? 'w-8 h-8' : size === 'lg' ? 'w-12 h-12' : 'w-10 h-10';
+      classes += ` ${sizeClasses} rounded-full flex items-center justify-center`;
 
       if (isLiked) {
         classes +=
           ' bg-red-500 text-white hover:bg-red-600 shadow-lg transform hover:scale-110';
       } else {
+        // Improved visibility for non-liked state
         classes +=
-          ' bg-white/80 backdrop-blur-sm text-gray-600 hover:bg-red-500 hover:text-white border border-gray-200 hover:border-red-500 hover:scale-110';
+          ' bg-white backdrop-blur-sm text-gray-600 hover:bg-red-500 hover:text-white border border-gray-200 hover:border-red-500 hover:scale-110 shadow-lg';
       }
     } else {
       if (isLiked) {
@@ -133,7 +137,8 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
           />
         ) : (
           <Heart
-            className={`${getIconSize()} ${isLiked ? 'fill-current' : ''} ${variant !== 'icon' ? 'mr-2' : ''}`}
+            className={`${getIconSize()} ${isLiked ? 'fill-current text-red-500' : 'stroke-2'} ${variant !== 'icon' ? 'mr-2' : ''}`}
+            style={{ strokeWidth: isLiked ? 0 : 2 }}
           />
         )}
 

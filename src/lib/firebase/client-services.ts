@@ -269,33 +269,89 @@ export const authService = {
     provider.addScope('email');
     provider.addScope('profile');
 
+    // Set custom parameters to improve compatibility
+    provider.setCustomParameters({
+      prompt: 'select_account',
+      access_type: 'offline',
+    });
+
     try {
-      // Try popup first
-      const result = await signInWithPopup(auth, provider);
+      // Check if we're in a context that supports popups
+      const supportsPopup =
+        (typeof window !== 'undefined' &&
+          window.location.protocol === 'https:') ||
+        window.location.hostname === 'localhost';
+
+      if (!supportsPopup) {
+        console.log(
+          'Environment does not support popup, using redirect method'
+        );
+        await signInWithRedirect(auth, provider);
+        throw new Error('Redirecting to Google sign-in...');
+      }
+
+      // Try popup with timeout and better error handling
+      const result = await Promise.race([
+        signInWithPopup(auth, provider),
+        new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Popup timeout')), 30000);
+        }),
+      ]);
+
       const user = result.user;
 
-      // Check if user document exists in Firestore
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      // Check if user document exists in Firestore with better error handling
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
 
-      if (!userDoc.exists()) {
-        const userData = createGoogleUserData(user);
-        await setDoc(doc(db, 'users', user.uid), userData);
+        if (!userDoc.exists()) {
+          const userData = createGoogleUserData(user);
+          await setDoc(doc(db, 'users', user.uid), userData);
+          console.log('Created new user document for Google sign-in');
+        }
+      } catch (firestoreError) {
+        console.warn(
+          'Error handling user document, continuing with auth:',
+          firestoreError
+        );
+        // Continue even if Firestore operations fail
       }
 
       return user;
     } catch (error: any) {
-      // If popup is blocked, fall back to redirect
+      console.error('Google sign-in error:', error);
+
+      // Handle various popup-related errors
       if (
         error.code === 'auth/popup-blocked' ||
-        error.code === 'auth/popup-closed-by-user'
+        error.code === 'auth/popup-closed-by-user' ||
+        error.code === 'auth/cancelled-popup-request' ||
+        error.message === 'Popup timeout' ||
+        error.message?.includes('popup')
       ) {
-        console.log('Popup blocked, falling back to redirect method');
-        await signInWithRedirect(auth, provider);
-        // Note: User will be redirected away from the page
-        // The result will be handled when they return
-        throw new Error('Redirecting to Google sign-in...');
+        console.log('Popup issue detected, falling back to redirect method');
+        try {
+          await signInWithRedirect(auth, provider);
+          throw new Error('Redirecting to Google sign-in...');
+        } catch (redirectError) {
+          console.error('Redirect also failed:', redirectError);
+          throw new Error(
+            'Google sign-in is not available. Please try again or use email/password.'
+          );
+        }
       }
-      throw error;
+
+      // Handle network errors
+      if (error.code === 'auth/network-request-failed') {
+        throw new Error(
+          'Network error. Please check your internet connection and try again.'
+        );
+      }
+
+      // Handle other auth errors with user-friendly messages
+      const userFriendlyMessage =
+        getUserFriendlyAuthError(error.code) || error.message;
+      throw new Error(userFriendlyMessage);
     }
   },
 
@@ -1101,3 +1157,29 @@ export const realtimeService = {
     off(presenceRef);
   },
 };
+
+/**
+ * Convert Firebase Auth error codes to user-friendly messages
+ */
+function getUserFriendlyAuthError(errorCode: string): string | null {
+  const errorMessages: Record<string, string> = {
+    'auth/cancelled-popup-request': 'Sign-in was cancelled. Please try again.',
+    'auth/popup-blocked':
+      'Popup was blocked by your browser. Please allow popups or try email/password.',
+    'auth/popup-closed-by-user': 'Sign-in popup was closed. Please try again.',
+    'auth/network-request-failed':
+      'Network error. Please check your internet connection.',
+    'auth/too-many-requests':
+      'Too many failed attempts. Please try again later.',
+    'auth/user-disabled': 'This account has been disabled.',
+    'auth/user-not-found': 'No account found with this email.',
+    'auth/wrong-password': 'Incorrect password.',
+    'auth/email-already-in-use': 'An account with this email already exists.',
+    'auth/weak-password':
+      'Password is too weak. Please use at least 6 characters.',
+    'auth/invalid-email': 'Please enter a valid email address.',
+    'auth/operation-not-allowed': 'This sign-in method is not enabled.',
+  };
+
+  return errorMessages[errorCode] || null;
+}

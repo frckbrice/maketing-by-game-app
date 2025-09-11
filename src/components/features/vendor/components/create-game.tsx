@@ -13,10 +13,6 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { useCreateGame, useSaveGameDraft } from '../api/mutations';
-import { adminService } from '@/lib/api/adminService';
-import type { GameCategory } from '@/types';
-import type { Prize } from '../api/types';
 import {
   ArrowLeft,
   Award,
@@ -34,6 +30,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { useCreateGame, useSaveGameDraft } from '../api/mutations';
+import type { Prize } from '../api/types';
 
 const PRODUCT_CATEGORIES = [
   {
@@ -226,10 +224,10 @@ export function CreateGame() {
         images: [...prev.images, mockImageUrl],
       }));
 
-      toast.success('Image uploaded successfully');
+      toast.success(t('vendor.imageUploadSuccess'));
     } catch (error) {
       console.error('Error uploading image:', error);
-      toast.error('Failed to upload image');
+      toast.error(t('vendor.imageUploadFailed'));
     } finally {
       setImageUploadLoading(false);
     }
@@ -365,12 +363,12 @@ export function CreateGame() {
               <CardHeader>
                 <CardTitle className='flex items-center'>
                   <GamepadIcon className='w-5 h-5 mr-2' />
-                  Basic Information
+                  {t('vendor.basicInformation')}
                 </CardTitle>
               </CardHeader>
               <CardContent className='space-y-4'>
                 <div>
-                  <Label htmlFor='title'>Game Title *</Label>
+                  <Label htmlFor='title'>{t('vendor.gameTitle')} *</Label>
                   <Input
                     id='title'
                     value={formData.title}
@@ -404,7 +402,7 @@ export function CreateGame() {
                       }
                     >
                       <SelectTrigger className='mt-1'>
-                        <SelectValue placeholder='Select category' />
+                        <SelectValue placeholder={t('vendor.selectCategory')} />
                       </SelectTrigger>
                       <SelectContent>
                         {PRODUCT_CATEGORIES.map(category => (
@@ -420,7 +418,7 @@ export function CreateGame() {
                   </div>
 
                   <div>
-                    <Label htmlFor='type'>Game Type</Label>
+                    <Label htmlFor='type'>{t('vendor.gameType')}</Label>
                     <Select
                       value={formData.type}
                       onValueChange={(value: any) =>
@@ -431,9 +429,15 @@ export function CreateGame() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value='daily'>Daily Game</SelectItem>
-                        <SelectItem value='weekly'>Weekly Game</SelectItem>
-                        <SelectItem value='special'>Special Event</SelectItem>
+                        <SelectItem value='daily'>
+                          {t('vendor.dailyGame')}
+                        </SelectItem>
+                        <SelectItem value='weekly'>
+                          {t('vendor.weeklyGame')}
+                        </SelectItem>
+                        <SelectItem value='special'>
+                          {t('vendor.specialEvent')}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -452,7 +456,9 @@ export function CreateGame() {
               <CardContent className='space-y-4'>
                 <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                   <div>
-                    <Label htmlFor='ticketPrice'>Ticket Price *</Label>
+                    <Label htmlFor='ticketPrice'>
+                      {t('vendor.ticketPrice')} *
+                    </Label>
                     <div className='relative mt-1'>
                       <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500'>
                         $
@@ -475,7 +481,7 @@ export function CreateGame() {
                   </div>
 
                   <div>
-                    <Label htmlFor='currency'>Currency</Label>
+                    <Label htmlFor='currency'>{t('vendor.currency')}</Label>
                     <Select
                       value={formData.currency}
                       onValueChange={value =>
@@ -495,7 +501,9 @@ export function CreateGame() {
                   </div>
 
                   <div>
-                    <Label htmlFor='maxParticipants'>Max Participants *</Label>
+                    <Label htmlFor='maxParticipants'>
+                      {t('vendor.maxParticipants')} *
+                    </Label>
                     <Input
                       id='maxParticipants'
                       type='number'
@@ -566,7 +574,7 @@ export function CreateGame() {
                         />
                       </div>
                       <div>
-                        <Label>Prize Value *</Label>
+                        <Label>{t('vendor.prizeValue')} *</Label>
                         <div className='relative mt-1'>
                           <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500'>
                             $
@@ -590,7 +598,7 @@ export function CreateGame() {
                     </div>
 
                     <div className='mt-4'>
-                      <Label>Prize Description</Label>
+                      <Label>{t('vendor.prizeDescription')}</Label>
                       <Textarea
                         value={prize.description}
                         onChange={e =>
@@ -767,7 +775,7 @@ export function CreateGame() {
             {/* Game Preview */}
             <Card>
               <CardHeader>
-                <CardTitle>Game Preview</CardTitle>
+                <CardTitle>{t('vendor.gamePreview')}</CardTitle>
               </CardHeader>
               <CardContent className='space-y-4'>
                 <div className='aspect-video bg-gradient-to-r from-orange-400 to-red-500 rounded-lg p-4 text-white'>
@@ -777,7 +785,7 @@ export function CreateGame() {
                     )?.name || 'Category'}
                   </div>
                   <h3 className='font-bold'>
-                    {formData.title || 'Game Title'}
+                    {formData.title || t('vendor.gameTitle')}
                   </h3>
                   <p className='text-sm opacity-90 mt-1 line-clamp-2'>
                     {formData.description || 'Game description...'}
@@ -787,13 +795,13 @@ export function CreateGame() {
                 <div className='space-y-2 text-sm'>
                   <div className='flex justify-between'>
                     <span className='text-gray-600 dark:text-gray-400'>
-                      Ticket Price:
+                      {t('vendor.ticketPrice')}:
                     </span>
                     <span className='font-medium'>${formData.ticketPrice}</span>
                   </div>
                   <div className='flex justify-between'>
                     <span className='text-gray-600 dark:text-gray-400'>
-                      Max Participants:
+                      {t('vendor.maxParticipants')}:
                     </span>
                     <span className='font-medium'>
                       {formData.maxParticipants}
@@ -801,7 +809,7 @@ export function CreateGame() {
                   </div>
                   <div className='flex justify-between'>
                     <span className='text-gray-600 dark:text-gray-400'>
-                      Prize Value:
+                      {t('vendor.prizeValue')}:
                     </span>
                     <span className='font-medium'>
                       ${calculateTotalPrizeValue()}
@@ -809,7 +817,7 @@ export function CreateGame() {
                   </div>
                   <div className='flex justify-between'>
                     <span className='text-gray-600 dark:text-gray-400'>
-                      Est. Revenue:
+                      {t('vendor.estimatedRevenue')}:
                     </span>
                     <span className='font-medium'>
                       ${calculateEstimatedRevenue()}
@@ -822,7 +830,7 @@ export function CreateGame() {
             {/* Quick Stats */}
             <Card>
               <CardHeader>
-                <CardTitle>Quick Stats</CardTitle>
+                <CardTitle>{t('vendor.quickStats')}</CardTitle>
               </CardHeader>
               <CardContent className='space-y-4'>
                 <div className='text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg'>
@@ -839,7 +847,7 @@ export function CreateGame() {
                     ${calculateTotalPrizeValue().toLocaleString()}
                   </div>
                   <div className='text-sm text-green-600/80 dark:text-green-400/80'>
-                    Total Prize Value
+                    {t('vendor.totalPrizeValue')}
                   </div>
                 </div>
 
@@ -854,7 +862,7 @@ export function CreateGame() {
                     %
                   </div>
                   <div className='text-sm text-purple-600/80 dark:text-purple-400/80'>
-                    Profit Margin
+                    {t('vendor.profitMargin')}
                   </div>
                 </div>
               </CardContent>
@@ -863,14 +871,14 @@ export function CreateGame() {
             {/* Tips */}
             <Card>
               <CardHeader>
-                <CardTitle>💡 Tips for Success</CardTitle>
+                <CardTitle>{t('vendor.tipsForSuccess')}</CardTitle>
               </CardHeader>
               <CardContent className='space-y-3 text-sm text-gray-600 dark:text-gray-400'>
-                <p>• Use high-quality images to attract more participants</p>
-                <p>• Set competitive ticket prices for your market</p>
-                <p>• Write clear and engaging game descriptions</p>
-                <p>• Add multiple prizes to increase excitement</p>
-                <p>• Choose appropriate game duration (3-7 days works best)</p>
+                <p>• {t('vendor.tips.highQualityImages')}</p>
+                <p>• {t('vendor.tips.competitivePrices')}</p>
+                <p>• {t('vendor.tips.clearDescriptions')}</p>
+                <p>• {t('vendor.tips.multiplePrizes')}</p>
+                <p>• {t('vendor.tips.gameDuration')}</p>
               </CardContent>
             </Card>
           </div>

@@ -19,6 +19,52 @@ const ServiceWorkerManager = ({
 
     const registerSW = async () => {
       try {
+        // Check if we're in development mode and PWA is disabled
+        if (process.env.NODE_ENV === 'development') {
+          console.log(
+            'Service Worker registration skipped in development mode'
+          );
+
+          // Unregister any existing service workers in development
+          const registrations =
+            await navigator.serviceWorker.getRegistrations();
+          for (const registration of registrations) {
+            await registration.unregister();
+            console.log(
+              'Unregistered existing service worker in development mode'
+            );
+          }
+          return;
+        }
+
+        // Check if the service worker file exists before registering
+        // Handle potential redirects from i18n routing
+        let swResponse;
+        try {
+          swResponse = await fetch('/sw.js', {
+            method: 'HEAD',
+            redirect: 'follow', // Follow redirects to check final location
+          });
+        } catch (error) {
+          console.log(
+            'Service Worker file not accessible, skipping registration'
+          );
+          return;
+        }
+
+        if (!swResponse.ok) {
+          console.log('Service Worker file not found, skipping registration');
+          return;
+        }
+
+        // Check if the response was redirected (indicates i18n routing issues)
+        if (swResponse.redirected) {
+          console.log(
+            'Service Worker file is behind a redirect, skipping registration'
+          );
+          return;
+        }
+
         const registration = await navigator.serviceWorker.register('/sw.js', {
           scope: '/',
         });
@@ -26,7 +72,7 @@ const ServiceWorkerManager = ({
         // Handle service worker updates
         registration.addEventListener('updatefound', () => {
           const newWorker = registration.installing;
-          if (!newWorker) return;
+          if (!newWorker) return console.log('❌ No new worker found');
 
           newWorker.addEventListener('statechange', () => {
             if (
@@ -53,16 +99,25 @@ const ServiceWorkerManager = ({
         // Handle service worker activation
         registration.addEventListener('controllerchange', () => {
           window.location.reload();
+          console.log('🔄 Controller changed, reloading page');
         });
 
         // Check for updates periodically
         setInterval(() => {
           registration.update();
+          console.log('🔄 Checking for updates');
         }, 60000); // Check every minute
 
-        console.log('Service Worker registered successfully');
+        console.log('✅ Service Worker registered successfully');
       } catch (error) {
-        console.error('Service Worker registration failed:', error);
+        // Only log as error if it's not a development environment issue
+        if (process.env.NODE_ENV === 'development') {
+          console.log(
+            'Service Worker registration skipped in development mode'
+          );
+        } else {
+          console.error('❌ Service Worker registration failed:', error);
+        }
       }
     };
 

@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/Button';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { mocksReviews } from '@/lib/constants/mockData';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import { useTheme } from 'next-themes';
+import { Footer } from '../../../globals/footer';
 import OptimizedImage from '../../../performance/OptimizedImage';
 
 // Review interface for mock data
@@ -69,6 +71,7 @@ interface ProductDetailsPageProps {
 export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { theme } = useTheme();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<
     'description' | 'specifications' | 'reviews'
@@ -98,7 +101,6 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
   // Mock data
   const isLiked = false; // TODO: Get from user preferences
   const sizes = ['S', 'M', 'L', 'XL']; // TODO: Get from product data
-
 
   const handlePreviousImage = useCallback(() => {
     if (!product) return;
@@ -204,17 +206,19 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
     product.originalPrice && product.originalPrice > product.price;
   const discountPercentage = hasDiscount
     ? Math.round(
-      ((product.originalPrice! - product.price) / product.originalPrice!) *
-      100
-    )
+        ((product.originalPrice! - product.price) / product.originalPrice!) *
+          100
+      )
     : 0;
 
   const filteredRelatedProducts = relatedProducts
     .filter(p => p.id !== product.id)
     .slice(0, 4);
   const averageRating =
-    mockReviews.reduce((acc: number, review: Review) => acc + review.rating, 0) /
-    mockReviews.length;
+    mockReviews.reduce(
+      (acc: number, review: Review) => acc + review.rating,
+      0
+    ) / mockReviews.length;
 
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
@@ -303,10 +307,11 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex
-                      ? 'border-orange-500'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                      }`}
+                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                      index === currentImageIndex
+                        ? 'border-orange-500'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                    }`}
                   >
                     <OptimizedImage
                       src={image}
@@ -346,10 +351,11 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-4 h-4 ${i < Math.floor(averageRating)
-                          ? 'text-yellow-500 fill-current'
-                          : 'text-gray-300 dark:text-gray-600'
-                          }`}
+                        className={`w-4 h-4 ${
+                          i < Math.floor(averageRating)
+                            ? 'text-yellow-500 fill-current'
+                            : 'text-gray-300 dark:text-gray-600'
+                        }`}
                       />
                     ))}
                   </div>
@@ -369,27 +375,18 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
             <div className='flex items-center gap-3'>
               {hasDiscount && (
                 <span className='text-lg text-gray-500 dark:text-gray-400 line-through'>
-                  {formatCurrency(
-                    product.originalPrice!,
-                    product.currency
-                  )}
+                  {formatCurrency(product.originalPrice!, product.currency)}
                 </span>
               )}
               <span className='text-3xl font-bold text-gray-900 dark:text-white'>
-                {formatCurrency(
-                  product.price,
-                  product.currency
-                )}
+                {formatCurrency(product.price, product.currency)}
               </span>
               {product.isLotteryEnabled && product.lotteryPrice && (
                 <div className='ml-4 flex items-center text-orange-600 dark:text-orange-400'>
                   <Play className='w-4 h-4 mr-1' />
                   <span className='text-sm'>
                     {t('marketplace.playFor')}{' '}
-                    {formatCurrency(
-                      product.lotteryPrice,
-                      product.currency
-                    )}
+                    {formatCurrency(product.lotteryPrice, product.currency)}
                   </span>
                 </div>
               )}
@@ -406,10 +403,11 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`w-12 h-12 rounded-lg border-2 font-semibold transition-all ${selectedSize === size
-                        ? 'border-orange-500 bg-orange-500 text-white'
-                        : 'border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:border-gray-400 dark:hover:border-gray-500'
-                        }`}
+                      className={`w-12 h-12 rounded-lg border-2 font-semibold transition-all ${
+                        selectedSize === size
+                          ? 'border-orange-500 bg-orange-500 text-white'
+                          : 'border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:border-gray-400 dark:hover:border-gray-500'
+                      }`}
                     >
                       {size}
                     </button>
@@ -451,17 +449,18 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
               {product.stockQuantity && product.stockQuantity > 10 ? (
                 <CheckCircle className='w-5 h-5 text-green-500' />
               ) : product.stockQuantity && product.stockQuantity > 0 ? (
-                  <CheckCircle className='w-5 h-5 text-yellow-500' />
+                <CheckCircle className='w-5 h-5 text-yellow-500' />
               ) : (
-                    <CheckCircle className='w-5 h-5 text-red-500' />
+                <CheckCircle className='w-5 h-5 text-red-500' />
               )}
               <span
-                className={`text-sm font-medium ${product.stockQuantity && product.stockQuantity > 10
-                  ? 'text-green-600 dark:text-green-400'
-                  : product.stockQuantity && product.stockQuantity > 0
-                    ? 'text-yellow-600 dark:text-yellow-400'
-                    : 'text-red-600 dark:text-red-400'
-                  }`}
+                className={`text-sm font-medium ${
+                  product.stockQuantity && product.stockQuantity > 10
+                    ? 'text-green-600 dark:text-green-400'
+                    : product.stockQuantity && product.stockQuantity > 0
+                      ? 'text-yellow-600 dark:text-yellow-400'
+                      : 'text-red-600 dark:text-red-400'
+                }`}
               >
                 {product.stockQuantity && product.stockQuantity > 10
                   ? t('product.inStock')
@@ -503,9 +502,7 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
               {product.shop && (
                 <Button
                   variant='outline'
-                  onClick={() =>
-                    router.push(`/shops/${product.shop.id}/chat`)
-                  }
+                  onClick={() => router.push(`/shops/${product.shop.id}/chat`)}
                   className='w-full'
                 >
                   <MessageCircle className='w-4 h-4 mr-2' />
@@ -556,10 +553,11 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
-                    ? 'border-orange-500 text-orange-600 dark:text-orange-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:border-gray-300'
-                    }`}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-orange-500 text-orange-600 dark:text-orange-400'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:border-gray-300'
+                  }`}
                 >
                   {tab.name}
                   {tab.id === 'reviews' && (
@@ -624,7 +622,7 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                     )}
                   </div>
                 ) : (
-                    <p className='text-gray-500 dark:text-gray-400'>
+                  <p className='text-gray-500 dark:text-gray-400'>
                     {t('product.noSpecificationsAvailable')}
                   </p>
                 )}
@@ -653,10 +651,11 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-5 h-5 ${i < Math.floor(averageRating)
-                              ? 'text-yellow-500 fill-current'
-                              : 'text-gray-300 dark:text-gray-600'
-                              }`}
+                            className={`w-5 h-5 ${
+                              i < Math.floor(averageRating)
+                                ? 'text-yellow-500 fill-current'
+                                : 'text-gray-300 dark:text-gray-600'
+                            }`}
                           />
                         ))}
                       </div>
@@ -697,10 +696,11 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
                               {[...Array(5)].map((_, i) => (
                                 <Star
                                   key={i}
-                                  className={`w-4 h-4 ${i < review.rating
-                                    ? 'text-yellow-500 fill-current'
-                                    : 'text-gray-300 dark:text-gray-600'
-                                    }`}
+                                  className={`w-4 h-4 ${
+                                    i < review.rating
+                                      ? 'text-yellow-500 fill-current'
+                                      : 'text-gray-300 dark:text-gray-600'
+                                  }`}
                                 />
                               ))}
                             </div>
@@ -857,6 +857,9 @@ export function ProductDetailsPage({ productId }: ProductDetailsPageProps) {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer isDark={theme === 'dark'} />
     </div>
   );
 }

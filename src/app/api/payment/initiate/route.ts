@@ -171,8 +171,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Enhanced validation debugging
+    console.log('Payment request received:', {
+      paymentType: body.paymentType,
+      gameId: body.gameId,
+      productId: body.productId,
+      paymentMethod: body.paymentMethod,
+      phoneNumber: body.phoneNumber
+        ? body.phoneNumber.substring(0, 6) + '***'
+        : undefined,
+      amount: body.amount,
+      currency: body.currency,
+      userId: body.userId,
+    });
+
     const validationErrors = validatePaymentRequest(body);
     if (validationErrors.length > 0) {
+      console.error('Payment validation failed:', {
+        errors: validationErrors,
+        requestBody: {
+          paymentType: body.paymentType,
+          gameId: body.gameId,
+          productId: body.productId,
+          paymentMethod: body.paymentMethod,
+          phoneNumber: body.phoneNumber ? '***masked***' : undefined,
+          amount: body.amount,
+          currency: body.currency,
+          userId: body.userId,
+        },
+      });
+
       return NextResponse.json(
         {
           success: false,
@@ -264,8 +292,7 @@ export async function POST(request: NextRequest) {
         processingTime: Date.now() - startTime,
       });
 
-      // Start automatic polling for payment status (removed server-side polling)
-      // Client-side polling is handled by PaymentModal and paymentPollingService
+      // Client-side polling is handled by PaymentModal
 
       return NextResponse.json({
         success: true,

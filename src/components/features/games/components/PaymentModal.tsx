@@ -8,11 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { formatCurrency } from '@/lib/utils/currency';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { securePaymentService } from '@/lib/services/securePaymentService';
+import { formatCurrency } from '@/lib/utils/currency';
 import { generateAllTicketNumbers } from '@/lib/utils/ticket-utils';
-import { LotteryGame } from '@/types';
+import { LotteryGame, Product } from '@/types';
 import {
   AlertCircle,
   CheckCircle,
@@ -30,7 +30,9 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 interface PaymentModalProps {
-  game: LotteryGame;
+  game?: LotteryGame;
+  product?: Product;
+  isLotteryPlay?: boolean; // true when playing product lottery, false when buying product
   isOpen: boolean;
   onClose: () => void;
 }
@@ -55,9 +57,29 @@ type PaymentMethod = 'ORANGE_MONEY' | 'MTN_MOMO';
 type PaymentStep = 'method' | 'phone' | 'processing' | 'success' | 'failed';
 
 export const PaymentModal = React.memo<PaymentModalProps>(
-  function PaymentModal({ game, isOpen, onClose }) {
+  function PaymentModal({
+    game,
+    product,
+    isLotteryPlay = false,
+    isOpen,
+    onClose,
+  }) {
     const { user } = useAuth();
     const { t } = useTranslation();
+
+    // Determine what type of item we're processing
+    const isGame = !!game;
+    const isProduct = !!product;
+    const item = game || product;
+    const itemTitle = game?.title || product?.name || '';
+    // Use lottery price if it's a lottery play, otherwise use regular price
+    const itemPrice =
+      game?.ticketPrice ||
+      (isLotteryPlay && product?.lotteryPrice
+        ? product.lotteryPrice
+        : product?.price) ||
+      0;
+    const itemCurrency = game?.currency || product?.currency || 'XAF';
 
     // State management
     const [step, setStep] = useState<PaymentStep>('method');
@@ -66,9 +88,7 @@ export const PaymentModal = React.memo<PaymentModalProps>(
     const [phoneNumber, setPhoneNumber] = useState<string>('');
     const [processing, setProcessing] = useState(false);
     const [ticket, setTicket] = useState<Ticket | null>(null);
-    const [convertedPrice, setConvertedPrice] = useState<number>(
-      game.ticketPrice
-    );
+    const [convertedPrice, setConvertedPrice] = useState<number>(itemPrice);
     const [userCurrency, setUserCurrency] = useState<string>('XAF');
     const [currentTransactionId, setCurrentTransactionId] = useState<
       string | null
@@ -84,7 +104,12 @@ export const PaymentModal = React.memo<PaymentModalProps>(
 
         switch (status) {
           case 'SUCCESS':
-            const newTicket = generateTicket(game);
+            const newTicket =
+              isGame || isLotteryPlay
+                ? isGame
+                  ? generateTicket(game!)
+                  : generateLotteryTicket(product!)
+                : generateProductReceipt(product!);
             setTicket(newTicket);
             setStep('success');
             setProcessing(false);
@@ -106,7 +131,7 @@ export const PaymentModal = React.memo<PaymentModalProps>(
               userId: user?.id || '',
               type: 'payment_success',
               transactionId: currentTransactionId || '',
-              gameId: game.id,
+              gameId: game?.id || '',
               amount: convertedPrice,
               currency: userCurrency,
             });
@@ -137,7 +162,7 @@ export const PaymentModal = React.memo<PaymentModalProps>(
                     ? 'payment_cancelled'
                     : 'payment_failed',
               transactionId: currentTransactionId || '',
-              gameId: game.id,
+              gameId: game?.id || '',
               amount: convertedPrice,
               currency: userCurrency,
             });
@@ -161,7 +186,7 @@ export const PaymentModal = React.memo<PaymentModalProps>(
       ]
     );
 
-    // Manual status checking - no automatic polling to prevent infinite loops
+    // Stop any potential polling - simplified implementation
     const stopPolling = useCallback(() => {
       console.log('Manual polling control - no automatic polling active');
     }, []);
@@ -234,8 +259,8 @@ export const PaymentModal = React.memo<PaymentModalProps>(
         }
 
         // Production: Use real currency conversion
-        if (game.currency === 'XAF') {
-          setConvertedPrice(game.ticketPrice);
+        if (itemCurrency === 'XAF') {
+          setConvertedPrice(itemPrice);
           setUserCurrency('XAF');
           return;
         }
@@ -244,20 +269,20 @@ export const PaymentModal = React.memo<PaymentModalProps>(
         try {
           // For now, we'll use the base price as converted price
           // TODO: Implement proper currency conversion service
-          setConvertedPrice(game.ticketPrice);
-          setUserCurrency(game.currency);
+          setConvertedPrice(itemPrice);
+          setUserCurrency(itemCurrency);
         } catch (error) {
           console.error('Currency conversion failed:', error);
           // Fallback: use base price if currency service unavailable
-          setConvertedPrice(game.ticketPrice);
-          setUserCurrency(game.currency || 'XAF');
+          setConvertedPrice(itemPrice);
+          setUserCurrency(itemCurrency || 'XAF');
         }
       } catch (error) {
         console.error('Currency conversion failed:', error);
-        setConvertedPrice(game.ticketPrice);
-        setUserCurrency(game.currency || 'XAF');
+        setConvertedPrice(itemPrice);
+        setUserCurrency(itemCurrency || 'XAF');
       }
-    }, [game.ticketPrice, game.currency]);
+    }, [itemPrice, itemCurrency]);
 
     // Initialize modal
     useEffect(() => {
@@ -319,6 +344,38 @@ export const PaymentModal = React.memo<PaymentModalProps>(
       };
     };
 
+    // Generate lottery ticket for product lottery
+    const generateLotteryTicket = (productData: Product): Ticket => {
+      const uniqueId = `TKT_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+      const ticketNumbers = generateAllTicketNumbers(uniqueId);
+      return {
+        id: uniqueId,
+        gameId: productData.id,
+        gameTitle: `${productData.name} - Lottery Ticket`,
+        ticketNumber: ticketNumbers.ticketNumber,
+        alternativeNumbers: ticketNumbers.alternativeNumbers,
+        price: convertedPrice,
+        currency: userCurrency,
+        purchaseDate: Date.now(),
+        qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(uniqueId)}`,
+      };
+    };
+
+    // Generate product receipt
+    const generateProductReceipt = (productData: Product): Ticket => {
+      const uniqueId = `ORD_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+      return {
+        id: uniqueId,
+        gameId: productData.id,
+        gameTitle: `${productData.name} - Order`,
+        ticketNumber: uniqueId,
+        price: convertedPrice,
+        currency: userCurrency,
+        purchaseDate: Date.now(),
+        qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(uniqueId)}`,
+      };
+    };
+
     // Validate phone number
     const validatePhoneNumber = (
       phone: string,
@@ -361,16 +418,55 @@ export const PaymentModal = React.memo<PaymentModalProps>(
         const methodInfo =
           securePaymentService.getPaymentMethodInfo(selectedMethod);
 
+        // Validate required data
+        if (!user?.id) {
+          throw new Error(t('auth.pleaseLogin'));
+        }
+        if (!phoneNumber) {
+          throw new Error(t('payment.errors.phoneNumberRequired'));
+        }
+        if (!convertedPrice || convertedPrice <= 0) {
+          throw new Error(t('payment.errors.invalidAmount'));
+        }
+
         // 1. Initiate payment with NOKASH
-        const paymentResult = await securePaymentService.initiatePayment({
-          gameId: game.id,
-          paymentType: 'GAME',
+        const paymentData: any = {
+          paymentType: isGame ? 'GAME' : 'PRODUCT',
           paymentMethod: selectedMethod,
           phoneNumber,
           amount: convertedPrice,
           currency: userCurrency || 'XAF',
-          userId: user?.id || '',
+          userId: user.id,
+        };
+
+        // Only add gameId or productId if they exist (avoid sending undefined)
+        if (isGame && game?.id) {
+          paymentData.gameId = game.id;
+        }
+        if (isProduct && product?.id) {
+          paymentData.productId = product.id;
+        }
+
+        console.log('Payment request payload:', {
+          ...paymentData,
+          phoneNumber: paymentData.phoneNumber
+            ? paymentData.phoneNumber.substring(0, 6) + '***'
+            : undefined,
+        }); // Debug log with masked phone
+
+        // Enhanced debugging
+        console.log('Payment context:', {
+          isGame,
+          isProduct,
+          gameId: game?.id,
+          productId: product?.id,
+          isLotteryPlay,
+          hasValidProduct: !!product && !!product.id,
+          hasValidGame: !!game && !!game.id,
         });
+
+        const paymentResult =
+          await securePaymentService.initiatePayment(paymentData);
 
         if (!paymentResult.success || !paymentResult.transactionId) {
           throw new Error(
@@ -580,7 +676,10 @@ export const PaymentModal = React.memo<PaymentModalProps>(
               purchaseDate: new Date(
                 ticketData.purchaseDate
               ).toLocaleDateString(),
-              drawDate: new Date(game.drawDate).toLocaleDateString(),
+              drawDate:
+                isGame && game?.drawDate
+                  ? new Date(game.drawDate).toLocaleDateString()
+                  : new Date().toLocaleDateString(),
               qrCode: ticketData.qrCode,
               userName: `${user?.firstName} ${user?.lastName}`,
             },
@@ -629,11 +728,11 @@ export const PaymentModal = React.memo<PaymentModalProps>(
             </div>
             <div class="qr-code">
               <img src="${ticket.qrCode}" alt="QR Code" />
-              <p>Scan to verify</p>
+              <p>{t('payment.scanToVerify')}</p>
             </div>
             <div class="footer">
               <p>Keep this ticket safe. Good luck!</p>
-              <p>Draw Date: ${new Date(game.drawDate).toLocaleDateString()}</p>
+              <p>${isGame && game?.drawDate ? `Draw Date: ${new Date(game.drawDate).toLocaleDateString()}` : `Purchase Date: ${new Date().toLocaleDateString()}`}</p>
             </div>
           </body>
         </html>
@@ -650,7 +749,10 @@ export const PaymentModal = React.memo<PaymentModalProps>(
       const ticketData = {
         ...ticket,
         playerName: `${user?.firstName} ${user?.lastName}`,
-        drawDate: new Date(game.drawDate).toISOString(),
+        drawDate:
+          isGame && game?.drawDate
+            ? new Date(game.drawDate).toISOString()
+            : new Date().toISOString(),
       };
 
       const dataStr = JSON.stringify(ticketData, null, 2);
@@ -732,26 +834,31 @@ export const PaymentModal = React.memo<PaymentModalProps>(
           <div className='space-y-6'>
             {step === 'method' && (
               <>
-                {/* Game Info */}
+                {/* Item Info */}
                 <div className='bg-muted rounded-lg p-4'>
-                  <h3 className='font-semibold mb-2'>{game.title}</h3>
+                  <h3 className='font-semibold mb-2'>{itemTitle}</h3>
                   <div className='space-y-2'>
                     <div className='flex justify-between text-sm'>
                       <span className='text-muted-foreground'>
-                        {t('payment.ticketPrice')}:
+                        {isGame
+                          ? t('payment.ticketPrice')
+                          : t('marketplace.price')}
+                        :
                       </span>
                       <span className='font-semibold'>
                         {formatCurrency(convertedPrice, userCurrency)}
                       </span>
                     </div>
-                    <div className='flex justify-between text-sm'>
-                      <span className='text-muted-foreground'>
-                        {t('payment.participants')}:
-                      </span>
-                      <span>
-                        {game.currentParticipants}/{game.maxParticipants}
-                      </span>
-                    </div>
+                    {isGame && game && (
+                      <div className='flex justify-between text-sm'>
+                        <span className='text-muted-foreground'>
+                          {t('payment.participants')}:
+                        </span>
+                        <span>
+                          {game.currentParticipants}/{game.maxParticipants}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 

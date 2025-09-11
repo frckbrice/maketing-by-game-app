@@ -1,45 +1,43 @@
 'use client';
 
-import React from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  useVendorGames,
+  useVendorParticipationChart,
+  useVendorRevenueChart,
+  useVendorStats,
+} from '@/hooks/useApi';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { useTranslation } from 'react-i18next';
-import Link from 'next/link';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts';
-import {
+  Activity,
+  Award,
   Calendar,
+  Clock,
   DollarSign,
   Eye,
   GamepadIcon,
   Plus,
+  Settings,
   TrendingUp,
   Users,
-  Activity,
-  Award,
-  Clock,
-  Settings,
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import {
-  useVendorStats,
-  useVendorGames,
-  useVendorRevenueChart,
-  useVendorParticipationChart,
-} from '@/hooks/useApi';
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 interface VendorStats {
   totalGames: number;
@@ -95,15 +93,37 @@ export function VendorDashboard() {
 
   const getStatusBadge = (status: string) => {
     const badges = {
-      ACTIVE: <Badge className='bg-green-500 text-white'>Active</Badge>,
-      PENDING: (
-        <Badge className='bg-yellow-500 text-white'>Pending Approval</Badge>
+      ACTIVE: (
+        <Badge className='bg-green-500 text-white'>
+          {t('vendor.statusBadges.active')}
+        </Badge>
       ),
-      DRAWING: <Badge className='bg-blue-500 text-white'>Drawing Soon</Badge>,
-      CLOSED: <Badge className='bg-gray-500 text-white'>Closed</Badge>,
-      DRAFT: <Badge className='bg-gray-400 text-white'>Draft</Badge>,
+      PENDING: (
+        <Badge className='bg-yellow-500 text-white'>
+          {t('vendor.statusBadges.pendingApproval')}
+        </Badge>
+      ),
+      DRAWING: (
+        <Badge className='bg-blue-500 text-white'>
+          {t('vendor.statusBadges.drawingSoon')}
+        </Badge>
+      ),
+      CLOSED: (
+        <Badge className='bg-gray-500 text-white'>
+          {t('vendor.statusBadges.closed')}
+        </Badge>
+      ),
+      DRAFT: (
+        <Badge className='bg-gray-400 text-white'>
+          {t('vendor.statusBadges.draft')}
+        </Badge>
+      ),
     };
-    return badges[status as keyof typeof badges] || <Badge>Unknown</Badge>;
+    return (
+      badges[status as keyof typeof badges] || (
+        <Badge>{t('vendor.statusBadges.unknown')}</Badge>
+      )
+    );
   };
 
   if (loading) {

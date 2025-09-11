@@ -723,6 +723,17 @@ export interface LiveNotification {
 }
 
 // Marketplace Types
+export interface ShopBanner {
+  id: string;
+  imageUrl: string;
+  title: string;
+  subtitle: string;
+  ctaText: string;
+  ctaLink: string;
+  isActive: boolean;
+  order: number;
+}
+
 export interface Shop {
   id: string;
   name: string;
@@ -746,6 +757,7 @@ export interface Shop {
   categories: string[];
   tags: string[];
   ownerId: string;
+  banners?: ShopBanner[];
   createdAt: number;
   updatedAt: number;
 }

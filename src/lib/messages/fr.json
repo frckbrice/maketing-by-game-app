@@ -186,7 +186,9 @@
     },
     "errors": {
       "loginRequired": "Veuillez vous connecter pour continuer"
-    }
+    },
+    "loginRequired": "Veuillez vous connecter pour continuer",
+    "pleaseLogin": "Veuillez vous connecter pour continuer"
   },
   "dashboard": {
     "welcome": "Bon retour, {name} ! 👋",
@@ -197,6 +199,7 @@
     "createGame": "Créer un Jeu",
     "createGameDescription": "Lancez une nouvelle loterie marketing pour promouvoir vos produits et engager les clients.",
     "createNewGame": "Créer un Nouveau Jeu",
+    "launchNewMarketingLottery": "Lancer une nouvelle loterie marketing",
     "viewGames": "Voir les Jeux",
     "viewGamesDescription": "Parcourez tous les jeux de loterie disponibles et participez à des promotions passionnantes.",
     "browseGames": "Parcourir les Jeux",
@@ -274,6 +277,7 @@
     "gameCard": {
       "sponsored": "SPONSORISÉ",
       "new": "NOUVEAU",
+      "newFallback": "Nouveau",
       "hot": "🔥 CHAUD",
       "fillingFast": "SE REMPLIT RAPIDEMENT",
       "ticketPrice": "Prix du Billet",
@@ -493,6 +497,7 @@
     "scanAnother": "Scanner un Autre",
     "cameraError": "Accès à la caméra refusé ou non disponible",
     "scanError": "Erreur lors du traitement du scan",
+    "qrCodeDemo": "Démonstration de Code QR",
     "processing": "Traitement en cours...",
     "startCamera": "Démarrer la Caméra",
     "uploadImage": "Télécharger une Image QR",
@@ -1048,6 +1053,48 @@
 
   "vendor": {
     "becomeAVendor": "Devenir Vendeur",
+    "gameType": "Type de Jeu",
+    "dailyGame": "Jeu Quotidien",
+    "weeklyGame": "Jeu Hebdomadaire",
+    "specialEvent": "Événement Spécial",
+    "currency": "Devise",
+    "prizeDescription": "Description du Prix",
+    "gamePreview": "Aperçu du Jeu",
+    "quickStats": "Statistiques Rapides",
+    "selectProduct": "Sélectionner un produit",
+    "shopName": "Nom du magasin",
+    "shopDescription": "Description du magasin",
+    "productName": "Nom du produit",
+    "productDescription": "Description du produit",
+    "statusBadges": {
+      "active": "Actif",
+      "pendingApproval": "En Attente d'Approbation",
+      "drawingSoon": "Tirage Bientôt",
+      "closed": "Fermé",
+      "draft": "Brouillon",
+      "unknown": "Inconnu"
+    },
+    "gameTitle": "Titre du Jeu",
+    "selectCategory": "Sélectionner une catégorie",
+    "imageUploadSuccess": "Image téléchargée avec succès",
+    "imageUploadFailed": "Échec du téléchargement de l'image",
+    "basicInformation": "Informations de Base",
+    "ticketPrice": "Prix du Billet",
+    "maxParticipants": "Participants Maximum",
+    "prizeValue": "Valeur du Prix",
+    "gamePreview": "Aperçu du Jeu",
+    "quickStats": "Statistiques Rapides",
+    "totalPrizeValue": "Valeur Totale des Prix",
+    "estimatedRevenue": "Revenus Estimés",
+    "profitMargin": "Marge Bénéficiaire",
+    "tipsForSuccess": "💡 Conseils pour Réussir",
+    "tips": {
+      "highQualityImages": "Utilisez des images de haute qualité pour attirer plus de participants",
+      "competitivePrices": "Fixez des prix de billets compétitifs pour votre marché",
+      "clearDescriptions": "Rédigez des descriptions de jeu claires et engageantes",
+      "multiplePrizes": "Ajoutez plusieurs prix pour augmenter l'excitation",
+      "gameDuration": "Choisissez une durée de jeu appropriée (3-7 jours fonctionne le mieux)"
+    },
     "applicationPending": "EN ATTENTE",
     "applicationUnderReview": "Votre candidature est en cours d'examen",
     "accessVendorDashboard": "Accéder au Tableau de Bord Vendeur",
@@ -1106,6 +1153,7 @@
     "visitShop": "Visiter la Boutique",
     "views": "vues",
     "chatWithShop": "Discuter avec la Boutique",
+    "price": "Prix",
     "sortBy": {
       "newest": "Plus Récents",
       "popular": "Plus Populaires",
@@ -1186,7 +1234,22 @@
     "relatedProducts": "Produits Similaires"
   },
   "payment": {
-    "title": "Acheter un Billet",
+    "title": {
+      "purchase": "Acheter le Produit"
+    },
+    "description": {
+      "purchase": "Finalisez votre achat pour obtenir ce produit incroyable"
+    },
+    "method": {
+      "title": "Méthode de Paiement"
+    },
+    "phone": {
+      "title": "Numéro de Téléphone",
+      "format": "Entrez votre numéro de téléphone au format : 6XXXXXXXX"
+    },
+    "button": {
+      "pay": "Payer Maintenant"
+    },
     "chooseMethod": "Choisir la Méthode de Paiement",
     "selectMethodSubtitle": "Sélectionnez votre fournisseur de mobile money préféré",
     "enterPhone": "Entrer le Numéro de Téléphone",
@@ -1197,6 +1260,15 @@
     "successSubtitle": "Votre billet de loterie a été généré avec succès",
     "ticketPrice": "Prix du Billet",
     "participants": "Participants",
+    "notifications": {
+      "longProcessing": "Le paiement prend plus de temps que d'habitude. Veuillez utiliser le bouton \"Vérifier le Statut\" pour vérifier.",
+      "pleaseCheck": "Veuillez vérifier manuellement le statut de votre paiement en cliquant sur \"Vérifier le Statut\""
+    },
+    "status": {
+      "takingLong": "Le paiement prend plus de temps que d'habitude - veuillez vérifier le statut",
+      "pleaseCheck": "Veuillez utiliser le bouton \"Vérifier le Statut\" pour vérifier votre paiement"
+    },
+    "scanToVerify": "Scanner pour vérifier",
     "methods": {
       "orangeMoney": "Orange Money",
       "orangeDescription": "Payez avec votre compte Orange Money",
@@ -1216,7 +1288,6 @@
       "yourTicket": "Votre Billet",
       "ticketNumber": "Numéro de Billet",
       "pricePaid": "Prix Payé",
-      "scanToVerify": "Scanner pour vérifier",
       "print": "Imprimer",
       "email": "Email",
       "save": "Sauvegarder",
@@ -1244,23 +1315,7 @@
       "checkTimeout": "Vérification du statut expirée. Veuillez réessayer.",
       "authError": "Erreur d'authentification. Veuillez actualiser la page et réessayer."
     },
-    "status": {
-      "pending": "En Attente",
-      "processing": "Traitement du paiement...",
-      "success": "Succès",
-      "failed": "Échoué",
-      "cancelled": "Annulé",
-      "expired": "Expiré",
-      "checking": "Vérification du statut du paiement...",
-      "initiating": "Initialisation du paiement...",
-      "waiting": "En attente de confirmation du paiement...",
-      "stillProcessing": "Le paiement est toujours en cours de traitement",
-      "takingLong": "Le paiement prend plus de temps que prévu - veuillez vérifier le statut",
-      "pleaseCheck": "Veuillez utiliser le bouton 'Vérifier le Statut' pour vérifier votre paiement"
-    },
     "notifications": {
-      "initiated": "Traitement du paiement {method}...",
-      "successful": "Paiement réussi via {method} ! Billet généré.",
       "emailSent": "Billet envoyé à votre téléphone et email !",
       "emailDelayed": "Billet généré. La livraison par email peut être retardée.",
       "statusUpdated": "Statut du paiement mis à jour avec succès",

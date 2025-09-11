@@ -1,12 +1,12 @@
 'use client';
 
-import React from 'react';
 import { Button } from '@/components/ui/Button';
-import { MessageCircle, Send } from 'lucide-react';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import { MessageCircle, Send } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 
 interface ChatButtonProps {
   targetId: string;
@@ -39,7 +39,7 @@ export const ChatButton: React.FC<ChatButtonProps> = ({
     }
 
     try {
-      // In a real implementation, this would:
+      // TODO: In a real implementation, this would:
       // 1. Check if chat room already exists
       // 2. Create new chat room if it doesn't exist
       // 3. Navigate to chat interface
@@ -47,10 +47,15 @@ export const ChatButton: React.FC<ChatButtonProps> = ({
       // For now, we'll simulate this
       const chatRoomId = `${user.id}_${targetId}`;
 
-      // Navigate to chat page
-      router.push(
-        `/chat/${chatRoomId}?target=${targetName}&type=${targetType}`
-      );
+      // Navigate to appropriate chat page based on target type
+      if (targetType === 'SHOP') {
+        router.push(`/shops/${targetId}/chat`);
+      } else {
+        // For other types, use the general chat route (if it exists)
+        router.push(
+          `/chat/${chatRoomId}?target=${targetName}&type=${targetType}`
+        );
+      }
 
       toast.success(t('social.chatStarted'));
     } catch (error) {
