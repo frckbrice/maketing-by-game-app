@@ -1,8 +1,13 @@
 import { getApp, getApps, initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import {
+  browserLocalPersistence,
+  getAuth,
+  setPersistence,
+} from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
 import { getFirestore } from 'firebase/firestore';
 // import { getAnalytics, isSupported } from 'firebase/analytics';
+// import { getMessaging, isSupported } from 'firebase/messaging';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -35,6 +40,18 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const database = getDatabase(app);
 export const storage = getStorage(app);
+
+// Firebase Cloud Messaging - Disabled for now to avoid runtime errors
+// Will be re-enabled when proper service worker setup is complete
+export const getMessagingInstance = async () => {
+  console.warn('Firebase Messaging is temporarily disabled');
+  return null;
+};
+
+// Configure auth persistence to LOCAL (persists across browser sessions)
+setPersistence(auth, browserLocalPersistence).catch(error => {
+  console.error('Error setting auth persistence:', error);
+});
 
 // Temporarily disable Analytics to prevent API key errors
 // export const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);

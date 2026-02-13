@@ -13,13 +13,13 @@ const HomePageComponent = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isDark, setIsDark] = useState(true); // Default to dark theme for casino look
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false); // TODO: Use for loading states
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (loading || !mounted) {
+  if (!mounted) {
     return (
       <div
         className={`min-h-screen ${isDark ? 'bg-gradient-to-br from-gray-900 via-black to-gray-900' : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'} flex items-center justify-center`}

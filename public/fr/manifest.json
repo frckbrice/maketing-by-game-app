@@ -1,45 +1,53 @@
 {
-  "name": "Lottery Marketing App",
-  "short_name": "Lottery App",
-  "description": "Real-time marketing lottery platform for businesses",
-  "start_url": "/",
+  "name": "Application de marketing de loterie",
+  "short_name": "Loterie",
+  "description": "Plateforme de loterie marketing en temps réel pour les entreprises",
+  "start_url": "/fr/",
   "display": "standalone",
   "background_color": "#1a1a1a",
   "theme_color": "#FF5722",
   "orientation": "portrait-primary",
-  "scope": "/",
-  "lang": "en",
+  "scope": "/fr/",
+  "lang": "fr",
   "categories": ["business", "entertainment", "finance"],
   "icons": [
     {
-      "src": "/icons/lottery_logo.jpeg",
+      "src": "/fr/icons/lottery_logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/fr/icons/lottery_logo-512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "maskable any"
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [
     {
-      "name": "View Games",
-      "short_name": "Games",
-      "description": "Browse available lottery games",
-      "url": "/games",
+      "name": "Voir les jeux",
+      "short_name": "Jeux",
+      "description": "Parcourir les jeux de loterie disponibles",
+      "url": "/fr/games",
       "icons": [
         {
-          "src": "/icons/icon-96x96.png",
-          "sizes": "96x96"
+          "src": "/fr/icons/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
         }
       ]
     },
     {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "Access your personal dashboard",
-      "url": "/dashboard",
+      "name": "Tableau de bord",
+      "short_name": "Tableau de bord",
+      "description": "Accéder à votre tableau de bord",
+      "url": "/fr/dashboard",
       "icons": [
         {
-          "src": "/icons/icon-96x96.png",
-          "sizes": "96x96"
+          "src": "/fr/icons/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
         }
       ]
     }

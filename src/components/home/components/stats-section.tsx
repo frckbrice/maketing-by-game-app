@@ -1,12 +1,10 @@
 // StatsSection.jsx
 import { useTranslation } from 'react-i18next';
 
-// Mock data with product-focused stats
-const mockStats = [
-  { number: '25K+', labelKey: 'home.stats.productsWon' },
-  { number: '$10M+', labelKey: 'home.stats.prizeValue' },
-  { number: '99.8%', labelKey: 'home.stats.deliveryRate' },
-];
+import { HOME_STATS } from '@/lib/constants';
+
+// Use centralized mock data
+const mockStats = HOME_STATS;
 
 export const StatsSection = ({ isDark }: { isDark: boolean }) => {
   const { t } = useTranslation();

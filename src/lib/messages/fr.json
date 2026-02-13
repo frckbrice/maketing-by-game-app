@@ -28,6 +28,7 @@
     "password": "Mot de passe",
     "name": "Nom",
     "phone": "Téléphone",
+    "role": "Rôle",
     "description": "Description",
     "price": "Prix",
     "status": "Statut",
@@ -45,7 +46,67 @@
     "winners": "Gagnants",
     "appName": "BlackFriday",
     "switchToLightTheme": "Passer au thème clair",
-    "switchToDarkTheme": "Passer au thème sombre"
+    "switchToDarkTheme": "Passer au thème sombre",
+    "redirecting": "Redirection...",
+    "goHome": "Aller à l'accueil",
+    "admin": "Administration",
+    "checking": "Vérification..."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "setup": "Configuration des notifications...",
+    "initializing": "Initialisation du système de notifications",
+    "enabled": "Notifications Activées",
+    "enabledDescription": "Vous recevrez des notifications pour les mises à jour importantes",
+    "pushActive": "✅ Notifications push actives",
+    "emailEnabled": "✅ Notifications par email activées",
+    "fcmConfigured": "✅ Token FCM configuré",
+    "setupFailed": "Échec de la Configuration des Notifications",
+    "enableNotifications": "Activer les Notifications",
+    "enableDescription": "Recevez des notifications pour les mises à jour importantes, résultats de jeux, et plus",
+    "pushNotifications": "🔔 Notifications Push : Recevez des mises à jour instantanées dans votre navigateur",
+    "emailNotifications": "📧 Notifications par Email : Recevez des mises à jour détaillées par email",
+    "personalized": "🎯 Personnalisées : Seulement les notifications pertinentes pour vous",
+    "requestingPermission": "Demande d'Autorisation...",
+    "enableNotificationsButton": "Activer les Notifications",
+    "changeLater": "Vous pourrez modifier cela plus tard dans les paramètres de votre navigateur",
+    "tryAgain": "Réessayer"
+  },
+  "emails": {
+    "vendorApproved": {
+      "subject": "🎉 Demande de Vendeur Approuvée !",
+      "title": "🎉 Félicitations !",
+      "subtitle": "Votre demande de vendeur a été approuvée !",
+      "mainTitle": "Demande de Vendeur Approuvée",
+      "description": "Excellente nouvelle ! Votre demande de vendeur pour {companyName} a été approuvée.",
+      "whatsNext": "Et Maintenant ?",
+      "nextSteps": [
+        "Accédez à votre tableau de bord vendeur",
+        "Créez et gérez des jeux de loterie",
+        "Suivez vos gains et analyses",
+        "Gérez votre profil d'entreprise"
+      ],
+      "goToDashboard": "Aller au Tableau de Bord",
+      "supportMessage": "Si vous avez des questions, contactez notre équipe de support.",
+      "footer": "© 2024 Application de Loterie. Tous droits réservés."
+    },
+    "vendorRejected": {
+      "subject": "Mise à Jour de la Demande de Vendeur",
+      "title": "Mise à Jour de la Demande",
+      "subtitle": "Le statut de votre demande de vendeur a été mis à jour",
+      "mainTitle": "Statut de la Demande de Vendeur",
+      "description": "Votre demande de vendeur pour {companyName} n'a pas été approuvée pour le moment.",
+      "rejectionReason": "Raison du Rejet :",
+      "nextSteps": [
+        "Examinez les commentaires fournis",
+        "Traitez les problèmes mentionnés",
+        "Soumettez une nouvelle demande quand vous êtes prêt",
+        "Contactez le support si vous avez besoin de clarifications"
+      ],
+      "submitNewApplication": "Soumettre une Nouvelle Demande",
+      "encouragement": "Nous vous encourageons à faire une nouvelle demande une fois que vous aurez traité les commentaires.",
+      "footer": "© 2024 Application de Loterie. Tous droits réservés."
+    }
   },
   "navigation": {
     "home": "Accueil",
@@ -69,16 +130,18 @@
     },
     "register": {
       "title": "Rejoignez la Loterie",
-      "subtitle": "Créez votre compte et commencez à gagner",
+      "subtitle": "Rejoignez la communauté de loterie aujourd'hui",
       "firstName": "Prénom",
       "lastName": "Nom de famille",
       "email": "Adresse email",
       "password": "Mot de passe",
       "confirmPassword": "Confirmer le mot de passe",
+      "phoneNumber": "Numéro de téléphone",
       "role": "Type de Compte",
-      "roleUser": "Utilisateur",
-      "roleVendor": "Vendeur",
-      "roleDescription": "Choisissez votre type de compte. Les utilisateurs peuvent participer aux jeux, les vendeurs peuvent créer et gérer des jeux.",
+      "selectRole": "Sélectionnez votre type de compte",
+      "userRole": "Joueur - Parcourir et jouer aux jeux",
+      "vendorRole": "Vendeur - Créer et gérer les jeux",
+      "adminRole": "Administrateur - Accès complet au système",
       "terms": "J'accepte les ",
       "termsLink": "Conditions générales",
       "and": " et la ",
@@ -88,7 +151,18 @@
       "signInHere": "Connectez-vous ici",
       "hasAccount": "Vous avez déjà un compte ?",
       "signIn": "Connectez-vous ici",
-      "backToHome": "Retour à l'accueil"
+      "backToHome": "← Retour à l'accueil"
+    },
+    "forgotPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "subtitle": "Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+      "email": "Adresse e-mail",
+      "submit": "Envoyer le lien de réinitialisation",
+      "backToLogin": "← Retour à la connexion",
+      "checkEmail": "Vérifiez votre e-mail",
+      "emailSent": "Nous avons envoyé un lien de réinitialisation du mot de passe à",
+      "emailInstructions": "Cliquez sur le lien dans l'e-mail pour réinitialiser votre mot de passe. Le lien expirera dans 1 heure.",
+      "backToLoginButton": "Retour à la connexion"
     }
   },
   "dashboard": {
@@ -126,6 +200,27 @@
       "active": "Actif",
       "drawing": "Tirage",
       "closed": "Fermé"
+    },
+    "gameCard": {
+      "sponsored": "SPONSORISÉ",
+      "new": "NOUVEAU",
+      "hot": "🔥 CHAUD",
+      "fillingFast": "SE REMPLIT RAPIDEMENT",
+      "ticketPrice": "Prix du Billet",
+      "timeLeft": "Temps Restant",
+      "participants": "Participants",
+      "sponsoredBy": "Sponsorisé par",
+      "expired": "Expiré",
+      "full": "Complet",
+      "playNow": "Jouer Maintenant",
+      "lotteryGame": "Jeu de loterie",
+      "ticketsSold": "de billets vendus",
+      "visitWebsite": "Visiter le site web de {company}",
+      "playGame": "Jouer au jeu de loterie {title}",
+      "viewDetails": "Voir les Détails",
+      "description": "Description",
+      "type": "Type",
+      "category": "Catégorie"
     }
   },
   "LocaleSwitcher": {
@@ -181,6 +276,8 @@
     "required": "Ce champ est obligatoire",
     "invalidEmail": "Veuillez entrer une adresse email valide",
     "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères",
+    "popupBlocked": "Popup bloqué par le navigateur. Veuillez autoriser les popups pour ce site ou réessayer.",
+    "popupBlockedInstructions": "Pour résoudre ce problème : 1) Autorisez les popups pour ce site, 2) Désactivez les bloqueurs de publicités, ou 3) Réessayez de vous connecter.",
     "passwordsDontMatch": "Les mots de passe ne correspondent pas",
     "invalidDate": "Veuillez sélectionner une date valide",
     "invalidPrice": "Veuillez entrer un prix valide",
@@ -211,6 +308,22 @@
       "title": "Gagnez Vos Produits de Rêve",
       "subtitle": "Rejoignez des milliers de gagnants qui ont transformé leur vie avec des jackpots qui changent la vie",
       "cta": "Commencer à Jouer",
+      "badge": "JEUX DE L'ANNÉE 2024, CAMEROUN",
+      "badgeLight": "PLATEFORME DE CONFIANCE",
+      "mainHeading": {
+        "dark": {
+          "line2": "BLACK FRIDAY!",
+          "line3": "UN ENDROIT",
+          "line4": "POUR DES",
+          "line5": "GAGNANTS!"
+        },
+        "light": {
+          "line1": "GAGNEZ GROS AVEC",
+          "line2": "JEUX DE LOTERIE"
+        }
+      },
+      "description": "Transformez vos rêves en réalité avec notre plateforme de loterie innovante. Rejoignez des milliers de gagnants qui ont changé leur vie pour toujours.",
+      "descriptionDark": "Gagnez des prix incroyables incluant les dernières technologies, la mode tendance, les baskets premium et les appareils ménagers. Vos produits de rêve vous attendent !",
       "stats": {
         "players": "Joueurs Actifs",
         "winners": "Total des Gagnants",
@@ -220,6 +333,17 @@
         "prizeValue": "Valeur des Prix",
         "deliveryRate": "Taux de Livraison"
       }
+    },
+    "stats": {
+      "title": "Nos Chiffres de Succès",
+      "subtitle": "Rejoignez des milliers de gagnants qui ont déjà changé leur vie",
+      "totalPlayers": "Total des Joueurs",
+      "totalWinners": "Total des Gagnants",
+      "totalPrizes": "Total des Prix",
+      "totalValue": "Valeur Totale",
+      "productsWon": "Produits Gagnés",
+      "prizeValue": "Valeur des Prix",
+      "deliveryRate": "Taux de Livraison"
     },
     "howItWorks": {
       "title": "Comment Ça Marche",
@@ -251,45 +375,166 @@
         "subtitle": "Choisissez parmi notre incroyable catalogue de produits avec les dernières technologies, la mode premium et les meilleurs appareils ménagers.",
         "cta": "Participer au Concours",
         "bottomCta": "Prêt à changer votre vie ? Rejoignez des milliers de gagnants aujourd'hui !",
-        "startPlaying": "Commencer à Jouer à Tous les Jeux"
-      }
-    },
-    "winners": {
-      "title": "Gagnants Récents",
-      "subtitle": "Célébrez avec nos derniers gagnants de jackpot du monde entier qui ont changé leur vie pour toujours",
-      "jackpotTitle": "GAGNANTS DU JACKPOT",
-      "latestWinners": "Derniers Gagnants",
-      "description": "Rejoignez notre communauté de gagnants qui ont reçu des produits incroyables de marques de premier plan comme Apple, Nike, Samsung et plus encore.",
-      "viewAllWinners": "Voir Tous les Gagnants",
-      "verifiedWinner": "GAGNANT VÉRIFIÉ",
-      "wonIn": "Gagné en"
-    },
-    "footer": {
-      "description": "Transformez vos rêves en réalité avec notre plateforme de loterie innovante. Rejoignez des milliers de gagnants qui ont changé leur vie pour toujours.",
-      "quickLinks": "Liens Rapides",
-      "support": "Support",
-      "legal": "Mentions Légales",
-      "social": "Suivez-nous",
-      "newsletter": "Restez Informé",
-      "newsletterPlaceholder": "Entrez votre email",
-      "newsletterButton": "S'abonner",
-      "copyright": "© 2025 LotteryApp. Tous droits réservés.",
-      "privacyPolicy": "Politique de Confidentialité",
-      "termsOfService": "Conditions d'Utilisation",
-      "contactUs": "Contactez-nous",
-      "helpCenter": "Centre d'Aide"
-    },
-    "cta": {
-      "badge": "REJOIGNEZ LES GAGNANTS",
-      "title": "Prêt à Gagner Vos Produits de Rêve ?",
-      "subtitle": "Rejoignez des milliers de gagnants qui ont reçu des produits incroyables d'Apple, Nike, Samsung et des meilleures marques de mode. Votre tech, mode ou appareil ménager de rêve pourrait être le prochain !",
-      "primaryButton": "Parcourir les Produits et Participer",
-      "secondaryButton": "Voir la Galerie des Gagnants",
-      "trust": {
-        "productsWon": "25,000+ Produits Gagnés",
-        "prizeValue": "10M$+ de Valeur de Prix Livrée",
-        "authenticProducts": "100% Produits Authentiques"
+        "startPlaying": "Commencer à Jouer à Tous les Jeux",
+        "prizes": {
+          "techBundle": {
+            "name": "Pack Tech",
+            "amount": "1 500 €",
+            "products": ["iPhone 15 Pro Max", "MacBook Pro", "AirPods Pro"]
+          },
+          "fashionPack": {
+            "name": "Pack Mode",
+            "amount": "800 €",
+            "products": ["Nike Air Max", "Sac Designer", "Montre Premium"]
+          },
+          "homeSetup": {
+            "name": "Installation Maison",
+            "amount": "1 200 €",
+            "products": ["Réfrigérateur Intelligent", "TV 4K", "Machine à Café"]
+          }
+        }
+      },
+      "winners": {
+        "title": "Gagnants Récents",
+        "subtitle": "Célébrez avec nos derniers gagnants de jackpot du monde entier qui ont changé leur vie pour toujours",
+        "jackpotTitle": "GAGNANTS DU JACKPOT",
+        "jackpotLabel": "JACKPOT",
+        "latestWinners": "Derniers Gagnants",
+        "description": "Rejoignez notre communauté de gagnants qui ont reçu des produits incroyables de marques de premier plan comme Apple, Nike, Samsung et plus encore.",
+        "viewAllWinners": "Voir Tous les Gagnants",
+        "verifiedWinner": "GAGNANT VÉRIFIÉ",
+        "wonIn": "Gagné en",
+        "trustedByPlayers": "Approuvé par des milliers de joueurs",
+        "whyChooseUs": "Pourquoi nous choisir"
+      },
+      "footer": {
+        "description": "Transformez vos rêves en réalité avec notre plateforme de loterie innovante. Rejoignez des milliers de gagnants qui ont changé leur vie pour toujours.",
+        "quickLinks": "Liens Rapides",
+        "support": "Support",
+        "legal": "Mentions Légales",
+        "social": "Suivez-nous",
+        "newsletter": "Restez Informé",
+        "newsletterPlaceholder": "Entrez votre email",
+        "newsletterButton": "S'abonner",
+        "copyright": "© 2025 LotteryApp. Tous droits réservés.",
+        "privacyPolicy": "Politique de Confidentialité",
+        "termsOfService": "Conditions d'Utilisation",
+        "contactUs": "Contactez-nous",
+        "helpCenter": "Centre d'Aide"
+      },
+      "cta": {
+        "badge": "REJOIGNEZ LES GAGNANTS",
+        "title": "Prêt à Gagner Vos Produits de Rêve ?",
+        "subtitle": "Rejoignez des milliers de gagnants qui ont reçu des produits incroyables d'Apple, Nike, Samsung et des meilleures marques de mode. Votre tech, mode ou appareil ménager de rêve pourrait être le prochain !",
+        "primaryButton": "Parcourir les Produits et Participer",
+        "secondaryButton": "Voir la Galerie des Gagnants",
+        "trust": {
+          "productsWon": "25,000+ Produits Gagnés",
+          "prizeValue": "10M$+ de Valeur de Prix Livrée",
+          "authenticProducts": "100% Produits Authentiques"
+        }
       }
     }
+  },
+
+  "winners": {
+    "title": "🏆 Nos Gagnants",
+    "subtitle": "Célébrons les joueurs chanceux qui ont transformé leurs billets en prix incroyables",
+    "totalWinners": "Total des Gagnants",
+    "totalPrizes": "Total des Prix",
+    "gamesWon": "Jeux Gagnés",
+    "cities": "Villes",
+    "periods": {
+      "allTime": "Tout le Temps",
+      "thisMonth": "Ce Mois",
+      "thisWeek": "Cette Semaine",
+      "today": "Aujourd'hui"
+    },
+    "winner": "GAGNANT",
+    "game": "Jeu",
+    "category": "Catégorie",
+    "ticket": "Billet",
+    "won": "Gagné",
+    "viewDetails": "Voir les Détails",
+    "noWinnersFound": "Aucun gagnant trouvé pour cette période",
+    "checkBackLater": "Revenez plus tard pour de nouveaux gagnants !",
+    "productDetails": "Détails du Produit",
+    "winnerInfo": "Informations du Gagnant",
+    "gameDetails": "Détails du Jeu",
+    "sponsorInfo": "Sponsorisé par",
+    "close": "Fermer",
+    "learnMore": "En Savoir Plus",
+    "visitWebsite": "Visiter le Site Web"
+  },
+  "featureCard": {
+    "learnMore": "En Savoir Plus",
+    "getStarted": "Commencer",
+    "explore": "Explorer"
+  },
+  "profile": {
+    "title": "Mon Profil",
+    "welcome": "Bon retour",
+    "personalInfo": "Informations Personnelles",
+    "accountStats": "Statistiques du Compte",
+    "gameHistory": "Historique des Jeux",
+    "ticketHistory": "Historique des Billets",
+    "editProfile": "Modifier le Profil",
+    "changePassword": "Changer le Mot de Passe",
+    "logout": "Se Déconnecter",
+    "backToHome": "Retour à l'Accueil",
+    "totalTickets": "Total des Billets",
+    "activeGames": "Jeux Actifs",
+    "totalWinnings": "Total des Gains",
+    "memberSince": "Membre Depuis",
+    "lastLogin": "Dernière Connexion",
+    "email": "Email",
+    "phone": "Téléphone",
+    "address": "Adresse",
+    "city": "Ville",
+    "country": "Pays",
+    "saveChanges": "Sauvegarder",
+    "cancel": "Annuler",
+    "loading": "Chargement...",
+    "noTickets": "Aucun billet trouvé",
+    "noGames": "Aucun jeu trouvé",
+    "viewDetails": "Voir les Détails",
+    "gameName": "Nom du Jeu",
+    "ticketNumber": "Numéro de Billet",
+    "purchaseDate": "Date d'Achat",
+    "status": "Statut",
+    "prize": "Prix",
+    "active": "Actif",
+    "expired": "Expiré",
+    "won": "Gagné",
+    "pending": "En Attente",
+    "totalSpent": "Total Dépensé",
+    "gamesPlayed": "Jeux Joués",
+    "gameHistoryDescription": "Suivez votre participation aux jeux de loterie et vos résultats",
+    "game": "Jeu",
+    "price": "Prix",
+    "result": "Résultat",
+    "unknownGame": "Jeu Inconnu",
+    "winner": "Gagnant",
+    "notWinner": "Pas Gagnant",
+    "showing": "Affichage",
+    "of": "sur",
+    "accessDenied": "Accès Refusé",
+    "pleaseLogin": "Veuillez vous connecter pour accéder à votre profil"
+  },
+
+  "vendor": {
+    "becomeAVendor": "Devenir Vendeur",
+    "applicationPending": "EN ATTENTE",
+    "applicationUnderReview": "Votre candidature est en cours d'examen",
+    "accessVendorDashboard": "Accéder au Tableau de Bord Vendeur",
+    "reapplyAsVendor": "Candidater à nouveau comme Vendeur",
+    "dashboard": "Tableau de Bord Vendeur",
+    "welcomeMessage": "Bienvenue sur votre tableau de bord vendeur",
+    "myGames": "Mes Jeux",
+    "createGame": "Créer un Jeu",
+    "applications": "Candidatures",
+    "analytics": "Analyses",
+    "earnings": "Revenus",
+    "profile": "Profil Vendeur"
   }
 }

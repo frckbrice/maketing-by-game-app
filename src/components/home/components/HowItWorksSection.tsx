@@ -1,12 +1,24 @@
-// HowItWorksSection.jsx
-import { Button } from '@/components/globals/Button';
+'use client';
+
+import { Button } from '@/components/ui/Button';
 import { DollarSign, Target, Trophy, Zap } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
 
+type Prize = {
+  name: string;
+  value: number;
+  currency: string;
+  image: string;
+  products: string[];
+};
+
 export const HowItWorksSection = ({ isDark }: { isDark: boolean }) => {
   const { t } = useTranslation();
+  const { i18n } = useTranslation();
+  const locale = (i18n.resolvedLanguage ?? i18n.language ?? 'en').split('-')[0];
 
+  // …rest of component
   const steps = [
     {
       icon: Target,
@@ -33,25 +45,33 @@ export const HowItWorksSection = ({ isDark }: { isDark: boolean }) => {
       color: 'from-purple-500 to-pink-500',
     },
   ];
-
-  const prizes = [
+  const prizes: Prize[] = [
     {
-      name: 'Tech Bundle',
-      amount: 'iPhone 15 Pro Max + MacBook Pro',
+      name: t('home.howItWorks.products.prizes.techBundle.name'),
+      value: 1500,
+      currency: 'USD',
       image: 'iphone15promax.webp',
-      products: ['iPhone 15 Pro Max', 'MacBook Pro 16"', 'Apple Watch'],
+      products: t('home.howItWorks.products.prizes.techBundle.products', {
+        returnObjects: true,
+      }) as string[],
     },
     {
-      name: 'Fashion Pack',
-      amount: 'Nike Air Jordan + Designer Clothes',
+      name: t('home.howItWorks.products.prizes.fashionPack.name'),
+      value: 800,
+      currency: 'USD',
       image: 'nikeAirMax.webp',
-      products: ['Nike Air Jordan', 'Designer Jeans', 'Luxury Hoodie'],
+      products: t('home.howItWorks.products.prizes.fashionPack.products', {
+        returnObjects: true,
+      }) as string[],
     },
     {
-      name: 'Home Setup',
-      amount: 'Smart Appliances Bundle',
+      name: t('home.howItWorks.products.prizes.homeSetup.name'),
+      value: 1200,
+      currency: 'USD',
       image: 'refrigerator.jpeg',
-      products: ['Smart Refrigerator', 'Robot Vacuum', 'Air Fryer'],
+      products: t('home.howItWorks.products.prizes.homeSetup.products', {
+        returnObjects: true,
+      }) as string[],
     },
   ];
 
@@ -116,7 +136,7 @@ export const HowItWorksSection = ({ isDark }: { isDark: boolean }) => {
               {/* Content */}
               <div className='space-y-3'>
                 <h3
-                  className={`text-xl font-bold ${isDark ? 'text-white group-hover:text-orange-300' : 'text-white group-hover:text-orange-300'} transition-colors duration-300`}
+                  className={`text-xl font-bold transition-colors duration-300 ${isDark ? 'text-white group-hover:text-orange-300' : 'text-gray-900 group-hover:text-orange-600'}`}
                 >
                   {step.title}
                 </h3>
@@ -181,11 +201,12 @@ export const HowItWorksSection = ({ isDark }: { isDark: boolean }) => {
                 {/* Prize Icon */}
                 <div className='text-6xl mb-6 group-hover:scale-110 transition-transform duration-300'>
                   <Image
-                    src={`/en/images/${prize.image}`}
+                    src={`/${locale}/images/${prize.image}`}
                     alt={prize.name}
                     width={100}
                     height={100}
                     className='rounded-2xl w-full h-full object-cover'
+                    sizes='(min-width: 1024px) 200px, 33vw'
                   />
                 </div>
 
@@ -200,7 +221,7 @@ export const HowItWorksSection = ({ isDark }: { isDark: boolean }) => {
                   {prize.name}
                 </h4>
                 <div className='text-lg font-bold text-orange-500 mb-4 group-hover:text-orange-400 transition-colors duration-300'>
-                  {prize.amount}
+                  ${prize.value.toLocaleString()}
                 </div>
 
                 {/* Product List */}

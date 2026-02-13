@@ -1,15 +1,15 @@
-# 🚀 Lottery App Setup Guide
+# Lottery App Setup Guide
 
 This guide will help you set up the Lottery Marketing Application on your local machine.
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Node.js 18+ installed
 - Yarn package manager
 - Firebase account
 - Git
 
-## 🔧 Step-by-Step Setup
+## Step-by-Step Setup
 
 ### 1. Clone the Repository
 
@@ -162,7 +162,7 @@ yarn start
 yarn pwa
 ```
 
-## 🧪 Testing the Setup
+## Testing the Setup
 
 ### 1. Check Homepage
 
@@ -189,7 +189,7 @@ yarn pwa
 - Verify authentication works
 - Check if data can be read/written
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -224,7 +224,7 @@ yarn pwa
 3. Check the README.md for additional information
 4. Open an issue on GitHub with detailed error description
 
-## 🚀 Next Steps
+## Next Steps
 
 After successful setup:
 
@@ -234,7 +234,7 @@ After successful setup:
 4. **Customize Design**: Modify colors and branding
 5. **Deploy**: Deploy to Vercel or your preferred platform
 
-## 📱 PWA Testing
+## PWA Testing
 
 ### Desktop Testing
 
@@ -259,3 +259,8 @@ After successful setup:
 **Happy Coding! 🎉**
 
 If you encounter any issues, please refer to the troubleshooting section or open an issue on GitHub.
+
+**Last Updated:** 2025-08-27
+**Author:** Avom Brice
+**Version:** 1.0.0
+**Status:** ✅ Active

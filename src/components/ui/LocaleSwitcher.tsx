@@ -85,7 +85,7 @@ export function LocaleSwitcher() {
                   href={getLocalePath(locale)}
                   className={`flex items-center space-x-3 px-4 py-3 text-sm transition-colors ${
                     isActive
-                      ? 'bg-orange-500 text-white'
+                      ? 'bg-orange-700 text-white dark:bg-orange-600'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-gray-800/80'
                   }`}
                   onClick={() => setIsOpen(false)}

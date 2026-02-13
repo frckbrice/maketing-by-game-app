@@ -95,16 +95,25 @@ export interface PasswordReset {
   confirmPassword: string;
 }
 
+export type UserRole = 'USER' | 'VENDOR' | 'ADMIN';
+
 export interface User {
   id: ID;
   email: string;
   firstName: string;
   lastName: string;
   phoneNumber?: string;
-  role: 'USER' | 'VENDOR' | 'ADMIN' | 'MODERATOR';
+  role: UserRole;
   status: UserStatus;
   emailVerified: boolean;
   phoneVerified: boolean;
+  socialMedia: {
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+    linkedin?: string;
+    youtube?: string;
+  };
   twoFactorEnabled: boolean;
   avatar?: string;
   dateOfBirth?: string;
@@ -157,6 +166,27 @@ export interface BusinessDocument {
   url: string;
   uploadedAt: Timestamp;
   verifiedAt?: Timestamp;
+}
+
+export interface VendorApplication {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  companyName: string;
+  businessRegistrationNumber: string;
+  companyWebsite?: string;
+  contactEmail: string;
+  contactPhone: string;
+  companyLogoUrl?: string;
+  businessCertificateUrl?: string;
+  productCategory: string;
+  description: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  rejectionReason?: string;
+  submittedAt: number;
+  reviewedAt?: number;
+  reviewedBy?: string;
 }
 
 // Lottery Game Types
@@ -214,6 +244,9 @@ export interface LotteryGame {
   currency: string;
   maxParticipants: number;
   currentParticipants: number;
+  totalTickets: number;
+  totalTicketsSold: number;
+  videoUrl?: string;
   totalPrizePool: number;
   prizes: Prize[];
   rules: GameRule[];
@@ -223,9 +256,18 @@ export interface LotteryGame {
   drawDate: Timestamp;
   status: 'DRAFT' | 'ACTIVE' | 'DRAWING' | 'CLOSED';
   isActive: boolean;
-  createdBy: ID;
+  createdBy: ID; // User ID who created the game (admin ID or vendor ID)
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  // Sponsor/Company information - only populated if createdBy is a VENDOR
+  // The sponsor.id will be the same as createdBy when sponsor exists
+  sponsor?: {
+    id: ID; // Same as createdBy when sponsor exists
+    companyName: string;
+    companyWebsite?: string;
+    companyLogo?: string;
+    description?: string;
+  };
 }
 
 // Ticket Types

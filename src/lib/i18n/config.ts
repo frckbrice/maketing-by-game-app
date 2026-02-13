@@ -10,16 +10,18 @@ const resources = {
   fr: { translation: frMessages },
 };
 
-// Initialize i18n
-i18n.use(initReactI18next).init({
-  resources,
-  fallbackLng: 'en',
-  supportedLngs: ['en', 'fr'],
-  debug: process.env.NODE_ENV === 'development',
-  interpolation: { escapeValue: false },
-  react: { useSuspense: false },
-  // Allow reloading in development
-  initImmediate: false,
-});
+// Initialize i18n once (prevents duplicate init under HMR/SSR)
+if (!i18n.isInitialized) {
+  i18n.use(initReactI18next).init({
+    resources,
+    fallbackLng: 'en',
+    supportedLngs: ['en', 'fr'],
+    debug: process.env.NODE_ENV === 'development',
+    interpolation: { escapeValue: false },
+    react: { useSuspense: false },
+    // Initialize sync on server to avoid async race conditions; keep async in browser
+    initImmediate: typeof window !== 'undefined',
+  });
+}
 
 export default i18n;

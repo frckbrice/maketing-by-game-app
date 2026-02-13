@@ -1,6 +1,6 @@
-# 🔧 General Troubleshooting Guide
+# General Troubleshooting Guide
 
-## 📋 Table of Contents
+## Table of Contents
 
 1. [Build Issues](#build-issues)
 2. [ESLint Problems](#eslint-problems)
@@ -9,7 +9,7 @@
 5. [Firebase Issues](#firebase-issues)
 6. [Deployment Problems](#deployment-problems)
 
-## 🚨 Build Issues
+## Build Issues
 
 ### Issue 1: `yarn build` Failing
 
@@ -235,7 +235,7 @@ Please remove the following two lines from .husky/pre-commit
    yarn husky add .husky/pre-push "yarn build"
    ```
 
-## 📝 TypeScript Errors
+## TypeScript Errors
 
 ### Issue 1: Type Mismatches
 
@@ -313,7 +313,7 @@ params must be Promise
    const { locale } = await params;
    ```
 
-## 🔥 Firebase Issues
+## Firebase Issues
 
 ### Issue 1: Authentication Errors
 
@@ -379,7 +379,7 @@ FirebaseError: Missing or insufficient permissions
    }
    ```
 
-## 🚀 Deployment Problems
+## Deployment Problems
 
 ### Issue 1: Vercel Deployment Failing
 
@@ -447,7 +447,7 @@ Workflow step failed
    yarn build
    ```
 
-## 🛠️ General Debugging Tips
+## General Debugging Tips
 
 ### 1. Check Console Logs
 
@@ -493,7 +493,7 @@ chmod +x .husky/pre-commit
 chmod +x .husky/pre-push
 ```
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Next.js Troubleshooting](https://nextjs.org/docs/advanced-features/debugging)
 - [TypeScript Error Reference](https://github.com/Microsoft/TypeScript/wiki/Common-Mistakes)
@@ -502,6 +502,7 @@ chmod +x .husky/pre-push
 
 ---
 
-**Last Updated:** $(date)
+**Last Updated:** 2025-08-27
+**Author:** Avom Brice
 **Version:** 1.0.0
 **Status:** ✅ Active

@@ -1,5 +1,5 @@
 // FinalCTASection.jsx
-import { Button } from '@/components/globals/Button';
+import { Button } from '@/components/ui/Button';
 import { ArrowRight, Shield, TrendingUp, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
